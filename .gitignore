@@ -2,7 +2,10 @@
 .kotlin
 .gradle
 **/build/
-xcuserdata
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
 !src/**/build/
 local.properties
 .idea
