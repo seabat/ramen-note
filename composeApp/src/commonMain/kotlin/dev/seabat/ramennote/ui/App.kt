@@ -1,14 +1,14 @@
 package dev.seabat.ramennote.ui
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import dev.seabat.ramennote.ui.navigation.MainNavigation
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    RamenNoteTheme {
         MainNavigation()
     }
 }
