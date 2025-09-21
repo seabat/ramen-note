@@ -8,7 +8,13 @@ xcuserdata/
 *.xcuserdatad/
 !src/**/build/
 local.properties
-.idea
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/shelf
 .DS_Store
 captures
 .externalNativeBuild
