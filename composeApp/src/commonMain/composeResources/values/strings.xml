@@ -21,6 +21,11 @@
     <string name="screen_future_description">いつか行きたいラーメン店を保存します</string>
     <string name="screen_settings_description">アプリの設定を行います</string>
     
+    <!-- Note Screen -->
+    <string name="note_area_selection">エリアを選択</string>
+    <string name="note_item_count">1件</string>
+    <string name="note_delete">削除</string>
+    
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
 </resources>
