@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -17,32 +16,40 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.note_area_selection
+import ramennote.composeapp.generated.resources.kid_star_24px_empty
+import ramennote.composeapp.generated.resources.kid_star_24px_fill
 import ramennote.composeapp.generated.resources.note_delete
 import ramennote.composeapp.generated.resources.note_item_count
-import ramennote.composeapp.generated.resources.screen_note_title
+import ramennote.composeapp.generated.resources.signpost_24px
 
 @Composable
-fun NoteScreen(
-    onAreaClick: (String) -> Unit = {}
+fun AreaShopListScreen(
+    areaName: String,
+    onBackClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
-        ScreenBar()
-        MainContent(onAreaClick = onAreaClick)
+        AreaShopListBar(
+            areaName = areaName,
+            onBackClick = onBackClick
+        )
+        AreaShopListMainContent(areaName = areaName)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ScreenBar() {
+private fun AreaShopListBar(
+    areaName: String,
+    onBackClick: () -> Unit
+) {
     TopAppBar(
-        // TopAppBar 内部の padding を削除する
         windowInsets = WindowInsets(0, 0, 0, 0),
         title = {
             Box(
@@ -50,7 +57,7 @@ private fun ScreenBar() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(Res.string.screen_note_title),
+                    text = areaName,
                     style = MaterialTheme.typography.titleLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -58,17 +65,16 @@ private fun ScreenBar() {
             }
         },
         navigationIcon = {
-            // 戻るボタンは表示しない
-            IconButton(onClick = { /* 何もしない */ }) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "戻る",
-                    tint = Color.Transparent
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         },
         actions = {
-            // タイトルを中央寄せで表示するために右側に透明なスペーサーを配置
+            // 右側のバランスを取るための透明なスペーサー
             IconButton(onClick = { /* 何もしない */ }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -86,22 +92,18 @@ private fun ScreenBar() {
 }
 
 @Composable
-private fun MainContent(
-    onAreaClick: (String) -> Unit = {}
-) {
+private fun AreaShopListMainContent(areaName: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val areas = listOf(
-            "東京",
-            "神奈川",
-            "徳島",
-            "愛媛",
-            "高知",
-            "福岡",
-            "熊本"
+        val restaurants = listOf(
+            "XXXX家",
+            "YYYY家", 
+            "ZZZZ家",
+            "AAAA家",
+            "BBBB家"
         )
 
         LazyColumn(
@@ -110,19 +112,15 @@ private fun MainContent(
             contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
         ) {
             item {
-                Text(
-                    text = stringResource(Res.string.note_area_selection),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                Divider(
+                    color = Color.Gray.copy(alpha = 0.3f),
+                    thickness = 1.dp
                 )
             }
-
-            items(areas) { area ->
-                AreaItem(
-                    areaName = area,
-                    itemCount = stringResource(Res.string.note_item_count),
-                    onDelete = { /* 削除処理 */ },
-                    onClick = { onAreaClick(area) }
+            items(restaurants) { restaurant ->
+                ShopItem(
+                    restaurantName = restaurant,
+                    onDelete = { /* 削除処理 */ }
                 )
             }
         }
@@ -145,42 +143,46 @@ private fun MainContent(
 }
 
 @Composable
-private fun AreaItem(
-    areaName: String,
-    itemCount: String,
-    onDelete: () -> Unit,
-    onClick: () -> Unit
+private fun ShopItem(
+    restaurantName: String,
+    onDelete: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(8.dp)
-    ) {
+    Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable { /* レストラン詳細のクリック処理 */ }
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = areaName,
-                style = MaterialTheme.typography.headlineSmall
+                text = restaurantName,
+                style = MaterialTheme.typography.titleMedium
             )
             
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = itemCount,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = vectorResource(Res.drawable.kid_star_24px_fill),
+                        contentDescription = "",
+                        tint = Color (0xFFFFEA00)
+                    )
+                    Icon(
+                        imageVector = vectorResource(Res.drawable.kid_star_24px_fill),
+                        contentDescription = "",
+                        tint = Color (0xFFFFEA00)
+                    )
+                    Icon(
+                        imageVector = vectorResource(Res.drawable.kid_star_24px_empty),
+                        contentDescription = "",
+                        tint = Color (0xFFFFFEA00)
+                    )
+                }
+
                 Text(
                     text = stringResource(Res.string.note_delete),
                     style = MaterialTheme.typography.bodyMedium,
@@ -189,15 +191,20 @@ private fun AreaItem(
                 )
             }
         }
+        Divider(
+            color = Color.Gray.copy(alpha = 0.3f),
+            thickness = 1.dp
+        )
     }
 }
 
 @Preview
 @Composable
-fun NoteScreenPreview() {
+fun DetailScreenPreview() {
     RamenNoteTheme {
-        NoteScreen(
-            onAreaClick = { /* プレビュー用 */ }
+        AreaShopListScreen(
+            areaName = "東京",
+            onBackClick = { }
         )
     }
 }
