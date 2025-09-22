@@ -13,7 +13,8 @@
     <string name="screen_note_title">note</string>
     <string name="screen_future_title">いつか</string>
     <string name="screen_settings_title">設定</string>
-    
+    <string name="screen_area_shop_title">エリア</string>
+
     <!-- Screen Descriptions -->
     <string name="screen_home_description">ラーメンノートへようこそ！</string>
     <string name="screen_schedule_description">ラーメン店の予定を管理します</string>

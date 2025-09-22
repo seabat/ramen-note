@@ -19,16 +19,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import dev.seabat.ramennote.ui.screens.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.FutureScreen
 import dev.seabat.ramennote.ui.screens.HomeScreen
 import dev.seabat.ramennote.ui.screens.NoteScreen
 import dev.seabat.ramennote.ui.screens.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.SettingsScreen
+import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.book_5_24px
+import ramennote.composeapp.generated.resources.screen_area_shop_title
 import ramennote.composeapp.generated.resources.screen_future_title
 import ramennote.composeapp.generated.resources.screen_home_title
 import ramennote.composeapp.generated.resources.screen_note_title
@@ -36,34 +41,96 @@ import ramennote.composeapp.generated.resources.screen_schedule_title
 import ramennote.composeapp.generated.resources.screen_settings_title
 import ramennote.composeapp.generated.resources.signpost_24px
 
-sealed class Screen(val route: String) {
-    object Home : Screen("home")
-    object Schedule : Screen("schedule")
-    object Note : Screen("note")
-    object Future : Screen("future")
-    object Settings : Screen("settings")
-    
-    @Composable
-    fun getIcon(): ImageVector {
-        return when (this) {
-            Home -> Icons.Default.Home
-            Schedule -> vectorResource(Res.drawable.event_note_24px)
-            Note -> vectorResource(Res.drawable.book_5_24px)
-            Future -> vectorResource(Res.drawable.signpost_24px)
-            Settings -> Icons.Default.Settings
+sealed interface Screen {
+    companion object {
+        fun getRouteName(kClass: KClass<*>): String {
+            return kClass.qualifiedName ?: kClass.simpleName ?: "Unknown"
+        }
+    }
+    @Serializable
+    data object Home : Screen {
+        override val route: String = Screen.getRouteName(Home::class)
+
+        @Composable
+        override fun getIcon(): ImageVector {
+            return Icons.Default.Home
+        }
+        @Composable
+        override fun getTitle(): String {
+            return  stringResource(Res.string.screen_home_title)
         }
     }
 
-    @Composable
-    fun getTitle(): String {
-        return when (this) {
-            Home -> stringResource(Res.string.screen_home_title)
-            Schedule -> stringResource(Res.string.screen_schedule_title)
-            Note -> stringResource(Res.string.screen_note_title)
-            Future -> stringResource(Res.string.screen_future_title)
-            Settings ->stringResource(Res.string.screen_settings_title)
+    @Serializable
+    data object Schedule : Screen {
+        override val route: String = Screen.getRouteName(Schedule::class)
+        @Composable
+        override fun getIcon(): ImageVector {
+            return vectorResource(Res.drawable.event_note_24px)
+        }
+        @Composable
+        override fun getTitle(): String {
+            return stringResource(Res.string.screen_schedule_title)
         }
     }
+
+    @Serializable
+    data object Note : Screen {
+        override val route: String = Screen.getRouteName(Note::class)
+        @Composable
+        override fun getIcon(): ImageVector {
+            return vectorResource(Res.drawable.book_5_24px)
+        }
+        @Composable
+        override fun getTitle(): String {
+            return stringResource(Res.string.screen_note_title)
+        }
+    }
+
+    @Serializable
+    data object Future : Screen {
+        override val route: String = Screen.getRouteName(Future::class)
+        @Composable
+        override fun getIcon(): ImageVector {
+            return vectorResource(Res.drawable.signpost_24px)
+        }
+        @Composable
+        override fun getTitle(): String {
+            return stringResource(Res.string.screen_future_title)
+        }
+    }
+
+    @Serializable
+    data object Settings : Screen {
+        override val route: String = Screen.getRouteName(Settings::class)
+        @Composable
+        override fun getIcon(): ImageVector {
+            return Icons.Default.Settings
+        }
+        @Composable
+        override fun getTitle(): String {
+            return stringResource(Res.string.screen_settings_title)
+        }
+    }
+
+    @Serializable
+    data class AreaShopList(val areaName: String): Screen {
+        override val route: String = Screen.getRouteName(AreaShopList::class)
+        @Composable
+        override fun getIcon(): ImageVector {
+            return Icons.Default.Star // 表示されないので適切なアイコン
+        }
+        @Composable
+        override fun getTitle(): String {
+            return stringResource(Res.string.screen_area_shop_title)
+        }
+    }
+
+    val route: String
+    @Composable
+    fun getIcon(): ImageVector
+    @Composable
+    fun getTitle(): String
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +138,7 @@ sealed class Screen(val route: String) {
 fun MainNavigation() {
     val navController = rememberNavController()
     
-    val screens = listOf(
+    val tabScreens = listOf(
         Screen.Home,
         Screen.Schedule,
         Screen.Note,
@@ -84,14 +151,16 @@ fun MainNavigation() {
             NavigationBar {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                
-                screens.forEach { screen ->
+
+                tabScreens.forEach { screen ->
                     NavigationBarItem(
                         icon = { Icon(screen.getIcon(), contentDescription = screen.getTitle()) },
                         label = { Text(screen.getTitle()) },
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        selected = currentDestination?.hierarchy?.any {
+                            it.route == screen.route
+                        } == true,
                         onClick = {
-                            navController.navigate(screen.route) {
+                            navController.navigate(screen) {
                                 // Pop up to the start destination of the graph to
                                 // avoid building up a large stack of destinations
                                 // on the back stack as users select items
@@ -112,22 +181,35 @@ fun MainNavigation() {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Home.route,
+            startDestination = Screen.Home,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(Screen.Home.route) {
+            composable<Screen.Home> {
                 HomeScreen()
             }
-            composable(Screen.Schedule.route) {
+            composable<Screen.Schedule> {
                 ScheduleScreen()
             }
-            composable(Screen.Note.route) {
-                NoteScreen()
+            composable<Screen.Note> {
+                NoteScreen(
+                    onAreaClick = { areaName ->
+                        navController.navigate(Screen.AreaShopList(areaName))
+                    }
+                )
             }
-            composable(Screen.Future.route) {
+            composable<Screen.AreaShopList> { backStackEntry ->
+                val screen: Screen.AreaShopList = backStackEntry.toRoute()
+                AreaShopListScreen(
+                    areaName = screen.areaName,
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable<Screen.Future> {
                 FutureScreen()
             }
-            composable(Screen.Settings.route) {
+            composable<Screen.Settings> {
                 SettingsScreen()
             }
         }
