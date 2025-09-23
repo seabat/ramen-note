@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.viewmodel.NoteViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
@@ -94,15 +95,9 @@ private fun MainContent(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val areas = listOf(
-            "東京",
-            "神奈川",
-            "徳島",
-            "愛媛",
-            "高知",
-            "福岡",
-            "熊本"
-        )
+        val viewModel = remember { NoteViewModel() }
+        LaunchedEffect(Unit) { viewModel.fetchAreas() }
+        val areas by viewModel.areas.collectAsState()
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -119,10 +114,10 @@ private fun MainContent(
 
             items(areas) { area ->
                 AreaItem(
-                    areaName = area,
+                    areaName = area.name,
                     itemCount = stringResource(Res.string.note_item_count),
                     onDelete = { /* 削除処理 */ },
-                    onClick = { onAreaClick(area) }
+                    onClick = { onAreaClick(area.name) }
                 )
             }
         }
