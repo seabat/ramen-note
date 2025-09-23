@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens
+package dev.seabat.ramennote.ui.screens.withbottom
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,11 +9,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.screen_settings_description
-import ramennote.composeapp.generated.resources.screen_settings_title
+import ramennote.composeapp.generated.resources.screen_future_description
+import ramennote.composeapp.generated.resources.screen_future_title
 
 @Composable
-fun SettingsScreen() {
+fun FutureScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -22,13 +22,13 @@ fun SettingsScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(Res.string.screen_settings_title),
+            text = stringResource(Res.string.screen_future_title),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = stringResource(Res.string.screen_settings_description),
+            text = stringResource(Res.string.screen_future_description),
             style = MaterialTheme.typography.bodyLarge
         )
     }

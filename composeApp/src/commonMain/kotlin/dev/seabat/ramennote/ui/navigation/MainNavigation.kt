@@ -24,11 +24,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.ui.screens.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.AreaShopListScreen
-import dev.seabat.ramennote.ui.screens.FutureScreen
-import dev.seabat.ramennote.ui.screens.HomeScreen
-import dev.seabat.ramennote.ui.screens.NoteScreen
-import dev.seabat.ramennote.ui.screens.ScheduleScreen
-import dev.seabat.ramennote.ui.screens.SettingsScreen
+import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
+import dev.seabat.ramennote.ui.screens.withbottom.HomeScreen
+import dev.seabat.ramennote.ui.screens.withbottom.NoteScreen
+import dev.seabat.ramennote.ui.screens.withbottom.ScheduleScreen
+import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 import org.jetbrains.compose.resources.stringResource

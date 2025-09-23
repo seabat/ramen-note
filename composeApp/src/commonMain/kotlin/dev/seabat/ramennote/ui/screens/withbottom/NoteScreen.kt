@@ -1,21 +1,19 @@
-package dev.seabat.ramennote.ui.screens
+package dev.seabat.ramennote.ui.screens.withbottom
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.viewmodel.NoteViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -44,48 +42,7 @@ fun NoteScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScreenBar() {
-    TopAppBar(
-        // TopAppBar 内部の padding を削除する
-        windowInsets = WindowInsets(0, 0, 0, 0),
-        title = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(Res.string.screen_note_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        },
-        navigationIcon = {
-            // 戻るボタンは表示しない
-            IconButton(onClick = { /* 何もしない */ }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "戻る",
-                    tint = Color.Transparent
-                )
-            }
-        },
-        actions = {
-            // タイトルを中央寄せで表示するために右側に透明なスペーサーを配置
-            IconButton(onClick = { /* 何もしない */ }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "",
-                    tint = Color.Transparent
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-            navigationIconContentColor = MaterialTheme.colorScheme.background
-        )
-    )
+    AppBar(title = stringResource(Res.string.screen_note_title),)
 }
 
 @Composable
