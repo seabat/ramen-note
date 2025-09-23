@@ -22,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import dev.seabat.ramennote.ui.screens.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.FutureScreen
 import dev.seabat.ramennote.ui.screens.HomeScreen
@@ -128,6 +129,15 @@ sealed interface Screen {
         }
     }
 
+    @Serializable
+    data object AddArea : Screen {
+        override val route: String = Screen.getRouteName(AddArea::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Add }
+        @Composable
+        override fun getTitle(): String { return "登録" }
+    }
+
     val route: String
     @Composable
     fun getIcon(): ImageVector
@@ -212,10 +222,16 @@ private fun WithBottomNavigation(
                 NoteScreen(
                     onAreaClick = { areaName ->
                         navController.navigate(Screen.AreaShopList(areaName))
+                    },
+                    onAddAreaClick = {
+                        navController.navigate(Screen.AddArea)
                     }
                 )
             }
             composable<Screen.AreaShopList> {
+                /* Do nothing */
+            }
+            composable<Screen.AddArea> {
                 /* Do nothing */
             }
             composable<Screen.Future> {
@@ -252,6 +268,12 @@ private fun WithoutBottomNavigation(navController: NavHostController) {
                     onBackClick = {
                         navController.popBackStack()
                     }
+                )
+            }
+            composable<Screen.AddArea> {
+                AddAreaScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() }
                 )
             }
             composable<Screen.Future> {

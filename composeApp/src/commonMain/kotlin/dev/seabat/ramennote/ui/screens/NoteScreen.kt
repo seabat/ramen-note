@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,7 +28,8 @@ import ramennote.composeapp.generated.resources.screen_note_title
 
 @Composable
 fun NoteScreen(
-    onAreaClick: (String) -> Unit = {}
+    onAreaClick: (String) -> Unit = {},
+    onAddAreaClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -35,7 +37,7 @@ fun NoteScreen(
         verticalArrangement = Arrangement.Top
     ) {
         ScreenBar()
-        MainContent(onAreaClick = onAreaClick)
+        MainContent(onAreaClick = onAreaClick, onAddAreaClick = onAddAreaClick)
     }
 }
 
@@ -88,7 +90,8 @@ private fun ScreenBar() {
 
 @Composable
 private fun MainContent(
-    onAreaClick: (String) -> Unit = {}
+    onAreaClick: (String) -> Unit = {},
+    onAddAreaClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -124,12 +127,12 @@ private fun MainContent(
         
         // 右下の追加ボタン
         FloatingActionButton(
-            onClick = { /* 追加処理 */ },
+            onClick = { onAddAreaClick() },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor = Color(0xFFD32F2F), // 赤色
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -152,7 +155,10 @@ private fun AreaItem(
             .height(150.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors().copy(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
         Row(
             modifier = Modifier

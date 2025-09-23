@@ -10,6 +10,7 @@ import dev.seabat.ramennote.domain.model.Area
 import kotlinx.coroutines.launch
 
 class NoteViewModel(): ViewModel() {
+
     // TODO: DI 導入時にプライマリコンストラクタに移動
     private val areasRepository: AreasRepository = AreasRepository()
 
