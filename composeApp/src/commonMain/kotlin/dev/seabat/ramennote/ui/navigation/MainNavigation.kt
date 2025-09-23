@@ -13,8 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -146,19 +148,35 @@ fun MainNavigation() {
         Screen.Settings
     )
     
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val withBottomNavigation = currentDestination?.hierarchy?.any { destination ->
+        destination.route?.let { route ->
+            tabScreens.any { screen -> route.contains(screen.route) }
+        } == true // null と比較する場合もあるので == true を使用する
+    } == true // null と比較する場合もあるので == true を使用する
+
+    if (withBottomNavigation) {
+        WithBottomNavigation(tabScreens, currentDestination, navController)
+    } else {
+        WithoutBottomNavigation(navController)
+    }
+}
+
+@Composable
+private fun WithBottomNavigation(
+    tabScreens: List<Screen>,
+    currentDestination: NavDestination?,
+    navController: NavHostController
+) {
     Scaffold(
         bottomBar = {
             NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-
                 tabScreens.forEach { screen ->
                     NavigationBarItem(
                         icon = { Icon(screen.getIcon(), contentDescription = screen.getTitle()) },
                         label = { Text(screen.getTitle()) },
-                        selected = currentDestination?.hierarchy?.any {
-                            it.route == screen.route
-                        } == true,
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             navController.navigate(screen) {
                                 // Pop up to the start destination of the graph to
@@ -197,6 +215,36 @@ fun MainNavigation() {
                     }
                 )
             }
+            composable<Screen.AreaShopList> {
+                /* Do nothing */
+            }
+            composable<Screen.Future> {
+                FutureScreen()
+            }
+            composable<Screen.Settings> {
+                SettingsScreen()
+            }
+        }
+    }
+}
+
+@Composable
+private fun WithoutBottomNavigation(navController: NavHostController) {
+    Scaffold() { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            composable<Screen.Home> {
+                /* Do nothing */
+            }
+            composable<Screen.Schedule> {
+                /* Do nothing */
+            }
+            composable<Screen.Note> {
+                /* Do nothing */
+            }
             composable<Screen.AreaShopList> { backStackEntry ->
                 val screen: Screen.AreaShopList = backStackEntry.toRoute()
                 AreaShopListScreen(
@@ -207,10 +255,10 @@ fun MainNavigation() {
                 )
             }
             composable<Screen.Future> {
-                FutureScreen()
+                /* Do nothing */
             }
             composable<Screen.Settings> {
-                SettingsScreen()
+                /* Do nothing */
             }
         }
     }
