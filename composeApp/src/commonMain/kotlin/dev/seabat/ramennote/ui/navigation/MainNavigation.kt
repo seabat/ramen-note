@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.ui.screens.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.AreaShopListScreen
+import dev.seabat.ramennote.ui.screens.EditAreaScreen
 import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
 import dev.seabat.ramennote.ui.screens.withbottom.HomeScreen
 import dev.seabat.ramennote.ui.screens.withbottom.NoteScreen
@@ -130,6 +131,15 @@ sealed interface Screen {
     }
 
     @Serializable
+    data class EditArea(val areaName: String): Screen {
+        override val route: String = Screen.getRouteName(EditArea::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Edit }
+        @Composable
+        override fun getTitle(): String { return "編集" }
+    }
+
+    @Serializable
     data object AddArea : Screen {
         override val route: String = Screen.getRouteName(AddArea::class)
         @Composable
@@ -225,8 +235,17 @@ private fun WithBottomNavigation(
                     },
                     onAddAreaClick = {
                         navController.navigate(Screen.AddArea)
+                    },
+                    onAreaLongClick = { areaName ->
+                        navController.navigate(Screen.EditArea(areaName))
                     }
                 )
+            }
+            composable<Screen.Future> {
+                FutureScreen()
+            }
+            composable<Screen.Settings> {
+                SettingsScreen()
             }
             composable<Screen.AreaShopList> {
                 /* Do nothing */
@@ -234,11 +253,8 @@ private fun WithBottomNavigation(
             composable<Screen.AddArea> {
                 /* Do nothing */
             }
-            composable<Screen.Future> {
-                FutureScreen()
-            }
-            composable<Screen.Settings> {
-                SettingsScreen()
+            composable<Screen.EditArea> {
+                /* Do nothing */
             }
         }
     }
@@ -261,6 +277,12 @@ private fun WithoutBottomNavigation(navController: NavHostController) {
             composable<Screen.Note> {
                 /* Do nothing */
             }
+            composable<Screen.Future> {
+                /* Do nothing */
+            }
+            composable<Screen.Settings> {
+                /* Do nothing */
+            }
             composable<Screen.AreaShopList> { backStackEntry ->
                 val screen: Screen.AreaShopList = backStackEntry.toRoute()
                 AreaShopListScreen(
@@ -276,11 +298,13 @@ private fun WithoutBottomNavigation(navController: NavHostController) {
                     onCompleted = { navController.popBackStack() }
                 )
             }
-            composable<Screen.Future> {
-                /* Do nothing */
-            }
-            composable<Screen.Settings> {
-                /* Do nothing */
+            composable<Screen.EditArea> { backStackEntry ->
+                val screen: Screen.EditArea = backStackEntry.toRoute()
+                EditAreaScreen(
+                    area = screen.areaName,
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() }
+                )
             }
         }
     }

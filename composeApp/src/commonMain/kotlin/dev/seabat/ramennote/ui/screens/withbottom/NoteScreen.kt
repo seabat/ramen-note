@@ -3,7 +3,7 @@ package dev.seabat.ramennote.ui.screens.withbottom
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -20,14 +20,14 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.note_area_selection
-import ramennote.composeapp.generated.resources.note_delete
 import ramennote.composeapp.generated.resources.note_item_count
 import ramennote.composeapp.generated.resources.screen_note_title
 
 @Composable
 fun NoteScreen(
     onAreaClick: (String) -> Unit = {},
-    onAddAreaClick: () -> Unit = {}
+    onAddAreaClick: () -> Unit = {},
+    onAreaLongClick: (String) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -35,7 +35,11 @@ fun NoteScreen(
         verticalArrangement = Arrangement.Top
     ) {
         ScreenBar()
-        MainContent(onAreaClick = onAreaClick, onAddAreaClick = onAddAreaClick)
+        MainContent(
+            onAreaClick = onAreaClick,
+            onAddAreaClick = onAddAreaClick,
+            onAreaLongClick = onAreaLongClick
+        )
     }
 }
 
@@ -48,7 +52,8 @@ private fun ScreenBar() {
 @Composable
 private fun MainContent(
     onAreaClick: (String) -> Unit = {},
-    onAddAreaClick: () -> Unit = {}
+    onAddAreaClick: () -> Unit = {},
+    onAreaLongClick: (String) -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -76,8 +81,8 @@ private fun MainContent(
                 AreaItem(
                     areaName = area.name,
                     itemCount = stringResource(Res.string.note_item_count),
-                    onDelete = { /* 削除処理 */ },
-                    onClick = { onAreaClick(area.name) }
+                    onClick = { onAreaClick(area.name) },
+                    onLongClick = { onAreaLongClick(area.name) }
                 )
             }
         }
@@ -103,14 +108,14 @@ private fun MainContent(
 private fun AreaItem(
     areaName: String,
     itemCount: String,
-    onDelete: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(150.dp)
-            .clickable { onClick() },
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors().copy(
@@ -137,13 +142,6 @@ private fun AreaItem(
                     text = itemCount,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
-                )
-                
-                Text(
-                    text = stringResource(Res.string.note_delete),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Blue,
-                    modifier = Modifier.clickable { onDelete() }
                 )
             }
         }

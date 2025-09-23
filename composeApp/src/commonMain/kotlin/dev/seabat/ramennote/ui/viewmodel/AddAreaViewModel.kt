@@ -14,12 +14,12 @@ class AddAreaViewModel: ViewModel() {
     // TODO: DI 導入時にプライマリコンストラクタに移動
     private val areasRepository: AreasRepository = AreasRepository()
 
-    fun addArea(name: String) {
+    fun addArea(area: String) {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         viewModelScope.launch {
             areasRepository.add(
                 Area(
-                    name = name.trim(),
+                    name = area.trim(),
                     updatedDate = today,
                     count = 0
                 )
