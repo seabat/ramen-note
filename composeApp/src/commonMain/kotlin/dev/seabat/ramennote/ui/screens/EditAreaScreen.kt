@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppBar
@@ -31,6 +32,7 @@ import dev.seabat.ramennote.ui.component.AppProgressBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +41,7 @@ fun EditAreaScreen(
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
 ) {
-    val viewModel = remember { EditAreaViewModel() }
+    val viewModel = koinViewModel<EditAreaViewModel>()
 
     LaunchedEffect(Unit) {
         viewModel.currentAreas = area

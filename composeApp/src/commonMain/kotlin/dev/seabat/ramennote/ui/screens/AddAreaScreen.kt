@@ -24,7 +24,9 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.viewmodel.AddAreaViewModel
+import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +34,7 @@ fun AddAreaScreen(
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
 ) {
-    val viewModel = remember { AddAreaViewModel() }
+    val viewModel = koinViewModel<AddAreaViewModel>()
     var areaName by remember { mutableStateOf("") }
 
     Scaffold(

@@ -5,14 +5,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import dev.seabat.ramennote.data.repository.AreasRepository
+import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.Area
 import kotlinx.coroutines.launch
 
-class NoteViewModel(): ViewModel() {
-
-    // TODO: DI 導入時にプライマリコンストラクタに移動
-    private val areasRepository: AreasRepository = AreasRepository()
+class NoteViewModel(
+    private val areasRepository: AreasRepositoryContract
+): ViewModel() {
 
     private val _areas: MutableStateFlow<List<Area>> = MutableStateFlow(emptyList())
     val areas: StateFlow<List<Area>> = _areas.asStateFlow()
