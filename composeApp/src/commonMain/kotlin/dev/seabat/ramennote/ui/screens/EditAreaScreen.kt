@@ -37,6 +37,8 @@ import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppProgressBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModel
+import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModelContract
+import dev.seabat.ramennote.ui.viewmodel.mock.MockEditAreaViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -46,8 +48,8 @@ fun EditAreaScreen(
     area: String,
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
+    viewModel: EditAreaViewModelContract = koinViewModel<EditAreaViewModel>()
 ) {
-    val viewModel = koinViewModel<EditAreaViewModel>()
 
     LaunchedEffect(Unit) {
         viewModel.currentAreas = area
@@ -206,7 +208,8 @@ fun EditAreaScreen() {
         EditAreaScreen(
             area = "エリア名",
             onBackClick = {},
-            onCompleted = {}
+            onCompleted = {},
+            viewModel = MockEditAreaViewModel()
         )
     }
 }

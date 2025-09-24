@@ -30,7 +30,8 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.viewmodel.AddAreaViewModel
-import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModel
+import dev.seabat.ramennote.ui.viewmodel.AddAreaViewModelContract
+import dev.seabat.ramennote.ui.viewmodel.mock.MockAddAreaViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -39,8 +40,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AddAreaScreen(
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
+    viewModel: AddAreaViewModelContract = koinViewModel<AddAreaViewModel>()
 ) {
-    val viewModel = koinViewModel<AddAreaViewModel>()
     var areaName by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
@@ -104,7 +105,8 @@ fun AddAreaScreenView() {
     RamenNoteTheme {
         AddAreaScreen(
             onBackClick = {},
-            onCompleted = {}
+            onCompleted = {},
+            viewModel = MockAddAreaViewModel()
         )
     }
 }
