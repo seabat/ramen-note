@@ -1,5 +1,7 @@
 package dev.seabat.ramennote.data.repository
 
+import androidx.room.immediateTransaction
+import androidx.room.useWriterConnection
 import dev.seabat.ramennote.data.database.RamenNoteDatabase
 import dev.seabat.ramennote.data.database.dao.AreaDao
 import dev.seabat.ramennote.data.database.entity.AreaEntity
@@ -39,8 +41,14 @@ class AreasRepository(
     override suspend fun edit(oldName: String, newName: String): RunStatus<String> {
         val existingEntity = areaDao.getAreaByName(oldName)
         if (existingEntity != null) {
-            val updatedEntity = existingEntity.copy(name = newName)
-            areaDao.updateArea(updatedEntity)
+            // 主キー（name）を変更する場合は、トランザクション内で削除と挿入を実行
+            database.useWriterConnection { transactor ->
+                transactor.immediateTransaction {
+                    val updatedEntity = existingEntity.copy(name = newName)
+                    areaDao.deleteArea(existingEntity)
+                    areaDao.insertArea(updatedEntity)
+                }
+            }
             return RunStatus.Success(data = "")
         }
         return RunStatus.Error(errorMessage = "${oldName}は登録されていません。編集に失敗しました")
