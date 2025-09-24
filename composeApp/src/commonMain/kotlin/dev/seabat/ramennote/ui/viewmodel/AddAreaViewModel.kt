@@ -9,9 +9,9 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-class AddAreaViewModel(private val areasRepository: AreasRepositoryContract): ViewModel() {
+class AddAreaViewModel(private val areasRepository: AreasRepositoryContract): ViewModel(), AddAreaViewModelContract {
 
-    fun addArea(area: String) {
+    override fun addArea(area: String) {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         viewModelScope.launch {
             areasRepository.add(

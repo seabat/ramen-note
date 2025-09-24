@@ -11,12 +11,12 @@ import kotlinx.coroutines.launch
 
 class NoteViewModel(
     private val areasRepository: AreasRepositoryContract
-): ViewModel() {
+): ViewModel(), NoteViewModelContract {
 
     private val _areas: MutableStateFlow<List<Area>> = MutableStateFlow(emptyList())
-    val areas: StateFlow<List<Area>> = _areas.asStateFlow()
+    override val areas: StateFlow<List<Area>> = _areas.asStateFlow()
 
-    fun fetchAreas() {
+    override fun fetchAreas() {
         viewModelScope.launch{
             _areas.value = areasRepository.fetch()
         }

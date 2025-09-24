@@ -1,36 +1,30 @@
-package dev.seabat.ramennote.ui.viewmodel
+package dev.seabat.ramennote.ui.viewmodel.mock
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModelContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
-class EditAreaViewModel(private val areasRepository: AreasRepositoryContract): ViewModel(), EditAreaViewModelContract {
-
+/**
+ * Preview用のモックEditAreaViewModel
+ * 実際のデータベースアクセスを行わず、固定のデータを返す
+ */
+class MockEditAreaViewModel : ViewModel(), EditAreaViewModelContract {
     private val _deleteStatus: MutableStateFlow<RunStatus<String>> = MutableStateFlow(RunStatus.Idle())
     override val deleteStatus: StateFlow<RunStatus<String>> = _deleteStatus.asStateFlow()
 
     private val _editStatus: MutableStateFlow<RunStatus<String>> = MutableStateFlow(RunStatus.Idle())
     override val editStatus: StateFlow<RunStatus<String>> = _editStatus.asStateFlow()
 
-    override var currentAreas = ""
+    override var currentAreas: String = ""
 
     override fun editArea(newArea: String) {
-        viewModelScope.launch {
-            _editStatus.value = RunStatus.Loading()
-            _editStatus.value = areasRepository.edit(currentAreas, newArea)
-            currentAreas = newArea
-        }
+        // Preview用なので何もしない
     }
 
     override fun deleteArea(area: String) {
-        viewModelScope.launch {
-            _deleteStatus.value = RunStatus.Loading()
-            _editStatus.value = areasRepository.delete( area)
-        }
+        // Preview用なので何もしない
     }
 }
