@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens
+package dev.seabat.ramennote.ui.screens.note.editarea
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,15 +30,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppProgressBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModel
-import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModelContract
-import dev.seabat.ramennote.ui.viewmodel.mock.MockEditAreaViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 

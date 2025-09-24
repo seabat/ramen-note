@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens
+package dev.seabat.ramennote.ui.screens.note.shoplist
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
