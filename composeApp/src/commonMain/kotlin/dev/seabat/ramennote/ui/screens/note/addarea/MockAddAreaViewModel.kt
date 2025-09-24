@@ -1,7 +1,6 @@
-package dev.seabat.ramennote.ui.viewmodel.mock
+package dev.seabat.ramennote.ui.screens.note.addarea
 
 import androidx.lifecycle.ViewModel
-import dev.seabat.ramennote.ui.viewmodel.AddAreaViewModelContract
 
 /**
  * Preview用のモックAddAreaViewModel

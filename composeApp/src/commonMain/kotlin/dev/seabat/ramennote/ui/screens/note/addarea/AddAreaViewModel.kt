@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.viewmodel
+package dev.seabat.ramennote.ui.screens.note.addarea
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

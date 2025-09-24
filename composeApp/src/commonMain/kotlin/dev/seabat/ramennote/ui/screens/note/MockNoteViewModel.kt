@@ -1,8 +1,7 @@
-package dev.seabat.ramennote.ui.viewmodel.mock
+package dev.seabat.ramennote.ui.screens.note
 
 import androidx.lifecycle.ViewModel
 import dev.seabat.ramennote.domain.model.Area
-import dev.seabat.ramennote.ui.viewmodel.NoteViewModelContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

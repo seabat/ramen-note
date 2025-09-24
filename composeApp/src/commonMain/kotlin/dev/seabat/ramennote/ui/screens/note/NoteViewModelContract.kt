@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.viewmodel
+package dev.seabat.ramennote.ui.screens.note
 
 import dev.seabat.ramennote.domain.model.Area
 import kotlinx.coroutines.flow.StateFlow

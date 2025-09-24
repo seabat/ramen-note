@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.viewmodel
+package dev.seabat.ramennote.ui.screens.note.editarea
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,12 +9,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class EditAreaViewModel(private val areasRepository: AreasRepositoryContract): ViewModel(), EditAreaViewModelContract {
+class EditAreaViewModel(private val areasRepository: AreasRepositoryContract): ViewModel(),
+    EditAreaViewModelContract {
 
-    private val _deleteStatus: MutableStateFlow<RunStatus<String>> = MutableStateFlow(RunStatus.Idle())
+    private val _deleteStatus: MutableStateFlow<RunStatus<String>> =
+        MutableStateFlow(RunStatus.Idle())
     override val deleteStatus: StateFlow<RunStatus<String>> = _deleteStatus.asStateFlow()
 
-    private val _editStatus: MutableStateFlow<RunStatus<String>> = MutableStateFlow(RunStatus.Idle())
+    private val _editStatus: MutableStateFlow<RunStatus<String>> =
+        MutableStateFlow(RunStatus.Idle())
     override val editStatus: StateFlow<RunStatus<String>> = _editStatus.asStateFlow()
 
     override var currentAreas = ""
