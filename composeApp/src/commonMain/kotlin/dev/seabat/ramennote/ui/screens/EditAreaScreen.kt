@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,12 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppProgressBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.viewmodel.EditAreaViewModel
-import dev.seabat.ramennote.ui.viewmodel.RunStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,6 +40,10 @@ fun EditAreaScreen(
     onCompleted: () -> Unit,
 ) {
     val viewModel = remember { EditAreaViewModel() }
+
+    LaunchedEffect(Unit) {
+        viewModel.currentAreas = area
+    }
 
     Scaffold(
         topBar = {
@@ -149,7 +154,12 @@ fun EditStatus(
 ){
     when (deleteStatus) {
         is RunStatus.Success -> { onCompleted() }
-        is RunStatus.Error -> { onCompleted() }
+        is RunStatus.Error -> {
+            AppAlert(
+                message = "${deleteStatus.message}",
+                onConfirm = { onCompleted() }
+            )
+        }
         is RunStatus.Loading -> { AppProgressBar() }
         is RunStatus.Idle -> { /* Do nothing */}
     }
@@ -162,7 +172,12 @@ fun DeleteStatus(
 ){
     when (deleteStatus) {
         is RunStatus.Success -> { onCompleted() }
-        is RunStatus.Error -> { onCompleted() }
+        is RunStatus.Error -> {
+            AppAlert(
+                message = "${deleteStatus.message}",
+                onConfirm = { onCompleted() }
+            )
+        }
         is RunStatus.Loading -> { AppProgressBar() }
         is RunStatus.Idle -> { /* Do nothing */}
     }

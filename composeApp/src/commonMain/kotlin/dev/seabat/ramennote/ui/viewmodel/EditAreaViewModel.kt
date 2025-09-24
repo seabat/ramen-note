@@ -3,6 +3,7 @@ package dev.seabat.ramennote.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.data.repository.AreasRepository
+import dev.seabat.ramennote.domain.model.RunStatus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,29 +21,20 @@ class EditAreaViewModel: ViewModel() {
     private val _editStatus: MutableStateFlow<RunStatus<String>> = MutableStateFlow(RunStatus.Idle())
     val editStatus: StateFlow<RunStatus<String>> = _editStatus.asStateFlow()
 
-    fun editArea(area: String) {
+    var currentAreas = ""
+
+    fun editArea(newArea: String) {
         viewModelScope.launch {
             _editStatus.value = RunStatus.Loading()
-            delay(2000)
-            _editStatus.value = RunStatus.Success(data = "")
+            _editStatus.value = areasRepository.edit(currentAreas, newArea)
+            currentAreas = newArea
         }
     }
 
     fun deleteArea(area: String) {
         viewModelScope.launch {
             _deleteStatus.value = RunStatus.Loading()
-            delay(2000)
-            _deleteStatus.value = RunStatus.Success(data = "")
+            _editStatus.value = areasRepository.delete( area)
         }
     }
-}
-
-sealed class RunStatus<T>(
-    val data: T? = null,
-    val message: String? = null
-) {
-    class Idle<T> : RunStatus<T>()
-    class Success<T>(data: T) : RunStatus<T>(data = data)
-    class Error<T>(errorMessage: String) : RunStatus<T>(message = errorMessage)
-    class Loading<T> : RunStatus<T>()
 }

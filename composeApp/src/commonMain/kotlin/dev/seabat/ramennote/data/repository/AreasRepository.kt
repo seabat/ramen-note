@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.data.repository
 
 import dev.seabat.ramennote.domain.model.Area
+import dev.seabat.ramennote.domain.model.RunStatus
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
@@ -23,5 +24,26 @@ class AreasRepository {
     suspend fun add(area: Area) {
         delay(200)
         _areas.add(0, area)
+    }
+
+    suspend fun edit(oldName: String, newName: String): RunStatus<String> {
+        delay(200)
+        val index = _areas.indexOfFirst { it.name == oldName }
+        if (index != -1) {
+            val existingArea = _areas[index]
+            _areas[index] = existingArea.copy(name = newName)
+            return RunStatus.Success(data = "")
+        }
+        return RunStatus.Error(errorMessage = "${oldName}は登録されていません。編集に失敗しました")
+    }
+
+    suspend fun delete(areaName: String): RunStatus<String> {
+        delay(200)
+        val index = _areas.indexOfFirst { it.name == areaName }
+        if (index != -1) {
+            _areas.removeAt(index)
+            return RunStatus.Success(data = "")
+        }
+        return RunStatus.Error(errorMessage = "${areaName}は登録されていません。削除に失敗しました")
     }
 }

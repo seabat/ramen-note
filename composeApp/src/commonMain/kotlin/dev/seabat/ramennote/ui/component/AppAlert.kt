@@ -17,7 +17,7 @@ fun AppAlert(
                 onClick = {
                     onConfirm() }
             ) {
-                Text(text = "OK")
+                Text(text = "はい")
             }
         },
         title = null,
