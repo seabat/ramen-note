@@ -13,11 +13,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.seabat.ramennote.data.di.databaseModule
+import dev.seabat.ramennote.data.di.factoryModule
+import dev.seabat.ramennote.data.di.repositoryModule
 import dev.seabat.ramennote.ui.component.AppBar
+import dev.seabat.ramennote.ui.di.viewModelModule
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.viewmodel.NoteViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.KoinApplicationPreview
+import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.note_area_selection
 import ramennote.composeapp.generated.resources.note_item_count
@@ -60,7 +66,7 @@ private fun MainContent(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val viewModel = remember { NoteViewModel() }
+        val viewModel = koinViewModel<NoteViewModel>()
         LaunchedEffect(Unit) { viewModel.fetchAreas() }
         val areas by viewModel.areas.collectAsState()
 
@@ -151,9 +157,20 @@ private fun AreaItem(
 @Preview
 @Composable
 fun NoteScreenPreview() {
-    RamenNoteTheme {
-        NoteScreen(
-            onAreaClick = { /* プレビュー用 */ }
-        )
+    KoinApplicationPreview(
+        application = {
+            modules(
+                viewModelModule,
+                repositoryModule,
+                databaseModule,
+                factoryModule
+            )
+        }
+    ) {
+        RamenNoteTheme {
+            NoteScreen(
+                onAreaClick = { /* プレビュー用 */ }
+            )
+        }
     }
 }

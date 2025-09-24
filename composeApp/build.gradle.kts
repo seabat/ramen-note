@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -30,6 +32,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -44,6 +48,14 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
+
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite.bundled)
+
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
+            implementation(libs.koin.androidx.compose)
+            implementation(libs.koin.test)
 
             implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
         }
@@ -71,7 +83,8 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -80,7 +93,48 @@ android {
     }
 }
 
+
 dependencies {
     debugImplementation(compose.uiTooling)
+
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+// Ensure KSP runs after Compose resource/code generation tasks on Android and iOS
+afterEvaluate {
+    val kspAndroidTasks = listOf(
+        "kspDebugKotlinAndroid",
+        "kspReleaseKotlinAndroid"
+    )
+    val kspIosTasks = listOf(
+        "kspKotlinIosSimulatorArm64",
+        "kspKotlinIosArm64"
+    )
+    val composeGenTasks = listOf(
+        "generateResourceAccessorsForAndroidDebug",
+        "generateResourceAccessorsForAndroidMain",
+        "generateActualResourceCollectorsForAndroidMain",
+        "generateComposeResClass",
+        "generateResourceAccessorsForCommonMain",
+        "generateExpectResourceCollectorsForCommonMain",
+        "generateResourceAccessorsForIosSimulatorArm64Main",
+        "generateResourceAccessorsForIosMain",
+        "generateResourceAccessorsForAppleMain",
+        "generateResourceAccessorsForNativeMain",
+        "generateActualResourceCollectorsForIosSimulatorArm64Main"
+    )
+
+    (kspAndroidTasks + kspIosTasks).forEach { kspTaskName ->
+        tasks.matching { it.name == kspTaskName }.configureEach {
+            // Declare explicit dependencies to avoid implicit dependency validation errors
+            dependsOn(composeGenTasks)
+        }
+    }
 }
 

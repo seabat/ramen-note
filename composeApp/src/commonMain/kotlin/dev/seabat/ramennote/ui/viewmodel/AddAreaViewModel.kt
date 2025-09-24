@@ -2,17 +2,14 @@ package dev.seabat.ramennote.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.AreasRepository
+import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.Area
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-class AddAreaViewModel: ViewModel() {
-
-    // TODO: DI 導入時にプライマリコンストラクタに移動
-    private val areasRepository: AreasRepository = AreasRepository()
+class AddAreaViewModel(private val areasRepository: AreasRepositoryContract): ViewModel() {
 
     fun addArea(area: String) {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
