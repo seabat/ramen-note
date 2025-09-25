@@ -29,7 +29,7 @@
     
     <!-- Edit Area Screen -->
     <string name="editarea_change_image">画像を変更する</string>
-    <string name="editarea_delete_confirm">%sを削除して良いですか？</string>
+    <string name="editarea_delete_confirm">%1$sを削除して良いですか？</string>
     <string name="editarea_title">編集</string>
     
     <!-- App -->

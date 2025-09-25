@@ -14,7 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.Image
 import coil3.compose.AsyncImage
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -32,7 +31,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.toArgb
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
 import org.jetbrains.compose.resources.stringResource
@@ -57,6 +55,7 @@ fun EditAreaScreen(
 
     LaunchedEffect(Unit) {
         viewModel.currentAreas = area
+        viewModel.loadImage()
     }
 
     Scaffold(
@@ -74,8 +73,9 @@ fun EditAreaScreen(
         ) {
             var areaName by remember { mutableStateOf(area) }
             var shouldShowAlert by remember { mutableStateOf(false) }
-            val deleteStatus by viewModel.deleteStatus.collectAsState()
-            val editStatus by viewModel.editStatus.collectAsState()
+            val deleteStatus by viewModel.deleteState.collectAsState()
+            val editStatus by viewModel.editState.collectAsState()
+            val imageState by viewModel.imageState.collectAsState()
             val focusManager = LocalFocusManager.current
 
             Column(
@@ -110,16 +110,29 @@ fun EditAreaScreen(
                         Text(stringResource(Res.string.editarea_change_image))
                     }
                     Spacer(Modifier.height(16.dp))
-                    val bytes by viewModel.imageBytes.collectAsState()
-                    if (bytes != null) {
-                        // Coilを使用して画像を表示
-                        AsyncImage(
-                            model = bytes,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(180.dp)
-                        )
+                    when (imageState) {
+                        is RunStatus.Success -> {
+                            // Coilを使用して画像を表示
+                            AsyncImage(
+                                model = imageState.data,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                            )
+                        }
+                        is RunStatus.Loading -> {
+                            AppProgressBar()
+                        }
+                        is RunStatus.Error -> {
+                            AppAlert(
+                                message = "画像の読み込みに失敗しました: ${imageState.message}",
+                                onConfirm = { onCompleted() }
+                            )
+                        }
+                        is RunStatus.Idle -> {
+                            // Do nothing
+                        }
                     }
                 }
                 BottomContent(

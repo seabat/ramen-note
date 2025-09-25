@@ -13,16 +13,16 @@ import kotlinx.coroutines.flow.asStateFlow
 class MockEditAreaViewModel : ViewModel(), EditAreaViewModelContract {
     private val _deleteStatus: MutableStateFlow<RunStatus<String>> =
         MutableStateFlow(RunStatus.Idle())
-    override val deleteStatus: StateFlow<RunStatus<String>> = _deleteStatus.asStateFlow()
+    override val deleteState: StateFlow<RunStatus<String>> = _deleteStatus.asStateFlow()
 
     private val _editStatus: MutableStateFlow<RunStatus<String>> =
         MutableStateFlow(RunStatus.Idle())
-    override val editStatus: StateFlow<RunStatus<String>> = _editStatus.asStateFlow()
+    override val editState: StateFlow<RunStatus<String>> = _editStatus.asStateFlow()
 
     override var currentAreas: String = ""
 
-    private val _imageBytes: MutableStateFlow<ByteArray?> = MutableStateFlow(null)
-    override val imageBytes: StateFlow<ByteArray?> = _imageBytes.asStateFlow()
+    private val _imageState: MutableStateFlow<RunStatus<ByteArray?>> = MutableStateFlow(RunStatus.Idle())
+    override val imageState: StateFlow<RunStatus<ByteArray?>> = _imageState.asStateFlow()
 
     override fun editArea(newArea: String) {
         // Preview用なので何もしない
@@ -33,6 +33,10 @@ class MockEditAreaViewModel : ViewModel(), EditAreaViewModelContract {
     }
 
     override fun fetchImage() {
+        // Preview用なので何もしない
+    }
+
+    override fun loadImage() {
         // Preview用なので何もしない
     }
 }
