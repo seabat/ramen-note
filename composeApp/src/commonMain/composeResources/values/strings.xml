@@ -27,6 +27,11 @@
     <string name="note_item_count">1件</string>
     <string name="note_delete">削除</string>
     
+    <!-- Edit Area Screen -->
+    <string name="editarea_change_image">画像を変更する</string>
+    <string name="editarea_delete_confirm">%sを削除して良いですか？</string>
+    <string name="editarea_title">編集</string>
+    
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
 </resources>

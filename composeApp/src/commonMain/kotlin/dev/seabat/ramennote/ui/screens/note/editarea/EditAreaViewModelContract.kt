@@ -10,4 +10,6 @@ interface EditAreaViewModelContract {
 
     fun editArea(newArea: String)
     fun deleteArea(area: String)
+    val imageBytes: StateFlow<ByteArray?>
+    fun fetchImage()
 }

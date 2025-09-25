@@ -21,11 +21,18 @@ class MockEditAreaViewModel : ViewModel(), EditAreaViewModelContract {
 
     override var currentAreas: String = ""
 
+    private val _imageBytes: MutableStateFlow<ByteArray?> = MutableStateFlow(null)
+    override val imageBytes: StateFlow<ByteArray?> = _imageBytes.asStateFlow()
+
     override fun editArea(newArea: String) {
         // Preview用なので何もしない
     }
 
     override fun deleteArea(area: String) {
+        // Preview用なので何もしない
+    }
+
+    override fun fetchImage() {
         // Preview用なので何もしない
     }
 }

@@ -14,6 +14,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.Image
+import coil3.compose.AsyncImage
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,8 +32,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.toArgb
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
+import org.jetbrains.compose.resources.stringResource
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.editarea_change_image
+import ramennote.composeapp.generated.resources.editarea_title
+import ramennote.composeapp.generated.resources.editarea_delete_confirm
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppProgressBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -54,7 +62,7 @@ fun EditAreaScreen(
     Scaffold(
         topBar = {
             AppBar(
-                title = "編集",
+                title = stringResource(Res.string.editarea_title),
                 onBackClick = onBackClick
             )
         }
@@ -91,6 +99,28 @@ fun EditAreaScreen(
                             onDone = { focusManager.clearFocus() }
                         )
                     )
+                    Spacer(Modifier.height(16.dp))
+                    Button(
+                        onClick = { viewModel.fetchImage() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    ) {
+                        Text(stringResource(Res.string.editarea_change_image))
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    val bytes by viewModel.imageBytes.collectAsState()
+                    if (bytes != null) {
+                        // Coilを使用して画像を表示
+                        AsyncImage(
+                            model = bytes,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                        )
+                    }
                 }
                 BottomContent(
                     areaName = areaName,
@@ -105,7 +135,7 @@ fun EditAreaScreen(
             }
             if (shouldShowAlert) {
                 AppAlert(
-                    message = "${areaName}を削除して良いですか？",
+                    message = stringResource(Res.string.editarea_delete_confirm, areaName),
                     onConfirm = {
                         viewModel.deleteArea(areaName)
                         shouldShowAlert = false
