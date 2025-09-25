@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens
+package dev.seabat.ramennote.ui.screens.withbottom
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

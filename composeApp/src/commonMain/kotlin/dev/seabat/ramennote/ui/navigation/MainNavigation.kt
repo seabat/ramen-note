@@ -22,12 +22,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import dev.seabat.ramennote.ui.screens.AreaShopListScreen
-import dev.seabat.ramennote.ui.screens.FutureScreen
-import dev.seabat.ramennote.ui.screens.HomeScreen
-import dev.seabat.ramennote.ui.screens.NoteScreen
-import dev.seabat.ramennote.ui.screens.ScheduleScreen
-import dev.seabat.ramennote.ui.screens.SettingsScreen
+import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
+import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
+import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
+import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
+import dev.seabat.ramennote.ui.screens.withbottom.HomeScreen
+import dev.seabat.ramennote.ui.screens.note.NoteScreen
+import dev.seabat.ramennote.ui.screens.withbottom.ScheduleScreen
+import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 import org.jetbrains.compose.resources.stringResource
@@ -128,6 +130,24 @@ sealed interface Screen {
         }
     }
 
+    @Serializable
+    data class EditArea(val areaName: String): Screen {
+        override val route: String = Screen.getRouteName(EditArea::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Edit }
+        @Composable
+        override fun getTitle(): String { return "編集" }
+    }
+
+    @Serializable
+    data object AddArea : Screen {
+        override val route: String = Screen.getRouteName(AddArea::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Add }
+        @Composable
+        override fun getTitle(): String { return "登録" }
+    }
+
     val route: String
     @Composable
     fun getIcon(): ImageVector
@@ -212,17 +232,29 @@ private fun WithBottomNavigation(
                 NoteScreen(
                     onAreaClick = { areaName ->
                         navController.navigate(Screen.AreaShopList(areaName))
+                    },
+                    onAddAreaClick = {
+                        navController.navigate(Screen.AddArea)
+                    },
+                    onAreaLongClick = { areaName ->
+                        navController.navigate(Screen.EditArea(areaName))
                     }
                 )
-            }
-            composable<Screen.AreaShopList> {
-                /* Do nothing */
             }
             composable<Screen.Future> {
                 FutureScreen()
             }
             composable<Screen.Settings> {
                 SettingsScreen()
+            }
+            composable<Screen.AreaShopList> {
+                /* Do nothing */
+            }
+            composable<Screen.AddArea> {
+                /* Do nothing */
+            }
+            composable<Screen.EditArea> {
+                /* Do nothing */
             }
         }
     }
@@ -245,6 +277,12 @@ private fun WithoutBottomNavigation(navController: NavHostController) {
             composable<Screen.Note> {
                 /* Do nothing */
             }
+            composable<Screen.Future> {
+                /* Do nothing */
+            }
+            composable<Screen.Settings> {
+                /* Do nothing */
+            }
             composable<Screen.AreaShopList> { backStackEntry ->
                 val screen: Screen.AreaShopList = backStackEntry.toRoute()
                 AreaShopListScreen(
@@ -254,11 +292,19 @@ private fun WithoutBottomNavigation(navController: NavHostController) {
                     }
                 )
             }
-            composable<Screen.Future> {
-                /* Do nothing */
+            composable<Screen.AddArea> {
+                AddAreaScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() }
+                )
             }
-            composable<Screen.Settings> {
-                /* Do nothing */
+            composable<Screen.EditArea> { backStackEntry ->
+                val screen: Screen.EditArea = backStackEntry.toRoute()
+                EditAreaScreen(
+                    area = screen.areaName,
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() }
+                )
             }
         }
     }
