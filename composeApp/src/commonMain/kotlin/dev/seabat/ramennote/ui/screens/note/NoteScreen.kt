@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.note
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,8 +12,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
@@ -63,7 +68,10 @@ private fun MainContent(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        LaunchedEffect(Unit) { viewModel.fetchAreas() }
+        LaunchedEffect(Unit) {
+            viewModel.fetchAreas()
+        }
+
         val areas by viewModel.areas.collectAsState()
 
         LazyColumn(
@@ -82,6 +90,7 @@ private fun MainContent(
             items(areas) { area ->
                 AreaItem(
                     areaName = area.name,
+                    imageBytes = area.imageBytes,
                     itemCount = stringResource(Res.string.note_item_count),
                     onClick = { onAreaClick(area.name) },
                     onLongClick = { onAreaLongClick(area.name) }
@@ -109,6 +118,7 @@ private fun MainContent(
 @Composable
 private fun AreaItem(
     areaName: String,
+    imageBytes: ByteArray? = null,
     itemCount: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
@@ -124,27 +134,64 @@ private fun AreaItem(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = areaName,
-                style = MaterialTheme.typography.headlineSmall
-            )
+            // 背景画像
+            if (imageBytes != null) {
+                AsyncImage(
+                    model = imageBytes,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
             
+            // オーバーレイ（半透明の黒い背景）
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.7f)
+                            ),
+                            startY = 0f,
+                            endY = 1000f
+                        )
+                    )
+            )
+
+            // コンテンツ
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = itemCount,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    text = areaName,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color.White
                 )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = itemCount,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                }
             }
         }
     }

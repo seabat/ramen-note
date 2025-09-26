@@ -19,7 +19,13 @@ import org.koin.dsl.module
 
 val repositoryModule = module {
     single<AreasRepositoryContract> { AreasRepository(get()) }
-    single { HttpClient { install(ContentNegotiation) { json() } } }
+    single<AreaImageRepositoryContract> {
+        AreaImageRepository(
+            HttpClient {
+                install(ContentNegotiation) { json() }
+            }
+        )
+    }
     single<UnsplashImageRepositoryContract> {
         UnsplashImageRepository(
             HttpClient {
