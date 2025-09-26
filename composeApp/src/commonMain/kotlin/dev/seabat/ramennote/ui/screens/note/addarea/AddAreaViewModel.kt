@@ -4,12 +4,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.Area
+import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.usecase.FetchImageUseCaseContract
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-class AddAreaViewModel(private val areasRepository: AreasRepositoryContract): ViewModel(), AddAreaViewModelContract {
+class AddAreaViewModel(
+    private val areasRepository: AreasRepositoryContract,
+    private val fetchImageUseCase: FetchImageUseCaseContract
+): ViewModel(), AddAreaViewModelContract {
+
+    private val _imageState: MutableStateFlow<RunStatus<ByteArray?>> =
+        MutableStateFlow(RunStatus.Idle())
+    override val imageState: StateFlow<RunStatus<ByteArray?>> = _imageState.asStateFlow()
 
     override fun addArea(area: String) {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
@@ -21,6 +33,13 @@ class AddAreaViewModel(private val areasRepository: AreasRepositoryContract): Vi
                     count = 0
                 )
             )
+        }
+    }
+
+    override fun fetchImage() {
+        viewModelScope.launch {
+            _imageState.value = RunStatus.Loading()
+            _imageState.value = fetchImageUseCase()
         }
     }
 }

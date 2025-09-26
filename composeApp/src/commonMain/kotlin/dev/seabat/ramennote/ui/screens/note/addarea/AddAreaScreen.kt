@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppBar
+import dev.seabat.ramennote.ui.component.AppProgressBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -41,6 +46,7 @@ fun AddAreaScreen(
 ) {
     var areaName by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    val imageState by viewModel.imageState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -72,6 +78,41 @@ fun AddAreaScreen(
                         onDone = { focusManager.clearFocus() }
                     )
                 )
+                Spacer(Modifier.height(16.dp))
+                Button(
+                    onClick = { viewModel.fetchImage() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    Text("画像を選択する")
+                }
+                Spacer(Modifier.height(16.dp))
+                when (imageState) {
+                    is RunStatus.Success -> {
+                        // Coilを使用して画像を表示
+                        AsyncImage(
+                            model = imageState.data,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                        )
+                    }
+                    is RunStatus.Loading -> {
+                        AppProgressBar()
+                    }
+                    is RunStatus.Error -> {
+                        AppAlert(
+                            message = "画像の読み込みに失敗しました: ${imageState.message}",
+                            onConfirm = { }
+                        )
+                    }
+                    is RunStatus.Idle -> {
+                        // Do nothing
+                    }
+                }
             }
 
             Button(
