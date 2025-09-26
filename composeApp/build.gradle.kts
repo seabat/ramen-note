@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
+    id("co.touchlab.skie") version "0.10.6"
 }
 
 kotlin {
@@ -34,6 +35,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.koin.android)
+
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -58,6 +61,19 @@ kotlin {
             implementation(libs.koin.test)
 
             implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
+
+            // Ktor client for image fetching
+            implementation(project.dependencies.platform(libs.ktor.bom))
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            
+            // Coil for image loading
+            implementation(libs.coil)
+            implementation(libs.coil.compose)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -123,11 +139,13 @@ afterEvaluate {
         "generateComposeResClass",
         "generateResourceAccessorsForCommonMain",
         "generateExpectResourceCollectorsForCommonMain",
+        "generateResourceAccessorsForIosArm64Main",
         "generateResourceAccessorsForIosSimulatorArm64Main",
         "generateResourceAccessorsForIosMain",
         "generateResourceAccessorsForAppleMain",
         "generateResourceAccessorsForNativeMain",
-        "generateActualResourceCollectorsForIosSimulatorArm64Main"
+        "generateActualResourceCollectorsForIosSimulatorArm64Main",
+        "generateActualResourceCollectorsForIosArm64Main"
     )
 
     (kspAndroidTasks + kspIosTasks).forEach { kspTaskName ->

@@ -5,7 +5,13 @@ import SwiftUI
 struct iOSApp: App {
 
     init() {
-        KoinHelperKt.doInitKoin()
+        KoinHelperKt.doInitKoin(
+            onKoinStart: {
+                IosModuleKt.createSwiftLibDependencyModule(
+                    factory: SwiftLibDependencyFactory.shared
+                )
+            }
+        )
     }
 
     var body: some Scene {
