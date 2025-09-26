@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.data.config
+package dev.seabat.ramennote.config
 
 object UnsplashConfig {
     // 実際のアクセスキーに置き換えてください
