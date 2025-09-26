@@ -19,7 +19,7 @@ class MockAddAreaViewModel : ViewModel(), AddAreaViewModelContract {
         // Preview用なので何もしない
     }
 
-    override fun fetchImage() {
+    override fun fetchImage(query: String) {
         // Preview用なので何もしない
     }
 }
