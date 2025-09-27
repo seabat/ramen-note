@@ -21,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
+import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
@@ -163,6 +164,15 @@ sealed interface Screen {
         }
     }
 
+    @Serializable
+    data object AddShop : Screen {
+        override val route: String = getRouteName(AddShop::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Add }
+        @Composable
+        override fun getTitle(): String { return "店舗登録" }
+    }
+
     val route: String
     @Composable
     fun getIcon(): ImageVector
@@ -260,6 +270,9 @@ fun MainNavigation() {
                     },
                     onShopClick = { shop ->
                         navController.navigate(Screen.Shop(shop.toJsonString()))
+                    },
+                    onAddShopClick = {
+                        navController.navigate(Screen.AddShop)
                     }
                 )
             }
@@ -295,6 +308,12 @@ fun MainNavigation() {
                 ShopScreen(
                     shop = shop,
                     onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable<Screen.AddShop> {
+                AddShopScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() }
                 )
             }
         }

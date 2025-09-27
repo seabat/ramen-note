@@ -9,6 +9,8 @@ import dev.seabat.ramennote.data.repository.AreasRepository
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalAreaImageRepository
 import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.ShopsRepository
+import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.data.repository.UnsplashImageRepository
 import dev.seabat.ramennote.data.repository.UnsplashImageRepositoryContract
 import dev.seabat.ramennote.domain.usecase.FetchImageUseCase
@@ -54,6 +56,7 @@ val repositoryModule = module {
     }
     single<LocalAreaImageRepositoryContract> { LocalAreaImageRepository(get()) }
     single { FetchImageUseCase(get(), get()) }
+    single<ShopsRepositoryContract> { ShopsRepository(get()) }
 }
 
 fun getRamenNoteDatabase(
