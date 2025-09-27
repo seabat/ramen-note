@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.domain.usecase.LoadImageListUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import kotlinx.coroutines.launch
 
 class NoteViewModel(
     private val areasRepository: AreasRepositoryContract,
-    private val loadImageListUseCase: LoadImageListUseCaseContract
+    private val loadImageListUseCase: LoadImageUseCaseContract
 ): ViewModel(), NoteViewModelContract {
 
     private val _areas: MutableStateFlow<List<AreaWithImage>> = MutableStateFlow(emptyList())
@@ -25,14 +25,14 @@ class NoteViewModel(
     override fun fetchAreas() {
         viewModelScope.launch{
             val area = areasRepository.fetch()
-            val images = loadImageListUseCase()
             area.map { area ->
+                val image = loadImageListUseCase(area.name)
                 AreaWithImage(
                     name = area.name,
                     count = area.count,
                     updatedDate = area.updatedDate,
-                    imageBytes = when(images) {
-                        is RunStatus.Success -> images.data?.get(0)
+                    imageBytes = when(image) {
+                        is RunStatus.Success -> image.data
                         else -> null
                     }
                 )

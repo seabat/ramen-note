@@ -13,11 +13,11 @@ class FetchImageUseCase(
             // Fetch image from remote repository
             val imageBytes = areaImageRepository.fetch()
             
-            // Save to local storage
-            localAreaImageRepository.save(imageBytes)
+            // Save to local storage with default filename
+            localAreaImageRepository.save(imageBytes, "area_image")
             
-            // Load from local storage
-            val localImageBytes = localAreaImageRepository.load()
+            // Load from local storage with default filename
+            val localImageBytes = localAreaImageRepository.load("area_image")
             
             if (localImageBytes != null) {
                 RunStatus.Success(localImageBytes)

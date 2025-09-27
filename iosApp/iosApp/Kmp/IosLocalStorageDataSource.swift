@@ -3,16 +3,15 @@ import Foundation
 
 class IosLocalStorageDataSource: LocalStorageDataSourceContract {
     
-    private let imageFileName = "area_image.png"
-    
-    func __load() async throws -> KotlinByteArray? {
+    func __load(name: String) async throws -> KotlinByteArray? {
         do {
             let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
             guard let documentsPath = documentsPath else {
                 return nil
             }
             
-            let fileURL = documentsPath.appendingPathComponent(imageFileName)
+            let fileName = "\(name).png"
+            let fileURL = documentsPath.appendingPathComponent(fileName)
             
             // Check if file exists
             guard FileManager.default.fileExists(atPath: fileURL.path) else {
@@ -28,14 +27,15 @@ class IosLocalStorageDataSource: LocalStorageDataSourceContract {
         }
     }
 
-    func __save(imageBytes: KotlinByteArray) async throws {
+    func __save(imageBytes: KotlinByteArray, name: String) async throws {
         do {
             let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
             guard let documentsPath = documentsPath else {
                 return
             }
             
-            let fileURL = documentsPath.appendingPathComponent(imageFileName)
+            let fileName = "\(name).png"
+            let fileURL = documentsPath.appendingPathComponent(fileName)
             
             // Convert KotlinByteArray to Data
             var data = Data()
@@ -45,6 +45,44 @@ class IosLocalStorageDataSource: LocalStorageDataSourceContract {
             }
             
             try data.write(to: fileURL)
+        } catch {
+            // Handle error silently or log it
+        }
+    }
+
+    func __rename(oldName: String, newName: String) async throws {
+        do {
+            let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            guard let documentsPath = documentsPath else {
+                return
+            }
+            
+            let oldFileName = "\(oldName).png"
+            let newFileName = "\(newName).png"
+            let oldFileURL = documentsPath.appendingPathComponent(oldFileName)
+            let newFileURL = documentsPath.appendingPathComponent(newFileName)
+            
+            if FileManager.default.fileExists(atPath: oldFileURL.path) {
+                try FileManager.default.moveItem(at: oldFileURL, to: newFileURL)
+            }
+        } catch {
+            // Handle error silently or log it
+        }
+    }
+
+    func __delete(name: String) async throws {
+        do {
+            let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            guard let documentsPath = documentsPath else {
+                return
+            }
+            
+            let fileName = "\(name).png"
+            let fileURL = documentsPath.appendingPathComponent(fileName)
+            
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                try FileManager.default.removeItem(at: fileURL)
+            }
         } catch {
             // Handle error silently or log it
         }

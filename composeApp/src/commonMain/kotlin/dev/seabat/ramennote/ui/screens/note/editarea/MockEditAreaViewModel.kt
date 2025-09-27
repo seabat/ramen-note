@@ -19,7 +19,7 @@ class MockEditAreaViewModel : ViewModel(), EditAreaViewModelContract {
         MutableStateFlow(RunStatus.Idle())
     override val editState: StateFlow<RunStatus<String>> = _editStatus.asStateFlow()
 
-    override var currentAreas: String = ""
+    override var currentAreaName: String = ""
 
     private val _imageState: MutableStateFlow<RunStatus<ByteArray?>> = MutableStateFlow(RunStatus.Idle())
     override val imageState: StateFlow<RunStatus<ByteArray?>> = _imageState.asStateFlow()
@@ -36,7 +36,7 @@ class MockEditAreaViewModel : ViewModel(), EditAreaViewModelContract {
         // Preview用なので何もしない
     }
 
-    override fun loadImage() {
+    override fun loadImage(name: String) {
         // Preview用なので何もしない
     }
 }

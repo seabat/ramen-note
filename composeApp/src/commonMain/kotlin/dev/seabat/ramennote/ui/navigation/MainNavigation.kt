@@ -301,7 +301,7 @@ private fun WithoutBottomNavigation(navController: NavHostController) {
             composable<Screen.EditArea> { backStackEntry ->
                 val screen: Screen.EditArea = backStackEntry.toRoute()
                 EditAreaScreen(
-                    area = screen.areaName,
+                    areaName = screen.areaName,
                     onBackClick = { navController.popBackStack() },
                     onCompleted = { navController.popBackStack() }
                 )
