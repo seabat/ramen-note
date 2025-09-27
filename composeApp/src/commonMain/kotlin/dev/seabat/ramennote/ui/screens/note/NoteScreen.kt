@@ -155,10 +155,10 @@ private fun AreaItem(
                         Brush.verticalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                Color.Black.copy(alpha = 0.7f)
+                                Color.Black.copy(alpha = 0.70f)
                             ),
                             startY = 0f,
-                            endY = 1000f
+                            endY = 500f
                         )
                     )
             )
