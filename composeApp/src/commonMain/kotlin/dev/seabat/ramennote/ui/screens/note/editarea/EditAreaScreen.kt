@@ -35,7 +35,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
 import org.jetbrains.compose.resources.stringResource
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.editarea_change_image
+import ramennote.composeapp.generated.resources.editarea_change_image_button
 import ramennote.composeapp.generated.resources.editarea_title
 import ramennote.composeapp.generated.resources.editarea_delete_confirm
 import dev.seabat.ramennote.ui.component.AppBar
@@ -43,6 +43,7 @@ import dev.seabat.ramennote.ui.component.AppProgressBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.editarea_image_load_error
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +108,10 @@ fun EditAreaScreen(
                             contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     ) {
-                        Text(stringResource(Res.string.editarea_change_image))
+                        Text(
+                            stringResource(Res.string.editarea_change_image_button),
+                            style = MaterialTheme.typography.titleMedium
+                        )
                     }
                     Spacer(Modifier.height(16.dp))
                     when (imageState) {
@@ -126,7 +130,7 @@ fun EditAreaScreen(
                         }
                         is RunStatus.Error -> {
                             AppAlert(
-                                message = "画像の読み込みに失敗しました: ${imageState.message}",
+                                message = stringResource(Res.string.editarea_image_load_error) + imageState.message,
                                 onConfirm = { onCompleted() }
                             )
                         }

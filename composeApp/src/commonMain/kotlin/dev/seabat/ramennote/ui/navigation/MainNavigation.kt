@@ -13,10 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,12 +22,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
+import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
 import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
 import dev.seabat.ramennote.ui.screens.withbottom.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.withbottom.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen
+import dev.seabat.ramennote.domain.model.Shop as ShopInfo
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 import org.jetbrains.compose.resources.stringResource
@@ -40,34 +40,33 @@ import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.screen_area_shop_title
 import ramennote.composeapp.generated.resources.screen_future_title
 import ramennote.composeapp.generated.resources.screen_home_title
-import ramennote.composeapp.generated.resources.screen_note_title
 import ramennote.composeapp.generated.resources.screen_schedule_title
 import ramennote.composeapp.generated.resources.screen_settings_title
 import ramennote.composeapp.generated.resources.signpost_24px
 
 sealed interface Screen {
     companion object {
-        fun getRouteName(kClass: KClass<*>): String {
-            return kClass.qualifiedName ?: kClass.simpleName ?: "Unknown"
+        fun getRouteName(clazz: KClass<out Screen>): String {
+            return clazz.simpleName ?: "Unknown"
         }
     }
+
     @Serializable
     data object Home : Screen {
-        override val route: String = Screen.getRouteName(Home::class)
-
+        override val route: String = getRouteName(Home::class)
         @Composable
         override fun getIcon(): ImageVector {
             return Icons.Default.Home
         }
         @Composable
         override fun getTitle(): String {
-            return  stringResource(Res.string.screen_home_title)
+            return stringResource(Res.string.screen_home_title)
         }
     }
 
     @Serializable
     data object Schedule : Screen {
-        override val route: String = Screen.getRouteName(Schedule::class)
+        override val route: String = getRouteName(Schedule::class)
         @Composable
         override fun getIcon(): ImageVector {
             return vectorResource(Res.drawable.event_note_24px)
@@ -80,20 +79,20 @@ sealed interface Screen {
 
     @Serializable
     data object Note : Screen {
-        override val route: String = Screen.getRouteName(Note::class)
+        override val route: String = getRouteName(Note::class)
         @Composable
         override fun getIcon(): ImageVector {
             return vectorResource(Res.drawable.book_5_24px)
         }
         @Composable
         override fun getTitle(): String {
-            return stringResource(Res.string.screen_note_title)
+            return "ノート"
         }
     }
 
     @Serializable
     data object Future : Screen {
-        override val route: String = Screen.getRouteName(Future::class)
+        override val route: String = getRouteName(Future::class)
         @Composable
         override fun getIcon(): ImageVector {
             return vectorResource(Res.drawable.signpost_24px)
@@ -106,7 +105,7 @@ sealed interface Screen {
 
     @Serializable
     data object Settings : Screen {
-        override val route: String = Screen.getRouteName(Settings::class)
+        override val route: String = getRouteName(Settings::class)
         @Composable
         override fun getIcon(): ImageVector {
             return Icons.Default.Settings
@@ -119,7 +118,7 @@ sealed interface Screen {
 
     @Serializable
     data class AreaShopList(val areaName: String): Screen {
-        override val route: String = Screen.getRouteName(AreaShopList::class)
+        override val route: String = getRouteName(AreaShopList::class)
         @Composable
         override fun getIcon(): ImageVector {
             return Icons.Default.Star // 表示されないので適切なアイコン
@@ -132,7 +131,7 @@ sealed interface Screen {
 
     @Serializable
     data class EditArea(val areaName: String): Screen {
-        override val route: String = Screen.getRouteName(EditArea::class)
+        override val route: String = getRouteName(EditArea::class)
         @Composable
         override fun getIcon(): ImageVector { return Icons.Default.Edit }
         @Composable
@@ -141,11 +140,27 @@ sealed interface Screen {
 
     @Serializable
     data object AddArea : Screen {
-        override val route: String = Screen.getRouteName(AddArea::class)
+        override val route: String = getRouteName(AddArea::class)
         @Composable
         override fun getIcon(): ImageVector { return Icons.Default.Add }
         @Composable
         override fun getTitle(): String { return "登録" }
+    }
+
+    @Serializable
+    data class Shop(val shopJson: String) : Screen {
+        override val route: String = getRouteName(Shop::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Star }
+        @Composable
+        override fun getTitle(): String { 
+            return try {
+                val shop = ShopInfo.fromJsonString(shopJson)
+                shop.name
+            } catch (e: Exception) {
+                "店舗詳細"
+            }
+        }
     }
 
     val route: String
@@ -176,43 +191,32 @@ fun MainNavigation() {
         } == true // null と比較する場合もあるので == true を使用する
     } == true // null と比較する場合もあるので == true を使用する
 
-    if (withBottomNavigation) {
-        WithBottomNavigation(tabScreens, currentDestination, navController)
-    } else {
-        WithoutBottomNavigation(navController)
-    }
-}
-
-@Composable
-private fun WithBottomNavigation(
-    tabScreens: List<Screen>,
-    currentDestination: NavDestination?,
-    navController: NavHostController
-) {
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                tabScreens.forEach { screen ->
-                    NavigationBarItem(
-                        icon = { Icon(screen.getIcon(), contentDescription = screen.getTitle()) },
-                        label = { Text(screen.getTitle()) },
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                        onClick = {
-                            navController.navigate(screen) {
-                                // Pop up to the start destination of the graph to
-                                // avoid building up a large stack of destinations
-                                // on the back stack as users select items
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (withBottomNavigation) {
+                NavigationBar {
+                    tabScreens.forEach { screen ->
+                        NavigationBarItem(
+                            icon = { Icon(screen.getIcon(), contentDescription = screen.getTitle()) },
+                            label = { Text(screen.getTitle()) },
+                            selected = currentDestination.hierarchy.any { it.route == screen.route } == true,
+                            onClick = {
+                                navController.navigate(screen) {
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    // Avoid multiple copies of the same destination when
+                                    // reselecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when reselecting a previously selected item
+                                    restoreState = true
                                 }
-                                // Avoid multiple copies of the same destination when
-                                // reselecting the same item
-                                launchSingleTop = true
-                                // Restore state when reselecting a previously selected item
-                                restoreState = true
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -247,48 +251,15 @@ private fun WithBottomNavigation(
             composable<Screen.Settings> {
                 SettingsScreen()
             }
-            composable<Screen.AreaShopList> {
-                /* Do nothing */
-            }
-            composable<Screen.AddArea> {
-                /* Do nothing */
-            }
-            composable<Screen.EditArea> {
-                /* Do nothing */
-            }
-        }
-    }
-}
-
-@Composable
-private fun WithoutBottomNavigation(navController: NavHostController) {
-    Scaffold() { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            composable<Screen.Home> {
-                /* Do nothing */
-            }
-            composable<Screen.Schedule> {
-                /* Do nothing */
-            }
-            composable<Screen.Note> {
-                /* Do nothing */
-            }
-            composable<Screen.Future> {
-                /* Do nothing */
-            }
-            composable<Screen.Settings> {
-                /* Do nothing */
-            }
             composable<Screen.AreaShopList> { backStackEntry ->
                 val screen: Screen.AreaShopList = backStackEntry.toRoute()
                 AreaShopListScreen(
                     areaName = screen.areaName,
                     onBackClick = {
                         navController.popBackStack()
+                    },
+                    onShopClick = { shop ->
+                        navController.navigate(Screen.Shop(shop.toJsonString()))
                     }
                 )
             }
@@ -304,6 +275,26 @@ private fun WithoutBottomNavigation(navController: NavHostController) {
                     areaName = screen.areaName,
                     onBackClick = { navController.popBackStack() },
                     onCompleted = { navController.popBackStack() }
+                )
+            }
+            composable<Screen.Shop> { backStackEntry ->
+                val screen: Screen.Shop = backStackEntry.toRoute()
+                val shop = try {
+                    ShopInfo.fromJsonString(screen.shopJson)
+                } catch (e: Exception) {
+                    // エラーの場合はデフォルトのShopオブジェクトを作成
+                    ShopInfo(
+                        name = "エラー",
+                        shopUrl = "",
+                        mapUrl = "",
+                        star = 0,
+                        stationName = "",
+                        category = ""
+                    )
+                }
+                ShopScreen(
+                    shop = shop,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

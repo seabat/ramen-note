@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
@@ -36,7 +37,8 @@ import ramennote.composeapp.generated.resources.note_delete
 @Composable
 fun AreaShopListScreen(
     areaName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onShopClick: (Shop) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -47,23 +49,65 @@ fun AreaShopListScreen(
             title = areaName,
             onBackClick = onBackClick
         )
-        AreaShopListMainContent(areaName = areaName)
+        AreaShopListMainContent(
+            areaName = areaName,
+            onShopClick = onShopClick
+        )
     }
 }
 
 @Composable
-private fun AreaShopListMainContent(areaName: String) {
+private fun AreaShopListMainContent(
+    areaName: String,
+    onShopClick: (Shop) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val restaurants = listOf(
-            "XXXX家",
-            "YYYY家", 
-            "ZZZZ家",
-            "AAAA家",
-            "BBBB家"
+        // TODO: 後日SQLiteから取得する予定
+        val shops = listOf(
+            Shop(
+                name = "XXXX家",
+                shopUrl = "https://example.com/xxxx",
+                mapUrl = "https://maps.google.com/xxxx",
+                star = 2,
+                stationName = "JR渋谷駅",
+                category = "家系"
+            ),
+            Shop(
+                name = "YYYY家",
+                shopUrl = "https://example.com/yyyy",
+                mapUrl = "https://maps.google.com/yyyy",
+                star = 3,
+                stationName = "JR新宿駅",
+                category = "醤油"
+            ),
+            Shop(
+                name = "ZZZZ家",
+                shopUrl = "https://example.com/zzzz",
+                mapUrl = "https://maps.google.com/zzzz",
+                star = 1,
+                stationName = "JR池袋駅",
+                category = "味噌"
+            ),
+            Shop(
+                name = "AAAA家",
+                shopUrl = "https://example.com/aaaa",
+                mapUrl = "https://maps.google.com/aaaa",
+                star = 2,
+                stationName = "JR上野駅",
+                category = "塩"
+            ),
+            Shop(
+                name = "BBBB家",
+                shopUrl = "https://example.com/bbbb",
+                mapUrl = "https://maps.google.com/bbbb",
+                star = 3,
+                stationName = "JR品川駅",
+                category = "豚骨"
+            )
         )
 
         LazyColumn(
@@ -77,9 +121,10 @@ private fun AreaShopListMainContent(areaName: String) {
                     thickness = 1.dp
                 )
             }
-            items(restaurants) { restaurant ->
+            items(shops) { shop ->
                 ShopItem(
-                    restaurantName = restaurant,
+                    shop = shop,
+                    onShopClick = { onShopClick(shop) },
                     onDelete = { /* 削除処理 */ }
                 )
             }
@@ -91,8 +136,8 @@ private fun AreaShopListMainContent(areaName: String) {
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor = Color(0xFFD32F2F), // 赤色
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onError
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -104,20 +149,21 @@ private fun AreaShopListMainContent(areaName: String) {
 
 @Composable
 private fun ShopItem(
-    restaurantName: String,
+    shop: Shop,
+    onShopClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* レストラン詳細のクリック処理 */ }
+                .clickable { onShopClick() }
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = restaurantName,
+                text = shop.name,
                 style = MaterialTheme.typography.titleMedium
             )
             
@@ -126,21 +172,17 @@ private fun ShopItem(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.kid_star_24px_fill),
-                        contentDescription = "",
-                        tint = Color (0xFFFFEA00)
-                    )
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.kid_star_24px_fill),
-                        contentDescription = "",
-                        tint = Color (0xFFFFEA00)
-                    )
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.kid_star_24px_empty),
-                        contentDescription = "",
-                        tint = Color (0xFFFFFEA00)
-                    )
+                    repeat(3) { index ->
+                        Icon(
+                            imageVector = if (index < shop.star) {
+                                vectorResource(Res.drawable.kid_star_24px_fill)
+                            } else {
+                                vectorResource(Res.drawable.kid_star_24px_empty)
+                            },
+                            contentDescription = "",
+                            tint = if (index < shop.star) Color(0xFFFFEA00) else Color.White
+                        )
+                    }
                 }
 
                 Text(
@@ -164,7 +206,8 @@ fun DetailScreenPreview() {
     RamenNoteTheme {
         AreaShopListScreen(
             areaName = "東京",
-            onBackClick = { }
+            onBackClick = { },
+            onShopClick = { }
         )
     }
 }
