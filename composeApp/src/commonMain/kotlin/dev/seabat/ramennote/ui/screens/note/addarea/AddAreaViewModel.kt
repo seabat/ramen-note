@@ -19,13 +19,14 @@ class AddAreaViewModel(
     private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
 ): ViewModel(), AddAreaViewModelContract {
 
-    private val _imageState: MutableStateFlow<RunStatus<ByteArray?>> =
+    private val _addState: MutableStateFlow<RunStatus<ByteArray?>> =
         MutableStateFlow(RunStatus.Idle())
-    override val imageState: StateFlow<RunStatus<ByteArray?>> = _imageState.asStateFlow()
+    override val addState: StateFlow<RunStatus<ByteArray?>> = _addState.asStateFlow()
 
     override fun addArea(area: String) {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         viewModelScope.launch {
+            _addState.value = RunStatus.Loading()
             areasRepository.add(
                 Area(
                     name = area.trim(),
@@ -33,13 +34,7 @@ class AddAreaViewModel(
                     count = 0
                 )
             )
-        }
-    }
-
-    override fun fetchImage(area: String) {
-        viewModelScope.launch {
-            _imageState.value = RunStatus.Loading()
-            _imageState.value = fetchUnsplashImageUseCase(area)
+            _addState.value = fetchUnsplashImageUseCase(area)
         }
     }
 }

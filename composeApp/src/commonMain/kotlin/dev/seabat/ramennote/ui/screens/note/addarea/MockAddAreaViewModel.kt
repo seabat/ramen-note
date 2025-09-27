@@ -11,15 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
  * 実際のデータベースアクセスを行わず、何もしない
  */
 class MockAddAreaViewModel : ViewModel(), AddAreaViewModelContract {
-    private val _imageState: MutableStateFlow<RunStatus<ByteArray?>> =
+    private val _addState: MutableStateFlow<RunStatus<ByteArray?>> =
         MutableStateFlow(RunStatus.Idle())
-    override val imageState: StateFlow<RunStatus<ByteArray?>> = _imageState.asStateFlow()
+    override val addState: StateFlow<RunStatus<ByteArray?>> = _addState.asStateFlow()
 
     override fun addArea(area: String) {
-        // Preview用なので何もしない
-    }
-
-    override fun fetchImage(query: String) {
         // Preview用なので何もしない
     }
 }
