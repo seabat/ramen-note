@@ -19,6 +19,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +32,7 @@ import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.kid_star_24px_empty
 import ramennote.composeapp.generated.resources.kid_star_24px_fill
@@ -38,8 +42,18 @@ import ramennote.composeapp.generated.resources.note_delete
 fun AreaShopListScreen(
     areaName: String,
     onBackClick: () -> Unit,
-    onShopClick: (Shop) -> Unit
+    onShopClick: (Shop) -> Unit,
+    onAddShopClick: (String) -> Unit,
+    viewModel: AreaShopListViewModelContract = koinViewModel<AreaShopListViewModel>()
 ) {
+    // SQLiteからデータを取得
+    val shops by viewModel.shops.collectAsState()
+
+    // 画面表示時にデータを取得（onResume相当）
+    LaunchedEffect(Unit) {
+        viewModel.loadShops(areaName)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -51,7 +65,9 @@ fun AreaShopListScreen(
         )
         AreaShopListMainContent(
             areaName = areaName,
-            onShopClick = onShopClick
+            onShopClick = onShopClick,
+            onAddShopClick = onAddShopClick,
+            shops = shops
         )
     }
 }
@@ -59,56 +75,15 @@ fun AreaShopListScreen(
 @Composable
 private fun AreaShopListMainContent(
     areaName: String,
-    onShopClick: (Shop) -> Unit
+    onShopClick: (Shop) -> Unit,
+    onAddShopClick: (areaName: String) -> Unit,
+    shops: List<Shop>
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // TODO: 後日SQLiteから取得する予定
-        val shops = listOf(
-            Shop(
-                name = "XXXX家",
-                shopUrl = "https://example.com/xxxx",
-                mapUrl = "https://maps.google.com/xxxx",
-                star = 2,
-                stationName = "JR渋谷駅",
-                category = "家系"
-            ),
-            Shop(
-                name = "YYYY家",
-                shopUrl = "https://example.com/yyyy",
-                mapUrl = "https://maps.google.com/yyyy",
-                star = 3,
-                stationName = "JR新宿駅",
-                category = "醤油"
-            ),
-            Shop(
-                name = "ZZZZ家",
-                shopUrl = "https://example.com/zzzz",
-                mapUrl = "https://maps.google.com/zzzz",
-                star = 1,
-                stationName = "JR池袋駅",
-                category = "味噌"
-            ),
-            Shop(
-                name = "AAAA家",
-                shopUrl = "https://example.com/aaaa",
-                mapUrl = "https://maps.google.com/aaaa",
-                star = 2,
-                stationName = "JR上野駅",
-                category = "塩"
-            ),
-            Shop(
-                name = "BBBB家",
-                shopUrl = "https://example.com/bbbb",
-                mapUrl = "https://maps.google.com/bbbb",
-                star = 3,
-                stationName = "JR品川駅",
-                category = "豚骨"
-            )
-        )
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -132,7 +107,7 @@ private fun AreaShopListMainContent(
         
         // 右下の追加ボタン
         FloatingActionButton(
-            onClick = { /* 追加処理 */ },
+            onClick = { onAddShopClick(areaName) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
@@ -207,7 +182,9 @@ fun DetailScreenPreview() {
         AreaShopListScreen(
             areaName = "東京",
             onBackClick = { },
-            onShopClick = { }
+            onShopClick = { },
+            onAddShopClick = { },
+            viewModel = MockAreaShopListViewModel()
         )
     }
 }

@@ -290,6 +290,7 @@ fun ShopScreenPreview() {
         ShopScreen(
             shop = Shop(
                 name = "XXXX家",
+                area = "東京",
                 shopUrl = "https://example.com",
                 mapUrl = "https://maps.google.com",
                 star = 2,

@@ -21,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
+import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
@@ -163,6 +164,15 @@ sealed interface Screen {
         }
     }
 
+    @Serializable
+    data class AddShop(val areaName: String) : Screen {
+        override val route: String = getRouteName(AddShop::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Add }
+        @Composable
+        override fun getTitle(): String { return "店舗登録" }
+    }
+
     val route: String
     @Composable
     fun getIcon(): ImageVector
@@ -260,6 +270,9 @@ fun MainNavigation() {
                     },
                     onShopClick = { shop ->
                         navController.navigate(Screen.Shop(shop.toJsonString()))
+                    },
+                    onAddShopClick = { areaName ->
+                        navController.navigate(Screen.AddShop(areaName))
                     }
                 )
             }
@@ -285,6 +298,7 @@ fun MainNavigation() {
                     // エラーの場合はデフォルトのShopオブジェクトを作成
                     ShopInfo(
                         name = "エラー",
+                        area = "",
                         shopUrl = "",
                         mapUrl = "",
                         star = 0,
@@ -295,6 +309,14 @@ fun MainNavigation() {
                 ShopScreen(
                     shop = shop,
                     onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable<Screen.AddShop> { backStackEntry ->
+                val screen: Screen.EditArea = backStackEntry.toRoute()
+                AddShopScreen(
+                    areaName = screen.areaName,
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() }
                 )
             }
         }

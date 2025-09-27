@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class Shop(
     val name: String,
+    val area: String,
     val shopUrl: String,
     val mapUrl: String,
     val star: Int,
