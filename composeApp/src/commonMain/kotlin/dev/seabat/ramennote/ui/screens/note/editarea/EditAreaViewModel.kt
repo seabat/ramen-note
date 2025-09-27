@@ -2,17 +2,19 @@ package dev.seabat.ramennote.ui.screens.note.editarea
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class EditAreaViewModel(
-    private val areasRepository: AreasRepositoryContract,
+    private val deleteAreaUseCase: DeleteAreaUseCaseContract,
+    private val updateAreaUseCase: UpdateAreaUseCaseContract,
     private val fetchImageUseCase: FetchImageUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract
 ): ViewModel(), EditAreaViewModelContract {
@@ -29,20 +31,20 @@ class EditAreaViewModel(
         MutableStateFlow(RunStatus.Idle())
     override val imageState: StateFlow<RunStatus<ByteArray?>> = _imageState.asStateFlow()
 
-    override var currentAreas = ""
+    override var currentAreaName = ""
 
-    override fun editArea(newArea: String) {
+    override fun editArea(newAreaName: String) {
         viewModelScope.launch {
             _editState.value = RunStatus.Loading()
-            _editState.value = areasRepository.edit(currentAreas, newArea)
-            currentAreas = newArea
+            _editState.value = updateAreaUseCase(currentAreaName, newAreaName)
+            currentAreaName = newAreaName
         }
     }
 
-    override fun deleteArea(area: String) {
+    override fun deleteArea(areaName: String) {
         viewModelScope.launch {
             _deleteState.value = RunStatus.Loading()
-            _editState.value = areasRepository.delete( area)
+            _editState.value = deleteAreaUseCase( areaName)
         }
     }
 
@@ -53,10 +55,10 @@ class EditAreaViewModel(
         }
     }
 
-    override fun loadImage() {
+    override fun loadImage(name: String) {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = loadImageUseCase()
+            _imageState.value = loadImageUseCase(name)
         }
     }
 }

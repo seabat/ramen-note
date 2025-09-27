@@ -13,11 +13,11 @@ class FetchUnsplashImageUseCase(
             // Fetch image from remote repository
             val imageBytes = unsplashImageRepository.fetch(query)
 
-            // Save to local storage
-            localAreaImageRepository.save(imageBytes)
+            // Save to local storage with query as filename
+            localAreaImageRepository.save(imageBytes, query)
 
-            // Load from local storage
-            val localImageBytes = localAreaImageRepository.load()
+            // Load from local storage with query as filename
+            val localImageBytes = localAreaImageRepository.load(query)
 
             if (localImageBytes != null) {
                 RunStatus.Success(localImageBytes)

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,7 +29,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppBar
@@ -46,7 +46,7 @@ fun AddAreaScreen(
 ) {
     var areaName by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-    val imageState by viewModel.imageState.collectAsState()
+    val addState by viewModel.addState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -56,85 +56,74 @@ fun AddAreaScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures { focusManager.clearFocus() }
-                },
-            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
-                Text(text = "エリア", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = areaName,
-                    onValueChange = { areaName = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = { focusManager.clearFocus() }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { focusManager.clearFocus() }
+                    },
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
+                    Text(text = "エリア", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = areaName,
+                        onValueChange = { areaName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        )
                     )
-                )
-                Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(16.dp))
+                }
+
                 Button(
-                    onClick = { viewModel.fetchImage(areaName) },
-                    enabled = areaName.isNotBlank(),
+                    onClick = {
+                        if (areaName.isNotBlank()) {
+                            viewModel.addArea(areaName)
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
+                    ),
+                    shape = MaterialTheme.shapes.medium
                 ) {
-                    Text("画像を選択する")
-                }
-                Spacer(Modifier.height(16.dp))
-                when (imageState) {
-                    is RunStatus.Success -> {
-                        // Coilを使用して画像を表示
-                        AsyncImage(
-                            model = imageState.data,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(180.dp)
-                        )
-                    }
-                    is RunStatus.Loading -> {
-                        AppProgressBar()
-                    }
-                    is RunStatus.Error -> {
-                        AppAlert(
-                            message = "画像の読み込みに失敗しました: ${imageState.message}",
-                            onConfirm = { }
-                        )
-                    }
-                    is RunStatus.Idle -> {
-                        // Do nothing
-                    }
+                    Text(text = "登録する", style = MaterialTheme.typography.titleMedium)
                 }
             }
 
-            Button(
-                onClick = {
-                    if (areaName.isNotBlank()) {
-                        viewModel.addArea(areaName)
-                        onCompleted()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                ),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text(text = "登録する", style = MaterialTheme.typography.titleMedium)
-            }
+            AddStatus(addState) { onCompleted() }
         }
+    }
+}
+
+@Composable
+fun AddStatus(
+    addStatus: RunStatus<ByteArray?>,
+    onCompleted: () -> Unit
+){
+    when (addStatus) {
+        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Error -> {
+            AppAlert(
+                message = "${addStatus.message}",
+                onConfirm = { onCompleted() }
+            )
+        }
+        is RunStatus.Loading -> { AppProgressBar() }
+        is RunStatus.Idle -> { /* Do nothing */}
     }
 }
 

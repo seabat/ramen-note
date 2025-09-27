@@ -7,7 +7,7 @@ class LoadImageUseCase(
     private val localAreaImageRepository: LocalAreaImageRepositoryContract
 ) : LoadImageUseCaseContract {
 
-    override suspend operator fun invoke(): RunStatus<ByteArray?> {
-        return RunStatus.Success(localAreaImageRepository.load())
+    override suspend operator fun invoke(name: String): RunStatus<ByteArray?> {
+        return RunStatus.Success(localAreaImageRepository.load(name))
     }
 }

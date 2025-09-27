@@ -47,15 +47,15 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditAreaScreen(
-    area: String,
+    areaName: String,
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
     viewModel: EditAreaViewModelContract = koinViewModel<EditAreaViewModel>()
 ) {
 
     LaunchedEffect(Unit) {
-        viewModel.currentAreas = area
-        viewModel.loadImage()
+        viewModel.currentAreaName = areaName
+        viewModel.loadImage(areaName)
     }
 
     Scaffold(
@@ -71,7 +71,7 @@ fun EditAreaScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            var areaName by remember { mutableStateOf(area) }
+            var areaName by remember { mutableStateOf(areaName) }
             var shouldShowAlert by remember { mutableStateOf(false) }
             val deleteStatus by viewModel.deleteState.collectAsState()
             val editStatus by viewModel.editState.collectAsState()
@@ -245,7 +245,7 @@ fun DeleteStatus(
 fun EditAreaScreen() {
     RamenNoteTheme {
         EditAreaScreen(
-            area = "エリア名",
+            areaName = "エリア名",
             onBackClick = {},
             onCompleted = {},
             viewModel = MockEditAreaViewModel()

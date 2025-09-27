@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.data.di
+package dev.seabat.ramennote.di
 
 import dev.seabat.ramennote.data.datasource.LocalStorageDataSourceContract
 import org.koin.core.module.Module
