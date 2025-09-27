@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.data.repository
 
+import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

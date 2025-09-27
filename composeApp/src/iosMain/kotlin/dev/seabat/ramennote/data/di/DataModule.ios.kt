@@ -4,6 +4,10 @@ import dev.seabat.ramennote.data.database.DatabaseFactoryContract
 import dev.seabat.ramennote.data.database.IosDatabaseFactory
 import org.koin.dsl.module
 
+actual val dataSourceModule = module {
+    // NOTE: createSwiftLibDependencyModule で提供される
+}
+
 actual val factoryModule = module {
     single<DatabaseFactoryContract> { IosDatabaseFactory() }
 }
