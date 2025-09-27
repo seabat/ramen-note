@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.domain.usecase.FetchImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +16,7 @@ import kotlinx.datetime.toLocalDateTime
 
 class AddAreaViewModel(
     private val areasRepository: AreasRepositoryContract,
-    private val fetchImageUseCase: FetchImageUseCaseContract
+    private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
 ): ViewModel(), AddAreaViewModelContract {
 
     private val _imageState: MutableStateFlow<RunStatus<ByteArray?>> =
@@ -36,10 +36,10 @@ class AddAreaViewModel(
         }
     }
 
-    override fun fetchImage() {
+    override fun fetchImage(area: String) {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = fetchImageUseCase()
+            _imageState.value = fetchUnsplashImageUseCase(area)
         }
     }
 }

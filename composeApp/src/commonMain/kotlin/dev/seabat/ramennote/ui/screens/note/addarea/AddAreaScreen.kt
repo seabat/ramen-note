@@ -80,7 +80,8 @@ fun AddAreaScreen(
                 )
                 Spacer(Modifier.height(16.dp))
                 Button(
-                    onClick = { viewModel.fetchImage() },
+                    onClick = { viewModel.fetchImage(areaName) },
+                    enabled = areaName.isNotBlank(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer
