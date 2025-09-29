@@ -20,7 +20,10 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppAlert
-import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.permission.PermissionCallback
+import dev.seabat.ramennote.ui.permission.PermissionStatus
+import dev.seabat.ramennote.ui.permission.PermissionType
+import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
@@ -52,6 +55,8 @@ fun AddShopScreen(
     var category by remember { mutableStateOf("") }
 
     val saveState by viewModel.saveState.collectAsState()
+
+    Permission()
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -170,6 +175,27 @@ fun AddShopScreen(
             )
         }
         else -> { /* その他の状態は何もしない */ }
+    }
+}
+
+@Composable
+private fun Permission() {
+    val currentCallback by rememberUpdatedState(
+        object : PermissionCallback {
+            override fun onPermissionStatus(
+                permissionType: PermissionType,
+                status: PermissionStatus
+            ) {
+                // TODO: 権限ステータスの処理
+            }
+        }
+    )
+    val permissionLauncher = createRememberedPermissionsLauncher(currentCallback)
+    var shouldRequest by remember { mutableStateOf(true) }
+    val isGranted = permissionLauncher.isPermissionGranted(PermissionType.GALLERY)
+    if (!isGranted && shouldRequest) {
+        permissionLauncher.askPermission(PermissionType.GALLERY)
+        shouldRequest = false
     }
 }
 

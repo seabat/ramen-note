@@ -37,6 +37,8 @@ kotlin {
             implementation(libs.koin.android)
 
             implementation(libs.ktor.client.okhttp)
+
+            implementation(libs.accompanist.permissions)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -60,7 +62,7 @@ kotlin {
             implementation(libs.koin.androidx.compose)
             implementation(libs.koin.test)
 
-            implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
+            implementation(libs.material.icons.core)
 
             // Ktor client for image fetching
             implementation(project.dependencies.platform(libs.ktor.bom))
