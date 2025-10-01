@@ -2,7 +2,7 @@ package dev.seabat.ramennote.config
 
 object UnsplashConfig {
     // 実際のアクセスキーに置き換えてください
-    const val ACCESS_KEY = "YOUR_UNSPLASH_ACCESS_KEY"
+    const val ACCESS_KEY = "M3rYxgI0OCbYJUvj25qsutIvZoAJIa5c7jlKPDgJzyo"
     
     // APIの制限
     const val MAX_REQUESTS_PER_HOUR = 50
