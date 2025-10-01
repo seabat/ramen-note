@@ -6,13 +6,13 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class Shop(
-    val name: String,
-    val area: String,
-    val shopUrl: String,
-    val mapUrl: String,
-    val star: Int,
-    val stationName: String,
-    val category: String
+    val name: String = "",
+    val area: String = "",
+    val shopUrl: String = "",
+    val mapUrl: String = "",
+    val star: Int = 0,
+    val stationName: String = "",
+    val category: String = ""
 ) {
     fun toJsonString(): String {
         return Json.encodeToString(this)

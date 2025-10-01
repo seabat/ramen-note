@@ -29,14 +29,12 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.kid_star_24px_empty
 import ramennote.composeapp.generated.resources.kid_star_24px_fill
-import ramennote.composeapp.generated.resources.note_delete
 
 @Composable
 fun AreaShopListScreen(
@@ -160,12 +158,6 @@ private fun ShopItem(
                     }
                 }
 
-                Text(
-                    text = stringResource(Res.string.note_delete),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Blue,
-                    modifier = Modifier.clickable { onDelete() }
-                )
             }
         }
         Divider(

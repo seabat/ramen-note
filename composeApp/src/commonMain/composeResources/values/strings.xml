@@ -25,8 +25,7 @@
     <!-- Note Screen -->
     <string name="note_area_selection">エリアを選択</string>
     <string name="note_item_count">1件</string>
-    <string name="note_delete">削除</string>
-    
+
     <!-- Edit Area Screen -->
     <string name="editarea_change_image_button">画像を変更する</string>
     <string name="editarea_delete_confirm">%1$sを削除して良いですか？</string>
@@ -45,7 +44,7 @@
     <!-- Add Shop Screen -->
     <string name="add_shop_title">登録</string>
     <string name="add_shop_name_label">名前</string>
-    <string name="add_shop_photo1_label">写真1</string>
+    <string name="add_shop_photo_label">写真</string>
     <string name="add_shop_select_button">選択</string>
     <string name="add_shop_no_image">No Image</string>
     <string name="add_shop_register_button">登録</string>
