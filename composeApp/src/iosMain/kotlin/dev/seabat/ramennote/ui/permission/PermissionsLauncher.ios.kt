@@ -10,6 +10,8 @@ import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.authorizationStatusForMediaType
 import platform.AVFoundation.requestAccessForMediaType
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 import platform.Foundation.NSURL
 import platform.Photos.PHAuthorizationStatus
 import platform.Photos.PHAuthorizationStatusAuthorized
@@ -114,7 +116,14 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
 
 @Composable
 actual fun launchSettings() {
-    NSURL.URLWithString(UIApplicationOpenSettingsURLString)?.let {
-        UIApplication.sharedApplication.openURL(it)
+    // メインスレッドで実行し、canOpenURL を確認してから options/handler 付きで開く
+    dispatch_async(dispatch_get_main_queue()) {
+        val url = NSURL.URLWithString(UIApplicationOpenSettingsURLString) ?: return@dispatch_async
+        val app = UIApplication.sharedApplication
+        if (app.canOpenURL(url)) {
+            app.openURL(url, options = emptyMap<Any?, Any?>()) { _ ->
+                // 失敗時は必要に応じてハンドリング
+            }
+        }
     }
 }
