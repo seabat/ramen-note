@@ -31,20 +31,18 @@ import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_shop_no_image
 import ramennote.composeapp.generated.resources.add_shop_option1
-import ramennote.composeapp.generated.resources.add_shop_photo1_label
+import ramennote.composeapp.generated.resources.add_shop_photo_label
 import ramennote.composeapp.generated.resources.add_shop_register_button
 import ramennote.composeapp.generated.resources.add_shop_select_button
 import ramennote.composeapp.generated.resources.add_shop_title
@@ -159,10 +157,10 @@ fun AddShopScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 評価
-            ShopDropdownField(
+            StarDropdownField(
                 label = stringResource(Res.string.add_evaluation_label),
-                value = star.toString(),
-                onValueChange = { star = it.toIntOrNull() ?: 1 }
+                value = star,
+                onValueChange = { star = it }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -176,18 +174,18 @@ fun AddShopScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 系統
-            ShopDropdownField(
-                label = stringResource(Res.string.add_category_label),
-                value = category,
-                onValueChange = { category = it }
-            )
+//            // 系統
+//            ShopDropdownField(
+//                label = stringResource(Res.string.add_category_label),
+//                value = category,
+//                onValueChange = { category = it }
+//            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 写真1
+            // 写真
             PhotoSelectionField(
-                label = stringResource(Res.string.add_shop_photo1_label),
+                label = stringResource(Res.string.add_shop_photo_label),
                 imageBitmap = imageBitmap,
             ) {
                 permissionEnabled = true
@@ -196,6 +194,8 @@ fun AddShopScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // 登録ボタン
+            val isButtonEnabled = name.isNotBlank() && areaName.isNotBlank()
+            
             Button(
                 onClick = {
                     val shop = Shop(
@@ -209,6 +209,7 @@ fun AddShopScreen(
                     )
                     viewModel.saveShop(shop)
                 },
+                enabled = isButtonEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -299,6 +300,58 @@ private fun ShopInputField(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StarDropdownField(
+    label: String,
+    value: Int,
+    onValueChange: (Int) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val options = listOf("", "1", "2", "3")
+    val displayValue = if (value == 0) "" else value.toString()
+
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = displayValue,
+                onValueChange = { },
+                readOnly = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                }
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            val intValue = if (option.isEmpty()) 0 else option.toIntOrNull() ?: 0
+                            onValueChange(intValue)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun ShopDropdownField(
     label: String,
@@ -368,7 +421,7 @@ private fun PhotoSelectionField(
         ) {
             Text(
                 text = stringResource(Res.string.add_shop_select_button),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
                 color = Color.Blue,
                 modifier = Modifier.clickable { onClick() }
             )
