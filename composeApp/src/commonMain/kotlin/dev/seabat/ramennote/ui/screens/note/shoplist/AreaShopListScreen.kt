@@ -19,25 +19,39 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.kid_star_24px_empty
 import ramennote.composeapp.generated.resources.kid_star_24px_fill
-import ramennote.composeapp.generated.resources.note_delete
 
 @Composable
 fun AreaShopListScreen(
     areaName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onShopClick: (Shop) -> Unit,
+    onAddShopClick: (String) -> Unit,
+    viewModel: AreaShopListViewModelContract = koinViewModel<AreaShopListViewModel>()
 ) {
+    // SQLiteからデータを取得
+    val shops by viewModel.shops.collectAsState()
+
+    // 画面表示時にデータを取得（onResume相当）
+    LaunchedEffect(Unit) {
+        viewModel.loadShops(areaName)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -47,24 +61,27 @@ fun AreaShopListScreen(
             title = areaName,
             onBackClick = onBackClick
         )
-        AreaShopListMainContent(areaName = areaName)
+        AreaShopListMainContent(
+            areaName = areaName,
+            onShopClick = onShopClick,
+            onAddShopClick = onAddShopClick,
+            shops = shops
+        )
     }
 }
 
 @Composable
-private fun AreaShopListMainContent(areaName: String) {
+private fun AreaShopListMainContent(
+    areaName: String,
+    onShopClick: (Shop) -> Unit,
+    onAddShopClick: (areaName: String) -> Unit,
+    shops: List<Shop>
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val restaurants = listOf(
-            "XXXX家",
-            "YYYY家", 
-            "ZZZZ家",
-            "AAAA家",
-            "BBBB家"
-        )
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -77,9 +94,10 @@ private fun AreaShopListMainContent(areaName: String) {
                     thickness = 1.dp
                 )
             }
-            items(restaurants) { restaurant ->
+            items(shops) { shop ->
                 ShopItem(
-                    restaurantName = restaurant,
+                    shop = shop,
+                    onShopClick = { onShopClick(shop) },
                     onDelete = { /* 削除処理 */ }
                 )
             }
@@ -87,12 +105,12 @@ private fun AreaShopListMainContent(areaName: String) {
         
         // 右下の追加ボタン
         FloatingActionButton(
-            onClick = { /* 追加処理 */ },
+            onClick = { onAddShopClick(areaName) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor = Color(0xFFD32F2F), // 赤色
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onError
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -104,20 +122,21 @@ private fun AreaShopListMainContent(areaName: String) {
 
 @Composable
 private fun ShopItem(
-    restaurantName: String,
+    shop: Shop,
+    onShopClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* レストラン詳細のクリック処理 */ }
+                .clickable { onShopClick() }
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = restaurantName,
+                text = shop.name,
                 style = MaterialTheme.typography.titleMedium
             )
             
@@ -126,29 +145,19 @@ private fun ShopItem(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.kid_star_24px_fill),
-                        contentDescription = "",
-                        tint = Color (0xFFFFEA00)
-                    )
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.kid_star_24px_fill),
-                        contentDescription = "",
-                        tint = Color (0xFFFFEA00)
-                    )
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.kid_star_24px_empty),
-                        contentDescription = "",
-                        tint = Color (0xFFFFFEA00)
-                    )
+                    repeat(3) { index ->
+                        Icon(
+                            imageVector = if (index < shop.star) {
+                                vectorResource(Res.drawable.kid_star_24px_fill)
+                            } else {
+                                vectorResource(Res.drawable.kid_star_24px_empty)
+                            },
+                            contentDescription = "",
+                            tint = if (index < shop.star) Color(0xFFFFEA00) else Color.White
+                        )
+                    }
                 }
 
-                Text(
-                    text = stringResource(Res.string.note_delete),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Blue,
-                    modifier = Modifier.clickable { onDelete() }
-                )
             }
         }
         Divider(
@@ -164,7 +173,10 @@ fun DetailScreenPreview() {
     RamenNoteTheme {
         AreaShopListScreen(
             areaName = "東京",
-            onBackClick = { }
+            onBackClick = { },
+            onShopClick = { },
+            onAddShopClick = { },
+            viewModel = MockAreaShopListViewModel()
         )
     }
 }
