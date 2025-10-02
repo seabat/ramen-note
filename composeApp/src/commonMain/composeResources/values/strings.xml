@@ -49,7 +49,8 @@
     <string name="add_shop_no_image">No Image</string>
     <string name="add_shop_register_button">登録</string>
     <string name="add_shop_option1">Option 1</string>
-    
+    <string name="add_shop_menu_name_label">メニュー</string>
+
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
 </resources>

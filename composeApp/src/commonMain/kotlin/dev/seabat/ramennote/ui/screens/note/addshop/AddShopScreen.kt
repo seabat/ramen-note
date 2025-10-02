@@ -45,6 +45,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
+import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_shop_no_image
 import ramennote.composeapp.generated.resources.add_shop_option1
@@ -69,6 +70,7 @@ fun AddShopScreen(
     var stationName by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var category by remember { mutableStateOf("") }
+    var menuName by remember { mutableStateOf("") }
 
     val saveState by viewModel.saveState.collectAsState()
 
@@ -193,13 +195,13 @@ fun AddShopScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 写真
-            PhotoSelectionField(
-                label = stringResource(Res.string.add_shop_photo_label),
+            // ラーメン
+            ramen(
+                menuName = menuName,
                 imageBitmap = imageBitmap,
-            ) {
-                permissionEnabled = true
-            }
+                enablePermission = { permissionEnabled = true },
+                onMenuValueChange = {}
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -285,6 +287,62 @@ private fun Permission(
     } else {
         logd("ramen-note", "GALLERY Permission: not Granted")
         permissionLauncher.askPermission(PermissionType.GALLERY)
+    }
+}
+
+@Composable
+private fun ramen(
+    menuName: String = "",
+    imageBitmap:ImageBitmap?,
+    enablePermission: () -> Unit,
+    onMenuValueChange: (String) -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // メインのBox
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = Color.Black,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                ShopInputField(
+                    label = stringResource(Res.string.add_shop_menu_name_label),
+                    value = menuName,
+                    onValueChange =onMenuValueChange
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 写真
+                PhotoSelectionField(
+                    label = stringResource(Res.string.add_shop_photo_label),
+                    imageBitmap = imageBitmap,
+                    onClick = enablePermission
+                )
+            }
+        }
+        
+        // タイトルをborder上に配置
+        Text(
+            text = "メニュー情報",
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset(x = 16.dp, y = (-8).dp) // 位置調整
+                .background(Color.White)
+                .padding(horizontal = 4.dp),
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 
