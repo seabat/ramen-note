@@ -30,6 +30,7 @@ import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
 import dev.seabat.ramennote.ui.permission.PermissionStatus
@@ -37,6 +38,7 @@ import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -80,16 +82,8 @@ fun AddShopScreen(
     var shouldLaunchSetting by remember { mutableStateOf(false) }
     var shouldShowPermissionRationalDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    val galleryManager = createRememberedGalleryLauncher {
-        coroutineScope.launch {
-            val bitmap = withContext(Dispatchers.Default) {
-                it?.toImageBitmap()
-            }
-            imageBitmap = bitmap
-        }
-    }
-
+    var sharedImage by remember { mutableStateOf<SharedImage?>(null) }
+    val galleryManager = createRememberedGalleryLauncher { sharedImage = it }
 
     if (permissionEnabled) {
         Permission(
@@ -197,10 +191,11 @@ fun AddShopScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+
             // ラーメン
             Ramen(
                 menuName = menuName,
-                imageBitmap = imageBitmap,
+                sharedImage = sharedImage,
                 enablePermission = { permissionEnabled = true },
                 onMenuValueChange = { menuName = it }
             )
@@ -230,9 +225,9 @@ fun AddShopScreen(
                         stationName = stationName,
                         category = category,
                         menuName1 = menuName,
-                        photoName1 = if (imageBitmap != null) currentTime + "_1" else ""
+                        photoName1 = if (sharedImage != null) currentTime + "_1" else ""
                     )
-                    viewModel.saveShop(shop)
+                    viewModel.saveShop(shop, sharedImage)
                 },
                 enabled = isButtonEnabled,
                 modifier = Modifier
@@ -306,7 +301,7 @@ private fun Permission(
 @Composable
 private fun Ramen(
     menuName: String = "",
-    imageBitmap:ImageBitmap?,
+    sharedImage: SharedImage?,
     enablePermission: () -> Unit,
     onMenuValueChange: (String) -> Unit
 ) {
@@ -340,7 +335,7 @@ private fun Ramen(
                 // 写真
                 PhotoSelectionField(
                     label = stringResource(Res.string.add_shop_photo_label),
-                    imageBitmap = imageBitmap,
+                    sharedImage = sharedImage,
                     onClick = enablePermission
                 )
             }
@@ -491,9 +486,17 @@ private fun ShopDropdownField(
 @Composable
 private fun PhotoSelectionField(
     label: String,
-    imageBitmap: ImageBitmap? = null,
+    sharedImage: SharedImage? = null,
     onClick: () -> Unit
 ) {
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(sharedImage) {
+        val image = withContext(Dispatchers.Default) {
+            sharedImage?.toImageBitmap()
+        }
+        imageBitmap = image
+    }
+
     Column {
         Text(
             text = label,
@@ -516,7 +519,7 @@ private fun PhotoSelectionField(
                 Image(
                     modifier = Modifier
                         .size(120.dp),
-                    bitmap = imageBitmap,
+                    bitmap = imageBitmap!!,
                     contentDescription = null
                 )
             } else {
