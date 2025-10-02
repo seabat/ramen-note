@@ -39,6 +39,8 @@ import dev.seabat.ramennote.ui.permission.launchSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -196,11 +198,11 @@ fun AddShopScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ラーメン
-            ramen(
+            Ramen(
                 menuName = menuName,
                 imageBitmap = imageBitmap,
                 enablePermission = { permissionEnabled = true },
-                onMenuValueChange = {}
+                onMenuValueChange = { menuName = it }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -210,6 +212,15 @@ fun AddShopScreen(
             
             Button(
                 onClick = {
+                    val now = Clock.System.now().toLocalDateTime(
+                        kotlinx.datetime.TimeZone.currentSystemDefault()
+                    )
+                    val currentTime = "${now.year}${now.monthNumber.toString()
+                        .padStart(2, '0')}${now.dayOfMonth.toString()
+                            .padStart(2, '0')}T${now.hour.toString()
+                                .padStart(2, '0')}${now.minute.toString()
+                                    .padStart(2, '0')}${now.second.toString()
+                                        .padStart(2, '0')}"
                     val shop = Shop(
                         name = name,
                         area = areaName,
@@ -217,7 +228,9 @@ fun AddShopScreen(
                         mapUrl = mapUrl,
                         star = star,
                         stationName = stationName,
-                        category = category
+                        category = category,
+                        menuName1 = menuName,
+                        photoName1 = if (imageBitmap != null) currentTime + "_1" else ""
                     )
                     viewModel.saveShop(shop)
                 },
@@ -291,7 +304,7 @@ private fun Permission(
 }
 
 @Composable
-private fun ramen(
+private fun Ramen(
     menuName: String = "",
     imageBitmap:ImageBitmap?,
     enablePermission: () -> Unit,

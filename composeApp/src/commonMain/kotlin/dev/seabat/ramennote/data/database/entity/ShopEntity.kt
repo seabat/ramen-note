@@ -12,7 +12,14 @@ data class ShopEntity(
     val mapUrl: String,
     val star: Int,
     val stationName: String,
-    val imageName1: String,
-    val imageName2: String,
-    val imageName3: String,
+    val category: String,
+    val menuName1: String,
+    val menuName2: String,
+    val menuName3: String,
+    val photoName1: String,
+    val photoName2: String,
+    val photoName3: String,
+    val description1: String,
+    val description2: String,
+    val description3: String
 )
