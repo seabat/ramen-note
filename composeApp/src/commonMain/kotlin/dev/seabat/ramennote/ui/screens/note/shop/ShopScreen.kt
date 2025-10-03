@@ -42,6 +42,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ShopScreen(
     shop: Shop,
     onBackClick: () -> Unit,
+    onEditClick: (String) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     Scaffold(
@@ -69,7 +70,9 @@ fun ShopScreen(
                 Header(imageBytes)
 
                 // アクションボタン
-                ActionButtons()
+                ActionButtons(
+                    onEditClick = { onEditClick(shop.toJsonString()) }
+                )
 
                 // 詳細情報
                 Detail(shop)
@@ -137,7 +140,9 @@ fun Header(imageBytes: ByteArray?) {
 
 // アクションボタン
 @Composable
-fun ActionButtons() {
+fun ActionButtons(
+    onEditClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -156,7 +161,7 @@ fun ActionButtons() {
         }
 
         Button(
-            onClick = { /* 編集処理 */ },
+            onClick = onEditClick,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -303,6 +308,7 @@ fun ShopScreenPreview() {
                 category = "家系"
             ),
             onBackClick = { },
+            onEditClick = { }
         )
     }
 }
