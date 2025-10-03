@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
@@ -33,11 +34,14 @@ import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
 import ramennote.composeapp.generated.resources.kid_star_24px_empty
 import ramennote.composeapp.generated.resources.kid_star_24px_fill
+import coil3.compose.AsyncImage
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ShopScreen(
     shop: Shop,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     Scaffold(
         topBar = {
@@ -58,7 +62,11 @@ fun ShopScreen(
                     .fillMaxSize()
             ) {
                 // ヘッダー画像エリア
-                Header()
+                LaunchedEffect(shop.name) {
+                    viewModel.loadImage(shop)
+                }
+                val imageBytes by viewModel.shopImage.collectAsState()
+                Header(imageBytes)
 
                 // アクションボタン
                 ActionButtons()
@@ -71,15 +79,21 @@ fun ShopScreen(
 }
 
 @Composable
-fun Header() {
+fun Header(imageBytes: ByteArray?) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
             .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
-        // 画像
-        // TODO: 画像表示
+        if (imageBytes != null) {
+            AsyncImage(
+                model = imageBytes,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
 
         // オーバーレイ（半透明の黒い背景）
         Box(
