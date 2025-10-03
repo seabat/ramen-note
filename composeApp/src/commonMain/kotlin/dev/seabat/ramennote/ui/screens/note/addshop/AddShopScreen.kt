@@ -13,8 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +28,7 @@ import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.component.MaxWidthButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
@@ -38,8 +37,6 @@ import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toLocalDateTime
@@ -52,7 +49,6 @@ import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_shop_no_image
-import ramennote.composeapp.generated.resources.add_shop_option1
 import ramennote.composeapp.generated.resources.add_shop_photo_label
 import ramennote.composeapp.generated.resources.add_shop_register_button
 import ramennote.composeapp.generated.resources.add_shop_select_button
@@ -204,44 +200,29 @@ fun AddShopScreen(
 
             // 登録ボタン
             val isButtonEnabled = name.isNotBlank() && areaName.isNotBlank()
-            
-            Button(
-                onClick = {
-                    val now = Clock.System.now().toLocalDateTime(
-                        kotlinx.datetime.TimeZone.currentSystemDefault()
-                    )
-                    val currentTime = "${now.year}${now.monthNumber.toString()
-                        .padStart(2, '0')}${now.dayOfMonth.toString()
-                            .padStart(2, '0')}T${now.hour.toString()
-                                .padStart(2, '0')}${now.minute.toString()
-                                    .padStart(2, '0')}${now.second.toString()
-                                        .padStart(2, '0')}"
-                    val shop = Shop(
-                        name = name,
-                        area = areaName,
-                        shopUrl = shopUrl,
-                        mapUrl = mapUrl,
-                        star = star,
-                        stationName = stationName,
-                        category = category,
-                        menuName1 = menuName,
-                        photoName1 = if (sharedImage != null) currentTime + "_1" else ""
-                    )
-                    viewModel.saveShop(shop, sharedImage)
-                },
-                enabled = isButtonEnabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+
+            MaxWidthButton(stringResource(Res.string.add_shop_register_button)) {
+                val now = Clock.System.now().toLocalDateTime(
+                    kotlinx.datetime.TimeZone.currentSystemDefault()
                 )
-            ) {
-                Text(
-                    text = stringResource(Res.string.add_shop_register_button),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
+                val currentTime = "${now.year}${now.monthNumber.toString()
+                    .padStart(2, '0')}${now.dayOfMonth.toString()
+                    .padStart(2, '0')}T${now.hour.toString()
+                    .padStart(2, '0')}${now.minute.toString()
+                    .padStart(2, '0')}${now.second.toString()
+                    .padStart(2, '0')}"
+                val shop = Shop(
+                    name = name,
+                    area = areaName,
+                    shopUrl = shopUrl,
+                    mapUrl = mapUrl,
+                    star = star,
+                    stationName = stationName,
+                    category = category,
+                    menuName1 = menuName,
+                    photoName1 = if (sharedImage != null) currentTime + "_1" else ""
                 )
+                viewModel.saveShop(shop, sharedImage)
             }
         }
     }
@@ -314,7 +295,7 @@ private fun Ramen(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(10.dp)
                 )
                 .padding(16.dp),
@@ -368,12 +349,20 @@ private fun ShopInputField(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
         )
+        
         Spacer(modifier = Modifier.height(8.dp))
+        
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                errorBorderColor = MaterialTheme.colorScheme.error
+            ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.clearFocus() }
@@ -411,6 +400,12 @@ private fun StarDropdownField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .menuAnchor(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.outline,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    errorBorderColor = MaterialTheme.colorScheme.error
+                ),
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 }
@@ -425,55 +420,6 @@ private fun StarDropdownField(
                         onClick = {
                             val intValue = if (option.isEmpty()) 0 else option.toIntOrNull() ?: 0
                             onValueChange(intValue)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ShopDropdownField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val options = listOf("Option 1", "Option 2", "Option 3")
-
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Box {
-            OutlinedTextField(
-                value = value.ifEmpty { stringResource(Res.string.add_shop_option1) },
-                onValueChange = { },
-                readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = true },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null
-                    )
-                }
-            )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            onValueChange(option)
                             expanded = false
                         }
                     )
@@ -528,7 +474,7 @@ private fun PhotoSelectionField(
                         .size(80.dp)
                         .border(
                             width = 1.dp,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.outline,
                             shape = RoundedCornerShape(4.dp)
                         )
                         .background(Color.White),

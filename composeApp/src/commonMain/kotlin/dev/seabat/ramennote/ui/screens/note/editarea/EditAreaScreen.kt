@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
@@ -40,9 +41,12 @@ import ramennote.composeapp.generated.resources.editarea_title
 import ramennote.composeapp.generated.resources.editarea_delete_confirm
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppProgressBar
+import dev.seabat.ramennote.ui.component.MaxWidthButton
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.editarea_delete_button
+import ramennote.composeapp.generated.resources.editarea_edit_button
 import ramennote.composeapp.generated.resources.editarea_image_load_error
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,6 +99,12 @@ fun EditAreaScreen(
                         value = areaName,
                         onValueChange = { areaName = it },
                         modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.outline,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            errorBorderColor = MaterialTheme.colorScheme.error
+                        ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
                             onDone = { focusManager.clearFocus() }
@@ -172,38 +182,11 @@ fun BottomContent(
     onDeleteButtonClick: () -> Unit,
 ) {
     Column {
-        Button(
-            onClick = {
-                if (areaName.isNotBlank()) {
-                    onEditButtonClick()
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            ),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Text(text = "変更する", style = MaterialTheme.typography.titleMedium)
+        MaxWidthButton(stringResource(Res.string.editarea_edit_button)) {
+            onEditButtonClick()
         }
-
-        Button(
-            onClick = {
-                onDeleteButtonClick()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            ),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Text(text = "削除する", style = MaterialTheme.typography.titleMedium)
+        MaxWidthButton(stringResource(Res.string.editarea_delete_button)) {
+            onDeleteButtonClick()
         }
     }
 }

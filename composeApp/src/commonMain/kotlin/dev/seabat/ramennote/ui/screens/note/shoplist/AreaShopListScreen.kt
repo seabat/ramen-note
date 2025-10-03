@@ -90,7 +90,7 @@ private fun AreaShopListMainContent(
         ) {
             item {
                 Divider(
-                    color = Color.Gray.copy(alpha = 0.3f),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                     thickness = 1.dp
                 )
             }
@@ -109,8 +109,8 @@ private fun AreaShopListMainContent(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onError
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -161,7 +161,7 @@ private fun ShopItem(
             }
         }
         Divider(
-            color = Color.Gray.copy(alpha = 0.3f),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
             thickness = 1.dp
         )
     }
