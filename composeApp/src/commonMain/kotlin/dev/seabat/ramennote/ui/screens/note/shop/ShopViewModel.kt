@@ -2,28 +2,35 @@ package dev.seabat.ramennote.ui.screens.note.shop
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ShopViewModel(
-    private val areaImageRepository: AreaImageRepositoryContract
-) : ViewModel() {
+    private val loadImageUseCase: LoadImageUseCaseContract
+) : ViewModel(), ShopViewModelContract {
     
     private val _shopImage = MutableStateFlow<ByteArray?>(null)
-    val shopImage: StateFlow<ByteArray?> = _shopImage.asStateFlow()
+    override val shopImage: StateFlow<ByteArray?> = _shopImage.asStateFlow()
     
-    fun loadShopImage(shop: Shop) {
+    override fun loadImage(shop: Shop) {
         viewModelScope.launch {
-            try {
-                val imageBytes = areaImageRepository.fetch()
-                _shopImage.value = imageBytes
-            } catch (e: Exception) {
-                // エラーハンドリング
+            val name = shop.photoName1
+
+            if (name.isEmpty()) {
                 _shopImage.value = null
+                return@launch
+            }
+
+            when (val result = loadImageUseCase(name)) {
+                is RunStatus.Success -> _shopImage.value = result.data
+                is RunStatus.Error -> _shopImage.value = null
+                is RunStatus.Loading -> { /* no-op */ }
+                is RunStatus.Idle -> { /* no-op */ }
             }
         }
     }

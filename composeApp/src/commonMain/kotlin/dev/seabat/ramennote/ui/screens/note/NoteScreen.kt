@@ -83,7 +83,7 @@ private fun MainContent(
                 Text(
                     text = stringResource(Res.string.note_area_selection),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 
