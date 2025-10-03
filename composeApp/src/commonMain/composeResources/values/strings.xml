@@ -28,6 +28,8 @@
 
     <!-- Edit Area Screen -->
     <string name="editarea_change_image_button">画像を変更する</string>
+    <string name="editarea_delete_button">削除する</string>
+    <string name="editarea_edit_button">変更する</string>
     <string name="editarea_delete_confirm">%1$sを削除して良いですか？</string>
     <string name="editarea_title">編集</string>
     <string name="editarea_image_load_error">画像の読み込みに失敗しました: </string>
@@ -42,14 +44,17 @@
     <string name="add_category_label">系統</string>
     
     <!-- Add Shop Screen -->
+    <string name="add_shop_area">エリア</string>
     <string name="add_shop_title">登録</string>
+    <string name="add_shop_add_button">登録する</string>
     <string name="add_shop_name_label">名前</string>
     <string name="add_shop_photo_label">写真</string>
     <string name="add_shop_select_button">選択</string>
     <string name="add_shop_no_image">No Image</string>
     <string name="add_shop_register_button">登録</string>
     <string name="add_shop_option1">Option 1</string>
-    
+    <string name="add_shop_menu_name_label">メニュー</string>
+
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
 </resources>

@@ -58,7 +58,16 @@ private fun ShopEntity.toDomainModel(): Shop {
         mapUrl = mapUrl,
         star = star,
         stationName = stationName,
-        category = "" // ShopEntityにはcategoryがないので空文字を設定
+        category = category,
+        menuName1 = menuName1,
+        menuName2 = menuName2,
+        menuName3 = menuName3,
+        photoName1 = photoName1,
+        photoName2 = photoName2,
+        photoName3 = photoName3,
+        description1 = description1,
+        description2 = description2,
+        description3 = description3
     )
 }
 
@@ -70,8 +79,15 @@ private fun Shop.toEntity(): ShopEntity {
         mapUrl = mapUrl,
         star = star,
         stationName = stationName,
-        imageName1 = "", // 画像名は空文字で初期化
-        imageName2 = "",
-        imageName3 = ""
+        category = category,
+        menuName1 = menuName1,
+        menuName2 = menuName2,
+        menuName3 = menuName3,
+        photoName1 = photoName1,
+        photoName2 = photoName2,
+        photoName3 = photoName3,
+        description1 = description1,
+        description2 = description2,
+        description3 = description3
     )
 }

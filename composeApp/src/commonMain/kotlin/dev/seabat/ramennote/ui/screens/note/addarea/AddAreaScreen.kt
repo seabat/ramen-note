@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -27,15 +25,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppProgressBar
+import dev.seabat.ramennote.ui.component.MaxWidthButton
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_shop_add_button
+import ramennote.composeapp.generated.resources.add_shop_area
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,12 +75,21 @@ fun AddAreaScreen(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
-                    Text(text = "エリア", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(Res.string.add_shop_area),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = areaName,
                         onValueChange = { areaName = it },
                         modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.outline,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            errorBorderColor = MaterialTheme.colorScheme.error
+                        ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
                             onDone = { focusManager.clearFocus() }
@@ -84,23 +97,13 @@ fun AddAreaScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                 }
-
-                Button(
-                    onClick = {
-                        if (areaName.isNotBlank()) {
-                            viewModel.addArea(areaName)
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                    ),
-                    shape = MaterialTheme.shapes.medium
+                MaxWidthButton(
+                    text = stringResource(Res.string.add_shop_add_button),
+                    enabled = areaName.isNotBlank()
                 ) {
-                    Text(text = "登録する", style = MaterialTheme.typography.titleMedium)
+                    if (areaName.isNotBlank()) {
+                        viewModel.addArea(areaName)
+                    }
                 }
             }
 
