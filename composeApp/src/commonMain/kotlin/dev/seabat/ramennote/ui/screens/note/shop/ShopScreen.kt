@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
@@ -55,7 +56,6 @@ fun ShopScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(Color.White)
         ) {
             Column(
                 modifier = Modifier
@@ -83,7 +83,7 @@ fun Header(imageBytes: ByteArray?) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(250.dp)
             .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         if (imageBytes != null) {
@@ -106,31 +106,32 @@ fun Header(imageBytes: ByteArray?) {
                             Color.Black.copy(alpha = 0.70f)
                         ),
                         startY = 0f,
-                        endY = 500f
+                        endY = 1000f
                     )
                 )
         )
 
         // 左右の矢印（スワイプ可能を示唆）
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "前へ",
-                tint = Color.White.copy(alpha = 0.7f),
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-            Icon(
-                imageVector = Icons.Default.ArrowForward,
-                contentDescription = "次へ",
-                tint = Color.White.copy(alpha = 0.7f),
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-        }
+        // TODO: 画面遷移が未実装のため一旦非表示
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .align(Alignment.BottomCenter),
+//            horizontalArrangement = Arrangement.SpaceBetween
+//        ) {
+//            Icon(
+//                imageVector = Icons.Default.ArrowBack,
+//                contentDescription = "前へ",
+//                tint = Color.White.copy(alpha = 0.7f),
+//                modifier = Modifier.padding(vertical = 16.dp)
+//            )
+//            Icon(
+//                imageVector = Icons.Default.ArrowForward,
+//                contentDescription = "次へ",
+//                tint = Color.White.copy(alpha = 0.7f),
+//                modifier = Modifier.padding(vertical = 16.dp)
+//            )
+//        }
     }
 }
 
@@ -189,45 +190,19 @@ fun Detail(shop: Shop) {
         )
 
         // 評価（星）
-        Row(
-            modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = stringResource(Res.string.add_evaluation_label),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(end = 16.dp)
-            )
-            // 星の表示（最大3つ）
-            Row {
-                repeat(3) { index ->
-                    Icon(
-                        imageVector = if (index < shop.star) {
-                            vectorResource(Res.drawable.kid_star_24px_fill)
-                        } else {
-                            vectorResource(Res.drawable.kid_star_24px_empty)
-                        },
-                        contentDescription = "星",
-                        tint = if (index < shop.star) Color(0xFFFFEA00) else Color.White,
-                        modifier = Modifier.padding(end = 4.dp)
-                    )
-                }
-            }
-        }
+        StarItem(shop.star)
+
 
         // 最寄り駅
         ShopDetailItem(
             label = stringResource(Res.string.add_station_label),
             value = shop.stationName,
-            isClickable = false
         )
 
         // 系統
         ShopDetailItem(
             label = stringResource(Res.string.add_category_label),
             value = shop.category,
-            isClickable = false
         )
     }
 }
@@ -250,6 +225,7 @@ private fun UrlItem(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
             color = Color.Blue
         )
     }
@@ -259,40 +235,55 @@ private fun UrlItem(
 private fun ShopDetailItem(
     label: String,
     value: String,
-    isClickable: Boolean,
-    onClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .then(
-                if (isClickable && onClick != null) {
-                    Modifier.clickable { onClick() }
-                } else {
-                    Modifier
-                }
-            ),
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            color = if (isClickable) Color.Blue else Color.Black
+            fontWeight = FontWeight.Medium,
         )
 
-        if (isClickable) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Blue
-            )
-        } else {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium
-            )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+fun StarItem(star: Int) {
+    Row(
+        modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(Res.string.add_evaluation_label),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(end = 16.dp)
+        )
+        // 星の表示（最大3つ）
+        Row {
+            repeat(3) { index ->
+                Icon(
+                    imageVector = if (index < star) {
+                        vectorResource(Res.drawable.kid_star_24px_fill)
+                    } else {
+                        vectorResource(Res.drawable.kid_star_24px_empty)
+                    },
+                    contentDescription = "星",
+                    tint = if (index < star) Color(0xFFFFEA00) else Color.White,
+                    modifier = Modifier.padding(end = 4.dp)
+                )
+            }
         }
     }
 }

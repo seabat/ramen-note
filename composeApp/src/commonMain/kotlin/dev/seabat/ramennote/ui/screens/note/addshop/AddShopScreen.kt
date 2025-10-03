@@ -77,7 +77,6 @@ fun AddShopScreen(
     var permissionEnabled by remember { mutableStateOf(false) }
     var shouldLaunchSetting by remember { mutableStateOf(false) }
     var shouldShowPermissionRationalDialog by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
     var sharedImage by remember { mutableStateOf<SharedImage?>(null) }
     val galleryManager = createRememberedGalleryLauncher { sharedImage = it }
 
@@ -116,67 +115,72 @@ fun AddShopScreen(
         shouldLaunchSetting = false
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        AppBar(
-            title = stringResource(Res.string.add_shop_title),
-            onBackClick = onBackClick
-        )
-
-        Column(
+    Scaffold(
+        topBar = {
+            AppBar(
+                title = stringResource(Res.string.add_shop_title),
+                onBackClick = onBackClick
+            )
+        }
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures { focusManager.clearFocus() }
-                }
+                .padding(paddingValues).
+                fillMaxSize()
         ) {
-            // 名前
-            ShopInputField(
-                label = stringResource(Res.string.add_shop_name_label),
-                value = name,
-                onValueChange = { name = it }
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { focusManager.clearFocus() }
+                    }
+            ) {
+                // 名前
+                ShopInputField(
+                    label = stringResource(Res.string.add_shop_name_label),
+                    value = name,
+                    onValueChange = { name = it }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Webサイト
-            ShopInputField(
-                label = stringResource(Res.string.add_web_site_label),
-                value = shopUrl,
-                onValueChange = { shopUrl = it }
-            )
+                // Webサイト
+                ShopInputField(
+                    label = stringResource(Res.string.add_web_site_label),
+                    value = shopUrl,
+                    onValueChange = { shopUrl = it }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 地図
-            ShopInputField(
-                label = stringResource(Res.string.add_map_label),
-                value = mapUrl,
-                onValueChange = { mapUrl = it }
-            )
+                // 地図
+                ShopInputField(
+                    label = stringResource(Res.string.add_map_label),
+                    value = mapUrl,
+                    onValueChange = { mapUrl = it }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 評価
-            StarDropdownField(
-                label = stringResource(Res.string.add_evaluation_label),
-                value = star,
-                onValueChange = { star = it }
-            )
+                // 評価
+                StarDropdownField(
+                    label = stringResource(Res.string.add_evaluation_label),
+                    value = star,
+                    onValueChange = { star = it }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 最寄り駅
-            ShopInputField(
-                label = stringResource(Res.string.add_station_label),
-                value = stationName,
-                onValueChange = { stationName = it }
-            )
+                // 最寄り駅
+                ShopInputField(
+                    label = stringResource(Res.string.add_station_label),
+                    value = stationName,
+                    onValueChange = { stationName = it }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
 //            // 系統
 //            ShopDropdownField(
@@ -185,63 +189,63 @@ fun AddShopScreen(
 //                onValueChange = { category = it }
 //            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
 
-            // ラーメン
-            Ramen(
-                menuName = menuName,
-                sharedImage = sharedImage,
-                enablePermission = { permissionEnabled = true },
-                onMenuValueChange = { menuName = it }
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // 登録ボタン
-            val isButtonEnabled = name.isNotBlank() && areaName.isNotBlank()
-
-            MaxWidthButton(
-                text = stringResource(Res.string.add_shop_register_button),
-                enabled = isButtonEnabled
-            ) {
-                val now = Clock.System.now().toLocalDateTime(
-                    kotlinx.datetime.TimeZone.currentSystemDefault()
+                // ラーメン
+                Ramen(
+                    menuName = menuName,
+                    sharedImage = sharedImage,
+                    enablePermission = { permissionEnabled = true },
+                    onMenuValueChange = { menuName = it }
                 )
-                val currentTime = "${now.year}${now.monthNumber.toString()
-                    .padStart(2, '0')}${now.dayOfMonth.toString()
-                    .padStart(2, '0')}T${now.hour.toString()
-                    .padStart(2, '0')}${now.minute.toString()
-                    .padStart(2, '0')}${now.second.toString()
-                    .padStart(2, '0')}"
-                val shop = Shop(
-                    name = name,
-                    area = areaName,
-                    shopUrl = shopUrl,
-                    mapUrl = mapUrl,
-                    star = star,
-                    stationName = stationName,
-                    category = category,
-                    menuName1 = menuName,
-                    photoName1 = if (sharedImage != null) currentTime + "_1" else ""
-                )
-                viewModel.saveShop(shop, sharedImage)
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // 登録ボタン
+                val isButtonEnabled = name.isNotBlank() && areaName.isNotBlank()
+
+                MaxWidthButton(
+                    text = stringResource(Res.string.add_shop_register_button),
+                    enabled = isButtonEnabled
+                ) {
+                    val now = Clock.System.now().toLocalDateTime(
+                        kotlinx.datetime.TimeZone.currentSystemDefault()
+                    )
+                    val currentTime = "${now.year}${now.monthNumber.toString()
+                        .padStart(2, '0')}${now.dayOfMonth.toString()
+                        .padStart(2, '0')}T${now.hour.toString()
+                        .padStart(2, '0')}${now.minute.toString()
+                        .padStart(2, '0')}${now.second.toString()
+                        .padStart(2, '0')}"
+                    val shop = Shop(
+                        name = name,
+                        area = areaName,
+                        shopUrl = shopUrl,
+                        mapUrl = mapUrl,
+                        star = star,
+                        stationName = stationName,
+                        category = category,
+                        menuName1 = menuName,
+                        photoName1 = if (sharedImage != null) currentTime + "_1" else ""
+                    )
+                    viewModel.saveShop(shop, sharedImage)
+                }
+            }
+            // 保存状態の処理
+            when (saveState) {
+                is RunStatus.Success -> {
+                    onCompleted()
+                }
+                is RunStatus.Error -> {
+                    AppAlert(
+                        message = saveState.message ?: "不明なエラーが発生しました",
+                        onConfirm = { /* エラー処理 */ }
+                    )
+                }
+                else -> { /* その他の状態は何もしない */ }
             }
         }
-    }
-
-    // 保存状態の処理
-    when (saveState) {
-        is RunStatus.Success -> {
-            onCompleted()
-        }
-        is RunStatus.Error -> {
-            AppAlert(
-                message = saveState.message ?: "不明なエラーが発生しました",
-                onConfirm = { /* エラー処理 */ }
-            )
-        }
-        else -> { /* その他の状態は何もしない */ }
     }
 }
 
@@ -331,7 +335,7 @@ private fun Ramen(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(x = 16.dp, y = (-8).dp) // 位置調整
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 4.dp),
             style = MaterialTheme.typography.bodySmall
         )
@@ -447,12 +451,16 @@ private fun PhotoSelectionField(
     }
 
     Column {
+        // 写真
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
+        // 写真選択
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
