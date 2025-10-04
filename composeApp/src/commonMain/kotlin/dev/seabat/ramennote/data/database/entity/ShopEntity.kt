@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "shops")
 data class ShopEntity(
     @PrimaryKey
+    val id: Int,
     val name: String,
     val area: String,
     val shopUrl: String,

@@ -1,9 +1,8 @@
 package dev.seabat.ramennote.ui.screens.note.addshop
 
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
+import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AddShopViewModel(
-    private val shopsRepository: ShopsRepositoryContract,
+    private val addShopUseCase: AddShopUseCaseContract,
     private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract
 ) : ViewModel(), AddShopViewModelContract {
 
@@ -31,7 +30,7 @@ class AddShopViewModel(
                 }
                 
                 // 店舗情報を保存
-                shopsRepository.insertShop(shop)
+                addShopUseCase.addShop(shop)
                 _saveState.value = RunStatus.Success("")
             } catch (e: Exception) {
                 _saveState.value = RunStatus.Error("店舗の保存に失敗しました: ${e.message}")
