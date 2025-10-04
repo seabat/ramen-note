@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface EditShopViewModelContract {
     val saveState: StateFlow<RunStatus<String>>
-    val shopImage: StateFlow<ByteArray?>
+    val shopImage: StateFlow<SharedImage?>
     
     fun loadImage(shop: Shop)
+    fun updateImage(sharedImage: SharedImage?)
     fun updateShop(shop: Shop, sharedImage: SharedImage?)
 }

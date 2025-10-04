@@ -17,6 +17,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -36,6 +38,9 @@ import dev.seabat.ramennote.ui.permission.PermissionStatus
 import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -74,9 +79,7 @@ fun EditShopScreen(
     var permissionEnabled by remember { mutableStateOf(false) }
     var shouldLaunchSetting by remember { mutableStateOf(false) }
     var shouldShowPermissionRationalDialog by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    var sharedImage by remember { mutableStateOf<SharedImage?>(null) }
-    val galleryManager = createRememberedGalleryLauncher { sharedImage = it }
+    val galleryManager = createRememberedGalleryLauncher { viewModel.updateImage(it) }
 
     // 画像読み込み
     LaunchedEffect(shop.name) {
@@ -199,16 +202,14 @@ fun EditShopScreen(
                     onDone = { focusManager.clearFocus() }
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // 画像選択
-                ImageSelection(
-                    label = stringResource(Res.string.add_shop_photo_label),
-                    sharedImage = sharedImage,
-                    shopImage = shopImage,
-                    onPermissionRequest = {
-                        permissionEnabled = true
-                    }
+                // ラーメン
+                Ramen(
+                    menuName = menuName,
+                    sharedImage = shopImage,
+                    enablePermission = { permissionEnabled = true },
+                    onMenuValueChange = { menuName = it }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -226,7 +227,7 @@ fun EditShopScreen(
                             category = category,
                             menuName1 = menuName
                         )
-                        viewModel.updateShop(updatedShop, sharedImage)
+                        viewModel.updateShop(updatedShop, shopImage)
                     }
                 )
             }
@@ -434,4 +435,170 @@ fun EditShopScreenPreview() {
         onCompleted = { },
         viewModel = MockEditShopViewModel()
     )
+}
+
+@Composable
+private fun Ramen(
+    menuName: String = "",
+    sharedImage: SharedImage?,
+    enablePermission: () -> Unit,
+    onMenuValueChange: (String) -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // メインのBox
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                ShopInputField(
+                    label = stringResource(Res.string.add_shop_menu_name_label),
+                    value = menuName,
+                    onValueChange = onMenuValueChange
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 写真
+                PhotoSelectionField(
+                    label = stringResource(Res.string.add_shop_photo_label),
+                    sharedImage = sharedImage,
+                    onClick = enablePermission
+                )
+            }
+        }
+        
+        // タイトルをborder上に配置
+        Text(
+            text = "メニュー情報",
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset(x = 16.dp, y = (-8).dp) // 位置調整
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 4.dp),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+@Composable
+private fun ShopInputField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // OutlinedTextField は内部パディングが大きいので BasicTextField で代用
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(4.dp)
+                )
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() }
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhotoSelectionField(
+    label: String,
+    sharedImage: SharedImage? = null,
+    onClick: () -> Unit
+) {
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(sharedImage) {
+        val image = withContext(Dispatchers.IO) {
+            sharedImage?.toImageBitmap()
+        }
+        imageBitmap = image
+    }
+
+    Column {
+        // 写真
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 写真選択
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.add_shop_select_button),
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Blue,
+                modifier = Modifier.clickable { onClick() }
+            )
+            if (imageBitmap != null) {
+                Image(
+                    modifier = Modifier
+                        .size(120.dp),
+                    bitmap = imageBitmap!!,
+                    contentDescription = null
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(Res.string.add_shop_no_image),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
+                }
+            }
+        }
+    }
 }

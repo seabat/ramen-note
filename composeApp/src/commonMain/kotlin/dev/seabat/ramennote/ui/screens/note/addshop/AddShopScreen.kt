@@ -190,8 +190,7 @@ fun AddShopScreen(
 //                onValueChange = { category = it }
 //            )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // ラーメン
                 Ramen(
@@ -502,7 +501,7 @@ private fun PhotoSelectionField(
         ) {
             Text(
                 text = stringResource(Res.string.add_shop_select_button),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = Color.Blue,
                 modifier = Modifier.clickable { onClick() }
             )

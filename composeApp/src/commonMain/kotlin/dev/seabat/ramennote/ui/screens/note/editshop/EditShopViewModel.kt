@@ -22,8 +22,8 @@ class EditShopViewModel(
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
     override val saveState: StateFlow<RunStatus<String>> = _saveState
 
-    private val _shopImage = MutableStateFlow<ByteArray?>(null)
-    override val shopImage: StateFlow<ByteArray?> = _shopImage.asStateFlow()
+    private val _shopImage = MutableStateFlow<SharedImage?>(null)
+    override val shopImage: StateFlow<SharedImage?> = _shopImage.asStateFlow()
 
     override fun loadImage(shop: Shop) {
         viewModelScope.launch {
@@ -33,12 +33,18 @@ class EditShopViewModel(
                 return@launch
             }
             when (val result = loadImageUseCase(name)) {
-                is RunStatus.Success -> _shopImage.value = result.data
+                is RunStatus.Success -> _shopImage.value = result.data?.let {
+                    SharedImage(result.data)
+                }
                 is RunStatus.Error -> _shopImage.value = null
                 is RunStatus.Loading -> { }
                 is RunStatus.Idle -> { }
             }
         }
+    }
+
+    override fun updateImage(sharedImage: SharedImage?) {
+        _shopImage.value = sharedImage
     }
 
     override fun updateShop(shop: Shop, sharedImage: SharedImage?) {
