@@ -57,6 +57,7 @@ import ramennote.composeapp.generated.resources.add_shop_select_button
 import ramennote.composeapp.generated.resources.add_shop_title
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
+import kotlin.toString
 
 @Composable
 fun AddShopScreen(
@@ -208,15 +209,6 @@ fun AddShopScreen(
                     text = stringResource(Res.string.add_shop_register_button),
                     enabled = isButtonEnabled
                 ) {
-                    val now = Clock.System.now().toLocalDateTime(
-                        kotlinx.datetime.TimeZone.currentSystemDefault()
-                    )
-                    val currentTime = "${now.year}${now.monthNumber.toString()
-                        .padStart(2, '0')}${now.dayOfMonth.toString()
-                        .padStart(2, '0')}T${now.hour.toString()
-                        .padStart(2, '0')}${now.minute.toString()
-                        .padStart(2, '0')}${now.second.toString()
-                        .padStart(2, '0')}"
                     val shop = Shop(
                         name = name,
                         area = areaName,
@@ -226,9 +218,12 @@ fun AddShopScreen(
                         stationName = stationName,
                         category = category,
                         menuName1 = menuName,
-                        photoName1 = if (sharedImage != null) currentTime + "_1" else ""
+                        photoName1 = createPhotoName(1)
                     )
-                    viewModel.saveShop(shop, sharedImage)
+                    
+                    // sharedImageがnullの場合はnoimage.svgをByteArrayに変換してSharedImageを作成
+                    val finalSharedImage = sharedImage ?: SharedImage(viewModel.createNoImage())
+                    viewModel.saveShop(shop, finalSharedImage)
                 }
             }
 
@@ -247,6 +242,19 @@ fun AddShopScreen(
             else -> { /* その他の状態は何もしない */ }
         }
     }
+}
+
+private fun createPhotoName(number: Int): String {
+    val now = Clock.System.now().toLocalDateTime(
+        kotlinx.datetime.TimeZone.currentSystemDefault()
+    )
+    val currentTime = "${now.year}${now.monthNumber.toString()
+        .padStart(2, '0')}${now.dayOfMonth.toString()
+        .padStart(2, '0')}T${now.hour.toString()
+        .padStart(2, '0')}${now.minute.toString()
+        .padStart(2, '0')}${now.second.toString()
+        .padStart(2, '0')}"
+    return currentTime + "_$number"
 }
 
 @Composable
