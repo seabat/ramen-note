@@ -57,12 +57,19 @@ fun AreaShopListScreen(
             title = areaName,
             onBackClick = onBackClick
         )
-        AreaShopListMainContent(
-            areaName = areaName,
-            onShopClick = onShopClick,
-            onAddShopClick = onAddShopClick,
-            shops = shops
-        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+        ) {
+            AreaShopListMainContent(
+                areaName = areaName,
+                onShopClick = onShopClick,
+                onAddShopClick = onAddShopClick,
+                shops = shops
+            )
+        }
     }
 }
 
@@ -76,7 +83,6 @@ private fun AreaShopListMainContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
 
         LazyColumn(
@@ -127,7 +133,7 @@ private fun ShopItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onShopClick() }
-                .padding(16.dp),
+                .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

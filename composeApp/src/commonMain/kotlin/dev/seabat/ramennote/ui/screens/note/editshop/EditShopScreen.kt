@@ -5,7 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -55,6 +65,7 @@ import ramennote.composeapp.generated.resources.add_shop_select_button
 import ramennote.composeapp.generated.resources.add_shop_title
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
+import ramennote.composeapp.generated.resources.edit_shop_title
 
 @Composable
 fun EditShopScreen(
@@ -121,25 +132,25 @@ fun EditShopScreen(
         shouldLaunchSetting = false
     }
 
-    Scaffold(
-        topBar = {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top
+        ) {
             AppBar(
-                title = stringResource(Res.string.add_shop_title),
+                title = stringResource(Res.string.edit_shop_title),
                 onBackClick = onBackClick
             )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .padding(horizontal = 24.dp)
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = {
                             focusManager.clearFocus()
@@ -232,22 +243,21 @@ fun EditShopScreen(
                 )
             }
         }
-    }
-
-    // 保存状態の処理
-    when (saveState) {
-        is RunStatus.Success -> {
-            LaunchedEffect(saveState) {
-                onCompleted()
+        // 保存状態の処理
+        when (saveState) {
+            is RunStatus.Success -> {
+                LaunchedEffect(saveState) {
+                    onCompleted()
+                }
             }
+            is RunStatus.Error -> {
+                AppAlert(
+                    message = saveState.message ?: "不明なエラーが発生しました",
+                    onConfirm = { /* エラー処理 */ }
+                )
+            }
+            else -> { }
         }
-        is RunStatus.Error -> {
-            AppAlert(
-                message = saveState.message ?: "不明なエラーが発生しました",
-                onConfirm = { /* エラー処理 */ }
-            )
-        }
-        else -> { }
     }
 }
 
@@ -350,67 +360,6 @@ private fun StarRating(
                     onClick = { onValueChange(index + 1) }
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ImageSelection(
-    label: String,
-    sharedImage: SharedImage?,
-    shopImage: ByteArray?,
-    onPermissionRequest: () -> Unit
-) {
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .clickable { onPermissionRequest() }
-        ) {
-            if (sharedImage != null) {
-                val imageBitmap = sharedImage.toImageBitmap()
-                if (imageBitmap != null) {
-                    Image(
-                        bitmap = imageBitmap,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            } else if (shopImage != null) {
-                // 既存の画像を表示
-                Text(
-                    text = "既存の画像",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                Text(
-                    text = stringResource(Res.string.add_shop_no_image),
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Button(
-            onClick = { onPermissionRequest() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(Res.string.add_shop_select_button))
         }
     }
 }

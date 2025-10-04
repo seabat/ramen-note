@@ -66,7 +66,7 @@ private fun MainContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         LaunchedEffect(Unit) {
             viewModel.fetchAreas()

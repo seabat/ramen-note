@@ -133,7 +133,7 @@ fun AddShopScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .padding(horizontal = 24.dp)
                     .pointerInput(Unit) {
                         detectTapGestures { focusManager.clearFocus() }
                     }

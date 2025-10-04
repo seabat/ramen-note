@@ -52,29 +52,24 @@ fun AddAreaScreen(
     val focusManager = LocalFocusManager.current
     val addState by viewModel.addState.collectAsState()
 
-    Scaffold(
-        topBar = {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             AppBar(
                 title = "登録",
                 onBackClick = onBackClick
             )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
                     .padding(horizontal = 24.dp)
                     .pointerInput(Unit) {
                         detectTapGestures { focusManager.clearFocus() }
                     },
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = stringResource(Res.string.add_shop_area),
                         style = MaterialTheme.typography.titleMedium
@@ -106,9 +101,9 @@ fun AddAreaScreen(
                     }
                 }
             }
-
-            AddStatus(addState) { onCompleted() }
         }
+
+        AddStatus(addState) { onCompleted() }
     }
 }
 

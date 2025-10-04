@@ -55,6 +55,9 @@
     <string name="add_shop_option1">Option 1</string>
     <string name="add_shop_menu_name_label">メニュー</string>
 
+    <!-- Edit Shop Screen -->
+    <string name="edit_shop_title">編集</string>
+
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
 </resources>
