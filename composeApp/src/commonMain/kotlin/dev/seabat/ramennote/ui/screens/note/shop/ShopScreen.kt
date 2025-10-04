@@ -20,7 +20,6 @@ import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_calender_button
@@ -30,9 +29,8 @@ import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
-import ramennote.composeapp.generated.resources.kid_star_24px_empty
-import ramennote.composeapp.generated.resources.kid_star_24px_fill
 import coil3.compose.AsyncImage
+import dev.seabat.ramennote.ui.component.StarIcon
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -275,15 +273,8 @@ fun StarItem(star: Int) {
         // 星の表示（最大3つ）
         Row {
             repeat(3) { index ->
-                Icon(
-                    imageVector = if (index < star) {
-                        vectorResource(Res.drawable.kid_star_24px_fill)
-                    } else {
-                        vectorResource(Res.drawable.kid_star_24px_empty)
-                    },
-                    contentDescription = "星",
-                    tint = if (index < star) Color(0xFFFFEA00) else Color.White,
-                    modifier = Modifier.padding(end = 4.dp)
+                StarIcon(
+                    onOff = index < star,
                 )
             }
         }

@@ -24,17 +24,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
+import dev.seabat.ramennote.ui.component.StarIcon
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.kid_star_24px_empty
-import ramennote.composeapp.generated.resources.kid_star_24px_fill
 
 @Composable
 fun AreaShopListScreen(
@@ -146,14 +142,8 @@ private fun ShopItem(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(3) { index ->
-                        Icon(
-                            imageVector = if (index < shop.star) {
-                                vectorResource(Res.drawable.kid_star_24px_fill)
-                            } else {
-                                vectorResource(Res.drawable.kid_star_24px_empty)
-                            },
-                            contentDescription = "",
-                            tint = if (index < shop.star) Color(0xFFFFEA00) else Color.White
+                        StarIcon(
+                            onOff = index < shop.star,
                         )
                     }
                 }

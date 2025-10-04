@@ -17,7 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -29,6 +28,7 @@ import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.component.MaxWidthButton
+import dev.seabat.ramennote.ui.component.StarIcon
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
@@ -36,7 +36,6 @@ import dev.seabat.ramennote.ui.permission.PermissionStatus
 import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
-import dev.seabat.ramennote.ui.screens.note.editshop.MockEditShopViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -152,7 +151,7 @@ fun EditShopScreen(
                     onDone = { focusManager.clearFocus() }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Webサイト
                 InputField(
@@ -162,7 +161,7 @@ fun EditShopScreen(
                     onDone = { focusManager.clearFocus() }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // 地図
                 InputField(
@@ -172,16 +171,15 @@ fun EditShopScreen(
                     onDone = { focusManager.clearFocus() }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // 評価
                 StarRating(
-                    label = stringResource(Res.string.add_evaluation_label),
-                    value = star,
+                    star = star,
                     onValueChange = { star = it }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // 最寄り駅
                 InputField(
@@ -191,17 +189,7 @@ fun EditShopScreen(
                     onDone = { focusManager.clearFocus() }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 系統
-                InputField(
-                    label = stringResource(Res.string.add_shop_menu_name_label),
-                    value = category,
-                    onValueChange = { category = it },
-                    onDone = { focusManager.clearFocus() }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // メニュー名
                 InputField(
@@ -211,7 +199,7 @@ fun EditShopScreen(
                     onDone = { focusManager.clearFocus() }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // 画像選択
                 ImageSelection(
@@ -313,7 +301,7 @@ private fun InputField(
             fontWeight = FontWeight.Medium
         )
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         
         // OutlinedTextField は内部パディングが大きいので BasicTextField で代用
         Box(
@@ -342,13 +330,12 @@ private fun InputField(
 
 @Composable
 private fun StarRating(
-    label: String,
-    value: Int,
+    star: Int,
     onValueChange: (Int) -> Unit
 ) {
     Column {
         Text(
-            text = label,
+            text = stringResource(Res.string.add_evaluation_label),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
         )
@@ -357,17 +344,10 @@ private fun StarRating(
         
         Row {
             repeat(3) { index ->
-                TextButton(
-                    onClick = { onValueChange(index + 1) },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = if (index < value) Color(0xFFFFEA00) else Color.Gray
-                    )
-                ) {
-                    Text(
-                        text = "★",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
+                StarIcon(
+                    onOff = index < star,
+                    onClick = { onValueChange(index + 1) }
+                )
             }
         }
     }

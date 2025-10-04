@@ -30,6 +30,7 @@ import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.component.MaxWidthButton
+import dev.seabat.ramennote.ui.component.StarIcon
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
@@ -133,7 +134,7 @@ fun AddShopScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(24.dp)
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
                     .pointerInput(Unit) {
                         detectTapGestures { focusManager.clearFocus() }
                     }
@@ -166,9 +167,8 @@ fun AddShopScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // 評価
-                StarDropdownField(
-                    label = stringResource(Res.string.add_evaluation_label),
-                    value = star,
+                StarRating(
+                    star = star,
                     onValueChange = { star = it }
                 )
 
@@ -440,6 +440,31 @@ private fun StarDropdownField(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StarRating(
+    star: Int,
+    onValueChange: (Int) -> Unit
+) {
+    Column {
+        Text(
+            text = stringResource(Res.string.add_evaluation_label),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row {
+            repeat(3) { index ->
+                StarIcon(
+                    onOff = index < star,
+                    onClick = { onValueChange(index + 1) }
+                )
             }
         }
     }
