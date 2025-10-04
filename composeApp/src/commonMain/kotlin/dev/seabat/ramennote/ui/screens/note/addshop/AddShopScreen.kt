@@ -117,19 +117,18 @@ fun AddShopScreen(
         shouldLaunchSetting = false
     }
 
-    Scaffold(
-        topBar = {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top
+        ) {
             AppBar(
                 title = stringResource(Res.string.add_shop_title),
                 onBackClick = onBackClick
             )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues).
-                fillMaxSize()
-        ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -183,12 +182,12 @@ fun AddShopScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-//            // 系統
-//            ShopDropdownField(
-//                label = stringResource(Res.string.add_category_label),
-//                value = category,
-//                onValueChange = { category = it }
-//            )
+                // 系統
+//              ShopDropdownField(
+//                  label = stringResource(Res.string.add_category_label),
+//                  value = category,
+//                  onValueChange = { category = it }
+//              )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -232,19 +231,20 @@ fun AddShopScreen(
                     viewModel.saveShop(shop, sharedImage)
                 }
             }
-            // 保存状態の処理
-            when (saveState) {
-                is RunStatus.Success -> {
-                    onCompleted()
-                }
-                is RunStatus.Error -> {
-                    AppAlert(
-                        message = saveState.message ?: "不明なエラーが発生しました",
-                        onConfirm = { /* エラー処理 */ }
-                    )
-                }
-                else -> { /* その他の状態は何もしない */ }
+
+        }
+        // 保存状態の処理
+        when (saveState) {
+            is RunStatus.Success -> {
+                onCompleted()
             }
+            is RunStatus.Error -> {
+                AppAlert(
+                    message = saveState.message ?: "不明なエラーが発生しました",
+                    onConfirm = { /* エラー処理 */ }
+                )
+            }
+            else -> { /* その他の状態は何もしない */ }
         }
     }
 }
