@@ -2,7 +2,14 @@ package dev.seabat.ramennote.ui.screens.note.shop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -40,19 +47,18 @@ fun ShopScreen(
     onEditClick: (Shop) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
-    Scaffold(
-        topBar = {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top
+        ) {
             AppBar(
                 title = shop.name,
                 onBackClick = onBackClick
             )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -61,6 +67,7 @@ fun ShopScreen(
                 LaunchedEffect(shop.name) {
                     viewModel.loadImage(shop)
                 }
+
                 val imageBytes by viewModel.shopImage.collectAsState()
                 Header(imageBytes)
 
