@@ -5,9 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -42,7 +39,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ShopScreen(
     shop: Shop,
     onBackClick: () -> Unit,
-    onEditClick: (String) -> Unit = {},
+    onEditClick: (Shop) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     Scaffold(
@@ -71,7 +68,7 @@ fun ShopScreen(
 
                 // アクションボタン
                 ActionButtons(
-                    onEditClick = { onEditClick(shop.toJsonString()) }
+                    onEditClick = { onEditClick(shop) }
                 )
 
                 // 詳細情報
