@@ -243,6 +243,7 @@ fun EditShopScreen(
             is RunStatus.Success -> {
                 LaunchedEffect(saveState) {
                     onCompleted()
+                    viewModel.setSaveStateToIdle()
                 }
             }
             is RunStatus.Error -> {
