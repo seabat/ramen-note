@@ -76,7 +76,9 @@ fun ShopScreen(
 
                 // アクションボタン
                 ActionButtons(
-                    onEditClick = { shop?.let { onEditClick(it) } }
+                    onEditClick = {
+                        shop?.let { onEditClick(it) }
+                    }
                 )
 
                 // 詳細情報
