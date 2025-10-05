@@ -42,11 +42,19 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ShopScreen(
-    shop: Shop,
+    shopId: Int,
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
+    // Shopデータと画像を読み込み
+    LaunchedEffect(shopId) {
+        viewModel.loadShopAndImage(shopId)
+    }
+
+    val shop by viewModel.shop.collectAsState()
+    val imageBytes by viewModel.shopImage.collectAsState()
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -55,7 +63,7 @@ fun ShopScreen(
             verticalArrangement = Arrangement.Top
         ) {
             AppBar(
-                title = shop.name,
+                title = shop?.name ?: "",
                 onBackClick = onBackClick
             )
 
@@ -64,20 +72,17 @@ fun ShopScreen(
                     .fillMaxSize()
             ) {
                 // ヘッダー画像エリア
-                LaunchedEffect(shop.name) {
-                    viewModel.loadImage(shop)
-                }
-
-                val imageBytes by viewModel.shopImage.collectAsState()
                 Header(imageBytes)
 
                 // アクションボタン
                 ActionButtons(
-                    onEditClick = { onEditClick(shop) }
+                    onEditClick = { shop?.let { onEditClick(it) } }
                 )
 
                 // 詳細情報
-                Detail(shop)
+                shop?.let { shopData ->
+                    Detail(shopData)
+                }
             }
         }
     }
@@ -293,17 +298,10 @@ fun StarItem(star: Int) {
 fun ShopScreenPreview() {
     RamenNoteTheme {
         ShopScreen(
-            shop = Shop(
-                name = "XXXX家",
-                area = "東京",
-                shopUrl = "https://example.com",
-                mapUrl = "https://maps.google.com",
-                star = 2,
-                stationName = "JR渋谷駅",
-                category = "家系"
-            ),
+            shopId = 1,
             onBackClick = { },
-            onEditClick = { }
+            onEditClick = { },
+            viewModel = MockShopViewModel()
         )
     }
 }
