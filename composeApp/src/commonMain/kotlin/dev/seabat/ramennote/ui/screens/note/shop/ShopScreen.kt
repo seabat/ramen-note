@@ -225,21 +225,35 @@ private fun UrlItem(
     url: String,
 ) {
     val urlHandler = LocalUriHandler.current
+    val isUrlEmpty = url.isEmpty()
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 10.dp)
-            .clickable { urlHandler.openUri(url) },
-        horizontalArrangement = Arrangement.Start,
+            .let { modifier ->
+                if (isUrlEmpty) {
+                    modifier
+                } else {
+                    modifier.clickable { urlHandler.openUri(url) }
+                }
+            },
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
-            color = Color.Blue
+            color = if (isUrlEmpty) MaterialTheme.colorScheme.onSurface else Color.Blue
         )
+        if (isUrlEmpty) {
+            Text(
+                text = "未設定",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
+            )
+        }
     }
 }
 
