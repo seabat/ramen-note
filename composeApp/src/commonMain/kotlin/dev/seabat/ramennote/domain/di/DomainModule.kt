@@ -4,6 +4,8 @@ import dev.seabat.ramennote.domain.usecase.AddShopUseCase
 import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
+import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCase
+import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCase
@@ -27,6 +29,7 @@ val useCaseModule = module {
     single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
     single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
     single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
+    single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
     single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }
     single<UpdateAreaUseCaseContract> { UpdateAreaUseCase(get(), get()) }
     single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get()) }

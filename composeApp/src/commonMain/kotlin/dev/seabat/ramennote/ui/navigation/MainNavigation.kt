@@ -358,7 +358,14 @@ fun MainNavigation() {
                 EditShopScreen(
                     shop = shop,
                     onBackClick = { navController.popBackStack() },
-                    onCompleted = { navController.popBackStack() }
+                    onCompleted = { navController.popBackStack() },
+                    goToShopList = { areaName ->
+                        navController.navigate(Screen.AreaShopList(areaName)) {
+                            popUpTo(Screen.AreaShopList(areaName)) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 )
             }
         }

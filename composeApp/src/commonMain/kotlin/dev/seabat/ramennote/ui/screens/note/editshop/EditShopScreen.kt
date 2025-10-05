@@ -52,6 +52,10 @@ import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
+import ramennote.composeapp.generated.resources.edit_shop_delete_button
+import ramennote.composeapp.generated.resources.edit_shop_delete_error_message
+import ramennote.composeapp.generated.resources.edit_shop_edit_button
+import ramennote.composeapp.generated.resources.edit_shop_edit_error_message
 import ramennote.composeapp.generated.resources.edit_shop_title
 
 @Composable
@@ -59,6 +63,7 @@ fun EditShopScreen(
     shop: Shop,
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
+    goToShopList: (areaName: String) -> Unit,
     viewModel: EditShopViewModelContract = koinViewModel<EditShopViewModel>()
 ) {
 
@@ -72,6 +77,7 @@ fun EditShopScreen(
     var menuName by remember { mutableStateOf(shop.menuName1) }
 
     val saveState by viewModel.saveState.collectAsState()
+    val deleteState by viewModel.deleteState.collectAsState()
     val shopImage by viewModel.shopImage.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
@@ -209,7 +215,8 @@ fun EditShopScreen(
 
                 // 編集ボタン
                 MaxWidthButton(
-                    text = "編集する",
+                    text =stringResource(Res.string.edit_shop_edit_button),
+                    enabled = name.isNotBlank(),
                     onClick = {
                         val updatedShop = shop.copy(
                             name = name,
@@ -223,6 +230,12 @@ fun EditShopScreen(
                         viewModel.updateShop(updatedShop, shopImage)
                     }
                 )
+                MaxWidthButton(
+                    text = stringResource(Res.string.edit_shop_delete_button),
+                    enabled = name.isNotBlank()
+                ) {
+                    viewModel.deleteShop(shop.id)
+                }
             }
         }
         // 保存状態の処理
@@ -234,8 +247,24 @@ fun EditShopScreen(
             }
             is RunStatus.Error -> {
                 AppAlert(
-                    message = saveState.message ?: "不明なエラーが発生しました",
-                    onConfirm = { /* エラー処理 */ }
+                    message = saveState.message ?: stringResource(Res.string.edit_shop_edit_error_message),
+                    onConfirm = { viewModel.setSaveStateToIdle() }
+                )
+            }
+            else -> { }
+        }
+
+        // 削除状態の処理
+        when (deleteState) {
+            is RunStatus.Success -> {
+                LaunchedEffect(deleteState) {
+                    goToShopList(shop.area)
+                }
+            }
+            is RunStatus.Error -> {
+                AppAlert(
+                    message = deleteState.message ?: stringResource(Res.string.edit_shop_delete_error_message),
+                    onConfirm = { viewModel.setDeleteStateToIdle() }
                 )
             }
             else -> { }
@@ -364,6 +393,7 @@ fun EditShopScreenPreview() {
             shop = shop,
             onBackClick = { },
             onCompleted = { },
+            goToShopList = { _ -> },
             viewModel = MockEditShopViewModel()
         )
     }

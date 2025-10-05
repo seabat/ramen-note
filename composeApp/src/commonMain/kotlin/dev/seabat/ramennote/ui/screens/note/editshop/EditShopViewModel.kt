@@ -7,6 +7,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,11 +17,15 @@ import kotlinx.coroutines.launch
 class EditShopViewModel(
     private val updateShopUseCase: UpdateShopUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
-    private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract
+    private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
+    private val deleteShopAndImageUseCase: DeleteShopAndImageUseCaseContract
 ) : ViewModel(), EditShopViewModelContract {
 
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
     override val saveState: StateFlow<RunStatus<String>> = _saveState
+
+    private val _deleteState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
+    override val deleteState: StateFlow<RunStatus<String>> = _deleteState
 
     private val _shopImage = MutableStateFlow<SharedImage?>(null)
     override val shopImage: StateFlow<SharedImage?> = _shopImage.asStateFlow()
@@ -64,5 +69,21 @@ class EditShopViewModel(
                 _saveState.value = RunStatus.Error("店舗の更新に失敗しました: ${e.message}")
             }
         }
+    }
+
+    override fun deleteShop(shopId: Int) {
+        viewModelScope.launch {
+            _deleteState.value = RunStatus.Loading()
+            val result = deleteShopAndImageUseCase.invoke(shopId)
+            _deleteState.value = result
+        }
+    }
+
+    override fun setSaveStateToIdle() {
+        _saveState.value = RunStatus.Idle()
+    }
+
+    override fun setDeleteStateToIdle() {
+        _deleteState.value = RunStatus.Idle()
     }
 }

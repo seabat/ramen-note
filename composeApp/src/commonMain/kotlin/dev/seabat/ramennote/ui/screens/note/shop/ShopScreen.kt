@@ -39,6 +39,7 @@ import ramennote.composeapp.generated.resources.add_web_site_label
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.ui.component.StarIcon
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.add_no_url_label
 
 @Composable
 fun ShopScreen(
@@ -251,7 +252,7 @@ private fun UrlItem(
         )
         if (isUrlEmpty) {
             Text(
-                text = "未設定",
+                text = stringResource(Res.string.add_no_url_label),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
             )

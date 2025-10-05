@@ -42,7 +42,8 @@
     <string name="add_evaluation_label">評価</string>
     <string name="add_station_label">最寄り駅</string>
     <string name="add_category_label">系統</string>
-    
+    <string name="add_no_url_label">未設定</string>
+
     <!-- Add Shop Screen -->
     <string name="add_shop_area">エリア</string>
     <string name="add_shop_title">登録</string>
@@ -57,6 +58,10 @@
 
     <!-- Edit Shop Screen -->
     <string name="edit_shop_title">編集</string>
+    <string name="edit_shop_edit_button">編集する</string>
+    <string name="edit_shop_delete_button">削除する</string>
+    <string name="edit_shop_edit_error_message">編集に失敗しました</string>
+    <string name="edit_shop_delete_error_message">削除に失敗しました</string>
 
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
