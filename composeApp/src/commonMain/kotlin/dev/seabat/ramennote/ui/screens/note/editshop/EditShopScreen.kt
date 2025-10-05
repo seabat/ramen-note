@@ -1,9 +1,7 @@
 package dev.seabat.ramennote.ui.screens.note.editshop
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,9 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -25,10 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -41,16 +34,14 @@ import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.component.MaxWidthButton
 import dev.seabat.ramennote.ui.component.StarIcon
-import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
 import dev.seabat.ramennote.ui.permission.PermissionStatus
 import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
+import dev.seabat.ramennote.ui.screens.note.shop.RamenField
+import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -59,10 +50,6 @@ import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
-import ramennote.composeapp.generated.resources.add_shop_no_image
-import ramennote.composeapp.generated.resources.add_shop_photo_label
-import ramennote.composeapp.generated.resources.add_shop_select_button
-import ramennote.composeapp.generated.resources.add_shop_title
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
 import ramennote.composeapp.generated.resources.edit_shop_title
@@ -158,31 +145,28 @@ fun EditShopScreen(
                     }
             ) {
                 // 店舗名
-                InputField(
+                ShopInputField(
                     label = stringResource(Res.string.add_shop_name_label),
                     value = name,
                     onValueChange = { name = it },
-                    onDone = { focusManager.clearFocus() }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Webサイト
-                InputField(
+                ShopInputField(
                     label = stringResource(Res.string.add_web_site_label),
                     value = shopUrl,
                     onValueChange = { shopUrl = it },
-                    onDone = { focusManager.clearFocus() }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // 地図
-                InputField(
+                ShopInputField(
                     label = stringResource(Res.string.add_map_label),
                     value = mapUrl,
                     onValueChange = { mapUrl = it },
-                    onDone = { focusManager.clearFocus() }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -196,27 +180,25 @@ fun EditShopScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // 最寄り駅
-                InputField(
+                ShopInputField(
                     label = stringResource(Res.string.add_station_label),
                     value = stationName,
                     onValueChange = { stationName = it },
-                    onDone = { focusManager.clearFocus() }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // メニュー名
-                InputField(
+                ShopInputField(
                     label = stringResource(Res.string.add_shop_menu_name_label),
                     value = menuName,
                     onValueChange = { menuName = it },
-                    onDone = { focusManager.clearFocus() }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // ラーメン
-                Ramen(
+                RamenField(
                     menuName = menuName,
                     sharedImage = shopImage,
                     enablePermission = { permissionEnabled = true },
@@ -377,177 +359,12 @@ fun EditShopScreenPreview() {
         category = "家系",
         menuName1 = "醤油ラーメン"
     )
-    
-    EditShopScreen(
-        shop = shop,
-        onBackClick = { },
-        onCompleted = { },
-        viewModel = MockEditShopViewModel()
-    )
-}
-
-@Composable
-private fun Ramen(
-    menuName: String = "",
-    sharedImage: SharedImage?,
-    enablePermission: () -> Unit,
-    onMenuValueChange: (String) -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        // メインのBox
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start
-            ) {
-                ShopInputField(
-                    label = stringResource(Res.string.add_shop_menu_name_label),
-                    value = menuName,
-                    onValueChange = onMenuValueChange
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 写真
-                PhotoSelectionField(
-                    label = stringResource(Res.string.add_shop_photo_label),
-                    sharedImage = sharedImage,
-                    onClick = enablePermission
-                )
-            }
-        }
-        
-        // タイトルをborder上に配置
-        Text(
-            text = "メニュー情報",
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 16.dp, y = (-8).dp) // 位置調整
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 4.dp),
-            style = MaterialTheme.typography.bodySmall
+    MaterialTheme {
+        EditShopScreen(
+            shop = shop,
+            onBackClick = { },
+            onCompleted = { },
+            viewModel = MockEditShopViewModel()
         )
-    }
-}
-
-@Composable
-private fun ShopInputField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit
-) {
-    val focusManager = LocalFocusManager.current
-    
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
-        
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // OutlinedTextField は内部パディングが大きいので BasicTextField で代用
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(4.dp)
-                )
-        ) {
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(
-                    onDone = { focusManager.clearFocus() }
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun PhotoSelectionField(
-    label: String,
-    sharedImage: SharedImage? = null,
-    onClick: () -> Unit
-) {
-    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    LaunchedEffect(sharedImage) {
-        val image = withContext(Dispatchers.IO) {
-            sharedImage?.toImageBitmap()
-        }
-        imageBitmap = image
-    }
-
-    Column {
-        // 写真
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 写真選択
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(Res.string.add_shop_select_button),
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Blue,
-                modifier = Modifier.clickable { onClick() }
-            )
-            if (imageBitmap != null) {
-                Image(
-                    modifier = Modifier
-                        .size(120.dp),
-                    bitmap = imageBitmap!!,
-                    contentDescription = null
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(4.dp)
-                        )
-                        .background(Color.White),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(Res.string.add_shop_no_image),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Black
-                    )
-                }
-            }
-        }
     }
 }
