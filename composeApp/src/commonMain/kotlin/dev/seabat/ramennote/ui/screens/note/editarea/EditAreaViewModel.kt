@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
-import dev.seabat.ramennote.domain.usecase.FetchImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class EditAreaViewModel(
     private val deleteAreaUseCase: DeleteAreaUseCaseContract,
     private val updateAreaUseCase: UpdateAreaUseCaseContract,
-    private val fetchImageUseCase: FetchImageUseCaseContract,
+    private val fetchPlaceHolderImageUseCase: FetchPlaceHolderImageUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract
 ): ViewModel(), EditAreaViewModelContract {
 
@@ -51,7 +51,7 @@ class EditAreaViewModel(
     override fun fetchImage() {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = fetchImageUseCase()
+            _imageState.value = fetchPlaceHolderImageUseCase()
         }
     }
 
