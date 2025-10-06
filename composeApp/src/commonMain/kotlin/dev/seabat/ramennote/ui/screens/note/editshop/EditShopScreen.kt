@@ -52,6 +52,7 @@ import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
+import ramennote.composeapp.generated.resources.edit_category_label
 import ramennote.composeapp.generated.resources.edit_shop_delete_button
 import ramennote.composeapp.generated.resources.edit_shop_delete_error_message
 import ramennote.composeapp.generated.resources.edit_shop_edit_button
@@ -194,9 +195,9 @@ fun EditShopScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // メニュー名
+                // 系統
                 ShopInputField(
-                    label = stringResource(Res.string.add_shop_menu_name_label),
+                    label = stringResource(Res.string.edit_category_label),
                     value = menuName,
                     onValueChange = { menuName = it },
                 )

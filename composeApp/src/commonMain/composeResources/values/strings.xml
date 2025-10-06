@@ -62,6 +62,7 @@
     <string name="edit_shop_delete_button">削除する</string>
     <string name="edit_shop_edit_error_message">編集に失敗しました</string>
     <string name="edit_shop_delete_error_message">削除に失敗しました</string>
+    <string name="edit_category_label">系統</string>
 
     <!-- App -->
     <string name="app_name">ラーメンノート</string>

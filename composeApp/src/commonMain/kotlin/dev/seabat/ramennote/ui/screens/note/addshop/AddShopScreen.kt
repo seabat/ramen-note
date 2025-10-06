@@ -27,6 +27,7 @@ import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
+import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toLocalDateTime
@@ -34,9 +35,11 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
+import ramennote.composeapp.generated.resources.add_shop_option1
 import ramennote.composeapp.generated.resources.add_shop_register_button
 import ramennote.composeapp.generated.resources.add_shop_title
 import ramennote.composeapp.generated.resources.add_station_label
@@ -119,7 +122,14 @@ fun AddShopScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp)
                     .pointerInput(Unit) {
-                        detectTapGestures { focusManager.clearFocus() }
+                        detectTapGestures(
+                            onPress = {
+                                val released = tryAwaitRelease()
+                                if (released) {
+                                    focusManager.clearFocus()
+                                }
+                            }
+                        )
                     }
             ) {
                 // 名前
@@ -167,11 +177,11 @@ fun AddShopScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // 系統
-//              ShopDropdownField(
-//                  label = stringResource(Res.string.add_category_label),
-//                  value = category,
-//                  onValueChange = { category = it }
-//              )
+                ShopDropdownField(
+                    label = stringResource(Res.string.add_category_label),
+                    value = category,
+                    onValueChange = { category = "${it}" }
+                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -274,64 +284,6 @@ private fun Permission(
     } else {
         logd("ramen-note", "GALLERY Permission: not Granted")
         permissionLauncher.askPermission(PermissionType.GALLERY)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun StarDropdownField(
-    label: String,
-    value: Int,
-    onValueChange: (Int) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val options = listOf("", "1", "2", "3")
-    val displayValue = if (value == 0) "" else value.toString()
-
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            OutlinedTextField(
-                value = displayValue,
-                onValueChange = { },
-                readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.outline,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    disabledBorderColor = MaterialTheme.colorScheme.outline,
-                    errorBorderColor = MaterialTheme.colorScheme.error
-                ),
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                }
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            val intValue = if (option.isEmpty()) 0 else option.toIntOrNull() ?: 0
-                            onValueChange(intValue)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
     }
 }
 

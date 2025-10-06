@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +37,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_no_image
-import ramennote.composeapp.generated.resources.add_shop_photo_label
 import ramennote.composeapp.generated.resources.add_shop_select_button
 
 @Composable
@@ -77,7 +75,6 @@ fun RamenField(
 
                 // 写真
                 PhotoSelectionField(
-                    label = stringResource(Res.string.add_shop_photo_label),
                     sharedImage = sharedImage,
                     onClick = enablePermission
                 )
@@ -99,7 +96,6 @@ fun RamenField(
 
 @Composable
 private fun PhotoSelectionField(
-    label: String,
     sharedImage: SharedImage? = null,
     onClick: () -> Unit
 ) {
@@ -112,12 +108,11 @@ private fun PhotoSelectionField(
     }
 
     Column {
-        // 写真
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
+//        Text(
+//            text = stringResource(Res.string.add_shop_photo_label),
+//            style = MaterialTheme.typography.bodyLarge,
+//            fontWeight = FontWeight.Medium
+//        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
