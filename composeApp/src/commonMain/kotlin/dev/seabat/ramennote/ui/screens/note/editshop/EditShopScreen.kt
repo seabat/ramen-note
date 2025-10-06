@@ -41,11 +41,13 @@ import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
+import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_shop_menu_name_label
@@ -196,10 +198,10 @@ fun EditShopScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // 系統
-                ShopInputField(
+                ShopDropdownField(
                     label = stringResource(Res.string.edit_category_label),
-                    value = menuName,
-                    onValueChange = { menuName = it },
+                    value = category,
+                    onValueChange = { category = "${it}" }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
