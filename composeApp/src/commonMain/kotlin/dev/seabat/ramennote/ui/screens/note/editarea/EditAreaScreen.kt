@@ -16,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import coil3.compose.AsyncImage
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,36 +62,32 @@ fun EditAreaScreen(
         viewModel.loadImage(areaName)
     }
 
-    Scaffold(
-        topBar = {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        var areaName by remember { mutableStateOf(areaName) }
+        var shouldShowAlert by remember { mutableStateOf(false) }
+        val deleteStatus by viewModel.deleteState.collectAsState()
+        val editStatus by viewModel.editState.collectAsState()
+
+        Column(modifier = Modifier.fillMaxSize()) {
+            val imageState by viewModel.imageState.collectAsState()
+            val focusManager = LocalFocusManager.current
+
             AppBar(
                 title = stringResource(Res.string.editarea_title),
                 onBackClick = onBackClick
             )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            var areaName by remember { mutableStateOf(areaName) }
-            var shouldShowAlert by remember { mutableStateOf(false) }
-            val deleteStatus by viewModel.deleteState.collectAsState()
-            val editStatus by viewModel.editState.collectAsState()
-            val imageState by viewModel.imageState.collectAsState()
-            val focusManager = LocalFocusManager.current
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp)
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+            ) {
+                Column(modifier = Modifier
                     .pointerInput(Unit) {
                         detectTapGestures { focusManager.clearFocus() }
-                    },
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
+                    }
+                ) {
                     Text(text = "エリア", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
@@ -110,7 +105,9 @@ fun EditAreaScreen(
                             onDone = { focusManager.clearFocus() }
                         )
                     )
+
                     Spacer(Modifier.height(16.dp))
+
                     Button(
                         onClick = { viewModel.fetchImage() },
                         colors = ButtonDefaults.buttonColors(
@@ -149,6 +146,9 @@ fun EditAreaScreen(
                         }
                     }
                 }
+
+                Spacer(Modifier.weight(1.0f))
+
                 BottomContent(
                     areaName = areaName,
                     onEditButtonClick = {
@@ -158,20 +158,20 @@ fun EditAreaScreen(
                         shouldShowAlert = true
                     },
                 )
-
             }
-            if (shouldShowAlert) {
-                AppAlert(
-                    message = stringResource(Res.string.editarea_delete_confirm, areaName),
-                    onConfirm = {
-                        viewModel.deleteArea(areaName)
-                        shouldShowAlert = false
-                    }
-                )
-            }
-            EditStatus(editStatus) { onCompleted() }
-            DeleteStatus(deleteStatus) { onCompleted() }
         }
+
+        if (shouldShowAlert) {
+            AppAlert(
+                message = stringResource(Res.string.editarea_delete_confirm, areaName),
+                onConfirm = {
+                    viewModel.deleteArea(areaName)
+                    shouldShowAlert = false
+                }
+            )
+        }
+        EditStatus(editStatus) { onCompleted() }
+        DeleteStatus(deleteStatus) { onCompleted() }
     }
 }
 

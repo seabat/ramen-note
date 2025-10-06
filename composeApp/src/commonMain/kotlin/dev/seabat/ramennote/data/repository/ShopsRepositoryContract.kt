@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.Flow
 interface ShopsRepositoryContract {
     suspend fun getAllShops(): List<Shop>
     fun getAllShopsFlow(): Flow<List<Shop>>
-    suspend fun getShopByName(name: String): Shop?
+    suspend fun getShopById(id: Int): Shop?
     suspend fun getShopsByArea(area: String): List<Shop>
     suspend fun insertShop(shop: Shop)
     suspend fun updateShop(shop: Shop)
     suspend fun deleteShop(shop: Shop)
-    suspend fun deleteShopByName(name: String)
+    suspend fun deleteShopById(id: Int)
 }

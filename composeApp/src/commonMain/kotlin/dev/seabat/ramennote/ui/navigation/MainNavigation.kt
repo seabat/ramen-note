@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
+import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
@@ -173,6 +174,22 @@ sealed interface Screen {
         override fun getTitle(): String { return "店舗登録" }
     }
 
+    @Serializable
+    data class EditShop(val shopJson: String) : Screen {
+        override val route: String = getRouteName(EditShop::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Edit }
+        @Composable
+        override fun getTitle(): String { 
+            return try {
+                val shop = ShopInfo.fromJsonString(shopJson)
+                "${shop.name} 編集"
+            } catch (e: Exception) {
+                "店舗編集"
+            }
+        }
+    }
+
     val route: String
     @Composable
     fun getIcon(): ImageVector
@@ -307,16 +324,48 @@ fun MainNavigation() {
                     )
                 }
                 ShopScreen(
-                    shop = shop,
-                    onBackClick = { navController.popBackStack() }
+                    shopId = shop.id,
+                    onBackClick = { navController.popBackStack() },
+                    onEditClick = { editShop ->
+                        navController.navigate(Screen.EditShop(editShop.toJsonString()))
+                    }
                 )
             }
             composable<Screen.AddShop> { backStackEntry ->
-                val screen: Screen.EditArea = backStackEntry.toRoute()
+                val screen: Screen.AddShop = backStackEntry.toRoute()
                 AddShopScreen(
                     areaName = screen.areaName,
                     onBackClick = { navController.popBackStack() },
                     onCompleted = { navController.popBackStack() }
+                )
+            }
+            composable<Screen.EditShop> { backStackEntry ->
+                val screen: Screen.EditShop = backStackEntry.toRoute()
+                val shop = try {
+                    ShopInfo.fromJsonString(screen.shopJson)
+                } catch (e: Exception) {
+                    // エラーの場合はデフォルトのShopオブジェクトを作成
+                    ShopInfo(
+                        name = "エラー",
+                        area = "",
+                        shopUrl = "",
+                        mapUrl = "",
+                        star = 0,
+                        stationName = "",
+                        category = ""
+                    )
+                }
+                EditShopScreen(
+                    shop = shop,
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() },
+                    goToShopList = { areaName ->
+                        navController.navigate(Screen.AreaShopList(areaName)) {
+                            popUpTo(Screen.AreaShopList(areaName)) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 )
             }
         }

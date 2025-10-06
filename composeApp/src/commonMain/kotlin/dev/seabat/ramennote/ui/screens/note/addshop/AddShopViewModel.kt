@@ -1,20 +1,21 @@
 package dev.seabat.ramennote.ui.screens.note.addshop
 
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
+import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AddShopViewModel(
-    private val shopsRepository: ShopsRepositoryContract,
-    private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract
+    private val addShopUseCase: AddShopUseCaseContract,
+    private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
+    private val createNoImageUseCase: CreateNoImageUseCaseContract
 ) : ViewModel(), AddShopViewModelContract {
 
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
@@ -31,11 +32,19 @@ class AddShopViewModel(
                 }
                 
                 // 店舗情報を保存
-                shopsRepository.insertShop(shop)
+                addShopUseCase.addShop(shop)
                 _saveState.value = RunStatus.Success("")
             } catch (e: Exception) {
                 _saveState.value = RunStatus.Error("店舗の保存に失敗しました: ${e.message}")
             }
         }
+    }
+
+    override fun setSaveStateToIdle() {
+        _saveState.value = RunStatus.Idle()
+    }
+
+    override fun createNoImage(): ByteArray {
+        return createNoImageUseCase.create()
     }
 }

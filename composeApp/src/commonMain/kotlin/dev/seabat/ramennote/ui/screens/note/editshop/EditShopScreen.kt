@@ -1,8 +1,22 @@
-package dev.seabat.ramennote.ui.screens.note.addshop
+package dev.seabat.ramennote.ui.screens.note.editshop
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.*
@@ -10,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
@@ -19,7 +34,6 @@ import dev.seabat.ramennote.ui.component.AppAlert
 import dev.seabat.ramennote.ui.component.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.component.MaxWidthButton
 import dev.seabat.ramennote.ui.component.StarIcon
-import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
 import dev.seabat.ramennote.ui.permission.PermissionStatus
@@ -27,47 +41,55 @@ import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
-import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
+import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
-import ramennote.composeapp.generated.resources.add_shop_option1
-import ramennote.composeapp.generated.resources.add_shop_register_button
-import ramennote.composeapp.generated.resources.add_shop_title
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
+import ramennote.composeapp.generated.resources.edit_category_label
+import ramennote.composeapp.generated.resources.edit_shop_delete_button
+import ramennote.composeapp.generated.resources.edit_shop_delete_error_message
+import ramennote.composeapp.generated.resources.edit_shop_edit_button
+import ramennote.composeapp.generated.resources.edit_shop_edit_error_message
+import ramennote.composeapp.generated.resources.edit_shop_title
 
 @Composable
-fun AddShopScreen(
-    areaName: String,
+fun EditShopScreen(
+    shop: Shop,
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
-    viewModel: AddShopViewModelContract = koinViewModel<AddShopViewModel>()
+    goToShopList: (areaName: String) -> Unit,
+    viewModel: EditShopViewModelContract = koinViewModel<EditShopViewModel>()
 ) {
-    var name by remember { mutableStateOf("") }
-    var shopUrl by remember { mutableStateOf("") }
-    var mapUrl by remember { mutableStateOf("") }
-    var star by remember { mutableStateOf(1) }
-    var stationName by remember { mutableStateOf("") }
+
+    var name by remember { mutableStateOf(shop.name) }
+    var shopUrl by remember { mutableStateOf(shop.shopUrl) }
+    var mapUrl by remember { mutableStateOf(shop.mapUrl) }
+    var star by remember { mutableStateOf(shop.star) }
+    var stationName by remember { mutableStateOf(shop.stationName) }
     val focusManager = LocalFocusManager.current
-    var category by remember { mutableStateOf("") }
-    var menuName by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf(shop.category) }
+    var menuName by remember { mutableStateOf(shop.menuName1) }
 
     val saveState by viewModel.saveState.collectAsState()
+    val deleteState by viewModel.deleteState.collectAsState()
+    val shopImage by viewModel.shopImage.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
     var shouldLaunchSetting by remember { mutableStateOf(false) }
     var shouldShowPermissionRationalDialog by remember { mutableStateOf(false) }
-    var sharedImage by remember { mutableStateOf<SharedImage?>(null) }
-    val galleryManager = createRememberedGalleryLauncher { sharedImage = it }
+    val galleryManager = createRememberedGalleryLauncher { viewModel.updateImage(it) }
+
+    // 画像読み込み
+    LaunchedEffect(shop.name) {
+        viewModel.loadImage(shop)
+    }
 
     if (permissionEnabled) {
         Permission(
@@ -105,14 +127,16 @@ fun AddShopScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
             AppBar(
-                title = stringResource(Res.string.add_shop_title),
+                title = stringResource(Res.string.edit_shop_title),
                 onBackClick = onBackClick
             )
 
@@ -122,21 +146,16 @@ fun AddShopScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp)
                     .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                val released = tryAwaitRelease()
-                                if (released) {
-                                    focusManager.clearFocus()
-                                }
-                            }
-                        )
+                        detectTapGestures(onTap = {
+                            focusManager.clearFocus()
+                        })
                     }
             ) {
-                // 名前
+                // 店舗名
                 ShopInputField(
                     label = stringResource(Res.string.add_shop_name_label),
                     value = name,
-                    onValueChange = { name = it }
+                    onValueChange = { name = it },
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -145,7 +164,7 @@ fun AddShopScreen(
                 ShopInputField(
                     label = stringResource(Res.string.add_web_site_label),
                     value = shopUrl,
-                    onValueChange = { shopUrl = it }
+                    onValueChange = { shopUrl = it },
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -154,7 +173,7 @@ fun AddShopScreen(
                 ShopInputField(
                     label = stringResource(Res.string.add_map_label),
                     value = mapUrl,
-                    onValueChange = { mapUrl = it }
+                    onValueChange = { mapUrl = it },
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -171,16 +190,16 @@ fun AddShopScreen(
                 ShopInputField(
                     label = stringResource(Res.string.add_station_label),
                     value = stationName,
-                    onValueChange = { stationName = it }
+                    onValueChange = { stationName = it },
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // 系統
-                ShopDropdownField(
-                    label = stringResource(Res.string.add_category_label),
-                    value = category,
-                    onValueChange = { category = "${it}" }
+                ShopInputField(
+                    label = stringResource(Res.string.edit_category_label),
+                    value = menuName,
+                    onValueChange = { menuName = it },
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -188,66 +207,71 @@ fun AddShopScreen(
                 // ラーメン
                 RamenField(
                     menuName = menuName,
-                    sharedImage = sharedImage,
+                    sharedImage = shopImage,
                     enablePermission = { permissionEnabled = true },
                     onMenuValueChange = { menuName = it }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 登録ボタン
-                val isButtonEnabled = name.isNotBlank() && areaName.isNotBlank()
-
+                // 編集ボタン
                 MaxWidthButton(
-                    text = stringResource(Res.string.add_shop_register_button),
-                    enabled = isButtonEnabled
+                    text =stringResource(Res.string.edit_shop_edit_button),
+                    enabled = name.isNotBlank(),
+                    onClick = {
+                        val updatedShop = shop.copy(
+                            name = name,
+                            shopUrl = shopUrl,
+                            mapUrl = mapUrl,
+                            star = star,
+                            stationName = stationName,
+                            category = category,
+                            menuName1 = menuName
+                        )
+                        viewModel.updateShop(updatedShop, shopImage)
+                    }
+                )
+                MaxWidthButton(
+                    text = stringResource(Res.string.edit_shop_delete_button),
+                    enabled = name.isNotBlank()
                 ) {
-                    val shop = Shop(
-                        name = name,
-                        area = areaName,
-                        shopUrl = shopUrl,
-                        mapUrl = mapUrl,
-                        star = star,
-                        stationName = stationName,
-                        category = category,
-                        menuName1 = menuName,
-                        photoName1 = createPhotoName(1)
-                    )
-                    
-                    // sharedImageがnullの場合はnoimage.svgをByteArrayに変換してSharedImageを作成
-                    val finalSharedImage = sharedImage ?: SharedImage(viewModel.createNoImage())
-                    viewModel.saveShop(shop, finalSharedImage)
+                    viewModel.deleteShop(shop.id)
                 }
             }
-
         }
         // 保存状態の処理
         when (saveState) {
             is RunStatus.Success -> {
-                onCompleted()
+                LaunchedEffect(saveState) {
+                    onCompleted()
+                    viewModel.setSaveStateToIdle()
+                }
             }
             is RunStatus.Error -> {
                 AppAlert(
-                    message = saveState.message ?: "不明なエラーが発生しました",
-                    onConfirm = { /* エラー処理 */ }
+                    message = saveState.message ?: stringResource(Res.string.edit_shop_edit_error_message),
+                    onConfirm = { viewModel.setSaveStateToIdle() }
                 )
             }
-            else -> { /* その他の状態は何もしない */ }
+            else -> { }
+        }
+
+        // 削除状態の処理
+        when (deleteState) {
+            is RunStatus.Success -> {
+                LaunchedEffect(deleteState) {
+                    goToShopList(shop.area)
+                }
+            }
+            is RunStatus.Error -> {
+                AppAlert(
+                    message = deleteState.message ?: stringResource(Res.string.edit_shop_delete_error_message),
+                    onConfirm = { viewModel.setDeleteStateToIdle() }
+                )
+            }
+            else -> { }
         }
     }
-}
-
-private fun createPhotoName(number: Int): String {
-    val now = Clock.System.now().toLocalDateTime(
-        kotlinx.datetime.TimeZone.currentSystemDefault()
-    )
-    val currentTime = "${now.year}${now.monthNumber.toString()
-        .padStart(2, '0')}${now.dayOfMonth.toString()
-        .padStart(2, '0')}T${now.hour.toString()
-        .padStart(2, '0')}${now.minute.toString()
-        .padStart(2, '0')}${now.second.toString()
-        .padStart(2, '0')}"
-    return currentTime + "_$number"
 }
 
 @Composable
@@ -288,6 +312,47 @@ private fun Permission(
 }
 
 @Composable
+private fun InputField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onDone: () -> Unit
+) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        // OutlinedTextField は内部パディングが大きいので BasicTextField で代用
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(4.dp)
+                )
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { onDone() })
+            )
+        }
+    }
+}
+
+@Composable
 private fun StarRating(
     star: Int,
     onValueChange: (Int) -> Unit
@@ -298,9 +363,9 @@ private fun StarRating(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
         )
-
+        
         Spacer(modifier = Modifier.height(8.dp))
-
+        
         Row {
             repeat(3) { index ->
                 StarIcon(
@@ -314,11 +379,24 @@ private fun StarRating(
 
 @Preview
 @Composable
-fun AddShopScreenPreview() {
-    AddShopScreen(
-        areaName = "Tokyo",
-        onBackClick = {},
-        onCompleted = {},
-        viewModel = MockAddShopViewModel()
+fun EditShopScreenPreview() {
+    val shop = Shop(
+        name = "XXXX家",
+        area = "東京",
+        shopUrl = "https://example.com",
+        mapUrl = "https://maps.google.com",
+        star = 2,
+        stationName = "JR渋谷駅",
+        category = "家系",
+        menuName1 = "醤油ラーメン"
     )
+    MaterialTheme {
+        EditShopScreen(
+            shop = shop,
+            onBackClick = { },
+            onCompleted = { },
+            goToShopList = { _ -> },
+            viewModel = MockEditShopViewModel()
+        )
+    }
 }

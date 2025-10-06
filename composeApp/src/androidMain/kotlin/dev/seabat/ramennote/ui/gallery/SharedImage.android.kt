@@ -1,12 +1,24 @@
 package dev.seabat.ramennote.ui.gallery
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import java.io.ByteArrayOutputStream
 
-actual class SharedImage(private val bitmap: android.graphics.Bitmap?) {
+actual class SharedImage(private val bitmap: Bitmap?) {
     actual constructor() : this(null)
+
+    actual constructor(
+        byteArray: ByteArray
+    ) : this(
+        BitmapFactory.decodeByteArray(
+        byteArray,
+        0,
+        byteArray.size
+        )
+    )
+
     actual fun toByteArray(): ByteArray? {
         return if (bitmap != null) {
             val byteArrayOutputStream = ByteArrayOutputStream()

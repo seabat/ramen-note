@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class Shop(
+    val id: Int = 0,
     val name: String = "",
     val area: String = "",
     val shopUrl: String = "",

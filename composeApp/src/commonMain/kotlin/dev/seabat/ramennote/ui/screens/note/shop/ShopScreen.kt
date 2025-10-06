@@ -2,12 +2,16 @@ package dev.seabat.ramennote.ui.screens.note.shop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -23,7 +27,6 @@ import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.component.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_calender_button
@@ -33,46 +36,56 @@ import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
-import ramennote.composeapp.generated.resources.kid_star_24px_empty
-import ramennote.composeapp.generated.resources.kid_star_24px_fill
 import coil3.compose.AsyncImage
+import dev.seabat.ramennote.ui.component.StarIcon
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.add_no_url_label
 
 @Composable
 fun ShopScreen(
-    shop: Shop,
+    shopId: Int,
     onBackClick: () -> Unit,
+    onEditClick: (Shop) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
-    Scaffold(
-        topBar = {
+    // Shopデータと画像を読み込み
+    LaunchedEffect(shopId) {
+        viewModel.loadShopAndImage(shopId)
+    }
+
+    val shop by viewModel.shop.collectAsState()
+    val imageBytes by viewModel.shopImage.collectAsState()
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top
+        ) {
             AppBar(
-                title = shop.name,
+                title = shop?.name ?: "",
                 onBackClick = onBackClick
             )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
                 // ヘッダー画像エリア
-                LaunchedEffect(shop.name) {
-                    viewModel.loadImage(shop)
-                }
-                val imageBytes by viewModel.shopImage.collectAsState()
                 Header(imageBytes)
 
                 // アクションボタン
-                ActionButtons()
+                ActionButtons(
+                    onEditClick = {
+                        shop?.let { onEditClick(it) }
+                    }
+                )
 
                 // 詳細情報
-                Detail(shop)
+                shop?.let { shopData ->
+                    Detail(shopData)
+                }
             }
         }
     }
@@ -137,7 +150,9 @@ fun Header(imageBytes: ByteArray?) {
 
 // アクションボタン
 @Composable
-fun ActionButtons() {
+fun ActionButtons(
+    onEditClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -156,7 +171,7 @@ fun ActionButtons() {
         }
 
         Button(
-            onClick = { /* 編集処理 */ },
+            onClick = onEditClick,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -213,21 +228,35 @@ private fun UrlItem(
     url: String,
 ) {
     val urlHandler = LocalUriHandler.current
+    val isUrlEmpty = url.isEmpty()
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 10.dp)
-            .clickable { urlHandler.openUri(url) },
-        horizontalArrangement = Arrangement.Start,
+            .let { modifier ->
+                if (isUrlEmpty) {
+                    modifier
+                } else {
+                    modifier.clickable { urlHandler.openUri(url) }
+                }
+            },
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
-            color = Color.Blue
+            color = if (isUrlEmpty) MaterialTheme.colorScheme.onSurface else Color.Blue
         )
+        if (isUrlEmpty) {
+            Text(
+                text = stringResource(Res.string.add_no_url_label),
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
+            )
+        }
     }
 }
 
@@ -273,15 +302,8 @@ fun StarItem(star: Int) {
         // 星の表示（最大3つ）
         Row {
             repeat(3) { index ->
-                Icon(
-                    imageVector = if (index < star) {
-                        vectorResource(Res.drawable.kid_star_24px_fill)
-                    } else {
-                        vectorResource(Res.drawable.kid_star_24px_empty)
-                    },
-                    contentDescription = "星",
-                    tint = if (index < star) Color(0xFFFFEA00) else Color.White,
-                    modifier = Modifier.padding(end = 4.dp)
+                StarIcon(
+                    onOff = index < star,
                 )
             }
         }
@@ -293,16 +315,10 @@ fun StarItem(star: Int) {
 fun ShopScreenPreview() {
     RamenNoteTheme {
         ShopScreen(
-            shop = Shop(
-                name = "XXXX家",
-                area = "東京",
-                shopUrl = "https://example.com",
-                mapUrl = "https://maps.google.com",
-                star = 2,
-                stationName = "JR渋谷駅",
-                category = "家系"
-            ),
+            shopId = 1,
             onBackClick = { },
+            onEditClick = { },
+            viewModel = MockShopViewModel()
         )
     }
 }

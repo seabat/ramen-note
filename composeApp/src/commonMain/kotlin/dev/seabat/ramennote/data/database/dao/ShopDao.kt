@@ -12,8 +12,8 @@ interface ShopDao {
     @Query("SELECT * FROM shops")
     fun getAllShopsFlow(): Flow<List<ShopEntity>>
 
-    @Query("SELECT * FROM shops WHERE name = :name")
-    suspend fun getShopByName(name: String): ShopEntity?
+    @Query("SELECT * FROM shops WHERE id = :id")
+    suspend fun getShopById(id: Int): ShopEntity?
 
     @Query("SELECT * FROM shops WHERE area = :area")
     suspend fun getShopsByArea(area: String): List<ShopEntity>
@@ -27,6 +27,6 @@ interface ShopDao {
     @Delete
     suspend fun deleteShop(shop: ShopEntity)
 
-    @Query("DELETE FROM shops WHERE name = :name")
-    suspend fun deleteShopByName(name: String)
+    @Query("DELETE FROM shops WHERE id = :id")
+    suspend fun deleteShopById(id: Int)
 }

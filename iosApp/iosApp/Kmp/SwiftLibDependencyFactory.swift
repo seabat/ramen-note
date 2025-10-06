@@ -7,5 +7,9 @@ class SwiftLibDependencyFactory: SwiftLibDependencyFactoryContract {
     func provideLocalStorageDataSourceContract() -> any LocalStorageDataSourceContract {
         return IosLocalStorageDataSource()
     }
+    
+    func provideNoImageDataSourceContract() -> any NoImageDataSourceContract {
+        return IosNoImageDataSource()
+    }
 }
 

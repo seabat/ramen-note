@@ -25,8 +25,8 @@ class ShopsRepository(
         }
     }
 
-    override suspend fun getShopByName(name: String): Shop? {
-        return shopDao.getShopByName(name)?.toDomainModel()
+    override suspend fun getShopById(id: Int): Shop? {
+        return shopDao.getShopById(id)?.toDomainModel()
     }
 
     override suspend fun getShopsByArea(area: String): List<Shop> {
@@ -45,13 +45,14 @@ class ShopsRepository(
         shopDao.deleteShop(shop.toEntity())
     }
 
-    override suspend fun deleteShopByName(name: String) {
-        shopDao.deleteShopByName(name)
+    override suspend fun deleteShopById(id: Int) {
+        shopDao.deleteShopById(id)
     }
 }
 
 private fun ShopEntity.toDomainModel(): Shop {
     return Shop(
+        id = id,
         name = name,
         area = area,
         shopUrl = shopUrl,
@@ -73,6 +74,7 @@ private fun ShopEntity.toDomainModel(): Shop {
 
 private fun Shop.toEntity(): ShopEntity {
     return ShopEntity(
+        id = id,
         name = name,
         area = area,
         shopUrl = shopUrl,

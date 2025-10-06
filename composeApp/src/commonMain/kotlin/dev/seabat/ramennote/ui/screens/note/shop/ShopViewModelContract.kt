@@ -4,8 +4,9 @@ import dev.seabat.ramennote.domain.model.Shop
 import kotlinx.coroutines.flow.StateFlow
 
 interface ShopViewModelContract {
+    val shop: StateFlow<Shop?>
     val shopImage: StateFlow<ByteArray?>
-    fun loadImage(shop: Shop)
+    fun loadShopAndImage(id: Int)
 }
 
 
