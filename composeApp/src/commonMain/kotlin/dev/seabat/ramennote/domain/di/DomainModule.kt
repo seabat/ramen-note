@@ -27,7 +27,7 @@ import org.koin.dsl.module
 val useCaseModule = module {
     single<AddShopUseCaseContract> { AddShopUseCase(get()) }
     single<CreateNoImageUseCaseContract> { CreateNoImageUseCase(get()) }
-    single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get()) }
+    single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
     single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
     single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
     single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }
