@@ -1,0 +1,34 @@
+package dev.seabat.ramennote.domain.usecase
+
+import dev.seabat.ramennote.data.repository.AreasRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.domain.model.RunStatus
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toLocalDateTime
+
+class UpdateAreaImageUseCase(
+    private val areasRepository: AreasRepositoryContract,
+    private val localAreaImageRepository: LocalAreaImageRepositoryContract,
+    private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
+) : UpdateAreaImageUseCaseContract {
+    override suspend operator fun invoke(area: String): RunStatus<ByteArray?> {
+        // まずローカルから読み込む。nullなら必ずUnsplashから取得
+        val local = localAreaImageRepository.load(area)
+        if (local == null) {
+            return fetchUnsplashImageUseCase(area)
+        }
+
+        val areaData = areasRepository.fetch(area)
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val needUpdate = areaData == null || areaData.updatedDate < today.minus(1, kotlinx.datetime.DateTimeUnit.DAY)
+        return if (needUpdate) {
+            fetchUnsplashImageUseCase(area)
+        } else {
+            RunStatus.Error("本日は画像を変更できません。明日もう一度お試しください。")
+        }
+    }
+}
+
+

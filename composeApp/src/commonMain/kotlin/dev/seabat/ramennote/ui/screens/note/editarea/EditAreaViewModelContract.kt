@@ -11,6 +11,6 @@ interface EditAreaViewModelContract {
 
     fun editArea(newArea: String)
     fun deleteArea(area: String)
-    fun fetchImage()
+    fun fetchImage(areaName: String)
     fun loadImage(name: String)
 }
