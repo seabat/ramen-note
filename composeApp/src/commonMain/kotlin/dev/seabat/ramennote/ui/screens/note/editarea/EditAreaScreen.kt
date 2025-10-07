@@ -1,6 +1,5 @@
 package dev.seabat.ramennote.ui.screens.note.editarea
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -32,15 +31,15 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.ui.component.AppAlert
+import dev.seabat.ramennote.ui.components.AppAlert
 import org.jetbrains.compose.resources.stringResource
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.editarea_change_image_button
 import ramennote.composeapp.generated.resources.editarea_title
 import ramennote.composeapp.generated.resources.editarea_delete_confirm
-import dev.seabat.ramennote.ui.component.AppBar
-import dev.seabat.ramennote.ui.component.AppProgressBar
-import dev.seabat.ramennote.ui.component.MaxWidthButton
+import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel

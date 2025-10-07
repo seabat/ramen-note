@@ -26,8 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.component.AppBar
-import dev.seabat.ramennote.ui.component.StarIcon
+import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel

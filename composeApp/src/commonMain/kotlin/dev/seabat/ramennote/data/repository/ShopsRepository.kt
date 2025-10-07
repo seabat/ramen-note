@@ -17,7 +17,8 @@ class ShopsRepository(
     }
 
     override suspend fun getAllShops(): List<Shop> {
-        return shopDao.getAllShops().map { it.toDomainModel() }
+        val shops = shopDao.getAllShops()
+        return shops.map { it.toDomainModel() }
     }
 
     override fun getAllShopsFlow(): Flow<List<Shop>> {

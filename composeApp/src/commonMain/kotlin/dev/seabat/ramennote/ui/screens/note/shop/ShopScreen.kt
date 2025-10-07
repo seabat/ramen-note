@@ -24,7 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.component.AppBar
+import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -36,7 +36,8 @@ import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
 import coil3.compose.AsyncImage
-import dev.seabat.ramennote.ui.component.StarIcon
+import dev.seabat.ramennote.ui.components.StarIcon
+import dev.seabat.ramennote.ui.util.createFormattedDateString
 import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -266,14 +267,7 @@ fun Detail(shop: Shop) {
 
         // 予定（YYYY年mm月DD日 表記）
         shop.scheduledDate?.let { date ->
-            val formatted = buildString {
-                append(date.year)
-                append("年")
-                append(date.monthNumber.toString().padStart(2, '0'))
-                append("月")
-                append(date.dayOfMonth.toString().padStart(2, '0'))
-                append("日")
-            }
+            val formatted =createFormattedDateString(date)
             ShopDetailItem(
                 label = stringResource(Res.string.add_schedule_label),
                 value = formatted,

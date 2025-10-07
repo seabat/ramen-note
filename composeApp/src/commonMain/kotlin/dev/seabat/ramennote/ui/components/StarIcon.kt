@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.component
+package dev.seabat.ramennote.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding

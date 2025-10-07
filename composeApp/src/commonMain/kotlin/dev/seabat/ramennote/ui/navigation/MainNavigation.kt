@@ -27,7 +27,7 @@ import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
 import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
-import dev.seabat.ramennote.ui.screens.withbottom.HomeScreen
+import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.withbottom.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen

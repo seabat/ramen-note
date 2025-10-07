@@ -29,6 +29,8 @@ import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
 import org.koin.dsl.module
 import dev.seabat.ramennote.domain.usecase.AddScheduleUseCase
 import dev.seabat.ramennote.domain.usecase.AddScheduleUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCase
+import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 
 val useCaseModule = module {
     single<AddShopUseCaseContract> { AddShopUseCase(get()) }
@@ -46,4 +48,5 @@ val useCaseModule = module {
     single<UpdateShopCountInAreaUseCaseContract> { UpdateShopCountInAreaUseCase(get(), get()) }
     single<UpdateShopUseCaseContract> { UpdateShopUseCase(get()) }
     single<AddScheduleUseCaseContract> { AddScheduleUseCase(get()) }
+    single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get()) }
 }
