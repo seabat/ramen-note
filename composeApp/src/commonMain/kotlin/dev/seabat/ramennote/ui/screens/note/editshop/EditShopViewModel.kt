@@ -6,8 +6,10 @@ import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +19,10 @@ import kotlinx.coroutines.launch
 class EditShopViewModel(
     private val updateShopUseCase: UpdateShopUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
+    private val loadShopUseCase: LoadShopUseCaseContract,
     private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
-    private val deleteShopAndImageUseCase: DeleteShopAndImageUseCaseContract
+    private val deleteShopAndImageUseCase: DeleteShopAndImageUseCaseContract,
+    private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract
 ) : ViewModel(), EditShopViewModelContract {
 
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
@@ -74,8 +78,16 @@ class EditShopViewModel(
     override fun deleteShop(shopId: Int) {
         viewModelScope.launch {
             _deleteState.value = RunStatus.Loading()
+            // 削除前にエリア名を取得
+            val shop = loadShopUseCase.invoke(shopId)
+            val areaName = shop?.area
+
             val result = deleteShopAndImageUseCase.invoke(shopId)
             _deleteState.value = result
+            // 削除成功時にエリア件数を更新する
+            if (result is RunStatus.Success && !areaName.isNullOrEmpty()) {
+                updateShopCountInAreaUseCase(areaName)
+            }
         }
     }
 
