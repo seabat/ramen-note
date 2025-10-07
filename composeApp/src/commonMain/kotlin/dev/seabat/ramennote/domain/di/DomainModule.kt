@@ -22,6 +22,8 @@ import dev.seabat.ramennote.domain.usecase.UpdateShopUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCase
 import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCase
+import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
 import org.koin.dsl.module
 
 val useCaseModule = module {
@@ -36,5 +38,6 @@ val useCaseModule = module {
     single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
     single<SaveShopMenuImageUseCaseContract> { SaveShopMenuImageUseCase(get()) }
     single<UpdateAreaUseCaseContract> { UpdateAreaUseCase(get(), get(), get()) }
+    single<UpdateShopCountInAreaUseCaseContract> { UpdateShopCountInAreaUseCase(get(), get()) }
     single<UpdateShopUseCaseContract> { UpdateShopUseCase(get()) }
 }

@@ -14,7 +14,7 @@ val viewModelModule = module {
     viewModel { EditAreaViewModel(get(), get(), get(), get()) }
     viewModel { AddAreaViewModel(get(), get()) }
     viewModel { NoteViewModel(get(), get()) }
-    viewModel { AddShopViewModel(get(), get(), get()) }
+    viewModel { AddShopViewModel(get(), get(), get(), get()) }
     viewModel { EditShopViewModel(get(), get(), get(), get()) }
     viewModel { AreaShopListViewModel(get()) }
     viewModel { ShopViewModel(get(), get()) }
