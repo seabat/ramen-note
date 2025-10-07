@@ -91,7 +91,7 @@ private fun MainContent(
                 AreaItem(
                     areaName = area.name,
                     imageBytes = area.imageBytes,
-                    itemCount = stringResource(Res.string.note_item_count),
+                    itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                     onClick = { onAreaClick(area.name) },
                     onLongClick = { onAreaLongClick(area.name) }
                 )
@@ -194,6 +194,14 @@ private fun AreaItem(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun AreaItemPreview() {
+    RamenNoteTheme {
+        AreaItem(areaName = "東京", imageBytes = null, itemCount = "12", onClick = {}, onLongClick = {})
     }
 }
 

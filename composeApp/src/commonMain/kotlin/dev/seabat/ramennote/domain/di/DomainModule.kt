@@ -6,8 +6,8 @@ import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
-import dev.seabat.ramennote.domain.usecase.FetchImageUseCase
-import dev.seabat.ramennote.domain.usecase.FetchImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
+import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCase
@@ -22,19 +22,25 @@ import dev.seabat.ramennote.domain.usecase.UpdateShopUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCase
 import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCase
+import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCase
+import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
 import org.koin.dsl.module
 
 val useCaseModule = module {
-    single<FetchImageUseCaseContract> { FetchImageUseCase(get(), get()) }
+    single<AddShopUseCaseContract> { AddShopUseCase(get()) }
+    single<CreateNoImageUseCaseContract> { CreateNoImageUseCase(get()) }
+    single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
+    single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
+    single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
+    single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }
+    single<UpdateAreaImageUseCaseContract> { UpdateAreaImageUseCase(get(), get(), get()) }
     single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
     single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
     single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
-    single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
-    single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }
-    single<UpdateAreaUseCaseContract> { UpdateAreaUseCase(get(), get()) }
-    single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get()) }
     single<SaveShopMenuImageUseCaseContract> { SaveShopMenuImageUseCase(get()) }
-    single<AddShopUseCaseContract> { AddShopUseCase(get()) }
+    single<UpdateAreaUseCaseContract> { UpdateAreaUseCase(get(), get(), get()) }
+    single<UpdateShopCountInAreaUseCaseContract> { UpdateShopCountInAreaUseCase(get(), get()) }
     single<UpdateShopUseCaseContract> { UpdateShopUseCase(get()) }
-    single<CreateNoImageUseCaseContract> { CreateNoImageUseCase(get()) }
 }

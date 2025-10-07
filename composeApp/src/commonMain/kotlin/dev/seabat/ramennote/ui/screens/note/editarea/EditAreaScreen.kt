@@ -109,7 +109,7 @@ fun EditAreaScreen(
                     Spacer(Modifier.height(16.dp))
 
                     Button(
-                        onClick = { viewModel.fetchImage() },
+                        onClick = { viewModel.fetchImage(areaName) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                             contentColor = MaterialTheme.colorScheme.onTertiaryContainer

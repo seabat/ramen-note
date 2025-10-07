@@ -2,17 +2,32 @@ package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class DeleteAreaUseCase(
     private val areasRepository: AreasRepositoryContract,
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract
+    private val localAreaImageRepository: LocalAreaImageRepositoryContract,
+    private val shopsRepository: ShopsRepositoryContract
 ) : DeleteAreaUseCaseContract {
     override suspend fun invoke(name: String): RunStatus<String> {
-        val result = areasRepository.delete( name)
-        if (result is RunStatus.Success) {
-            localAreaImageRepository.delete(name)
+        val result = areasRepository.delete(name)
+        return if (result is RunStatus.Success) {
+            try {
+                // エリア画像の削除
+                localAreaImageRepository.delete(name)
+
+                // 該当エリアのShopを削除
+                val shops = shopsRepository.getShopsByArea(name)
+                shops.forEach { shop ->
+                    shopsRepository.deleteShopById(shop.id)
+                }
+                RunStatus.Success("")
+            } catch (e: Exception) {
+                RunStatus.Error(e.message ?: "エリア削除後の関連データ削除に失敗しました")
+            }
+        } else {
+            result
         }
-        return result
     }
 }

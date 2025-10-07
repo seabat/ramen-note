@@ -4,10 +4,10 @@ import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
-class FetchImageUseCase(
+class FetchPlaceHolderImageUseCase(
     private val areaImageRepository: AreaImageRepositoryContract,
     private val localAreaImageRepository: LocalAreaImageRepositoryContract
-) : FetchImageUseCaseContract {
+) : FetchPlaceHolderImageUseCaseContract {
     override suspend operator fun invoke(): RunStatus<ByteArray?> {
         return try {
             // Fetch image from remote repository

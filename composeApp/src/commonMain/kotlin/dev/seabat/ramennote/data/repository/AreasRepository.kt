@@ -29,6 +29,15 @@ class AreasRepository(
         }
     }
 
+    override suspend fun fetch(areaName: String): Area? {
+        val entity = areaDao.getAreaByName(areaName) ?: return null
+        return Area(
+            name = entity.name,
+            updatedDate = LocalDate.parse(entity.date),
+            count = entity.count
+        )
+    }
+
     override suspend fun add(area: Area) {
         val entity = AreaEntity(
             name = area.name,
@@ -52,6 +61,17 @@ class AreasRepository(
             return RunStatus.Success(data = "")
         }
         return RunStatus.Error(errorMessage = "${oldName}は登録されていません。編集に失敗しました")
+    }
+
+    override suspend fun edit(area: Area): RunStatus<String> {
+        val existingEntity = areaDao.getAreaByName(area.name)
+        return if (existingEntity != null) {
+            val updated = existingEntity.copy(count = area.count, date = area.updatedDate.toString())
+            areaDao.updateArea(updated)
+            RunStatus.Success("")
+        } else {
+            RunStatus.Error("${area.name}は登録されていません。編集に失敗しました")
+        }
     }
 
     override suspend fun delete(areaName: String): RunStatus<String> {

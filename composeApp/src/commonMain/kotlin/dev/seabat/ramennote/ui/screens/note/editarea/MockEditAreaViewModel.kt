@@ -32,7 +32,7 @@ class MockEditAreaViewModel : ViewModel(), EditAreaViewModelContract {
         // Preview用なので何もしない
     }
 
-    override fun fetchImage() {
+    override fun fetchImage(areaName: String) {
         // Preview用なので何もしない
     }
 

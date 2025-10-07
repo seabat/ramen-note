@@ -24,7 +24,7 @@
     
     <!-- Note Screen -->
     <string name="note_area_selection">エリアを選択</string>
-    <string name="note_item_count">1件</string>
+    <string name="note_item_count">件</string>
 
     <!-- Edit Area Screen -->
     <string name="editarea_change_image_button">画像を変更する</string>
