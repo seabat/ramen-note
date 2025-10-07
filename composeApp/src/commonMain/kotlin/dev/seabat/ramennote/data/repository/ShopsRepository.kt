@@ -6,6 +6,7 @@ import dev.seabat.ramennote.data.database.entity.ShopEntity
 import dev.seabat.ramennote.domain.model.Shop
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.LocalDate
 
 class ShopsRepository(
     private val database: RamenNoteDatabase
@@ -60,6 +61,7 @@ private fun ShopEntity.toDomainModel(): Shop {
         star = star,
         stationName = stationName,
         category = category,
+        scheduledDate = if (scheduledDate.isEmpty()) null else LocalDate.parse(scheduledDate),
         menuName1 = menuName1,
         menuName2 = menuName2,
         menuName3 = menuName3,
@@ -82,6 +84,7 @@ private fun Shop.toEntity(): ShopEntity {
         star = star,
         stationName = stationName,
         category = category,
+        scheduledDate = scheduledDate?.toString() ?: "",
         menuName1 = menuName1,
         menuName2 = menuName2,
         menuName3 = menuName3,

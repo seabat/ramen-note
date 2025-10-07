@@ -39,13 +39,18 @@ import ramennote.composeapp.generated.resources.add_web_site_label
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.ui.component.StarIcon
 import org.koin.compose.viewmodel.koinViewModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import ramennote.composeapp.generated.resources.add_no_url_label
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
     shopId: Int,
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
+    goToSchedule: () -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
@@ -55,6 +60,9 @@ fun ShopScreen(
 
     val shop by viewModel.shop.collectAsState()
     val imageBytes by viewModel.shopImage.collectAsState()
+
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -79,6 +87,9 @@ fun ShopScreen(
                 ActionButtons(
                     onEditClick = {
                         shop?.let { onEditClick(it) }
+                    },
+                    onAddScheduleClick = {
+                        showDatePicker = true
                     }
                 )
 
@@ -87,6 +98,29 @@ fun ShopScreen(
                     Detail(shopData)
                 }
             }
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val millis = datePickerState.selectedDateMillis
+                    if (millis != null) {
+                        val date = Instant.fromEpochMilliseconds(millis)
+                            .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                        viewModel.addSchedule(shopId, date)
+                        goToSchedule()
+                    }
+                    showDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }
@@ -151,7 +185,8 @@ fun Header(imageBytes: ByteArray?) {
 // アクションボタン
 @Composable
 fun ActionButtons(
-    onEditClick: () -> Unit = {}
+    onEditClick: () -> Unit = {},
+    onAddScheduleClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -160,7 +195,7 @@ fun ActionButtons(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
-            onClick = { /* 予定追加処理 */ },
+            onClick = { onAddScheduleClick() },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,

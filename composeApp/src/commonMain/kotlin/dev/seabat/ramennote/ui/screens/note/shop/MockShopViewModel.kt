@@ -4,6 +4,7 @@ import dev.seabat.ramennote.domain.model.Shop
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.LocalDate
 
 class MockShopViewModel : ShopViewModelContract {
 
@@ -26,6 +27,10 @@ class MockShopViewModel : ShopViewModelContract {
 
     override fun loadShopAndImage(id: Int) {
         _shopImage.value = null
+    }
+
+    override fun addSchedule(shopId: Int, date: LocalDate) {
+        // Preview用なので何もしない
     }
 }
 
