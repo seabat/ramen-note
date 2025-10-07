@@ -29,7 +29,6 @@ import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.add_calender_button
 import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_edit_button
 import ramennote.composeapp.generated.resources.add_evaluation_label
@@ -43,6 +42,9 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import ramennote.composeapp.generated.resources.add_no_url_label
+import ramennote.composeapp.generated.resources.add_schedule_add_button
+import ramennote.composeapp.generated.resources.add_schedule_edit_button
+import ramennote.composeapp.generated.resources.add_schedule_label
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,6 +87,7 @@ fun ShopScreen(
 
                 // アクションボタン
                 ActionButtons(
+                    shop,
                     onEditClick = {
                         shop?.let { onEditClick(it) }
                     },
@@ -185,13 +188,14 @@ fun Header(imageBytes: ByteArray?) {
 // アクションボタン
 @Composable
 fun ActionButtons(
+    shop: Shop?,
     onEditClick: () -> Unit = {},
     onAddScheduleClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
@@ -202,7 +206,12 @@ fun ActionButtons(
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
-            Text(stringResource(Res.string.add_calender_button), style = MaterialTheme.typography.titleMedium)
+            val buttonText = if (shop?.scheduledDate == null) {
+                stringResource(Res.string.add_schedule_add_button)
+            } else {
+                stringResource(Res.string.add_schedule_edit_button)
+            }
+            Text(buttonText, style = MaterialTheme.typography.titleMedium)
         }
 
         Button(
@@ -224,7 +233,7 @@ fun Detail(shop: Shop) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
 
         // Webサイト
@@ -254,6 +263,22 @@ fun Detail(shop: Shop) {
             label = stringResource(Res.string.add_category_label),
             value = shop.category,
         )
+
+        // 予定（YYYY年mm月DD日 表記）
+        shop.scheduledDate?.let { date ->
+            val formatted = buildString {
+                append(date.year)
+                append("年")
+                append(date.monthNumber.toString().padStart(2, '0'))
+                append("月")
+                append(date.dayOfMonth.toString().padStart(2, '0'))
+                append("日")
+            }
+            ShopDetailItem(
+                label = stringResource(Res.string.add_schedule_label),
+                value = formatted,
+            )
+        }
     }
 }
 
