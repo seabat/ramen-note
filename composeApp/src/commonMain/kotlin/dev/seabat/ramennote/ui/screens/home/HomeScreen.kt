@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,12 +10,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import ramennote.composeapp.generated.resources.Res
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
@@ -22,10 +26,11 @@ import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.home_background
 import ramennote.composeapp.generated.resources.home_detail_button
 
 @Composable
@@ -40,10 +45,30 @@ fun HomeScreen(
         viewModel.loadRecentSchedule()
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        val imageHeight = maxHeight * 0.4f
+        
+        // ラーメンの背景画像（半透明、画面下方、右側1/3見切れ）
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.3f) // 半透明
+        ) {
+            // ラーメンの背景画像を表示
+            Image(
+                painter = painterResource(Res.drawable.home_background),
+                contentDescription = "ラーメンの背景画像",
+                modifier = Modifier
+                    .align(Alignment.BottomStart) // 画面の左下に配置
+                    .offset(x = 180.dp) // 右に200dpずらして右側だけが見切れるように
+                    .height(imageHeight), // 画面高さの1/3
+                contentScale = ContentScale.FillHeight // クロップして右側が見切れるように
+            )
+        }
+        
         Column(
             modifier = Modifier
                 .fillMaxSize()
