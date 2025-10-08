@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.note
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,12 +13,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.jetbrains.compose.resources.painterResource
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
@@ -25,6 +28,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.note_area_selection
+import ramennote.composeapp.generated.resources.note_background
 import ramennote.composeapp.generated.resources.note_item_count
 import ramennote.composeapp.generated.resources.screen_note_title
 
@@ -63,11 +67,35 @@ private fun MainContent(
     onAddAreaClick: () -> Unit = {},
     onAreaLongClick: (String) -> Unit = {}
 ) {
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
     ) {
+        val imageHeight = maxHeight * 0.4f
+        
+        // ノートの背景画像（半透明、画面下方、右側1/3見切れ）
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.3f) // 半透明
+        ) {
+            // ノートの背景画像を表示
+            Image(
+                painter = painterResource(Res.drawable.note_background),
+                contentDescription = "ノートの背景画像",
+                modifier = Modifier
+                    .align(Alignment.BottomStart) // 画面の左下に配置
+                    .offset(x = 190.dp) // 右に190dpずらして右側だけが見切れるように
+                    .height(imageHeight), // 画面高さの40%
+                contentScale = ContentScale.FillHeight // クロップして右側が見切れるように
+            )
+        }
+        
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        ) {
         LaunchedEffect(Unit) {
             viewModel.fetchAreas()
         }
@@ -111,6 +139,7 @@ private fun MainContent(
                 imageVector = Icons.Default.Add,
                 contentDescription = "追加"
             )
+        }
         }
     }
 }
