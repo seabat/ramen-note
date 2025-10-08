@@ -51,7 +51,14 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            MainContent(
+            Schedule(
+                scheduledShop,
+                goToNote
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Favorite(
                 scheduledShop,
                 goToNote
             )
@@ -61,11 +68,6 @@ fun HomeScreen(
             viewModel.setScheduledShopStateToIdle()
         }
     }
-}
-
-@Composable
-fun MainContent(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
-    Schedule(scheduledShop, goToNote)
 }
 
 @Composable
@@ -183,6 +185,55 @@ fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
     }
 }
 
+
+@Composable
+fun Favorite(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        val urlHandler = LocalUriHandler.current
+
+        // メインのBox
+        Box(
+            modifier = Modifier
+                .padding(horizontal = 2.dp)
+                .fillMaxWidth()
+                .height(200.dp)
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .clickable {
+                    scheduledShop?.shopUrl?.let { url ->
+                        urlHandler.openUri(url)
+                    }
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "お気に入り店がありません")
+            }
+        }
+
+        // タイトルをborder上に配置
+        Text(
+            text = "お気に入り",
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset(x = 16.dp, y = (-18).dp) // 位置調整
+                .background(MaterialTheme.colorScheme.background)
+                .padding(4.dp),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
 @Composable
 fun ScheduledShopState(
     scheduledShopState: RunStatus<Shop?>,
@@ -198,10 +249,10 @@ fun ScheduledShopState(
 
 @Preview
 @Composable
-fun MainContentPreview() {
+fun SchedulePreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            MainContent(Shop())
+            Schedule(Shop())
         }
     }
 }
