@@ -22,11 +22,15 @@ import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.home_detail_button
 
 @Composable
 fun HomeScreen(
+    goToNote: (shop: Shop) -> Unit = {},
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val scheduledShop by viewModel.scheduledShop.collectAsStateWithLifecycle()
@@ -47,7 +51,10 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            MainContent(scheduledShop)
+            MainContent(
+                scheduledShop,
+                goToNote
+            )
         }
 
         ScheduledShopState(scheduledShopState) {
@@ -57,12 +64,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun MainContent(scheduledShop: Shop?) {
-    Schedule(scheduledShop)
+fun MainContent(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
+    Schedule(scheduledShop, goToNote)
 }
 
 @Composable
-fun Schedule(scheduledShop: Shop?) {
+fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -145,7 +152,19 @@ fun Schedule(scheduledShop: Shop?) {
                         color = Color.White
                     )
 
-                    Row{}
+                    Button(
+                        onClick = { goToNote(scheduledShop) },
+                        modifier = Modifier,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    ) {
+                        Text(
+                            stringResource(Res.string.home_detail_button),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
                 }
             }
         }

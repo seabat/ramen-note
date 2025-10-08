@@ -21,7 +21,10 @@
     <string name="screen_note_description">ラーメンの感想を記録します</string>
     <string name="screen_future_description">いつか行きたいラーメン店を保存します</string>
     <string name="screen_settings_description">アプリの設定を行います</string>
-    
+
+    <!-- Home Screen -->
+    <string name="home_detail_button">ノート</string>
+
     <!-- Note Screen -->
     <string name="note_area_selection">エリアを選択</string>
     <string name="note_item_count">件</string>

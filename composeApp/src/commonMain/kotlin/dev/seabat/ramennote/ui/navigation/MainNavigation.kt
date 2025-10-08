@@ -254,7 +254,11 @@ fun MainNavigation() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable<Screen.Home> {
-                HomeScreen()
+                HomeScreen(
+                    goToNote = { shop ->
+                        navController.navigate(Screen.Shop(shop.toJsonString()))
+                    }
+                )
             }
             composable<Screen.Schedule> {
                 ScheduleScreen()
