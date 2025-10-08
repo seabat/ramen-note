@@ -17,12 +17,22 @@ actual fun PlatformWebView(
 ) {
     UIKitView(
         factory = {
+            val configuration = WKWebViewConfiguration().apply {
+                allowsInlineMediaPlayback = true
+                mediaTypesRequiringUserActionForPlayback = platform.WebKit.WKAudiovisualMediaTypeNone
+            }
+            
             val webView: WKWebView = WKWebView(
                 frame = platform.CoreGraphics.CGRectMake(0.0, 0.0, 0.0, 0.0),
-                configuration = WKWebViewConfiguration()
+                configuration = configuration
             )
+            
+            // デバッグ用のログ
+            println("Loading URL: $url")
+            
             val nsUrl: NSURL? = NSURL.URLWithString(url) ?: NSURL.URLWithString("about:blank")
             nsUrl?.let { url: NSURL -> 
+                println("NSURL created: $url")
                 webView.loadRequest(NSURLRequest.requestWithURL(url))
             }
             webView
