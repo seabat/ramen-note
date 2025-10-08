@@ -302,12 +302,12 @@ private fun UrlItem(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
-            color = if (isUrlEmpty) MaterialTheme.colorScheme.onSurface else Color.Blue
+            color = if (isUrlEmpty) Color.Unspecified else Color.Blue
         )
         if (isUrlEmpty) {
             Text(
                 text = stringResource(Res.string.add_no_url_label),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
             )
         }

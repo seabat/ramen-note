@@ -85,9 +85,7 @@ fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
                     color = MaterialTheme.colorScheme.background,
                     shape = RoundedCornerShape(10.dp)
                 )
-                .clickable(
-                    enabled = scheduledShop?.shopUrl?.isNotBlank() == true
-                ) { 
+                .clickable {
                     scheduledShop?.shopUrl?.let { url ->
                         urlHandler.openUri(url)
                     }
