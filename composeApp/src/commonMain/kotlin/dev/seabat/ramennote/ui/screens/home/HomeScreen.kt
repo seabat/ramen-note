@@ -2,6 +2,7 @@ package dev.seabat.ramennote.ui.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -64,6 +66,8 @@ fun Schedule(scheduledShop: Shop?) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
+        val urlHandler = LocalUriHandler.current
+
         // メインのBox
         Box(
             modifier = Modifier
@@ -71,9 +75,16 @@ fun Schedule(scheduledShop: Shop?) {
                 .height(200.dp)
                 .border(
                     width = 2.dp,
-                    color = MaterialTheme.colorScheme.outline,
+                    color = MaterialTheme.colorScheme.background,
                     shape = RoundedCornerShape(10.dp)
-                ),
+                )
+                .clickable(
+                    enabled = scheduledShop?.shopUrl?.isNotBlank() == true
+                ) { 
+                    scheduledShop?.shopUrl?.let { url ->
+                        urlHandler.openUri(url)
+                    }
+                },
             contentAlignment = Alignment.Center
         ) {
             if (scheduledShop != null) {
