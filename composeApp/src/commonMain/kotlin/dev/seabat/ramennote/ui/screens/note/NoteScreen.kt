@@ -71,7 +71,7 @@ private fun MainContent(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val imageHeight = maxHeight * 0.4f
+        val imageHeight = maxHeight * 0.5f
         
         // ノートの背景画像（半透明、画面下方、右側1/3見切れ）
         Box(
@@ -85,9 +85,9 @@ private fun MainContent(
                 contentDescription = "ノートの背景画像",
                 modifier = Modifier
                     .align(Alignment.BottomStart) // 画面の左下に配置
-                    .offset(x = 190.dp) // 右に190dpずらして右側だけが見切れるように
+                    .offset(x = 100.dp) // 右側が見切れるように
                     .height(imageHeight), // 画面高さの40%
-                contentScale = ContentScale.FillHeight // クロップして右側が見切れるように
+                contentScale = ContentScale.Fit
             )
         }
         

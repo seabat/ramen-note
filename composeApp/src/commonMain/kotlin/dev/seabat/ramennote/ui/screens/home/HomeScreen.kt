@@ -49,9 +49,9 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val imageHeight = maxHeight * 0.4f
+        val imageHeight = maxHeight * 0.5f
         
-        // ラーメンの背景画像（半透明、画面下方、右側1/3見切れ）
+        // ラーメンの背景画像
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -63,16 +63,16 @@ fun HomeScreen(
                 contentDescription = "ラーメンの背景画像",
                 modifier = Modifier
                     .align(Alignment.BottomStart) // 画面の左下に配置
-                    .offset(x = 180.dp) // 右に200dpずらして右側だけが見切れるように
-                    .height(imageHeight), // 画面高さの1/3
-                contentScale = ContentScale.FillHeight // クロップして右側が見切れるように
+                    .offset(x = 100.dp) // 右側が見切れるように
+                    .height(imageHeight),
+                contentScale = ContentScale.Fit
             )
         }
         
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(vertical = 24.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -165,7 +165,7 @@ fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomStart)
-                        .padding(16.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
