@@ -93,6 +93,10 @@ fun HomeScreen(
                 favoriteShops,
                 goToNote
             )
+            
+            if (favoriteShops.isNotEmpty()) {
+                FavoriteCount(favoriteShops.size)
+            }
         }
 
         ScheduledShopState(scheduledShopState) {
@@ -305,6 +309,22 @@ fun FavoriteShopItem(
             style = MaterialTheme.typography.bodySmall,
             maxLines = 2,
             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun FavoriteCount(count: Int) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = "${count}件",
+            modifier = Modifier.align(Alignment.CenterEnd),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
