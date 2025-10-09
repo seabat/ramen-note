@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 class HomeViewModel(
     private val loadRecentScheduleUseCase: LoadRecentScheduleUseCaseContract,
@@ -55,7 +56,9 @@ class HomeViewModel(
     override fun loadFavoriteShops() {
         viewModelScope.launch {
             val favoriteShops = loadFavoriteShopsUseCase()
-            val favoriteShopsWithImage = favoriteShops.map { shop ->
+            _favoriteShops.value = emptyList() // リストをクリア
+            
+            favoriteShops.forEach { shop ->
                 val imageBytes = if (shop.photoName1.isNotBlank()) {
                     when (val status = loadImageUseCase(shop.photoName1)) {
                         is RunStatus.Success -> status.data
@@ -64,9 +67,10 @@ class HomeViewModel(
                 } else {
                     null
                 }
-                ShopWithImage(shop = shop, imageBytes = imageBytes)
+                val shopWithImage = ShopWithImage(shop = shop, imageBytes = imageBytes)
+                _favoriteShops.value = _favoriteShops.value + shopWithImage
+                delay(30) // 30ms遅延
             }
-            _favoriteShops.value = favoriteShopsWithImage
         }
     }
 }

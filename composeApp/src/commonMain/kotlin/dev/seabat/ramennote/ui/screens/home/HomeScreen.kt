@@ -317,7 +317,7 @@ fun FavoriteShopItem(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .alpha(0.2f)
+                    .alpha(0.3f)
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
@@ -326,7 +326,7 @@ fun FavoriteShopItem(
         // 店舗名テキスト
         Text(
             text = shop.name,
-            style = MaterialTheme.typography.bodySmall.copy(
+            style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 2,
