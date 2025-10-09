@@ -6,6 +6,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val loadRecentScheduleUseCase: LoadRecentScheduleUseCaseContract,
-    private val loadFavoriteShopsUseCase: LoadFavoriteShopsUseCaseContract
+    private val loadFavoriteShopsUseCase: LoadFavoriteShopsUseCaseContract,
+    private val loadImageUseCase: LoadImageUseCaseContract
 ) : ViewModel(), HomeViewModelContract {
 
     private val _scheduledShop = MutableStateFlow<Shop?>(null)
@@ -22,8 +24,8 @@ class HomeViewModel(
     private val _scheduledShopState = MutableStateFlow<RunStatus<Shop?>>(RunStatus.Idle())
     override val scheduledShopState: StateFlow<RunStatus<Shop?>> = _scheduledShopState.asStateFlow()
     
-    private val _favoriteShops = MutableStateFlow<List<Shop>>(emptyList())
-    override val favoriteShops: StateFlow<List<Shop>> = _favoriteShops.asStateFlow()
+    private val _favoriteShops = MutableStateFlow<List<ShopWithImage>>(emptyList())
+    override val favoriteShops: StateFlow<List<ShopWithImage>> = _favoriteShops.asStateFlow()
 
     override fun loadRecentSchedule() {
         viewModelScope.launch {
@@ -53,7 +55,18 @@ class HomeViewModel(
     override fun loadFavoriteShops() {
         viewModelScope.launch {
             val favoriteShops = loadFavoriteShopsUseCase()
-            _favoriteShops.value = favoriteShops
+            val favoriteShopsWithImage = favoriteShops.map { shop ->
+                val imageBytes = if (shop.photoName1.isNotBlank()) {
+                    when (val status = loadImageUseCase(shop.photoName1)) {
+                        is RunStatus.Success -> status.data
+                        else -> null
+                    }
+                } else {
+                    null
+                }
+                ShopWithImage(shop = shop, imageBytes = imageBytes)
+            }
+            _favoriteShops.value = favoriteShopsWithImage
         }
     }
 }

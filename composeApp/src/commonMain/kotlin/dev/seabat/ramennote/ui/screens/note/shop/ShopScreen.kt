@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.screens.home.HomeViewModel
+import dev.seabat.ramennote.ui.screens.home.HomeViewModelContract
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -59,7 +61,8 @@ fun ShopScreen(
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
-    viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
+    viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>(),
+    homeViewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     // Shopデータと画像を読み込み
     LaunchedEffect(shopId) {

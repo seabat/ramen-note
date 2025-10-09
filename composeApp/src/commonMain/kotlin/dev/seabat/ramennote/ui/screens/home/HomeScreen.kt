@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.draw.clip
+import coil3.compose.AsyncImage
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +38,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.home_background
 import ramennote.composeapp.generated.resources.home_detail_button
+
+private const val favoriteShopItemHeight = 70
 
 @Composable
 fun HomeScreen(
@@ -222,7 +226,7 @@ fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
 
 
 @Composable
-fun Favorite(favoriteShops: List<Shop>, goToNote: (shop: Shop) -> Unit = {}) {
+fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit = {}) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -257,15 +261,16 @@ fun Favorite(favoriteShops: List<Shop>, goToNote: (shop: Shop) -> Unit = {}) {
                     columns = GridCells.Fixed(columns),
                     modifier = Modifier
                         .padding(12.dp)
-                        .height((rowCount * 54 + (rowCount - 1) * 8 + 16).dp), // アイテム高さ + スペーシング + パディング
+                        .height((rowCount * favoriteShopItemHeight + (rowCount - 1) * 8 + 16).dp), // アイテム高さ + スペーシング + パディング
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(favoriteShops) { shop ->
+                    items(favoriteShops) { shopWithImage ->
                         FavoriteShopItem(
-                            shop = shop,
-                            onClick = { goToNote(shop) }
+                            shop = shopWithImage.shop,
+                            imageBytes = shopWithImage.imageBytes,
+                            onClick = { goToNote(shopWithImage.shop) }
                         )
                     }
                 }
@@ -289,6 +294,7 @@ fun Favorite(favoriteShops: List<Shop>, goToNote: (shop: Shop) -> Unit = {}) {
 @Composable
 fun FavoriteShopItem(
     shop: Shop,
+    imageBytes: ByteArray?,
     onClick: () -> Unit
 ) {
     Box(
@@ -299,16 +305,33 @@ fun FavoriteShopItem(
                 color = MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(8.dp)
             )
-            .height(54.dp)
-            .clickable { onClick() }
-            .padding(8.dp),
+            .height(favoriteShopItemHeight.dp)
+            .clickable { onClick() },
+ //           .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
+        // 背景画像（半透明）
+        if (imageBytes != null) {
+            AsyncImage(
+                model = imageBytes,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.2f)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+        
+        // 店舗名テキスト
         Text(
             text = shop.name,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontWeight = FontWeight.Bold
+            ),
             maxLines = 2,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -359,90 +382,98 @@ fun FavoritePreview() {
         Column(modifier = Modifier.padding(16.dp)) {
             Favorite(
                 listOf(
-                    Shop(
-                        id = 1,
-                        name = "一風堂 博多本店",
-                        area = "福岡",
-                        shopUrl = "https://www.ippudo.com/",
-                        mapUrl = "https://maps.google.com/",
-                        star = 3,
-                        stationName = "博多駅",
-                        category = "ラーメン",
-                        scheduledDate = LocalDate.parse("2024-12-25"),
-                        menuName1 = "白丸元味",
-                        menuName2 = "赤丸新味",
-                        menuName3 = "一風堂特製ラーメン",
-                        photoName1 = "hakata_ramen_1.jpg",
-                        photoName2 = "hakata_ramen_2.jpg",
-                        photoName3 = "hakata_ramen_3.jpg",
-                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
-                        description2 = "麺の硬さを選べる本格博多ラーメン",
-                        description3 = "一風堂オリジナルの特製ラーメン",
-                        favorite = true
+                    ShopWithImage(
+                        shop = Shop(
+                            id = 1,
+                            name = "一風堂 博多本店",
+                            area = "福岡",
+                            shopUrl = "https://www.ippudo.com/",
+                            mapUrl = "https://maps.google.com/",
+                            star = 3,
+                            stationName = "博多駅",
+                            category = "ラーメン",
+                            scheduledDate = LocalDate.parse("2024-12-25"),
+                            menuName1 = "白丸元味",
+                            menuName2 = "赤丸新味",
+                            menuName3 = "一風堂特製ラーメン",
+                            photoName1 = "hakata_ramen_1.jpg",
+                            photoName2 = "hakata_ramen_2.jpg",
+                            photoName3 = "hakata_ramen_3.jpg",
+                            description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                            description2 = "麺の硬さを選べる本格博多ラーメン",
+                            description3 = "一風堂オリジナルの特製ラーメン",
+                            favorite = true
+                        )
                     ),
-                    Shop(
-                        id = 2,
-                        name = "一風堂 山口店",
-                        area = "山口",
-                        shopUrl = "https://www.ippudo.com/",
-                        mapUrl = "https://maps.google.com/",
-                        star = 3,
-                        stationName = "山口駅",
-                        category = "ラーメン",
-                        scheduledDate = LocalDate.parse("2024-12-25"),
-                        menuName1 = "白丸元味",
-                        menuName2 = "赤丸新味",
-                        menuName3 = "一風堂特製ラーメン",
-                        photoName1 = "hakata_ramen_1.jpg",
-                        photoName2 = "hakata_ramen_2.jpg",
-                        photoName3 = "hakata_ramen_3.jpg",
-                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
-                        description2 = "麺の硬さを選べる本格博多ラーメン",
-                        description3 = "一風堂オリジナルの特製ラーメン",
-                        favorite = true
+                    ShopWithImage(
+                        shop = Shop(
+                            id = 2,
+                            name = "一風堂 山口店",
+                            area = "山口",
+                            shopUrl = "https://www.ippudo.com/",
+                            mapUrl = "https://maps.google.com/",
+                            star = 3,
+                            stationName = "山口駅",
+                            category = "ラーメン",
+                            scheduledDate = LocalDate.parse("2024-12-25"),
+                            menuName1 = "白丸元味",
+                            menuName2 = "赤丸新味",
+                            menuName3 = "一風堂特製ラーメン",
+                            photoName1 = "hakata_ramen_1.jpg",
+                            photoName2 = "hakata_ramen_2.jpg",
+                            photoName3 = "hakata_ramen_3.jpg",
+                            description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                            description2 = "麺の硬さを選べる本格博多ラーメン",
+                            description3 = "一風堂オリジナルの特製ラーメン",
+                            favorite = true
+                        )
                     ),
-                    Shop(
-                        id = 3,
-                        name = "一風堂 広島店",
-                        area = "広島",
-                        shopUrl = "https://www.ippudo.com/",
-                        mapUrl = "https://maps.google.com/",
-                        star = 3,
-                        stationName = "広島駅",
-                        category = "ラーメン",
-                        scheduledDate = LocalDate.parse("2024-12-25"),
-                        menuName1 = "白丸元味",
-                        menuName2 = "赤丸新味",
-                        menuName3 = "一風堂特製ラーメン",
-                        photoName1 = "hakata_ramen_1.jpg",
-                        photoName2 = "hakata_ramen_2.jpg",
-                        photoName3 = "hakata_ramen_3.jpg",
-                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
-                        description2 = "麺の硬さを選べる本格博多ラーメン",
-                        description3 = "一風堂オリジナルの特製ラーメン",
-                        favorite = true
+                    ShopWithImage(
+                        shop = Shop(
+                            id = 3,
+                            name = "一風堂 広島店",
+                            area = "広島",
+                            shopUrl = "https://www.ippudo.com/",
+                            mapUrl = "https://maps.google.com/",
+                            star = 3,
+                            stationName = "広島駅",
+                            category = "ラーメン",
+                            scheduledDate = LocalDate.parse("2024-12-25"),
+                            menuName1 = "白丸元味",
+                            menuName2 = "赤丸新味",
+                            menuName3 = "一風堂特製ラーメン",
+                            photoName1 = "hakata_ramen_1.jpg",
+                            photoName2 = "hakata_ramen_2.jpg",
+                            photoName3 = "hakata_ramen_3.jpg",
+                            description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                            description2 = "麺の硬さを選べる本格博多ラーメン",
+                            description3 = "一風堂オリジナルの特製ラーメン",
+                            favorite = true
+                        )
                     ),
-                    Shop(
-                        id = 4,
-                        name = "一風堂 倉敷店",
-                        area = "岡山",
-                        shopUrl = "https://www.ippudo.com/",
-                        mapUrl = "https://maps.google.com/",
-                        star = 3,
-                        stationName = "倉敷駅",
-                        category = "ラーメン",
-                        scheduledDate = LocalDate.parse("2024-12-25"),
-                        menuName1 = "白丸元味",
-                        menuName2 = "赤丸新味",
-                        menuName3 = "一風堂特製ラーメン",
-                        photoName1 = "hakata_ramen_1.jpg",
-                        photoName2 = "hakata_ramen_2.jpg",
-                        photoName3 = "hakata_ramen_3.jpg",
-                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
-                        description2 = "麺の硬さを選べる本格博多ラーメン",
-                        description3 = "一風堂オリジナルの特製ラーメン",
-                        favorite = true
-                    ),
+                    ShopWithImage(
+                        shop = Shop(
+                            id = 4,
+                            name = "一風堂 倉敷店",
+                            area = "岡山",
+                            shopUrl = "https://www.ippudo.com/",
+                            mapUrl = "https://maps.google.com/",
+                            star = 3,
+                            stationName = "倉敷駅",
+                            category = "ラーメン",
+                            scheduledDate = LocalDate.parse("2024-12-25"),
+                            menuName1 = "白丸元味",
+                            menuName2 = "赤丸新味",
+                            menuName3 = "一風堂特製ラーメン",
+                            photoName1 = "hakata_ramen_1.jpg",
+                            photoName2 = "hakata_ramen_2.jpg",
+                            photoName3 = "hakata_ramen_3.jpg",
+                            description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                            description2 = "麺の硬さを選べる本格博多ラーメン",
+                            description3 = "一風堂オリジナルの特製ラーメン",
+                            favorite = true
+                        )
+                    )
                 )
             )
         }
