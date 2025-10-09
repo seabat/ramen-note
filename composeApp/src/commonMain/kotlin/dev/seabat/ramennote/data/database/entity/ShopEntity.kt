@@ -23,5 +23,6 @@ data class ShopEntity(
     val photoName3: String,
     val description1: String,
     val description2: String,
-    val description3: String
+    val description3: String,
+    val favorite: Boolean = false
 )

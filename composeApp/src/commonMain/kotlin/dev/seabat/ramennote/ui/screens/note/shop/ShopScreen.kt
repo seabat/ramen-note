@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.note.shop
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
@@ -46,6 +49,8 @@ import ramennote.composeapp.generated.resources.add_no_url_label
 import ramennote.composeapp.generated.resources.add_schedule_add_button
 import ramennote.composeapp.generated.resources.add_schedule_edit_button
 import ramennote.composeapp.generated.resources.add_schedule_label
+import ramennote.composeapp.generated.resources.favorite_disabled
+import ramennote.composeapp.generated.resources.favorite_enabled
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +89,13 @@ fun ShopScreen(
                     .fillMaxSize()
             ) {
                 // ヘッダー画像エリア
-                Header(imageBytes)
+                Header(
+                    imageBytes = imageBytes,
+                    shop = shop,
+                    onFavoriteClick = { onOff, shopId ->
+                        viewModel.switchFavorite(onOff, shopId)
+                    }
+                )
 
                 // アクションボタン
                 ActionButtons(
@@ -130,7 +141,11 @@ fun ShopScreen(
 }
 
 @Composable
-fun Header(imageBytes: ByteArray?) {
+fun Header(
+    imageBytes: ByteArray?,
+    shop: Shop?,
+    onFavoriteClick: (Boolean, Int) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -161,6 +176,27 @@ fun Header(imageBytes: ByteArray?) {
                     )
                 )
         )
+
+        // お気に入りボタン（右上）
+        if (shop != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .clickable {
+                        onFavoriteClick(!shop.favorite, shop.id)
+                    }
+            ) {
+                Image(
+                    painter = painterResource(
+                        if (shop.favorite) Res.drawable.favorite_enabled
+                        else Res.drawable.favorite_disabled
+                    ),
+                    contentDescription = if (shop.favorite) "お気に入り解除" else "お気に入り追加",
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
 
         // 左右の矢印（スワイプ可能を示唆）
         // TODO: 画面遷移が未実装のため一旦非表示

@@ -23,7 +23,8 @@ data class Shop(
     val photoName3: String = "",
     val description1: String = "",
     val description2: String = "",
-    val description3: String = ""
+    val description3: String = "",
+    val favorite: Boolean = false
 ) {
     fun toJsonString(): String {
         return Json.encodeToString(this)

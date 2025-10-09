@@ -32,6 +32,10 @@ class MockShopViewModel : ShopViewModelContract {
     override fun addSchedule(shopId: Int, date: LocalDate) {
         // Preview用なので何もしない
     }
+
+    override fun switchFavorite(onOff: Boolean, shopId: Int) {
+        // Preview用なので何もしない
+    }
 }
 
 

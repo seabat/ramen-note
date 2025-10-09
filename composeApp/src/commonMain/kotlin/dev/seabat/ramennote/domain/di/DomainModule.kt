@@ -31,6 +31,8 @@ import dev.seabat.ramennote.domain.usecase.AddScheduleUseCase
 import dev.seabat.ramennote.domain.usecase.AddScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCase
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
+import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCase
+import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCaseContract
 
 val useCaseModule = module {
     single<AddShopUseCaseContract> { AddShopUseCase(get()) }
@@ -49,4 +51,5 @@ val useCaseModule = module {
     single<UpdateShopUseCaseContract> { UpdateShopUseCase(get()) }
     single<AddScheduleUseCaseContract> { AddScheduleUseCase(get()) }
     single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get()) }
+    single<SwitchFavoriteUseCaseContract> { SwitchFavoriteUseCase(get()) }
 }

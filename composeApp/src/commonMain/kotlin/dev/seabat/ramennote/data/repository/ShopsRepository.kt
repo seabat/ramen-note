@@ -71,7 +71,8 @@ private fun ShopEntity.toDomainModel(): Shop {
         photoName3 = photoName3,
         description1 = description1,
         description2 = description2,
-        description3 = description3
+        description3 = description3,
+        favorite = favorite
     )
 }
 
@@ -94,6 +95,7 @@ private fun Shop.toEntity(): ShopEntity {
         photoName3 = photoName3,
         description1 = description1,
         description2 = description2,
-        description3 = description3
+        description3 = description3,
+        favorite = favorite
     )
 }
