@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.note.shoplist
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
@@ -28,9 +30,13 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.StarIcon
+import org.jetbrains.compose.resources.painterResource
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.favorite_disabled
+import ramennote.composeapp.generated.resources.favorite_enabled
 
 @Composable
 fun AreaShopListScreen(
@@ -153,7 +159,16 @@ private fun ShopItem(
                         )
                     }
                 }
-
+                
+                // お気に入りアイコン
+                Image(
+                    painter = painterResource(
+                        if (shop.favorite) Res.drawable.favorite_enabled
+                        else Res.drawable.favorite_disabled
+                    ),
+                    contentDescription = if (shop.favorite) "お気に入り済み" else "お気に入り未設定",
+                    modifier = Modifier.size(24.dp)
+                )
             }
         }
         Divider(
