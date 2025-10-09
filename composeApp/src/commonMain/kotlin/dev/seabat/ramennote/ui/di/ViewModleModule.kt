@@ -18,6 +18,6 @@ val viewModelModule = module {
     viewModel { AddShopViewModel(get(), get(), get(), get()) }
     viewModel { EditShopViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { AreaShopListViewModel(get()) }
-    viewModel { HomeViewModel(get()) }
+    viewModel { HomeViewModel(get(), get()) }
     viewModel { ShopViewModel(get(), get(), get(), get()) }
 }

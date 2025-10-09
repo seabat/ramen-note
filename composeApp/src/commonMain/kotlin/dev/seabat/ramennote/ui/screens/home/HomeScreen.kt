@@ -6,6 +6,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +29,7 @@ import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -40,9 +44,11 @@ fun HomeScreen(
 ) {
     val scheduledShop by viewModel.scheduledShop.collectAsStateWithLifecycle()
     val scheduledShopState by viewModel.scheduledShopState.collectAsStateWithLifecycle()
+    val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
     
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
+        viewModel.loadFavoriteShops()
     }
 
     BoxWithConstraints(
@@ -84,7 +90,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Favorite(
-                scheduledShop,
+                favoriteShops,
                 goToNote
             )
         }
@@ -212,36 +218,53 @@ fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
 
 
 @Composable
-fun Favorite(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
+fun Favorite(favoriteShops: List<Shop>, goToNote: (shop: Shop) -> Unit = {}) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
-        val urlHandler = LocalUriHandler.current
-
         // メインのBox
         Box(
             modifier = Modifier
                 .padding(horizontal = 2.dp)
                 .fillMaxWidth()
-                .height(200.dp)
                 .border(
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(10.dp)
-                )
-                .clickable {
-                    scheduledShop?.shopUrl?.let { url ->
-                        urlHandler.openUri(url)
-                    }
-                },
+                ),
             contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = "お気に入り店がありません")
+            if (favoriteShops.isEmpty()) {
+                Column(
+                    modifier = Modifier.height(100.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "お気に入り店がありません")
+                }
+            } else {
+                // アイテム数に基づいて行数を計算（最大3行）
+                val maxRows = 3
+                val columns = 3
+                val itemCount = favoriteShops.size
+                val rowCount = minOf((itemCount + columns - 1) / columns, maxRows)
+                
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(columns),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height((rowCount * 54 + (rowCount - 1) * 8 + 16).dp), // アイテム高さ + スペーシング + パディング
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(favoriteShops) { shop ->
+                        FavoriteShopItem(
+                            shop = shop,
+                            onClick = { goToNote(shop) }
+                        )
+                    }
+                }
             }
         }
 
@@ -255,6 +278,33 @@ fun Favorite(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
                 .padding(4.dp),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+fun FavoriteShopItem(
+    shop: Shop,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .height(54.dp)
+            .clickable { onClick() }
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = shop.name,
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 2,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
     }
 }
@@ -278,6 +328,103 @@ fun SchedulePreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
             Schedule(Shop())
+        }
+    }
+}
+
+@Preview
+@Composable
+fun FavoritePreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Favorite(
+                listOf(
+                    Shop(
+                        id = 1,
+                        name = "一風堂 博多本店",
+                        area = "福岡",
+                        shopUrl = "https://www.ippudo.com/",
+                        mapUrl = "https://maps.google.com/",
+                        star = 3,
+                        stationName = "博多駅",
+                        category = "ラーメン",
+                        scheduledDate = LocalDate.parse("2024-12-25"),
+                        menuName1 = "白丸元味",
+                        menuName2 = "赤丸新味",
+                        menuName3 = "一風堂特製ラーメン",
+                        photoName1 = "hakata_ramen_1.jpg",
+                        photoName2 = "hakata_ramen_2.jpg",
+                        photoName3 = "hakata_ramen_3.jpg",
+                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                        description2 = "麺の硬さを選べる本格博多ラーメン",
+                        description3 = "一風堂オリジナルの特製ラーメン",
+                        favorite = true
+                    ),
+                    Shop(
+                        id = 2,
+                        name = "一風堂 山口店",
+                        area = "山口",
+                        shopUrl = "https://www.ippudo.com/",
+                        mapUrl = "https://maps.google.com/",
+                        star = 3,
+                        stationName = "山口駅",
+                        category = "ラーメン",
+                        scheduledDate = LocalDate.parse("2024-12-25"),
+                        menuName1 = "白丸元味",
+                        menuName2 = "赤丸新味",
+                        menuName3 = "一風堂特製ラーメン",
+                        photoName1 = "hakata_ramen_1.jpg",
+                        photoName2 = "hakata_ramen_2.jpg",
+                        photoName3 = "hakata_ramen_3.jpg",
+                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                        description2 = "麺の硬さを選べる本格博多ラーメン",
+                        description3 = "一風堂オリジナルの特製ラーメン",
+                        favorite = true
+                    ),
+                    Shop(
+                        id = 3,
+                        name = "一風堂 広島店",
+                        area = "広島",
+                        shopUrl = "https://www.ippudo.com/",
+                        mapUrl = "https://maps.google.com/",
+                        star = 3,
+                        stationName = "広島駅",
+                        category = "ラーメン",
+                        scheduledDate = LocalDate.parse("2024-12-25"),
+                        menuName1 = "白丸元味",
+                        menuName2 = "赤丸新味",
+                        menuName3 = "一風堂特製ラーメン",
+                        photoName1 = "hakata_ramen_1.jpg",
+                        photoName2 = "hakata_ramen_2.jpg",
+                        photoName3 = "hakata_ramen_3.jpg",
+                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                        description2 = "麺の硬さを選べる本格博多ラーメン",
+                        description3 = "一風堂オリジナルの特製ラーメン",
+                        favorite = true
+                    ),
+                    Shop(
+                        id = 4,
+                        name = "一風堂 倉敷店",
+                        area = "岡山",
+                        shopUrl = "https://www.ippudo.com/",
+                        mapUrl = "https://maps.google.com/",
+                        star = 3,
+                        stationName = "倉敷駅",
+                        category = "ラーメン",
+                        scheduledDate = LocalDate.parse("2024-12-25"),
+                        menuName1 = "白丸元味",
+                        menuName2 = "赤丸新味",
+                        menuName3 = "一風堂特製ラーメン",
+                        photoName1 = "hakata_ramen_1.jpg",
+                        photoName2 = "hakata_ramen_2.jpg",
+                        photoName3 = "hakata_ramen_3.jpg",
+                        description1 = "博多ラーメンの代表格。とんこつスープが絶品",
+                        description2 = "麺の硬さを選べる本格博多ラーメン",
+                        description3 = "一風堂オリジナルの特製ラーメン",
+                        favorite = true
+                    ),
+                )
+            )
         }
     }
 }

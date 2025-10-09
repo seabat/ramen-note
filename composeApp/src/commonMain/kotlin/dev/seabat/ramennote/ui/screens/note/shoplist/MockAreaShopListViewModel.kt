@@ -15,7 +15,7 @@ class MockAreaShopListViewModel() : AreaShopListViewModelContract {
                 area = "福岡",
                 shopUrl = "https://www.ippudo.com/",
                 mapUrl = "https://maps.google.com/",
-                star = 5,
+                star = 3,
                 stationName = "博多駅",
                 category = "ラーメン",
                 scheduledDate = LocalDate.parse("2024-12-25"),
