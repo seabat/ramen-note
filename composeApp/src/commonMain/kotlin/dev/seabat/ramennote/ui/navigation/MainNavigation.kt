@@ -27,7 +27,7 @@ import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
 import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
-import dev.seabat.ramennote.ui.screens.withbottom.HomeScreen
+import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.withbottom.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen
@@ -254,7 +254,11 @@ fun MainNavigation() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable<Screen.Home> {
-                HomeScreen()
+                HomeScreen(
+                    goToNote = { shop ->
+                        navController.navigate(Screen.Shop(shop.toJsonString()))
+                    }
+                )
             }
             composable<Screen.Schedule> {
                 ScheduleScreen()

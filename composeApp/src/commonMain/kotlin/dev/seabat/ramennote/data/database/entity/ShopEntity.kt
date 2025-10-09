@@ -14,6 +14,7 @@ data class ShopEntity(
     val star: Int,
     val stationName: String,
     val category: String,
+    val scheduledDate: String,
     val menuName1: String,
     val menuName2: String,
     val menuName3: String,

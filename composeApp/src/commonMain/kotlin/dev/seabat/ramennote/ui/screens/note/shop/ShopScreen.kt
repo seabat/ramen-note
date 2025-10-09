@@ -24,12 +24,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.component.AppBar
+import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.add_calender_button
 import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_edit_button
 import ramennote.composeapp.generated.resources.add_evaluation_label
@@ -37,15 +36,24 @@ import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
 import coil3.compose.AsyncImage
-import dev.seabat.ramennote.ui.component.StarIcon
+import dev.seabat.ramennote.ui.components.StarIcon
+import dev.seabat.ramennote.ui.util.createFormattedDateString
 import org.koin.compose.viewmodel.koinViewModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import ramennote.composeapp.generated.resources.add_no_url_label
+import ramennote.composeapp.generated.resources.add_schedule_add_button
+import ramennote.composeapp.generated.resources.add_schedule_edit_button
+import ramennote.composeapp.generated.resources.add_schedule_label
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
     shopId: Int,
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
+    goToSchedule: () -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
@@ -55,6 +63,9 @@ fun ShopScreen(
 
     val shop by viewModel.shop.collectAsState()
     val imageBytes by viewModel.shopImage.collectAsState()
+
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -77,8 +88,12 @@ fun ShopScreen(
 
                 // アクションボタン
                 ActionButtons(
+                    shop,
                     onEditClick = {
                         shop?.let { onEditClick(it) }
+                    },
+                    onAddScheduleClick = {
+                        showDatePicker = true
                     }
                 )
 
@@ -87,6 +102,29 @@ fun ShopScreen(
                     Detail(shopData)
                 }
             }
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val millis = datePickerState.selectedDateMillis
+                    if (millis != null) {
+                        val date = Instant.fromEpochMilliseconds(millis)
+                            .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                        viewModel.addSchedule(shopId, date)
+                        goToSchedule()
+                    }
+                    showDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }
@@ -151,23 +189,30 @@ fun Header(imageBytes: ByteArray?) {
 // アクションボタン
 @Composable
 fun ActionButtons(
-    onEditClick: () -> Unit = {}
+    shop: Shop?,
+    onEditClick: () -> Unit = {},
+    onAddScheduleClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
-            onClick = { /* 予定追加処理 */ },
+            onClick = { onAddScheduleClick() },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
-            Text(stringResource(Res.string.add_calender_button), style = MaterialTheme.typography.titleMedium)
+            val buttonText = if (shop?.scheduledDate == null) {
+                stringResource(Res.string.add_schedule_add_button)
+            } else {
+                stringResource(Res.string.add_schedule_edit_button)
+            }
+            Text(buttonText, style = MaterialTheme.typography.titleMedium)
         }
 
         Button(
@@ -189,7 +234,7 @@ fun Detail(shop: Shop) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
 
         // Webサイト
@@ -219,6 +264,15 @@ fun Detail(shop: Shop) {
             label = stringResource(Res.string.add_category_label),
             value = shop.category,
         )
+
+        // 予定（YYYY年mm月DD日 表記）
+        shop.scheduledDate?.let { date ->
+            val formatted =createFormattedDateString(date)
+            ShopDetailItem(
+                label = stringResource(Res.string.add_schedule_label),
+                value = formatted,
+            )
+        }
     }
 }
 
@@ -248,12 +302,12 @@ private fun UrlItem(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
-            color = if (isUrlEmpty) MaterialTheme.colorScheme.onSurface else Color.Blue
+            color = if (isUrlEmpty) Color.Unspecified else Color.Blue
         )
         if (isUrlEmpty) {
             Text(
                 text = stringResource(Res.string.add_no_url_label),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
             )
         }

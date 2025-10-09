@@ -29,11 +29,11 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.util.logd
-import dev.seabat.ramennote.ui.component.AppBar
-import dev.seabat.ramennote.ui.component.AppAlert
-import dev.seabat.ramennote.ui.component.AppTwoButtonAlert
-import dev.seabat.ramennote.ui.component.MaxWidthButton
-import dev.seabat.ramennote.ui.component.StarIcon
+import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.AppAlert
+import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.components.MaxWidthButton
+import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
 import dev.seabat.ramennote.ui.permission.PermissionStatus
@@ -47,10 +47,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
-import ramennote.composeapp.generated.resources.add_shop_menu_name_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label

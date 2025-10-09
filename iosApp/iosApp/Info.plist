@@ -10,5 +10,22 @@
 
     <key>NSPhotoLibraryUsageDescription</key>
     <string>We need access to your photo library for...</string>
+
+    <!-- WebView関連の設定 -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+        <key>NSAllowsArbitraryLoadsInWebContent</key>
+        <true/>
+    </dict>
+    
+    <!-- ネットワーク権限 -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>This app needs network access to load web content</string>
+    
+    <!-- スプラッシュスクリーン設定 -->
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
 </dict>
 </plist>

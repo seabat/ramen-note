@@ -6,6 +6,7 @@ import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
+import dev.seabat.ramennote.domain.usecase.AddScheduleUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 
 class ShopViewModel(
     private val loadShopUseCase: LoadShopUseCaseContract,
-    private val loadImageUseCase: LoadImageUseCaseContract
+    private val loadImageUseCase: LoadImageUseCaseContract,
+    private val addScheduleUseCase: AddScheduleUseCaseContract
 ) : ViewModel(), ShopViewModelContract {
     
     private val _shop = MutableStateFlow<Shop?>(null)
@@ -44,6 +46,12 @@ class ShopViewModel(
             } else {
                 _shopImage.value = null
             }
+        }
+    }
+
+    override fun addSchedule(shopId: Int, date: kotlinx.datetime.LocalDate) {
+        viewModelScope.launch {
+            addScheduleUseCase(shopId, date)
         }
     }
 }

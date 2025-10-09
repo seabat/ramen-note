@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.component
+package dev.seabat.ramennote.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
