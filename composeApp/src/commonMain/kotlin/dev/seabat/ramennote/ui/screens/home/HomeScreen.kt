@@ -38,6 +38,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.home_background
 import ramennote.composeapp.generated.resources.home_detail_button
+import ramennote.composeapp.generated.resources.favorite_enabled
 
 private const val favoriteShopItemHeight = 70
 
@@ -307,7 +308,6 @@ fun FavoriteShopItem(
             )
             .height(favoriteShopItemHeight.dp)
             .clickable { onClick() },
- //           .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
         // 背景画像（半透明）
@@ -325,6 +325,7 @@ fun FavoriteShopItem(
         
         // 店舗名テキスト
         Text(
+            modifier = Modifier.padding(horizontal = 8.dp),
             text = shop.name,
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Bold
@@ -332,6 +333,17 @@ fun FavoriteShopItem(
             maxLines = 2,
             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurface
+        )
+        
+        // 右上にfavorite_enabledアイコンを半透明で表示
+        Image(
+            painter = painterResource(Res.drawable.favorite_enabled),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(6.dp)
+                .alpha(0.4f)
+                .size(12.dp)
         )
     }
 }
