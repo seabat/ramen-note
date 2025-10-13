@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 interface HomeViewModelContract {
     val scheduledShop: StateFlow<Shop?>
     val scheduledShopState: StateFlow<RunStatus<Shop?>>
+    val favoriteShops: StateFlow<List<ShopWithImage>>
     fun loadRecentSchedule()
     fun setScheduledShopStateToIdle()
+    fun loadFavoriteShops()
 }

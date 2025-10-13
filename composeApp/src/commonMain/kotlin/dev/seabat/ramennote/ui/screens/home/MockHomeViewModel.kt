@@ -12,11 +12,19 @@ class MockHomeViewModel : HomeViewModelContract {
 
     private val _scheduleShopState = MutableStateFlow<RunStatus<Shop?>>(RunStatus.Idle())
     override val scheduledShopState: StateFlow<RunStatus<Shop?>> = _scheduleShopState.asStateFlow()
+
+    private val _favoriteShops = MutableStateFlow<List<ShopWithImage>>(emptyList())
+    override val favoriteShops: StateFlow<List<ShopWithImage>> = _favoriteShops.asStateFlow()
+
     override fun loadRecentSchedule() {
         // Preview用なので何もしない
     }
 
     override fun setScheduledShopStateToIdle() {
+        // Preview用なので何もしない
+    }
+
+    override fun loadFavoriteShops() {
         // Preview用なので何もしない
     }
 }
