@@ -36,6 +36,10 @@ class MockShopViewModel : ShopViewModelContract {
     override fun switchFavorite(onOff: Boolean, shopId: Int) {
         // Preview用なので何もしない
     }
+
+    override fun updateStar(star: Int, shopId: Int) {
+        // Preview用なので何もしない
+    }
 }
 
 

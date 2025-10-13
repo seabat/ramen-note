@@ -28,8 +28,6 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import dev.seabat.ramennote.ui.screens.home.HomeViewModel
-import dev.seabat.ramennote.ui.screens.home.HomeViewModelContract
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -61,8 +59,7 @@ fun ShopScreen(
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
-    viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>(),
-    homeViewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
+    viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
     LaunchedEffect(shopId) {
@@ -113,7 +110,12 @@ fun ShopScreen(
 
                 // 詳細情報
                 shop?.let { shopData ->
-                    Detail(shopData)
+                    Detail(
+                        shopData,
+                        updateStar = {
+                                newStar -> viewModel.updateStar(newStar, shopId)
+                        }
+                    )
                 }
             }
         }
@@ -123,16 +125,18 @@ fun ShopScreen(
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(onClick = {
-                    val millis = datePickerState.selectedDateMillis
-                    if (millis != null) {
-                        val date = Instant.fromEpochMilliseconds(millis)
-                            .toLocalDateTime(TimeZone.currentSystemDefault()).date
-                        viewModel.addSchedule(shopId, date)
-                        goToSchedule()
+                TextButton(
+                    onClick = {
+                        val millis = datePickerState.selectedDateMillis
+                        if (millis != null) {
+                            val date = Instant.fromEpochMilliseconds(millis)
+                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                            viewModel.addSchedule(shopId, date)
+                            goToSchedule()
+                        }
+                        showDatePicker = false
                     }
-                    showDatePicker = false
-                }) { Text("OK") }
+                ) { Text("OK") }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
@@ -268,7 +272,10 @@ fun ActionButtons(
 }
 
 @Composable
-fun Detail(shop: Shop) {
+fun Detail(
+    shop: Shop,
+    updateStar: (Int) -> Unit = { }
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -289,7 +296,10 @@ fun Detail(shop: Shop) {
         )
 
         // 評価（星）
-        StarItem(shop.star)
+        StarRating(
+            star = shop.star,
+            onValueChange = { newStar -> updateStar(newStar) }
+        )
 
 
         // 最寄り駅

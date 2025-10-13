@@ -10,6 +10,7 @@ interface ShopViewModelContract {
     fun loadShopAndImage(id: Int)
     fun addSchedule(shopId: Int, date: LocalDate)
     fun switchFavorite(onOff: Boolean, shopId: Int)
+    fun updateStar(star: Int, shopId: Int)
 }
 
 
