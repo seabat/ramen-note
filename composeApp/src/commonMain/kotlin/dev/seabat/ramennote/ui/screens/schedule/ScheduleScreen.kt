@@ -67,6 +67,7 @@ fun ScheduleScreen(
 
     LaunchedEffect(reported) {
         if (reported) {
+            viewModel.resetReported()
             goToReport()
         }
     }

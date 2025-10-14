@@ -15,6 +15,8 @@ interface ScheduleViewModelContract {
     fun deleteSchedule(shopId: Int)
 
     fun report(shopId: Int)
+
+    fun resetReported()
 }
 
 

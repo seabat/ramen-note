@@ -53,6 +53,10 @@ class MockScheduleViewModel : ScheduleViewModelContract {
     override fun report(shopId: Int) {
         // Preview / Mock 用
     }
+
+    override fun resetReported() {
+        // Preview / Mock 用
+    }
 }
 
 

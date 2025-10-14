@@ -52,6 +52,10 @@ class ScheduleViewModel(
     override fun report(shopId: Int) {
         _reported.value = true
     }
+
+    override fun resetReported() {
+        _reported.value = false
+    }
 }
 
 

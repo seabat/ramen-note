@@ -263,7 +263,13 @@ fun MainNavigation() {
             composable<Screen.Schedule> {
                 ScheduleScreen(
                     goToReport = {
-                        navController.navigate(Screen.Future)
+                        navController.navigate(Screen.Future) {
+                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                            launchSingleTop = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                        }
                     }
                 )
             }
