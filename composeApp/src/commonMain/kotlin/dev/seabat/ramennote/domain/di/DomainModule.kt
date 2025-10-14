@@ -22,13 +22,15 @@ import dev.seabat.ramennote.domain.usecase.UpdateShopUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCase
 import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.DeleteScheduleInShopUseCase
+import dev.seabat.ramennote.domain.usecase.DeleteScheduleInShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
 import org.koin.dsl.module
-import dev.seabat.ramennote.domain.usecase.AddScheduleUseCase
-import dev.seabat.ramennote.domain.usecase.AddScheduleUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCase
+import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCase
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCase
@@ -41,10 +43,11 @@ import dev.seabat.ramennote.domain.usecase.LoadScheduledShopsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadScheduledShopsUseCaseContract
 
 val useCaseModule = module {
-    single<AddScheduleUseCaseContract> { AddScheduleUseCase(get()) }
+    single<UpdateScheduleInShopUseCaseContract> { UpdateScheduleInShopUseCase(get()) }
     single<AddShopUseCaseContract> { AddShopUseCase(get()) }
     single<CreateNoImageUseCaseContract> { CreateNoImageUseCase(get()) }
     single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
+    single<DeleteScheduleInShopUseCaseContract> { DeleteScheduleInShopUseCase(get()) }
     single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
     single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
     single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }

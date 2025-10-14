@@ -21,5 +21,5 @@ val viewModelModule = module {
     viewModel { AreaShopListViewModel(get()) }
     viewModel { HomeViewModel(get(), get(), get()) }
     viewModel { ShopViewModel(get(), get(), get(), get(), get()) }
-    viewModel { ScheduleViewModel(get()) }
+    viewModel { ScheduleViewModel(get(), get(), get()) }
 }

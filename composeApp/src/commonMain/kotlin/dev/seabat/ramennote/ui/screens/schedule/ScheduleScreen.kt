@@ -3,7 +3,6 @@ package dev.seabat.ramennote.ui.screens.schedule
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,13 +11,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -26,8 +33,11 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -37,11 +47,15 @@ import ramennote.composeapp.generated.resources.delete_24px
 import ramennote.composeapp.generated.resources.edit_24px
 import ramennote.composeapp.generated.resources.screen_schedule_title
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
     val shops by viewModel.scheduledShops.collectAsState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    var clickedShopId by remember { mutableStateOf(0) }
+    val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSchedule()
@@ -61,14 +75,49 @@ fun ScheduleScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            ScheduleList(shops = shops)
+            ScheduleList(
+                shops = shops,
+                onEditClick = { shopId ->
+                    showDatePicker = true
+                    clickedShopId = shopId
+                },
+                onDeleteClick = { shopId ->
+                    viewModel.deleteSchedule(shopId)
+                }
+            )
+        }
+    }
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val millis = datePickerState.selectedDateMillis
+                        if (millis != null) {
+                            val date = Instant.fromEpochMilliseconds(millis)
+                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                            viewModel.editSchedule(clickedShopId, date)
+                        }
+                        showDatePicker = false
+                        clickedShopId = 0
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }
 
 @Composable
 private fun ScheduleList(
-    shops: List<Shop>
+    shops: List<Shop>,
+    onEditClick: (shopId: Int) -> Unit,
+    onDeleteClick: (shopId: Int) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped: Map<String, List<Shop>> = shops.groupBy { shop ->
@@ -105,7 +154,15 @@ private fun ScheduleList(
             }
 
             items(monthShops) { shop ->
-                ScheduleRow(shop = shop)
+                ScheduleRow(
+                    shop = shop,
+                    onEditClick = {
+                        onEditClick(shop.id)
+                    },
+                    onDeleteClick = {
+                        onDeleteClick(shop.id)
+                    }
+                )
             }
         }
     }
@@ -113,7 +170,9 @@ private fun ScheduleList(
 
 @Composable
 private fun ScheduleRow(
-    shop: Shop
+    shop: Shop,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     val date: LocalDate? = shop.scheduledDate
     val dayText = if (date != null) {
@@ -139,12 +198,20 @@ private fun ScheduleRow(
                 Image(
                     painter = painterResource(Res.drawable.edit_24px),
                     contentDescription = "編集",
-                    modifier = Modifier.size(24.dp).clickable { /* 編集処理 */ }
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onEditClick()
+                        }
                 )
                 Image(
                     painter = painterResource(Res.drawable.delete_24px),
                     contentDescription = "削除",
-                    modifier = Modifier.size(24.dp).clickable { /* 削除処理 */ }
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onDeleteClick()
+                        }
                 )
             }
         }
