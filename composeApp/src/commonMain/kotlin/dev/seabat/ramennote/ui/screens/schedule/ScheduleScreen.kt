@@ -1,6 +1,5 @@
 package dev.seabat.ramennote.ui.screens.schedule
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,6 +52,7 @@ import ramennote.composeapp.generated.resources.screen_schedule_title
 @Composable
 fun ScheduleScreen(
     goToReport: () -> Unit = {},
+    goToShop: (shop: Shop) -> Unit = {},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
     val shops by viewModel.scheduledShops.collectAsState()
@@ -97,6 +97,9 @@ fun ScheduleScreen(
                 },
                 onDeleteClick = { shopId ->
                     viewModel.deleteSchedule(shopId)
+                },
+                onScheduleClick = { shop ->
+                    goToShop(shop)
                 }
             )
         }
@@ -132,7 +135,8 @@ private fun ScheduleList(
     shops: List<Shop>,
     onReportClick: (shopId: Int) -> Unit,
     onEditClick: (shopId: Int) -> Unit,
-    onDeleteClick: (shopId: Int) -> Unit
+    onDeleteClick: (shopId: Int) -> Unit,
+    onScheduleClick: (shop: Shop) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped: Map<String, List<Shop>> = shops.groupBy { shop ->
@@ -179,6 +183,9 @@ private fun ScheduleList(
                     },
                     onDeleteClick = {
                         onDeleteClick(shop.id)
+                    },
+                    onScheduleClick = {
+                        onScheduleClick(shop)
                     }
                 )
             }
@@ -191,7 +198,8 @@ private fun ScheduleRow(
     shop: Shop,
     onReportClick: () -> Unit = {},
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onScheduleClick: () -> Unit = {}
 ) {
     val date: LocalDate? = shop.scheduledDate
     val dayText = if (date != null) {
@@ -204,7 +212,10 @@ private fun ScheduleRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 8.dp)
+                .clickable {
+                    onScheduleClick()
+                },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

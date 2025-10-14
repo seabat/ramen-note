@@ -270,6 +270,9 @@ fun MainNavigation() {
                                 saveState = true
                             }
                         }
+                    },
+                    goToShop = { shop ->
+                        navController.navigate(Screen.Shop(shop.toJsonString()))
                     }
                 )
             }
