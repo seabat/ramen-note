@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -31,20 +30,20 @@ import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.home_background
-import ramennote.composeapp.generated.resources.home_detail_button
 import ramennote.composeapp.generated.resources.favorite_enabled
+import ramennote.composeapp.generated.resources.ramen_dining_24px
 
 private const val favoriteShopItemHeight = 70
 
 @Composable
 fun HomeScreen(
     goToNote: (shop: Shop) -> Unit = {},
+    gotToHistory: () -> Unit = {},
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val scheduledShop by viewModel.scheduledShop.collectAsStateWithLifecycle()
@@ -89,7 +88,8 @@ fun HomeScreen(
         ) {
             Schedule(
                 scheduledShop,
-                goToNote
+                goToNote,
+                gotToHistory
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -111,7 +111,11 @@ fun HomeScreen(
 }
 
 @Composable
-fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
+fun Schedule(
+    scheduledShop: Shop?,
+    goToNote: (shop: Shop) -> Unit = {},
+    gotToHistory: () -> Unit = {}
+) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -194,17 +198,29 @@ fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
                         color = Color.White
                     )
 
-                    Button(
-                        onClick = { goToNote(scheduledShop) },
-                        modifier = Modifier,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            stringResource(Res.string.home_detail_button),
-                            style = MaterialTheme.typography.titleMedium
+                        Icon(
+                            painter = painterResource(Res.drawable.ramen_dining_24px),
+                            contentDescription = "食レポ",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable {
+                                    gotToHistory()
+                                },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Icon(
+                            painter = painterResource(Res.drawable.book_5_24px),
+                            contentDescription = "編集",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable {
+                                    goToNote(scheduledShop)
+                                },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
