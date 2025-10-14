@@ -6,7 +6,7 @@ import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
-import dev.seabat.ramennote.domain.usecase.AddScheduleUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateStarUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class ShopViewModel(
     private val loadShopUseCase: LoadShopUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
-    private val addScheduleUseCase: AddScheduleUseCaseContract,
+    private val addScheduleUseCase: UpdateScheduleInShopUseCaseContract,
     private val switchFavoriteUseCase: SwitchFavoriteUseCaseContract,
     private val updateStarUseCase: UpdateStarUseCaseContract
 ) : ViewModel(), ShopViewModelContract {
@@ -56,6 +56,8 @@ class ShopViewModel(
     override fun addSchedule(shopId: Int, date: kotlinx.datetime.LocalDate) {
         viewModelScope.launch {
             addScheduleUseCase(shopId, date)
+            // スケジュール変更後に Shop データを再読み込み
+            loadShopAndImage(shopId)
         }
     }
 

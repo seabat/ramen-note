@@ -1,6 +1,5 @@
 package dev.seabat.ramennote.ui.screens.note
 
-import androidx.lifecycle.ViewModel
 import dev.seabat.ramennote.domain.model.RunStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +10,7 @@ import kotlinx.datetime.LocalDate
  * Preview用のモックViewModel
  * 実際のデータベースアクセスを行わず、固定のデータを返す
  */
-class MockNoteViewModel : ViewModel(), NoteViewModelContract {
+class MockNoteViewModel : NoteViewModelContract {
     private val _areas: MutableStateFlow<List<AreaWithImage>> = MutableStateFlow(
         listOf(
             AreaWithImage(name = "東京", updatedDate = LocalDate(2024, 9, 1), count = 12),
