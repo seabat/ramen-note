@@ -129,7 +129,9 @@ fun Schedule(scheduledShop: Shop?, goToNote: (shop: Shop) -> Unit = {}) {
                 )
                 .clickable {
                     scheduledShop?.shopUrl?.let { url ->
-                        urlHandler.openUri(url)
+                        if (url.isNotBlank()) {
+                            urlHandler.openUri(url)
+                        }
                     }
                 },
             contentAlignment = Alignment.Center
