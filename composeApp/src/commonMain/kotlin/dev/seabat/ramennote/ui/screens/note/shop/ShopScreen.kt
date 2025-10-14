@@ -296,7 +296,7 @@ fun Detail(
         )
 
         // 評価（星）
-        StarRating(
+        StarRatingRow(
             star = shop.star,
             onValueChange = { newStar -> updateStar(newStar) }
         )
