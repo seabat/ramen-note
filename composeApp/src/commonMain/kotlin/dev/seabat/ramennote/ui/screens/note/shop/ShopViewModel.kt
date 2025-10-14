@@ -56,6 +56,8 @@ class ShopViewModel(
     override fun addSchedule(shopId: Int, date: kotlinx.datetime.LocalDate) {
         viewModelScope.launch {
             addScheduleUseCase(shopId, date)
+            // スケジュール変更後に Shop データを再読み込み
+            loadShopAndImage(shopId)
         }
     }
 
