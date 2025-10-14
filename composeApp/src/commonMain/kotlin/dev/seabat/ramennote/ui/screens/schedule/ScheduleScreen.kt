@@ -15,6 +15,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -195,23 +196,25 @@ private fun ScheduleRow(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Image(
+                Icon(
                     painter = painterResource(Res.drawable.edit_24px),
                     contentDescription = "編集",
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
                             onEditClick()
-                        }
+                        },
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Image(
+                Icon(
                     painter = painterResource(Res.drawable.delete_24px),
                     contentDescription = "削除",
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
                             onDeleteClick()
-                        }
+                        },
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
