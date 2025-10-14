@@ -26,7 +26,7 @@ import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
-import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
+import dev.seabat.ramennote.ui.screens.withbottom.HistoryScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
@@ -39,12 +39,12 @@ import org.jetbrains.compose.resources.vectorResource
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.book_5_24px
+import ramennote.composeapp.generated.resources.ramen_dining_24px
 import ramennote.composeapp.generated.resources.screen_area_shop_title
-import ramennote.composeapp.generated.resources.screen_future_title
+import ramennote.composeapp.generated.resources.screen_history_title
 import ramennote.composeapp.generated.resources.screen_home_title
 import ramennote.composeapp.generated.resources.screen_schedule_title
 import ramennote.composeapp.generated.resources.screen_settings_title
-import ramennote.composeapp.generated.resources.signpost_24px
 
 sealed interface Screen {
     companion object {
@@ -93,15 +93,15 @@ sealed interface Screen {
     }
 
     @Serializable
-    data object Future : Screen {
-        override val route: String = getRouteName(Future::class)
+    data object History : Screen {
+        override val route: String = getRouteName(History::class)
         @Composable
         override fun getIcon(): ImageVector {
-            return vectorResource(Res.drawable.signpost_24px)
+            return vectorResource(Res.drawable.ramen_dining_24px)
         }
         @Composable
         override fun getTitle(): String {
-            return stringResource(Res.string.screen_future_title)
+            return stringResource(Res.string.screen_history_title)
         }
     }
 
@@ -206,7 +206,7 @@ fun MainNavigation() {
         Screen.Home,
         Screen.Schedule,
         Screen.Note,
-        Screen.Future,
+        Screen.History,
         Screen.Settings
     )
     
@@ -262,8 +262,8 @@ fun MainNavigation() {
             }
             composable<Screen.Schedule> {
                 ScheduleScreen(
-                    goToReport = {
-                        navController.navigate(Screen.Future) {
+                    goToHistory = {
+                        navController.navigate(Screen.History) {
                             // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
                             launchSingleTop = true
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -289,8 +289,8 @@ fun MainNavigation() {
                     }
                 )
             }
-            composable<Screen.Future> {
-                FutureScreen()
+            composable<Screen.History> {
+                HistoryScreen()
             }
             composable<Screen.Settings> {
                 SettingsScreen()

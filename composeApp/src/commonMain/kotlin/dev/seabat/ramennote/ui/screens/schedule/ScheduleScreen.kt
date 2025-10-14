@@ -51,7 +51,7 @@ import ramennote.composeapp.generated.resources.screen_schedule_title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    goToReport: () -> Unit = {},
+    goToHistory: () -> Unit = {},
     goToShop: (shop: Shop) -> Unit = {},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
@@ -68,7 +68,7 @@ fun ScheduleScreen(
     LaunchedEffect(reported) {
         if (reported) {
             viewModel.resetReported()
-            goToReport()
+            goToHistory()
         }
     }
 
@@ -88,7 +88,7 @@ fun ScheduleScreen(
         ) {
             ScheduleList(
                 shops = shops,
-                onReportClick = { shopId ->
+                onHistoryClick = { shopId ->
                     viewModel.report(shopId)
                 },
                 onEditClick = { shopId ->
@@ -133,7 +133,7 @@ fun ScheduleScreen(
 @Composable
 private fun ScheduleList(
     shops: List<Shop>,
-    onReportClick: (shopId: Int) -> Unit,
+    onHistoryClick: (shopId: Int) -> Unit,
     onEditClick: (shopId: Int) -> Unit,
     onDeleteClick: (shopId: Int) -> Unit,
     onScheduleClick: (shop: Shop) -> Unit
@@ -175,8 +175,8 @@ private fun ScheduleList(
             items(monthShops) { shop ->
                 ScheduleRow(
                     shop = shop,
-                    onReportClick = {
-                        onReportClick(shop.id)
+                    onHistoryClick = {
+                        onHistoryClick(shop.id)
                     },
                     onEditClick = {
                         onEditClick(shop.id)
@@ -196,7 +196,7 @@ private fun ScheduleList(
 @Composable
 private fun ScheduleRow(
     shop: Shop,
-    onReportClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {},
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onScheduleClick: () -> Unit = {}
@@ -231,7 +231,7 @@ private fun ScheduleRow(
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
-                            onReportClick()
+                            onHistoryClick()
                         },
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -281,6 +281,6 @@ private fun dayOfWeekJp(date: LocalDate): String {
 @Composable
 fun ScheduleScreenPreview() {
     RamenNoteTheme {
-        ScheduleScreen(goToReport = {}, viewModel = MockScheduleViewModel())
+        ScheduleScreen(goToHistory = {}, viewModel = MockScheduleViewModel())
     }
 }

@@ -4,22 +4,22 @@
     <string name="nav_home">ホーム</string>
     <string name="nav_schedule">予定</string>
     <string name="nav_note">note</string>
-    <string name="nav_future">いつか</string>
+    <string name="nav_history">杯歴</string>
     <string name="nav_settings">設定</string>
     
     <!-- Screen Titles -->
     <string name="screen_home_title">ホーム</string>
     <string name="screen_schedule_title">予定</string>
     <string name="screen_note_title">note</string>
-    <string name="screen_future_title">いつか</string>
+    <string name="screen_history_title">杯歴</string>
     <string name="screen_settings_title">設定</string>
     <string name="screen_area_shop_title">エリア</string>
 
     <!-- Screen Descriptions -->
     <string name="screen_home_description">ラーメンノートへようこそ！</string>
-    <string name="screen_schedule_description">ラーメン店の予定を管理します</string>
-    <string name="screen_note_description">ラーメンの感想を記録します</string>
-    <string name="screen_future_description">いつか行きたいラーメン店を保存します</string>
+    <string name="screen_schedule_description">ラーメンを食べに行く予定を管理します</string>
+    <string name="screen_note_description">ラーメン店の情報を記録します</string>
+    <string name="screen_history_description">ラーメンを食レポを記録します</string>
     <string name="screen_settings_description">アプリの設定を行います</string>
 
     <!-- Home Screen -->
