@@ -29,7 +29,7 @@ import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
 import dev.seabat.ramennote.ui.screens.withbottom.FutureScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
-import dev.seabat.ramennote.ui.screens.withbottom.ScheduleScreen
+import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen
 import dev.seabat.ramennote.domain.model.Shop as ShopInfo
 import kotlinx.serialization.Serializable
