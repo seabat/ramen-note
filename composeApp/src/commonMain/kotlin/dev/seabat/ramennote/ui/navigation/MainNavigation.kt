@@ -257,6 +257,15 @@ fun MainNavigation() {
                 HomeScreen(
                     goToNote = { shop ->
                         navController.navigate(Screen.Shop(shop.toJsonString()))
+                    },
+                    gotToHistory = {
+                        navController.navigate(Screen.History) {
+                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                            launchSingleTop = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                        }
                     }
                 )
             }
