@@ -21,6 +21,9 @@ class ScheduleViewModel(
     private val _scheduledShops: MutableStateFlow<List<Shop>> = MutableStateFlow(emptyList())
     override val scheduledShops: StateFlow<List<Shop>> = _scheduledShops.asStateFlow()
 
+    private val _reported: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override val reported: StateFlow<Boolean> = _reported.asStateFlow()
+
     override fun loadSchedule() {
         viewModelScope.launch {
             val shops = loadScheduledShopsUseCase()
@@ -44,6 +47,10 @@ class ScheduleViewModel(
             val shops = loadScheduledShopsUseCase()
             _scheduledShops.value = shops
         }
+    }
+
+    override fun report(shopId: Int) {
+        _reported.value = true
     }
 }
 

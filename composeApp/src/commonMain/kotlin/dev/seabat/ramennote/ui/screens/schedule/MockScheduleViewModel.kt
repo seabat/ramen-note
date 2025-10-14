@@ -35,6 +35,9 @@ class MockScheduleViewModel : ScheduleViewModelContract {
 
     override val scheduledShops: StateFlow<List<Shop>> = _scheduledShops.asStateFlow()
 
+    private val _reported: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override val reported: StateFlow<Boolean> = _reported.asStateFlow()
+
     override fun loadSchedule() {
         // Preview / Mock 用: すでに初期値を流しているため何もしない
     }
@@ -44,6 +47,10 @@ class MockScheduleViewModel : ScheduleViewModelContract {
     }
 
     override fun deleteSchedule(shopId: Int) {
+        // Preview / Mock 用
+    }
+
+    override fun report(shopId: Int) {
         // Preview / Mock 用
     }
 }

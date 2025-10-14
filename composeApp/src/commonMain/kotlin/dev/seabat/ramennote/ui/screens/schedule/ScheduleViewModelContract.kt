@@ -6,11 +6,15 @@ import kotlinx.datetime.LocalDate
 
 interface ScheduleViewModelContract {
     val scheduledShops: StateFlow<List<Shop>>
+    val reported: StateFlow<Boolean>
+
     fun loadSchedule()
 
     fun editSchedule(shopId: Int, date: LocalDate)
 
     fun deleteSchedule(shopId: Int)
+
+    fun report(shopId: Int)
 }
 
 

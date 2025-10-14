@@ -261,7 +261,11 @@ fun MainNavigation() {
                 )
             }
             composable<Screen.Schedule> {
-                ScheduleScreen()
+                ScheduleScreen(
+                    goToReport = {
+                        navController.navigate(Screen.Future)
+                    }
+                )
             }
             composable<Screen.Note> {
                 NoteScreen(

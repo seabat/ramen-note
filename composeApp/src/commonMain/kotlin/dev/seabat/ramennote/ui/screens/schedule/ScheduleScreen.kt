@@ -46,20 +46,29 @@ import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.delete_24px
 import ramennote.composeapp.generated.resources.edit_24px
+import ramennote.composeapp.generated.resources.ramen_dining_24px
 import ramennote.composeapp.generated.resources.screen_schedule_title
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
+    goToReport: () -> Unit = {},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
     val shops by viewModel.scheduledShops.collectAsState()
+    val reported by viewModel.reported.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSchedule()
+    }
+
+    LaunchedEffect(reported) {
+        if (reported) {
+            goToReport()
+        }
     }
 
     Column(
@@ -78,6 +87,9 @@ fun ScheduleScreen(
         ) {
             ScheduleList(
                 shops = shops,
+                onReportClick = { shopId ->
+                    viewModel.report(shopId)
+                },
                 onEditClick = { shopId ->
                     showDatePicker = true
                     clickedShopId = shopId
@@ -117,6 +129,7 @@ fun ScheduleScreen(
 @Composable
 private fun ScheduleList(
     shops: List<Shop>,
+    onReportClick: (shopId: Int) -> Unit,
     onEditClick: (shopId: Int) -> Unit,
     onDeleteClick: (shopId: Int) -> Unit
 ) {
@@ -157,6 +170,9 @@ private fun ScheduleList(
             items(monthShops) { shop ->
                 ScheduleRow(
                     shop = shop,
+                    onReportClick = {
+                        onReportClick(shop.id)
+                    },
                     onEditClick = {
                         onEditClick(shop.id)
                     },
@@ -172,6 +188,7 @@ private fun ScheduleList(
 @Composable
 private fun ScheduleRow(
     shop: Shop,
+    onReportClick: () -> Unit = {},
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -195,7 +212,17 @@ private fun ScheduleRow(
                 Text(text = shop.name, style = MaterialTheme.typography.titleMedium)
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(Res.drawable.ramen_dining_24px),
+                    contentDescription = "食レポ",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onReportClick()
+                        },
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Icon(
                     painter = painterResource(Res.drawable.edit_24px),
                     contentDescription = "編集",
@@ -242,6 +269,6 @@ private fun dayOfWeekJp(date: LocalDate): String {
 @Composable
 fun ScheduleScreenPreview() {
     RamenNoteTheme {
-        ScheduleScreen(viewModel = MockScheduleViewModel())
+        ScheduleScreen(goToReport = {}, viewModel = MockScheduleViewModel())
     }
 }
