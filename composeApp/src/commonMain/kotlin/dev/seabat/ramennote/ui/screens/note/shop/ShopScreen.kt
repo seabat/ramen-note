@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -295,12 +296,15 @@ fun Detail(
             url = shop.mapUrl
         )
 
+        Spacer(modifier = Modifier.height(7.dp))
+
         // 評価（星）
         StarRatingRow(
             star = shop.star,
             onValueChange = { newStar -> updateStar(newStar) }
         )
 
+        Spacer(modifier = Modifier.height(7.dp))
 
         // 最寄り駅
         ShopDetailItem(
