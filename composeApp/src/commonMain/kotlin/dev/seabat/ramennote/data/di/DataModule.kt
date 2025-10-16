@@ -15,7 +15,8 @@ import dev.seabat.ramennote.data.repository.UnsplashImageRepository
 import dev.seabat.ramennote.data.repository.UnsplashImageRepositoryContract
 import dev.seabat.ramennote.data.repository.NoImageRepository
 import dev.seabat.ramennote.data.repository.NoImageRepositoryContract
-import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
+import dev.seabat.ramennote.data.repository.ReportsRepository
+import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
@@ -57,9 +58,9 @@ val repositoryModule = module {
         )
     }
     single<LocalAreaImageRepositoryContract> { LocalAreaImageRepository(get()) }
-    single { FetchPlaceHolderImageUseCase(get(), get()) }
-    single<ShopsRepositoryContract> { ShopsRepository(get()) }
     single<NoImageRepositoryContract> { NoImageRepository(get()) }
+    single<ReportsRepositoryContract> { ReportsRepository(get()) }
+    single<ShopsRepositoryContract> { ShopsRepository(get()) }
 }
 
 fun getRamenNoteDatabase(

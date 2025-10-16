@@ -20,14 +20,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import dev.seabat.ramennote.ui.screens.history.ReportScreen
+import dev.seabat.ramennote.ui.screens.history.report.ReportScreen
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
 import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
-import dev.seabat.ramennote.ui.screens.withbottom.HistoryScreen
+import dev.seabat.ramennote.ui.screens.history.HistoryScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen

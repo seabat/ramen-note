@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.history
+package dev.seabat.ramennote.ui.screens.history.report
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
