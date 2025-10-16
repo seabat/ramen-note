@@ -159,7 +159,7 @@ private fun ScheduleList(
             item {
                 Text(
                     text = yearMonth,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 8.dp)
                 )

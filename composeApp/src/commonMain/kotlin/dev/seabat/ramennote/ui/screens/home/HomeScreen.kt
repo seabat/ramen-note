@@ -210,7 +210,7 @@ fun Schedule(
                                 .clickable {
                                     gotToHistory()
                                 },
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = Color.White
                         )
                         Icon(
                             painter = painterResource(Res.drawable.book_5_24px),
@@ -220,7 +220,7 @@ fun Schedule(
                                 .clickable {
                                     goToNote(scheduledShop)
                                 },
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = Color.White
                         )
                     }
                 }
