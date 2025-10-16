@@ -27,12 +27,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
-import dev.seabat.ramennote.ui.components.Permission
+import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.gallery.SharedImage
-import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
-import dev.seabat.ramennote.ui.permission.launchSettings
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import dev.seabat.ramennote.ui.util.createFormattedDateString
@@ -68,44 +65,12 @@ fun ReportScreen(
     val datePickerState = rememberDatePickerState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
-    var shouldShowPermissionRationalDialog by remember { mutableStateOf(false) }
-    var shouldLaunchSetting by remember { mutableStateOf(false) }
-    val galleryManager = createRememberedGalleryLauncher { image = it!! }
 
-    if (permissionEnabled) {
-        Permission(
-            permissionEnabled = {
-                permissionEnabled = true
-            },
-            showPermissionRationalDialog = {
-                shouldShowPermissionRationalDialog = true
-            },
-            showGallery = {
-                galleryManager.launch()
-            }
-        )
-        permissionEnabled = false
-    }
-
-    if (shouldShowPermissionRationalDialog) {
-        AppTwoButtonAlert(
-            message = "写真を選択するには、ストレージのアクセス許可が必要です。設定から許可してください。",
-            confirmButtonText = "Settings",
-            nagativeButtonText = "Cancel",
-            onConfirm = {
-                shouldShowPermissionRationalDialog = false
-                shouldLaunchSetting = true
-            },
-            onNegative = {
-                shouldShowPermissionRationalDialog = false
-            }
-        )
-    }
-
-    if (shouldLaunchSetting) {
-        launchSettings()
-        shouldLaunchSetting = false
-    }
+    PhotoSelectionHandler(
+        onImageSelected = { image = it },
+        permissionEnabled = permissionEnabled,
+        onPermissionEnabledChange = { permissionEnabled = it }
+    )
 
     Box(
         modifier = Modifier.fillMaxSize()
