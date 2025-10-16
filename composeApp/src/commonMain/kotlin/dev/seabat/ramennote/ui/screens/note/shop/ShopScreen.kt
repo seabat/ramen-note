@@ -47,6 +47,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import ramennote.composeapp.generated.resources.add_no_url_label
+import ramennote.composeapp.generated.resources.add_report_button
 import ramennote.composeapp.generated.resources.add_schedule_add_button
 import ramennote.composeapp.generated.resources.add_schedule_edit_button
 import ramennote.composeapp.generated.resources.add_schedule_label
@@ -59,6 +60,7 @@ fun ShopScreen(
     shopId: Int,
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
+    onReportClick: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
@@ -103,6 +105,9 @@ fun ShopScreen(
                     shop,
                     onEditClick = {
                         shop?.let { onEditClick(it) }
+                    },
+                    onReportClick = {
+                        shop?.let { onReportClick(it) }
                     },
                     onAddScheduleClick = {
                         showDatePicker = true
@@ -235,6 +240,7 @@ fun Header(
 fun ActionButtons(
     shop: Shop?,
     onEditClick: () -> Unit = {},
+    onReportClick: () -> Unit = {},
     onAddScheduleClick: () -> Unit = {}
 ) {
     Row(
@@ -257,6 +263,17 @@ fun ActionButtons(
                 stringResource(Res.string.add_schedule_edit_button)
             }
             Text(buttonText, style = MaterialTheme.typography.titleMedium)
+        }
+
+        Button(
+            onClick = onReportClick,
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        ) {
+            Text(stringResource(Res.string.add_report_button), style = MaterialTheme.typography.titleMedium)
         }
 
         Button(

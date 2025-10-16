@@ -41,6 +41,7 @@
     <string name="add_schedule_add_button">予定追加</string>
     <string name="add_schedule_edit_button">予定変更</string>
     <string name="add_edit_button">編集</string>
+    <string name="add_report_button">食レポ</string>
     <string name="add_web_site_label">Webサイト</string>
     <string name="add_map_label">地図</string>
     <string name="add_evaluation_label">評価</string>
@@ -73,7 +74,7 @@
     <string name="report_select_date">日付選択</string>
     <string name="report_no_set">未設定</string>
     <string name="report_impressions">感想</string>
-    <string name="report_header">レポート</string>
+    <string name="report_header">食レポ</string>
     <string name="report_run">レポートする</string>
 
     <!-- App -->

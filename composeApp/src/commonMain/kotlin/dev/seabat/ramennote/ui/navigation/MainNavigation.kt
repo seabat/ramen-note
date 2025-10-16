@@ -359,6 +359,9 @@ fun MainNavigation() {
                     onBackClick = { navController.popBackStack() },
                     onEditClick = { editShop ->
                         navController.navigate(Screen.EditShop(editShop.toJsonString()))
+                    },
+                    onReportClick = { reportShop ->
+                        navController.navigate(Screen.Repprt(reportShop.toJsonString()))
                     }
                 )
             }
