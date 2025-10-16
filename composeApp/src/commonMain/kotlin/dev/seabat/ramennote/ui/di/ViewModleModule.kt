@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.di
 
+import dev.seabat.ramennote.ui.screens.history.ReportViewModel
 import dev.seabat.ramennote.ui.screens.home.HomeViewModel
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaViewModel
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaViewModel
@@ -20,6 +21,7 @@ val viewModelModule = module {
     viewModel { EditShopViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { AreaShopListViewModel(get()) }
     viewModel { HomeViewModel(get(), get(), get()) }
+    viewModel { ReportViewModel() }
     viewModel { ShopViewModel(get(), get(), get(), get(), get()) }
     viewModel { ScheduleViewModel(get(), get(), get()) }
 }

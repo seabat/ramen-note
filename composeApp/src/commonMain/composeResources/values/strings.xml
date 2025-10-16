@@ -69,6 +69,13 @@
     <string name="edit_shop_delete_error_message">削除に失敗しました</string>
     <string name="edit_category_label">系統</string>
 
+    <!-- Report Screen -->
+    <string name="report_select_date">日付選択</string>
+    <string name="report_no_set">未設定</string>
+    <string name="report_impressions">感想</string>
+    <string name="report_header">レポート</string>
+    <string name="report_run">レポートする</string>
+
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
 </resources>

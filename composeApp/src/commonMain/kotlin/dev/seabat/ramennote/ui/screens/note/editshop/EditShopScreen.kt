@@ -19,16 +19,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
+import dev.seabat.ramennote.ui.components.Permission
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
-import dev.seabat.ramennote.ui.permission.PermissionCallback
-import dev.seabat.ramennote.ui.permission.PermissionStatus
-import dev.seabat.ramennote.ui.permission.PermissionType
-import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
@@ -263,43 +259,6 @@ fun EditShopScreen(
             }
             else -> { }
         }
-    }
-}
-
-@Composable
-private fun Permission(
-    permissionEnabled: () -> Unit,
-    showPermissionRationalDialog: () -> Unit,
-    showGallery: () -> Unit
-) {
-    val currentCallback by rememberUpdatedState(
-        object : PermissionCallback {
-            override fun onPermissionStatus(
-                permissionType: PermissionType,
-                status: PermissionStatus
-            ) {
-                when (status) {
-                    PermissionStatus.GRANTED -> {
-                        when (permissionType) {
-                            PermissionType.CAMERA -> {  /* カメラ起動の処理 */}
-                            PermissionType.GALLERY -> { permissionEnabled() }
-                        }
-                    }
-                    else -> {
-                        showPermissionRationalDialog()
-                    }
-                }
-            }
-        }
-    )
-    val permissionLauncher = createRememberedPermissionsLauncher(currentCallback)
-    val isGranted = permissionLauncher.isPermissionGranted(PermissionType.GALLERY)
-    if (isGranted) {
-        logd("ramen-note", "GALLERY Permission: granted")
-        showGallery()
-    } else {
-        logd("ramen-note", "GALLERY Permission: not Granted")
-        permissionLauncher.askPermission(PermissionType.GALLERY)
     }
 }
 
