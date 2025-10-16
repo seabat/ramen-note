@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class ReportEntity(
     @PrimaryKey
     val id: Int,
+    val shopId: Int,
     val menuName: String,
     val photoName: String,
     val impression: String,

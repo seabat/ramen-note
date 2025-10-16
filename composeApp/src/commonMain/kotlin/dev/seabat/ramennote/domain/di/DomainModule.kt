@@ -57,7 +57,7 @@ val useCaseModule = module {
     single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
     single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
     single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get()) }
-    single<LoadReportsUseCaseContract> { LoadReportsUseCase(get()) }
+    single<LoadReportsUseCaseContract> { LoadReportsUseCase(get(), get(), get()) }
     single<LoadScheduledShopsUseCaseContract> { LoadScheduledShopsUseCase(get()) }
     single<LoadFavoriteShopsUseCaseContract> { LoadFavoriteShopsUseCase(get()) }
     single<SaveShopMenuImageUseCaseContract> { SaveShopMenuImageUseCase(get()) }

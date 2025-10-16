@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -256,18 +257,7 @@ private fun ScheduleRow(
     }
 }
 
-private fun dayOfWeekJp(date: LocalDate): String {
-    return when (date.dayOfWeek.isoDayNumber) {
-        1 -> "月"
-        2 -> "火"
-        3 -> "水"
-        4 -> "木"
-        5 -> "金"
-        6 -> "土"
-        7 -> "日"
-        else -> ""
-    }
-}
+
 
 @Preview
 @Composable

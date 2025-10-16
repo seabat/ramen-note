@@ -17,12 +17,13 @@ class ReportsRepository(
     private val reportDao: ReportDao by lazy { database.reportDao() }
 
     override suspend fun load(): List<Report> {
-        return reportDao.getAllReportsAsc().map { it.toDomain() }
+        return reportDao.getAllReportsDesc().map { it.toDomain() }
     }
 }
 
 private fun ReportEntity.toDomain(): Report = Report(
     id = id,
+    shopId = shopId,
     menuName = menuName,
     photoName = photoName,
     impression = impression,

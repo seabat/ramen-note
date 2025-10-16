@@ -11,6 +11,9 @@ interface ReportDao {
     @Query("SELECT * FROM reports ORDER BY date ASC")
     suspend fun getAllReportsAsc(): List<ReportEntity>
 
+    @Query("SELECT * FROM reports ORDER BY date DESC")
+    suspend fun getAllReportsDesc(): List<ReportEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(report: ReportEntity)
 

@@ -5,6 +5,7 @@ import kotlinx.serialization.json.Json
 
 data class Report(
     val id: Int,
+    val shopId: Int,
     val menuName: String,
     val photoName: String,
     val impression: String,
