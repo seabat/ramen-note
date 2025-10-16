@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import dev.seabat.ramennote.ui.screens.history.ReportScreen
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
 import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
@@ -159,7 +160,7 @@ sealed interface Screen {
             return try {
                 val shop = ShopInfo.fromJsonString(shopJson)
                 shop.name
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "店舗詳細"
             }
         }
@@ -184,8 +185,24 @@ sealed interface Screen {
             return try {
                 val shop = ShopInfo.fromJsonString(shopJson)
                 "${shop.name} 編集"
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "店舗編集"
+            }
+        }
+    }
+
+    @Serializable
+    data class Repprt(val shopJson: String) : Screen {
+        override val route: String = getRouteName(Repprt::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Star }
+        @Composable
+        override fun getTitle(): String {
+            return try {
+                val shop = ShopInfo.fromJsonString(shopJson)
+                "${shop.name} レポート"
+            } catch (_: Exception) {
+                "店舗詳細"
             }
         }
     }
@@ -258,27 +275,15 @@ fun MainNavigation() {
                     goToNote = { shop ->
                         navController.navigate(Screen.Shop(shop.toJsonString()))
                     },
-                    gotToHistory = {
-                        navController.navigate(Screen.History) {
-                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                        }
+                    gotToReport = { shop ->
+                        navController.navigate(Screen.Repprt(shop.toJsonString()))
                     }
                 )
             }
             composable<Screen.Schedule> {
                 ScheduleScreen(
-                    goToHistory = {
-                        navController.navigate(Screen.History) {
-                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                        }
+                    goToReport = { shop ->
+                        navController.navigate(Screen.Repprt(shop.toJsonString()))
                     },
                     goToShop = { shop ->
                         navController.navigate(Screen.Shop(shop.toJsonString()))
@@ -337,7 +342,7 @@ fun MainNavigation() {
                 val screen: Screen.Shop = backStackEntry.toRoute()
                 val shop = try {
                     ShopInfo.fromJsonString(screen.shopJson)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // エラーの場合はデフォルトのShopオブジェクトを作成
                     ShopInfo(
                         name = "エラー",
@@ -369,7 +374,7 @@ fun MainNavigation() {
                 val screen: Screen.EditShop = backStackEntry.toRoute()
                 val shop = try {
                     ShopInfo.fromJsonString(screen.shopJson)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // エラーの場合はデフォルトのShopオブジェクトを作成
                     ShopInfo(
                         name = "エラー",
@@ -389,6 +394,36 @@ fun MainNavigation() {
                         navController.navigate(Screen.AreaShopList(areaName)) {
                             popUpTo(Screen.AreaShopList(areaName)) {
                                 inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+            composable<Screen.Repprt> { backStackEntry ->
+                val screen: Screen.Repprt = backStackEntry.toRoute()
+                val shop = try {
+                    ShopInfo.fromJsonString(screen.shopJson)
+                } catch (_: Exception) {
+                    // エラーの場合はデフォルトのShopオブジェクトを作成
+                    ShopInfo(
+                        name = "エラー",
+                        area = "",
+                        shopUrl = "",
+                        mapUrl = "",
+                        star = 0,
+                        stationName = "",
+                        category = ""
+                    )
+                }
+                ReportScreen(
+                    shop = shop,
+                    onBackClick = { navController.popBackStack() },
+                    goToHistory = {
+                        navController.navigate(Screen.History) {
+                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                            launchSingleTop = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
                         }
                     }

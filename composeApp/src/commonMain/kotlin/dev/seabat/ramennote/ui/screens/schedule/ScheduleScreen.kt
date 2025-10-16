@@ -51,25 +51,17 @@ import ramennote.composeapp.generated.resources.screen_schedule_title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    goToHistory: () -> Unit = {},
+    goToReport: (shop: Shop) -> Unit = {},
     goToShop: (shop: Shop) -> Unit = {},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
     val shops by viewModel.scheduledShops.collectAsState()
-    val reported by viewModel.reported.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSchedule()
-    }
-
-    LaunchedEffect(reported) {
-        if (reported) {
-            viewModel.resetReported()
-            goToHistory()
-        }
     }
 
     Column(
@@ -88,8 +80,8 @@ fun ScheduleScreen(
         ) {
             ScheduleList(
                 shops = shops,
-                onHistoryClick = { shopId ->
-                    viewModel.report(shopId)
+                onHistoryClick = { shop ->
+                    goToReport(shop)
                 },
                 onEditClick = { shopId ->
                     showDatePicker = true
@@ -133,7 +125,7 @@ fun ScheduleScreen(
 @Composable
 private fun ScheduleList(
     shops: List<Shop>,
-    onHistoryClick: (shopId: Int) -> Unit,
+    onHistoryClick: (shop: Shop) -> Unit,
     onEditClick: (shopId: Int) -> Unit,
     onDeleteClick: (shopId: Int) -> Unit,
     onScheduleClick: (shop: Shop) -> Unit
@@ -176,7 +168,7 @@ private fun ScheduleList(
                 ScheduleRow(
                     shop = shop,
                     onHistoryClick = {
-                        onHistoryClick(shop.id)
+                        onHistoryClick(shop)
                     },
                     onEditClick = {
                         onEditClick(shop.id)
@@ -281,6 +273,6 @@ private fun dayOfWeekJp(date: LocalDate): String {
 @Composable
 fun ScheduleScreenPreview() {
     RamenNoteTheme {
-        ScheduleScreen(goToHistory = {}, viewModel = MockScheduleViewModel())
+        ScheduleScreen(goToReport = {}, viewModel = MockScheduleViewModel())
     }
 }
