@@ -7,7 +7,7 @@ class AddShopUseCase(
     private val shopsRepository: ShopsRepositoryContract
 ) : AddShopUseCaseContract {
     
-    override suspend fun addShop(shop: Shop) {
+    override suspend operator fun invoke(shop: Shop) {
         // 全てのShopを読み込んでidの最大値を取得
         val allShops = shopsRepository.getAllShops()
         val maxId = allShops.maxOfOrNull { it.id } ?: 0

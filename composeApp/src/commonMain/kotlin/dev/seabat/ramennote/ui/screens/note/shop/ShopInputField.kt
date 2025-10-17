@@ -35,6 +35,7 @@ import ramennote.composeapp.generated.resources.delete_24px
 fun ShopInputField(
     label: String,
     value: String,
+    singleLine: Boolean = true,
     onValueChange: (String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -68,7 +69,7 @@ fun ShopInputField(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
-                    singleLine = true,
+                    singleLine = singleLine,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface
                     ),

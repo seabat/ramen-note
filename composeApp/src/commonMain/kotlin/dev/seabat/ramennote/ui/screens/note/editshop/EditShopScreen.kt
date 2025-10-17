@@ -19,17 +19,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppAlert
-import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
-import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
-import dev.seabat.ramennote.ui.permission.PermissionCallback
-import dev.seabat.ramennote.ui.permission.PermissionStatus
-import dev.seabat.ramennote.ui.permission.PermissionType
-import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
-import dev.seabat.ramennote.ui.permission.launchSettings
+import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
@@ -74,49 +67,17 @@ fun EditShopScreen(
     val shopImage by viewModel.shopImage.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
-    var shouldLaunchSetting by remember { mutableStateOf(false) }
-    var shouldShowPermissionRationalDialog by remember { mutableStateOf(false) }
-    val galleryManager = createRememberedGalleryLauncher { viewModel.updateImage(it) }
 
     // 画像読み込み
     LaunchedEffect(shop.name) {
         viewModel.loadImage(shop)
     }
 
-    if (permissionEnabled) {
-        Permission(
-            permissionEnabled = {
-                permissionEnabled = true
-            },
-            showPermissionRationalDialog = {
-                shouldShowPermissionRationalDialog = true
-            },
-            showGallery = {
-                galleryManager.launch()
-            }
-        )
-        permissionEnabled = false
-    }
-
-    if (shouldShowPermissionRationalDialog) {
-        AppTwoButtonAlert(
-            message = "写真を選択するには、ストレージのアクセス許可が必要です。設定から許可してください。",
-            confirmButtonText = "Settings",
-            nagativeButtonText = "Cancel",
-            onConfirm = {
-                shouldShowPermissionRationalDialog = false
-                shouldLaunchSetting = true
-            },
-            onNegative = {
-                shouldShowPermissionRationalDialog = false
-            }
-        )
-    }
-
-    if (shouldLaunchSetting) {
-        launchSettings()
-        shouldLaunchSetting = false
-    }
+    PhotoSelectionHandler(
+        onImageSelected = { viewModel.updateImage(it) },
+        permissionEnabled = permissionEnabled,
+        onPermissionEnabledChange = { permissionEnabled = it }
+    )
 
     Box(
         modifier = Modifier
@@ -263,43 +224,6 @@ fun EditShopScreen(
             }
             else -> { }
         }
-    }
-}
-
-@Composable
-private fun Permission(
-    permissionEnabled: () -> Unit,
-    showPermissionRationalDialog: () -> Unit,
-    showGallery: () -> Unit
-) {
-    val currentCallback by rememberUpdatedState(
-        object : PermissionCallback {
-            override fun onPermissionStatus(
-                permissionType: PermissionType,
-                status: PermissionStatus
-            ) {
-                when (status) {
-                    PermissionStatus.GRANTED -> {
-                        when (permissionType) {
-                            PermissionType.CAMERA -> {  /* カメラ起動の処理 */}
-                            PermissionType.GALLERY -> { permissionEnabled() }
-                        }
-                    }
-                    else -> {
-                        showPermissionRationalDialog()
-                    }
-                }
-            }
-        }
-    )
-    val permissionLauncher = createRememberedPermissionsLauncher(currentCallback)
-    val isGranted = permissionLauncher.isPermissionGranted(PermissionType.GALLERY)
-    if (isGranted) {
-        logd("ramen-note", "GALLERY Permission: granted")
-        showGallery()
-    } else {
-        logd("ramen-note", "GALLERY Permission: not Granted")
-        permissionLauncher.askPermission(PermissionType.GALLERY)
     }
 }
 

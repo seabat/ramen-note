@@ -1,13 +1,13 @@
 package dev.seabat.ramennote.domain.usecase
 
-import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class LoadImageUseCase(
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract
+    private val localImageRepository: LocalImageRepositoryContract
 ) : LoadImageUseCaseContract {
 
     override suspend operator fun invoke(name: String): RunStatus<ByteArray?> {
-        return RunStatus.Success(localAreaImageRepository.load(name))
+        return RunStatus.Success(localImageRepository.load(name))
     }
 }

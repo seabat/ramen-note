@@ -5,9 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
-class LocalAreaImageRepository(
+class LocalImageRepository(
     private val localStorageDataSource: LocalStorageDataSourceContract
-) : LocalAreaImageRepositoryContract {
+) : LocalImageRepositoryContract {
     
     override suspend fun save(imageBytes: ByteArray, name: String) {
         withContext(Dispatchers.IO) {

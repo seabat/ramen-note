@@ -1,6 +1,6 @@
 package dev.seabat.ramennote.data.repository
 
-interface LocalAreaImageRepositoryContract {
+interface LocalImageRepositoryContract {
     suspend fun save(imageBytes: ByteArray, name: String)
     suspend fun load(name: String): ByteArray?
 

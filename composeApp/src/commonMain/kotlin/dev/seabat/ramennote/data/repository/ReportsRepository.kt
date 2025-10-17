@@ -1,0 +1,47 @@
+package dev.seabat.ramennote.data.repository
+
+import dev.seabat.ramennote.data.database.RamenNoteDatabase
+import dev.seabat.ramennote.data.database.dao.ReportDao
+import dev.seabat.ramennote.data.database.entity.ReportEntity
+import dev.seabat.ramennote.domain.model.Report
+import kotlinx.datetime.LocalDate
+
+interface ReportsRepositoryContract {
+    suspend fun load(): List<Report>
+    suspend fun insert(report: Report)
+}
+
+class ReportsRepository(
+    private val database: RamenNoteDatabase
+) : ReportsRepositoryContract {
+
+    private val reportDao: ReportDao by lazy { database.reportDao() }
+
+    override suspend fun load(): List<Report> {
+        return reportDao.getAllReportsDesc().map { it.toDomain() }
+    }
+    
+    override suspend fun insert(report: Report) {
+        reportDao.insert(report.toEntity())
+    }
+}
+
+private fun ReportEntity.toDomain(): Report = Report(
+    id = id,
+    shopId = shopId,
+    menuName = menuName,
+    photoName = photoName,
+    impression = impression,
+    date = if (date.isEmpty()) null else LocalDate.parse(date)
+)
+
+private fun Report.toEntity(): ReportEntity = ReportEntity(
+    id = id,
+    shopId = shopId,
+    menuName = menuName,
+    photoName = photoName,
+    impression = impression,
+    date = date?.toString() ?: ""
+)
+
+

@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -20,17 +21,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import dev.seabat.ramennote.ui.screens.history.report.ReportScreen
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
 import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
-import dev.seabat.ramennote.ui.screens.withbottom.HistoryScreen
+import dev.seabat.ramennote.ui.screens.history.HistoryScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
-import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen
+import dev.seabat.ramennote.ui.screens.settings.SettingsScreen
 import dev.seabat.ramennote.domain.model.Shop as ShopInfo
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
@@ -159,7 +161,7 @@ sealed interface Screen {
             return try {
                 val shop = ShopInfo.fromJsonString(shopJson)
                 shop.name
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "店舗詳細"
             }
         }
@@ -184,8 +186,24 @@ sealed interface Screen {
             return try {
                 val shop = ShopInfo.fromJsonString(shopJson)
                 "${shop.name} 編集"
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "店舗編集"
+            }
+        }
+    }
+
+    @Serializable
+    data class Repprt(val shopJson: String) : Screen {
+        override val route: String = getRouteName(Repprt::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Star }
+        @Composable
+        override fun getTitle(): String {
+            return try {
+                val shop = ShopInfo.fromJsonString(shopJson)
+                "${shop.name} レポート"
+            } catch (_: Exception) {
+                "店舗詳細"
             }
         }
     }
@@ -223,10 +241,32 @@ fun MainNavigation() {
             if (withBottomNavigation) {
                 NavigationBar {
                     tabScreens.forEach { screen ->
+                        val isSelected = currentDestination?.route?.endsWith(screen.route) == true
+                        // デバッグ用: コンソールに出力
+                        println("Screen: ${screen.route}, Current: ${currentDestination?.route}, Selected: $isSelected")
                         NavigationBarItem(
-                            icon = { Icon(screen.getIcon(), contentDescription = screen.getTitle()) },
-                            label = { Text(screen.getTitle()) },
-                            selected = currentDestination.hierarchy.any { it.route == screen.route } == true,
+                            icon = { 
+                                Icon(
+                                    imageVector = screen.getIcon(), 
+                                    contentDescription = screen.getTitle(),
+                                    tint = if (isSelected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                ) 
+                            },
+                            label = { 
+                                Text(
+                                    text = screen.getTitle(),
+                                    color = if (isSelected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                ) 
+                            },
+                            selected = isSelected,
                             onClick = {
                                 navController.navigate(screen) {
                                     // Pop up to the start destination of the graph to
@@ -258,27 +298,15 @@ fun MainNavigation() {
                     goToNote = { shop ->
                         navController.navigate(Screen.Shop(shop.toJsonString()))
                     },
-                    gotToHistory = {
-                        navController.navigate(Screen.History) {
-                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                        }
+                    gotToReport = { shop ->
+                        navController.navigate(Screen.Repprt(shop.toJsonString()))
                     }
                 )
             }
             composable<Screen.Schedule> {
                 ScheduleScreen(
-                    goToHistory = {
-                        navController.navigate(Screen.History) {
-                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                        }
+                    goToReport = { shop ->
+                        navController.navigate(Screen.Repprt(shop.toJsonString()))
                     },
                     goToShop = { shop ->
                         navController.navigate(Screen.Shop(shop.toJsonString()))
@@ -337,7 +365,7 @@ fun MainNavigation() {
                 val screen: Screen.Shop = backStackEntry.toRoute()
                 val shop = try {
                     ShopInfo.fromJsonString(screen.shopJson)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // エラーの場合はデフォルトのShopオブジェクトを作成
                     ShopInfo(
                         name = "エラー",
@@ -354,6 +382,9 @@ fun MainNavigation() {
                     onBackClick = { navController.popBackStack() },
                     onEditClick = { editShop ->
                         navController.navigate(Screen.EditShop(editShop.toJsonString()))
+                    },
+                    onReportClick = { reportShop ->
+                        navController.navigate(Screen.Repprt(reportShop.toJsonString()))
                     }
                 )
             }
@@ -369,7 +400,7 @@ fun MainNavigation() {
                 val screen: Screen.EditShop = backStackEntry.toRoute()
                 val shop = try {
                     ShopInfo.fromJsonString(screen.shopJson)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // エラーの場合はデフォルトのShopオブジェクトを作成
                     ShopInfo(
                         name = "エラー",
@@ -389,6 +420,36 @@ fun MainNavigation() {
                         navController.navigate(Screen.AreaShopList(areaName)) {
                             popUpTo(Screen.AreaShopList(areaName)) {
                                 inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+            composable<Screen.Repprt> { backStackEntry ->
+                val screen: Screen.Repprt = backStackEntry.toRoute()
+                val shop = try {
+                    ShopInfo.fromJsonString(screen.shopJson)
+                } catch (_: Exception) {
+                    // エラーの場合はデフォルトのShopオブジェクトを作成
+                    ShopInfo(
+                        name = "エラー",
+                        area = "",
+                        shopUrl = "",
+                        mapUrl = "",
+                        star = 0,
+                        stationName = "",
+                        category = ""
+                    )
+                }
+                ReportScreen(
+                    shop = shop,
+                    onBackClick = { navController.popBackStack() },
+                    goToHistory = {
+                        navController.navigate(Screen.History) {
+                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                            launchSingleTop = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
                         }
                     }

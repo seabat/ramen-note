@@ -33,10 +33,10 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -46,30 +46,23 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.delete_24px
 import ramennote.composeapp.generated.resources.edit_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
+import ramennote.composeapp.generated.resources.schedule_no_data
 import ramennote.composeapp.generated.resources.screen_schedule_title
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    goToHistory: () -> Unit = {},
+    goToReport: (shop: Shop) -> Unit = {},
     goToShop: (shop: Shop) -> Unit = {},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
     val shops by viewModel.scheduledShops.collectAsState()
-    val reported by viewModel.reported.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSchedule()
-    }
-
-    LaunchedEffect(reported) {
-        if (reported) {
-            viewModel.resetReported()
-            goToHistory()
-        }
     }
 
     Column(
@@ -86,22 +79,30 @@ fun ScheduleScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            ScheduleList(
-                shops = shops,
-                onHistoryClick = { shopId ->
-                    viewModel.report(shopId)
-                },
-                onEditClick = { shopId ->
-                    showDatePicker = true
-                    clickedShopId = shopId
-                },
-                onDeleteClick = { shopId ->
-                    viewModel.deleteSchedule(shopId)
-                },
-                onScheduleClick = { shop ->
-                    goToShop(shop)
-                }
-            )
+            if (shops.isNotEmpty()) {
+                ScheduleList(
+                    shops = shops,
+                    onHistoryClick = { shop ->
+                        goToReport(shop)
+                    },
+                    onEditClick = { shopId ->
+                        showDatePicker = true
+                        clickedShopId = shopId
+                    },
+                    onDeleteClick = { shopId ->
+                        viewModel.deleteSchedule(shopId)
+                    },
+                    onScheduleClick = { shop ->
+                        goToShop(shop)
+                    }
+                )
+            } else {
+                Text(
+                    text = stringResource(Res.string.schedule_no_data),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
     }
     if (showDatePicker) {
@@ -133,7 +134,7 @@ fun ScheduleScreen(
 @Composable
 private fun ScheduleList(
     shops: List<Shop>,
-    onHistoryClick: (shopId: Int) -> Unit,
+    onHistoryClick: (shop: Shop) -> Unit,
     onEditClick: (shopId: Int) -> Unit,
     onDeleteClick: (shopId: Int) -> Unit,
     onScheduleClick: (shop: Shop) -> Unit
@@ -176,7 +177,7 @@ private fun ScheduleList(
                 ScheduleRow(
                     shop = shop,
                     onHistoryClick = {
-                        onHistoryClick(shop.id)
+                        onHistoryClick(shop)
                     },
                     onEditClick = {
                         onEditClick(shop.id)
@@ -264,23 +265,12 @@ private fun ScheduleRow(
     }
 }
 
-private fun dayOfWeekJp(date: LocalDate): String {
-    return when (date.dayOfWeek.isoDayNumber) {
-        1 -> "月"
-        2 -> "火"
-        3 -> "水"
-        4 -> "木"
-        5 -> "金"
-        6 -> "土"
-        7 -> "日"
-        else -> ""
-    }
-}
+
 
 @Preview
 @Composable
 fun ScheduleScreenPreview() {
     RamenNoteTheme {
-        ScheduleScreen(goToHistory = {}, viewModel = MockScheduleViewModel())
+        ScheduleScreen(goToReport = {}, viewModel = MockScheduleViewModel())
     }
 }

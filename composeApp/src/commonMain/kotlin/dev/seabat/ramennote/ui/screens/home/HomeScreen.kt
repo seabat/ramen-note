@@ -43,7 +43,7 @@ private const val favoriteShopItemHeight = 70
 @Composable
 fun HomeScreen(
     goToNote: (shop: Shop) -> Unit = {},
-    gotToHistory: () -> Unit = {},
+    gotToReport: (shop: Shop) -> Unit = {},
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val scheduledShop by viewModel.scheduledShop.collectAsStateWithLifecycle()
@@ -89,7 +89,7 @@ fun HomeScreen(
             Schedule(
                 scheduledShop,
                 goToNote,
-                gotToHistory
+                gotToReport
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -114,7 +114,7 @@ fun HomeScreen(
 fun Schedule(
     scheduledShop: Shop?,
     goToNote: (shop: Shop) -> Unit = {},
-    gotToHistory: () -> Unit = {}
+    gotToReport: (shop: Shop) -> Unit = {}
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -208,7 +208,7 @@ fun Schedule(
                             modifier = Modifier
                                 .size(24.dp)
                                 .clickable {
-                                    gotToHistory()
+                                    gotToReport(scheduledShop)
                                 },
                             tint = Color.White
                         )
@@ -267,7 +267,7 @@ fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit 
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = "お気に入り店がありません")
+                    Text(text = "お気に入り店が登録されていません")
                 }
             } else {
                 // アイテム数に基づいて行数を計算（最大3行）

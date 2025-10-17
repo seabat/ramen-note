@@ -1,15 +1,15 @@
 package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
-import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class DeleteShopAndImageUseCase(
     private val shopsRepository: ShopsRepositoryContract,
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract
+    private val localAreaImageRepository: LocalImageRepositoryContract
 ) : DeleteShopAndImageUseCaseContract {
     
-    override suspend fun invoke(shopId: Int): RunStatus<String> {
+    override suspend operator fun invoke(shopId: Int): RunStatus<String> {
         return try {
             // Shopデータを取得して画像名を確認
             val shop = shopsRepository.getShopById(shopId)

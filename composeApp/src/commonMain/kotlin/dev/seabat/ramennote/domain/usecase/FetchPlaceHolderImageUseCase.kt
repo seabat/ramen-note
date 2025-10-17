@@ -1,12 +1,12 @@
 package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
-import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class FetchPlaceHolderImageUseCase(
     private val areaImageRepository: AreaImageRepositoryContract,
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract
+    private val localAreaImageRepository: LocalImageRepositoryContract
 ) : FetchPlaceHolderImageUseCaseContract {
     override suspend operator fun invoke(): RunStatus<ByteArray?> {
         return try {

@@ -30,6 +30,7 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.note_area_selection
 import ramennote.composeapp.generated.resources.note_background
 import ramennote.composeapp.generated.resources.note_item_count
+import ramennote.composeapp.generated.resources.note_no_data
 import ramennote.composeapp.generated.resources.screen_note_title
 
 @Composable
@@ -96,50 +97,58 @@ private fun MainContent(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-        LaunchedEffect(Unit) {
-            viewModel.fetchAreas()
-        }
+            LaunchedEffect(Unit) {
+                viewModel.fetchAreas()
+            }
 
-        val areas by viewModel.areas.collectAsState()
+            val areas by viewModel.areas.collectAsState()
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
-        ) {
-            item {
+            if (areas.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
+                ) {
+                    item {
+                        Text(
+                            text = stringResource(Res.string.note_area_selection),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
+                    items(areas) { area ->
+                        AreaItem(
+                            areaName = area.name,
+                            imageBytes = area.imageBytes,
+                            itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
+                            onClick = { onAreaClick(area.name) },
+                            onLongClick = { onAreaLongClick(area.name) }
+                        )
+                    }
+                }
+            } else {
                 Text(
-                    text = stringResource(Res.string.note_area_selection),
+                    text = stringResource(Res.string.note_no_data),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
 
-            items(areas) { area ->
-                AreaItem(
-                    areaName = area.name,
-                    imageBytes = area.imageBytes,
-                    itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
-                    onClick = { onAreaClick(area.name) },
-                    onLongClick = { onAreaLongClick(area.name) }
+            // 右下の追加ボタン
+            FloatingActionButton(
+                onClick = { onAddAreaClick() },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "追加"
                 )
             }
-        }
-        
-        // 右下の追加ボタン
-        FloatingActionButton(
-            onClick = { onAddAreaClick() },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "追加"
-            )
-        }
         }
     }
 }

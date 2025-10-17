@@ -2,10 +2,10 @@ package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.NoImageRepositoryContract
 
-class CreateNoImageUseCase(
+class CreateNoImageByteArrayUseCase(
     private val noImageRepository: NoImageRepositoryContract
-) : CreateNoImageUseCaseContract {
-    override fun create(): ByteArray {
+) : CreateNoImageByteArrayUseCaseContract {
+    override operator fun invoke(): ByteArray {
         return noImageRepository.create()
     }
 }
