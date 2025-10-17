@@ -32,7 +32,7 @@ import dev.seabat.ramennote.ui.screens.history.HistoryScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
-import dev.seabat.ramennote.ui.screens.withbottom.SettingsScreen
+import dev.seabat.ramennote.ui.screens.settings.SettingsScreen
 import dev.seabat.ramennote.domain.model.Shop as ShopInfo
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass

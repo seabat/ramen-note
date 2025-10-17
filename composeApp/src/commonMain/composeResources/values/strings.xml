@@ -86,6 +86,9 @@
     <!-- History Screen -->
     <string name="history_no_data">食レポがありません。\n「ノート」の店舗画面に遷移し、食レポを登録してください。</string>
 
+    <!-- Settings Screen -->
+    <string name="settings_title">設定</string>
+
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
 
