@@ -1,13 +1,14 @@
 package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
-import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.Report
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class AddReportUseCase(
+    private val createNoImageIfNeededUseCase: CreateNoImageIfNeededUseCaseContract,
     private val reportsRepository: ReportsRepositoryContract,
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract
+    private val localAreaImageRepository: LocalImageRepositoryContract
 ) : AddReportUseCaseContract {
     
     override suspend operator fun invoke(report: Report, byteArray: ByteArray?): RunStatus<Int> {
@@ -23,13 +24,17 @@ class AddReportUseCase(
             }
 
             // ReportのIDを更新
-            val updatedReport = report.copy(id = newId)
-            
-            // 画像を保存
-            if (byteArray != null) {
-                localAreaImageRepository.save(byteArray, updatedReport.photoName)
+            val updatedReport = report.copy(id = newId).let {
+                if (report.photoName.isEmpty() || byteArray == null) {
+                    it.copy(photoName = reportNoImageFileName)
+                } else {
+                    it
+                }
             }
             
+            // 画像を保存
+            saveImage(byteArray, updatedReport.photoName)
+
             // SQLiteに保存
             reportsRepository.insert(updatedReport)
             
@@ -44,6 +49,14 @@ class AddReportUseCase(
             RunStatus.Success(finalMaxId)
         } catch (e: Exception) {
             RunStatus.Error(e.message ?: "レポートの保存に失敗しました")
+        }
+    }
+
+    private suspend fun saveImage(byteArray: ByteArray?, photoName: String) {
+        if (byteArray == null) {
+            createNoImageIfNeededUseCase(reportNoImageFileName)
+        } else {
+            localAreaImageRepository.save(byteArray, photoName)
         }
     }
 }

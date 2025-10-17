@@ -20,8 +20,8 @@ import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateShopUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
-import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCase
-import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.CreateNoImageByteArrayUseCase
+import dev.seabat.ramennote.domain.usecase.CreateNoImageByteArrayUseCaseContract
 import dev.seabat.ramennote.domain.usecase.DeleteScheduleInShopUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteScheduleInShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCase
@@ -45,11 +45,14 @@ import dev.seabat.ramennote.domain.usecase.LoadReportsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadReportsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.AddReportUseCase
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
+import dev.seabat.ramennote.domain.usecase.CreateNoImageIfNeededUseCase
+import dev.seabat.ramennote.domain.usecase.CreateNoImageIfNeededUseCaseContract
 
 val useCaseModule = module {
     single<UpdateScheduleInShopUseCaseContract> { UpdateScheduleInShopUseCase(get()) }
     single<AddShopUseCaseContract> { AddShopUseCase(get()) }
-    single<CreateNoImageUseCaseContract> { CreateNoImageUseCase(get()) }
+    single<CreateNoImageByteArrayUseCaseContract> { CreateNoImageByteArrayUseCase(get()) }
+    single<CreateNoImageIfNeededUseCaseContract> { CreateNoImageIfNeededUseCase(get(), get()) }
     single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
     single<DeleteScheduleInShopUseCaseContract> { DeleteScheduleInShopUseCase(get()) }
     single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
@@ -60,7 +63,7 @@ val useCaseModule = module {
     single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
     single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get()) }
     single<LoadReportsUseCaseContract> { LoadReportsUseCase(get(), get(), get()) }
-    single<AddReportUseCaseContract> { AddReportUseCase(get(), get()) }
+    single<AddReportUseCaseContract> { AddReportUseCase(get(), get(), get()) }
     single<LoadScheduledShopsUseCaseContract> { LoadScheduledShopsUseCase(get()) }
     single<LoadFavoriteShopsUseCaseContract> { LoadFavoriteShopsUseCase(get()) }
     single<SaveShopMenuImageUseCaseContract> { SaveShopMenuImageUseCase(get()) }

@@ -2,13 +2,13 @@ package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
-import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.FullReport
 
 class LoadReportsUseCase(
     private val reportsRepository: ReportsRepositoryContract,
     private val shopsRepository: ShopsRepositoryContract,
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract
+    private val localAreaImageRepository: LocalImageRepositoryContract
 ): LoadReportsUseCaseContract {
     override suspend operator fun invoke(): List<FullReport> {
         val reports = reportsRepository.load()

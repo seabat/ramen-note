@@ -7,7 +7,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
-import dev.seabat.ramennote.domain.usecase.CreateNoImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.CreateNoImageByteArrayUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class AddShopViewModel(
     private val addShopUseCase: AddShopUseCaseContract,
     private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
-    private val createNoImageUseCase: CreateNoImageUseCaseContract,
+    private val createNoImageUseCase: CreateNoImageByteArrayUseCaseContract,
     private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract
 ) : ViewModel(), AddShopViewModelContract {
 

@@ -1,13 +1,13 @@
 package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
-import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class DeleteAreaUseCase(
     private val areasRepository: AreasRepositoryContract,
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract,
+    private val localAreaImageRepository: LocalImageRepositoryContract,
     private val shopsRepository: ShopsRepositoryContract
 ) : DeleteAreaUseCaseContract {
     override suspend operator fun invoke(name: String): RunStatus<String> {

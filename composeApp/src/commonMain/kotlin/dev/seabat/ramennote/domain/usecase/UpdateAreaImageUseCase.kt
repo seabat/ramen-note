@@ -1,7 +1,7 @@
 package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
-import dev.seabat.ramennote.data.repository.LocalAreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -10,7 +10,7 @@ import kotlinx.datetime.toLocalDateTime
 
 class UpdateAreaImageUseCase(
     private val areasRepository: AreasRepositoryContract,
-    private val localAreaImageRepository: LocalAreaImageRepositoryContract,
+    private val localAreaImageRepository: LocalImageRepositoryContract,
     private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
 ) : UpdateAreaImageUseCaseContract {
     override suspend operator fun invoke(area: String): RunStatus<ByteArray?> {

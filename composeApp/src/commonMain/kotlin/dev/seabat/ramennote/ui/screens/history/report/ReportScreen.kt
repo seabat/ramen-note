@@ -168,7 +168,9 @@ fun ReportScreen(
             status = reportedStatus,
             onCompleted ={
                 viewModel.setReportedStatusToIdle()
-                goToHistory()
+                onBackClick()
+                //FIXME: History に遷移した後に Schedule タブをタップすると Report が表示されてしまう
+//                goToHistory()
             },
             onErrorClosed = {
                 viewModel.setReportedStatusToIdle()
