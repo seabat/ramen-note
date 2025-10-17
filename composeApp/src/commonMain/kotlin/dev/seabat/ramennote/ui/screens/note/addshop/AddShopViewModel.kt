@@ -34,7 +34,7 @@ class AddShopViewModel(
                 }
                 
                 // 店舗情報を保存
-                addShopUseCase.addShop(shop)
+                addShopUseCase.invoke(shop)
                 // エリア件数更新
                 updateShopCountInAreaUseCase(shop.area)
                 _saveState.value = RunStatus.Success("")
@@ -49,6 +49,6 @@ class AddShopViewModel(
     }
 
     override fun createNoImage(): ByteArray {
-        return createNoImageUseCase.create()
+        return createNoImageUseCase.invoke()
     }
 }

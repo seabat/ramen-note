@@ -9,7 +9,7 @@ class DeleteShopAndImageUseCase(
     private val localAreaImageRepository: LocalAreaImageRepositoryContract
 ) : DeleteShopAndImageUseCaseContract {
     
-    override suspend fun invoke(shopId: Int): RunStatus<String> {
+    override suspend operator fun invoke(shopId: Int): RunStatus<String> {
         return try {
             // Shopデータを取得して画像名を確認
             val shop = shopsRepository.getShopById(shopId)

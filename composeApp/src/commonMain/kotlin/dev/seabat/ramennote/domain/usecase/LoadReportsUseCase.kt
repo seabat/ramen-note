@@ -10,7 +10,7 @@ class LoadReportsUseCase(
     private val shopsRepository: ShopsRepositoryContract,
     private val localAreaImageRepository: LocalAreaImageRepositoryContract
 ): LoadReportsUseCaseContract {
-    override suspend fun invoke(): List<FullReport> {
+    override suspend operator fun invoke(): List<FullReport> {
         val reports = reportsRepository.load()
         
         return reports.map { report ->

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,8 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.gallery.SharedImage
@@ -42,7 +46,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
-import ramennote.composeapp.generated.resources.report_no_set
 import ramennote.composeapp.generated.resources.report_run
 import ramennote.composeapp.generated.resources.report_select_date
 
@@ -63,6 +66,8 @@ fun ReportScreen(
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
+
+    val reportedStatus by viewModel.reportedStatus.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
 
@@ -99,11 +104,7 @@ fun ReportScreen(
                         color = Color.Blue,
                         modifier = Modifier.clickable { showDatePicker = true }
                     )
-                    Text(
-                        text = reportedDate?.let {
-                            createFormattedDateString(it)
-                        } ?: stringResource(Res.string.report_no_set)
-                    )
+                    Text(text = createFormattedDateString(reportedDate))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -163,5 +164,34 @@ fun ReportScreen(
                 DatePicker(state = datePickerState)
             }
         }
+        ReportStatus(
+            status = reportedStatus,
+            onCompleted ={
+                viewModel.setReportedStatusToIdle()
+                goToHistory()
+            },
+            onErrorClosed = {
+                viewModel.setReportedStatusToIdle()
+            }
+        )
+    }
+}
+
+@Composable
+fun ReportStatus(
+    status: RunStatus<Int>,
+    onCompleted: () -> Unit,
+    onErrorClosed: () -> Unit
+) {
+    when (status) {
+        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Error -> {
+            AppAlert(
+                message = "${status.message}",
+                onConfirm = { onErrorClosed() }
+            )
+        }
+        is RunStatus.Loading -> { AppProgressBar() }
+        is RunStatus.Idle -> { /* Do nothing */}
     }
 }

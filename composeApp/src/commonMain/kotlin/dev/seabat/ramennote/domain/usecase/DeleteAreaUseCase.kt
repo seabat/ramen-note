@@ -10,7 +10,7 @@ class DeleteAreaUseCase(
     private val localAreaImageRepository: LocalAreaImageRepositoryContract,
     private val shopsRepository: ShopsRepositoryContract
 ) : DeleteAreaUseCaseContract {
-    override suspend fun invoke(name: String): RunStatus<String> {
+    override suspend operator fun invoke(name: String): RunStatus<String> {
         val result = areasRepository.delete(name)
         return if (result is RunStatus.Success) {
             try {

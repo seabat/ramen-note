@@ -8,6 +8,7 @@ import kotlinx.datetime.LocalDate
 
 interface ReportsRepositoryContract {
     suspend fun load(): List<Report>
+    suspend fun insert(report: Report)
 }
 
 class ReportsRepository(
@@ -19,6 +20,10 @@ class ReportsRepository(
     override suspend fun load(): List<Report> {
         return reportDao.getAllReportsDesc().map { it.toDomain() }
     }
+    
+    override suspend fun insert(report: Report) {
+        reportDao.insert(report.toEntity())
+    }
 }
 
 private fun ReportEntity.toDomain(): Report = Report(
@@ -28,6 +33,15 @@ private fun ReportEntity.toDomain(): Report = Report(
     photoName = photoName,
     impression = impression,
     date = if (date.isEmpty()) null else LocalDate.parse(date)
+)
+
+private fun Report.toEntity(): ReportEntity = ReportEntity(
+    id = id,
+    shopId = shopId,
+    menuName = menuName,
+    photoName = photoName,
+    impression = impression,
+    date = date?.toString() ?: ""
 )
 
 

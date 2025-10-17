@@ -1,5 +1,5 @@
 package dev.seabat.ramennote.domain.usecase
 
 interface CreateNoImageUseCaseContract {
-    fun create(): ByteArray
+    operator fun invoke(): ByteArray
 }
