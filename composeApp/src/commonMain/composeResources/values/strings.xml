@@ -4,14 +4,14 @@
     <string name="nav_home">ホーム</string>
     <string name="nav_schedule">予定</string>
     <string name="nav_note">note</string>
-    <string name="nav_history">杯歴</string>
+    <string name="nav_history">食レポ</string>
     <string name="nav_settings">設定</string>
     
     <!-- Screen Titles -->
     <string name="screen_home_title">ホーム</string>
     <string name="screen_schedule_title">予定</string>
     <string name="screen_note_title">note</string>
-    <string name="screen_history_title">杯歴</string>
+    <string name="screen_history_title">食レポ</string>
     <string name="screen_settings_title">設定</string>
     <string name="screen_area_shop_title">エリア</string>
 

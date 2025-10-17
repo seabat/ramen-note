@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.ui.components.AppBar
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -36,6 +37,7 @@ import ramennote.composeapp.generated.resources.screen_history_title
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.LocalDate
+import ramennote.composeapp.generated.resources.screen_note_title
 
 @Composable
 fun HistoryScreen(
@@ -50,13 +52,7 @@ fun HistoryScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = stringResource(Res.string.screen_history_title),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
+        AppBar(title = stringResource(Res.string.screen_history_title),)
         ReportsList(reports = reports)
     }
 }
