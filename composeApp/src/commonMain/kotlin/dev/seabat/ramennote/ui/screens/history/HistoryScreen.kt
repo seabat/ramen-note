@@ -37,7 +37,7 @@ import ramennote.composeapp.generated.resources.screen_history_title
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.LocalDate
-import ramennote.composeapp.generated.resources.screen_note_title
+import ramennote.composeapp.generated.resources.history_no_data
 
 @Composable
 fun HistoryScreen(
@@ -53,7 +53,15 @@ fun HistoryScreen(
             .padding(16.dp)
     ) {
         AppBar(title = stringResource(Res.string.screen_history_title),)
-        ReportsList(reports = reports)
+        if (reports.isNotEmpty()) {
+            ReportsList(reports = reports)
+        } else {
+            Text(
+                text = stringResource(Res.string.history_no_data),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
     }
 }
 

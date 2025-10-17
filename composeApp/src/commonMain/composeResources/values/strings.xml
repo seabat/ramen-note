@@ -19,7 +19,7 @@
     <string name="screen_home_description">ラーメンノートへようこそ！</string>
     <string name="screen_schedule_description">ラーメンを食べに行く予定を管理します</string>
     <string name="screen_note_description">ラーメン店の情報を記録します</string>
-    <string name="screen_history_description">ラーメンを食レポを記録します</string>
+    <string name="screen_history_description">ラーメンの食レポを記録します</string>
     <string name="screen_settings_description">アプリの設定を行います</string>
 
     <!-- Home Screen -->
@@ -28,6 +28,7 @@
     <!-- Note Screen -->
     <string name="note_area_selection">エリアを選択</string>
     <string name="note_item_count">件</string>
+    <string name="note_no_data">エリアが登録されていません。\nお店を登録する前にお店が存在するエリアを画面下のプラスボタンで登録してください。</string>
 
     <!-- Edit Area Screen -->
     <string name="editarea_change_image_button">画像を変更する</string>
@@ -38,6 +39,8 @@
     <string name="editarea_image_load_error">画像の読み込みに失敗しました: </string>
     
     <!-- Shop Screen -->
+
+    <string name="shoplist_no_data">お店が登録されていません。\n画面下のプラスボタンで登録してください。</string>
     <string name="add_schedule_add_button">予定追加</string>
     <string name="add_schedule_edit_button">予定変更</string>
     <string name="add_edit_button">編集</string>
@@ -70,6 +73,9 @@
     <string name="edit_shop_delete_error_message">削除に失敗しました</string>
     <string name="edit_category_label">系統</string>
 
+    <!-- Schedule Screen -->
+    <string name="schedule_no_data">予定がありません。\n「ノート」の店舗画面に遷移し、予定を登録してください。</string>
+
     <!-- Report Screen -->
     <string name="report_select_date">日付選択</string>
     <string name="report_no_set">未設定</string>
@@ -77,6 +83,10 @@
     <string name="report_header">食レポ</string>
     <string name="report_run">レポートする</string>
 
+    <!-- History Screen -->
+    <string name="history_no_data">食レポがありません。\n「ノート」の店舗画面に遷移し、食レポを登録してください。</string>
+
     <!-- App -->
     <string name="app_name">ラーメンノート</string>
+
 </resources>

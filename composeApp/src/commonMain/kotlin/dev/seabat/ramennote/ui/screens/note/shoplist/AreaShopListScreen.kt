@@ -32,11 +32,13 @@ import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.StarIcon
 import org.jetbrains.compose.resources.painterResource
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
+import ramennote.composeapp.generated.resources.shoplist_no_data
 
 @Composable
 fun AreaShopListScreen(
@@ -91,26 +93,34 @@ private fun AreaShopListMainContent(
             .fillMaxSize()
     ) {
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
-        ) {
-            item {
-                Divider(
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                    thickness = 1.dp
-                )
+        if (shops.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
+            ) {
+                item {
+                    Divider(
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                        thickness = 1.dp
+                    )
+                }
+                items(shops) { shop ->
+                    ShopItem(
+                        shop = shop,
+                        onShopClick = { onShopClick(shop) },
+                        onDelete = { /* 削除処理 */ }
+                    )
+                }
             }
-            items(shops) { shop ->
-                ShopItem(
-                    shop = shop,
-                    onShopClick = { onShopClick(shop) },
-                    onDelete = { /* 削除処理 */ }
-                )
-            }
+        } else {
+            Text(
+                text = stringResource(Res.string.shoplist_no_data),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
         }
-        
+
         // 右下の追加ボタン
         FloatingActionButton(
             onClick = { onAddShopClick(areaName) },

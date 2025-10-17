@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -240,10 +241,32 @@ fun MainNavigation() {
             if (withBottomNavigation) {
                 NavigationBar {
                     tabScreens.forEach { screen ->
+                        val isSelected = currentDestination?.route?.endsWith(screen.route) == true
+                        // デバッグ用: コンソールに出力
+                        println("Screen: ${screen.route}, Current: ${currentDestination?.route}, Selected: $isSelected")
                         NavigationBarItem(
-                            icon = { Icon(screen.getIcon(), contentDescription = screen.getTitle()) },
-                            label = { Text(screen.getTitle()) },
-                            selected = currentDestination.hierarchy.any { it.route == screen.route } == true,
+                            icon = { 
+                                Icon(
+                                    imageVector = screen.getIcon(), 
+                                    contentDescription = screen.getTitle(),
+                                    tint = if (isSelected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                ) 
+                            },
+                            label = { 
+                                Text(
+                                    text = screen.getTitle(),
+                                    color = if (isSelected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                ) 
+                            },
+                            selected = isSelected,
                             onClick = {
                                 navController.navigate(screen) {
                                     // Pop up to the start destination of the graph to

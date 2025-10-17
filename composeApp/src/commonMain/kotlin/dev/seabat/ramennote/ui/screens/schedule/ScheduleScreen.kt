@@ -37,7 +37,6 @@ import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -47,6 +46,7 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.delete_24px
 import ramennote.composeapp.generated.resources.edit_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
+import ramennote.composeapp.generated.resources.schedule_no_data
 import ramennote.composeapp.generated.resources.screen_schedule_title
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,22 +79,30 @@ fun ScheduleScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            ScheduleList(
-                shops = shops,
-                onHistoryClick = { shop ->
-                    goToReport(shop)
-                },
-                onEditClick = { shopId ->
-                    showDatePicker = true
-                    clickedShopId = shopId
-                },
-                onDeleteClick = { shopId ->
-                    viewModel.deleteSchedule(shopId)
-                },
-                onScheduleClick = { shop ->
-                    goToShop(shop)
-                }
-            )
+            if (shops.isNotEmpty()) {
+                ScheduleList(
+                    shops = shops,
+                    onHistoryClick = { shop ->
+                        goToReport(shop)
+                    },
+                    onEditClick = { shopId ->
+                        showDatePicker = true
+                        clickedShopId = shopId
+                    },
+                    onDeleteClick = { shopId ->
+                        viewModel.deleteSchedule(shopId)
+                    },
+                    onScheduleClick = { shop ->
+                        goToShop(shop)
+                    }
+                )
+            } else {
+                Text(
+                    text = stringResource(Res.string.schedule_no_data),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
     }
     if (showDatePicker) {
