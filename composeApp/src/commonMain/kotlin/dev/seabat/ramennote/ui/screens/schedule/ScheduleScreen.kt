@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,9 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Schedule
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -43,6 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.delete_24px
 import ramennote.composeapp.generated.resources.edit_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
@@ -59,6 +63,7 @@ fun ScheduleScreen(
     val schedules by viewModel.schedules.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
+    var showErrorDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
@@ -116,14 +121,13 @@ fun ScheduleScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val millis = datePickerState.selectedDateMillis
-                        if (millis != null) {
-                            val date = Instant.fromEpochMilliseconds(millis)
-                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
-                            viewModel.editSchedule(clickedShopId, date)
-                        }
-                        showDatePicker = false
-                        clickedShopId = 0
+                        datePickerOnClickHandler(
+                            datePickerState,
+                            showErrorDialog = { showErrorDialog = true },
+                            clearClicked = { clickedShopId = 0 },
+                            dismissDatePicker = { showDatePicker = false },
+                            editSchedule = { date -> viewModel.editSchedule(clickedShopId, date) },
+                        )
                     }
                 ) { Text("OK") }
             },
@@ -133,6 +137,13 @@ fun ScheduleScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+    // エラーダイアログ
+    if (showErrorDialog) {
+        AppAlert(
+            message = stringResource(Res.string.add_schedule_error_past_date_message),
+            onConfirm = { showErrorDialog = false }
+        )
     }
 }
 
@@ -272,7 +283,36 @@ private fun ScheduleRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+private fun datePickerOnClickHandler(
+    datePickerState: DatePickerState,
+    showErrorDialog: () -> Unit,
+    clearClicked: () -> Unit,
+    editSchedule: (LocalDate) -> Unit = { _ -> },
+    dismissDatePicker: () -> Unit
+) {
+    try {
+        val millis = datePickerState.selectedDateMillis
+        if (millis != null) {
+            val date = Instant.fromEpochMilliseconds(millis)
+                .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
+            // 今日の日付を取得
+            val today = Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+            // 過去の日付かどうかをチェック
+            if (date < today) {
+                showErrorDialog()
+            } else {
+                editSchedule(date)
+            }
+        }
+    } finally {
+        clearClicked
+        dismissDatePicker()
+    }
+}
 
 @Preview
 @Composable
