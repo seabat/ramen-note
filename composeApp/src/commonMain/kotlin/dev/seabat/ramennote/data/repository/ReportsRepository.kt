@@ -38,7 +38,8 @@ private fun ReportEntity.toDomain(): Report = Report(
     menuName = menuName,
     photoName = photoName,
     impression = impression,
-    date = if (date.isEmpty()) null else LocalDate.parse(date)
+    date = if (date.isEmpty()) null else LocalDate.parse(date),
+    star = star
 )
 
 private fun Report.toEntity(): ReportEntity = ReportEntity(
@@ -47,7 +48,8 @@ private fun Report.toEntity(): ReportEntity = ReportEntity(
     menuName = menuName,
     photoName = photoName,
     impression = impression,
-    date = date?.toString() ?: ""
+    date = date?.toString() ?: "",
+    star = star
 )
 
 

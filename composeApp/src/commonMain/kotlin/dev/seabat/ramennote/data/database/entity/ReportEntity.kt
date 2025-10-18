@@ -11,7 +11,8 @@ data class ReportEntity(
     val menuName: String,
     val photoName: String,
     val impression: String,
-    val date: String // ISO8601 format string (yyyy-MM-dd)
+    val date: String, // ISO8601 format string (yyyy-MM-dd)
+    val star: Int
 )
 
 

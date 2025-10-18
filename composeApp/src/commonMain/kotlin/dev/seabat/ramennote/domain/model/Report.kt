@@ -9,7 +9,8 @@ data class Report(
     val menuName: String = "",
     val photoName: String = "",
     val impression: String = "",
-    val date: LocalDate? = null
+    val date: LocalDate? = null,
+    val star: Int = 0
 ) {
     fun toJsonString(): String {
         return Json.encodeToString(this)

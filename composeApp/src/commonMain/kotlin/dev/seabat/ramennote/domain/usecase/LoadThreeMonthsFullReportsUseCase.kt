@@ -46,7 +46,8 @@ class LoadThreeMonthsFullReportsUseCase(
                 photoName = report.photoName,
                 imageBytes = photoData,
                 impression = report.impression,
-                date = report.date!!
+                date = report.date!!,
+                star = report.star
             )
         }.sortedByDescending { it.date }
     }

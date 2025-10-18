@@ -519,7 +519,8 @@ fun ReportCardPreview() {
                     photoName = "hakata_ramen_1.jpg",
                     imageBytes = null,
                     impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
-                    date = kotlinx.datetime.LocalDate.parse("2024-12-15")
+                    date = kotlinx.datetime.LocalDate.parse("2024-12-15"),
+                    star = 1
                 ),
                 onLongPress = { }
             )

@@ -26,7 +26,8 @@ class MockHistoryViewModel : HistoryViewModelContract {
                 photoName = "report_001.jpg",
                 imageBytes = null,
                 impression = "あっさりしていて飲みやすいスープ。麺との相性も良い。",
-                date = LocalDate.parse("2025-08-05")
+                date = LocalDate.parse("2025-08-05"),
+                star = 1
             ),
             FullReport(
                 id = 2,
@@ -36,7 +37,8 @@ class MockHistoryViewModel : HistoryViewModelContract {
                 photoName = "report_002.jpg",
                 imageBytes = null,
                 impression = "濃厚な味噌にバターが効いててコク深い。",
-                date = LocalDate.parse("2025-08-12")
+                date = LocalDate.parse("2025-08-12"),
+                star = 1
             ),
             FullReport(
                 id = 3,
@@ -46,7 +48,8 @@ class MockHistoryViewModel : HistoryViewModelContract {
                 photoName = "report_003.jpg",
                 imageBytes = null,
                 impression = "透き通ったスープで後味がすっきり。",
-                date = LocalDate.parse("2025-07-22")
+                date = LocalDate.parse("2025-07-22"),
+                star = 2
             ),
             FullReport(
                 id = 4,
@@ -56,7 +59,8 @@ class MockHistoryViewModel : HistoryViewModelContract {
                 photoName = "report_004.jpg",
                 imageBytes = null,
                 impression = "魚介豚骨の濃厚つけ汁。麺がモチモチで満足度高い。",
-                date = LocalDate.parse("2025-07-03")
+                date = LocalDate.parse("2025-07-03"),
+                star = 2
             ),
             FullReport(
                 id = 5,
@@ -66,7 +70,8 @@ class MockHistoryViewModel : HistoryViewModelContract {
                 photoName = "report_005.jpg",
                 imageBytes = null,
                 impression = "ライスが止まらない濃厚スープ。ほうれん草が良いアクセント。",
-                date = LocalDate.parse("2025-06-18")
+                date = LocalDate.parse("2025-06-18"),
+                star = 3
             ),
             FullReport(
                 id = 6,
@@ -76,7 +81,8 @@ class MockHistoryViewModel : HistoryViewModelContract {
                 photoName = "report_006.jpg",
                 imageBytes = null,
                 impression = "痺れと辛さのバランスが絶妙。胡麻の香りが豊か。",
-                date = LocalDate.parse("2025-06-02")
+                date = LocalDate.parse("2025-06-02"),
+                star = 3
             )
         )
     }

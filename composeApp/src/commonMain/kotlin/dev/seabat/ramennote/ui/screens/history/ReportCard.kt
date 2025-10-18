@@ -122,7 +122,8 @@ fun ReportCardPreview() {
                     photoName = "hakata_ramen_1.jpg",
                     imageBytes = null,
                     impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
-                    date = LocalDate.parse("2024-12-15")
+                    date = LocalDate.parse("2024-12-15"),
+                    star = 1
                 )
             )
             
@@ -135,7 +136,8 @@ fun ReportCardPreview() {
                     photoName = "hakata_ramen_2.jpg",
                     imageBytes = null,
                     impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。",
-                    date = LocalDate.parse("2024-12-10")
+                    date = LocalDate.parse("2024-12-10"),
+                    star = 2
                 )
             )
         }

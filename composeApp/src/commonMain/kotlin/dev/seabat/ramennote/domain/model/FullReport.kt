@@ -13,5 +13,6 @@ data class FullReport(
     val photoName: String = "",
     val impression: String = "",
     val date: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
-    val imageBytes: ByteArray? = null
+    val imageBytes: ByteArray? = null,
+    val star: Int = 0
 )

@@ -27,7 +27,8 @@ class MockHomeViewModel : HomeViewModelContract {
                 photoName = "hakata_ramen_1.jpg",
                 imageBytes = null,
                 impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
-                date = LocalDate.parse("2024-12-15")
+                date = LocalDate.parse("2024-12-15"),
+                star = 1
             ),
             FullReport(
                 id = 2,
@@ -37,7 +38,8 @@ class MockHomeViewModel : HomeViewModelContract {
                 photoName = "hakata_ramen_2.jpg",
                 imageBytes = null,
                 impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。",
-                date = LocalDate.parse("2024-12-10")
+                date = LocalDate.parse("2024-12-10"),
+                star = 2
             ),
             FullReport(
                 id = 3,
@@ -47,7 +49,8 @@ class MockHomeViewModel : HomeViewModelContract {
                 photoName = "hakata_ramen_3.jpg",
                 imageBytes = null,
                 impression = "特製ラーメンは具材が豊富で、ボリューム満点だった。",
-                date = LocalDate.parse("2024-12-05")
+                date = LocalDate.parse("2024-12-05"),
+                star = 3
             ),
             FullReport(
                 id = 4,
@@ -57,7 +60,8 @@ class MockHomeViewModel : HomeViewModelContract {
                 photoName = "hakata_ramen_4.jpg",
                 imageBytes = null,
                 impression = "倉敷店でも本店と同じ味を楽しめた。また来たい。",
-                date = LocalDate.parse("2024-11-28")
+                date = LocalDate.parse("2024-11-28"),
+                star = 3
             ),
             FullReport(
                 id = 5,
@@ -67,7 +71,8 @@ class MockHomeViewModel : HomeViewModelContract {
                 photoName = "hakata_ramen_5.jpg",
                 imageBytes = null,
                 impression = "2回目の訪問。前回より辛さを調整してもらった。",
-                date = LocalDate.parse("2024-11-20")
+                date = LocalDate.parse("2024-11-20"),
+                star = 3
             )
         )
     )
