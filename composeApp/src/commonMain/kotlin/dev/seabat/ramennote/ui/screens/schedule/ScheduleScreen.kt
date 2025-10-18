@@ -36,7 +36,7 @@ import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
-import kotlinx.datetime.Clock
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -297,12 +297,8 @@ private fun datePickerOnClickHandler(
             val date = Instant.fromEpochMilliseconds(millis)
                 .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-            // 今日の日付を取得
-            val today = Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault()).date
-
-            // 過去の日付かどうかをチェック
-            if (date < today) {
+            // 今日を含めた未来日かどうかをチェック
+            if (!date.isTodayOrFuture()) {
                 showErrorDialog()
             } else {
                 editSchedule(date)

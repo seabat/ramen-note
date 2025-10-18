@@ -43,6 +43,7 @@ import coil3.compose.AsyncImage
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -270,10 +271,10 @@ fun ActionButtons(
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
-            val buttonText = if (shop?.scheduledDate == null) {
-                stringResource(Res.string.add_schedule_add_button)
-            } else {
+            val buttonText = if (shop?.scheduledDate?.isTodayOrFuture() == true) {
                 stringResource(Res.string.add_schedule_edit_button)
+            } else {
+                stringResource(Res.string.add_schedule_add_button)
             }
             Text(buttonText, style = MaterialTheme.typography.titleSmall)
         }
@@ -350,11 +351,14 @@ fun Detail(
 
         // 予定（YYYY年mm月DD日 表記）
         shop.scheduledDate?.let { date ->
-            val formatted =createFormattedDateString(date)
-            ShopDetailItem(
-                label = stringResource(Res.string.add_schedule_label),
-                value = formatted,
-            )
+            // 今日を含めた未来日の場合のみ表示
+            if (date.isTodayOrFuture()) {
+                val formatted = createFormattedDateString(date)
+                ShopDetailItem(
+                    label = stringResource(Res.string.add_schedule_label),
+                    value = formatted,
+                )
+            }
         }
     }
 }
@@ -435,12 +439,8 @@ private fun datePickerOnClickHandler(
             val selectedDate = Instant.fromEpochMilliseconds(millis)
                 .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-            // 今日の日付を取得
-            val today = Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault()).date
-
-            // 過去の日付かどうかをチェック
-            if (selectedDate < today) {
+            // 今日を含めた未来日かどうかをチェック
+            if (!selectedDate.isTodayOrFuture()) {
                 showErrorDialog()
             } else {
                 addSchedule(selectedDate)

@@ -4,9 +4,7 @@ import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 
 class LoadRecentScheduleUseCase(
     private val shopsRepository: ShopsRepositoryContract,
@@ -15,11 +13,10 @@ class LoadRecentScheduleUseCase(
     override suspend operator fun invoke(): RunStatus<Schedule?> {
         return try {
             val allShops = shopsRepository.getAllShops()
-            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             
             // scheduledDateが今日以降のShopをフィルタリング
             val futureShops = allShops.filter { shop ->
-                shop.scheduledDate != null && shop.scheduledDate >= today
+                shop.scheduledDate?.isTodayOrFuture() == true
             }
             
             // scheduledDateでソート（最も近い日付順）して最初の1件を返す

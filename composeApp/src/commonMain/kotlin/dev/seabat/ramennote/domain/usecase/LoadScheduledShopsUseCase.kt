@@ -3,9 +3,7 @@ package dev.seabat.ramennote.domain.usecase
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.Schedule
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 
 class LoadScheduledShopsUseCase(
     private val shopsRepository: ShopsRepositoryContract,
@@ -13,12 +11,11 @@ class LoadScheduledShopsUseCase(
 ) : LoadScheduledShopsUseCaseContract {
     override suspend operator fun invoke(): List<Schedule> {
         val allShops = shopsRepository.getAllShops()
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         
         // scheduledDate が今日を含め未来の日付のみにフィルタリング
         val filteredShops = allShops
             .asSequence()
-            .filter { it.scheduledDate != null && it.scheduledDate >= today }
+            .filter { it.scheduledDate?.isTodayOrFuture() == true }
             .sortedBy { it.scheduledDate }
             .toList()
         
