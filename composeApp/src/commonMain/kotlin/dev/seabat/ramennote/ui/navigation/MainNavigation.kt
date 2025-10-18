@@ -29,6 +29,7 @@ import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
 import dev.seabat.ramennote.ui.screens.history.HistoryScreen
+import dev.seabat.ramennote.ui.screens.history.editreport.EditReportScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
@@ -204,6 +205,19 @@ sealed interface Screen {
         }
     }
 
+    @Serializable
+    data class EditReport(
+        val reportId: Int
+    ) : Screen {
+        override val route: String = getRouteName(EditReport::class)
+        @Composable
+        override fun getIcon(): ImageVector { return Icons.Default.Star }
+        @Composable
+        override fun getTitle(): String {
+            return "レポート編集"
+        }
+    }
+
     val route: String
     @Composable
     fun getIcon(): ImageVector
@@ -323,7 +337,11 @@ fun MainNavigation() {
                 )
             }
             composable<Screen.History> {
-                HistoryScreen()
+                HistoryScreen(
+                    goToEditReport = { reportId ->
+                        navController.navigate(Screen.EditReport(reportId))
+                    }
+                )
             }
             composable<Screen.Settings> {
                 SettingsScreen()
@@ -432,6 +450,13 @@ fun MainNavigation() {
                             }
                         }
                     }
+                )
+            }
+            composable<Screen.EditReport> { backStackEntry ->
+                val screen: Screen.EditReport = backStackEntry.toRoute()
+                EditReportScreen(
+                    reportId = screen.reportId,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

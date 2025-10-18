@@ -21,6 +21,7 @@ class MockHomeViewModel : HomeViewModelContract {
         listOf(
             FullReport(
                 id = 1,
+                shopId = 1,
                 shopName = "一風堂 博多本店",
                 menuName = "白丸元味",
                 photoName = "hakata_ramen_1.jpg",
@@ -30,6 +31,7 @@ class MockHomeViewModel : HomeViewModelContract {
             ),
             FullReport(
                 id = 2,
+                shopId = 2,
                 shopName = "一風堂 山口店",
                 menuName = "赤丸新味",
                 photoName = "hakata_ramen_2.jpg",
@@ -39,6 +41,7 @@ class MockHomeViewModel : HomeViewModelContract {
             ),
             FullReport(
                 id = 3,
+                shopId = 3,
                 shopName = "一風堂 広島店",
                 menuName = "一風堂特製ラーメン",
                 photoName = "hakata_ramen_3.jpg",
@@ -48,6 +51,7 @@ class MockHomeViewModel : HomeViewModelContract {
             ),
             FullReport(
                 id = 4,
+                shopId = 4,
                 shopName = "一風堂 倉敷店",
                 menuName = "白丸元味",
                 photoName = "hakata_ramen_4.jpg",
@@ -57,6 +61,7 @@ class MockHomeViewModel : HomeViewModelContract {
             ),
             FullReport(
                 id = 5,
+                shopId = 5,
                 shopName = "一風堂 博多本店",
                 menuName = "赤丸新味",
                 photoName = "hakata_ramen_5.jpg",

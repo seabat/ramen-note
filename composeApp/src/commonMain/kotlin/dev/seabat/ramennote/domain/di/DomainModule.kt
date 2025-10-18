@@ -4,6 +4,8 @@ import dev.seabat.ramennote.domain.usecase.AddShopUseCase
 import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
+import dev.seabat.ramennote.domain.usecase.DeleteReportUseCase
+import dev.seabat.ramennote.domain.usecase.DeleteReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
@@ -47,15 +49,23 @@ import dev.seabat.ramennote.domain.usecase.AddReportUseCase
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateNoImageIfNeededUseCase
 import dev.seabat.ramennote.domain.usecase.CreateNoImageIfNeededUseCaseContract
+import dev.seabat.ramennote.domain.usecase.CreateReportPhotoNameUseCase
+import dev.seabat.ramennote.domain.usecase.CreateReportPhotoNameUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCase
+import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateReportUseCase
+import dev.seabat.ramennote.domain.usecase.UpdateReportUseCaseContract
 
 val useCaseModule = module {
     single<UpdateScheduleInShopUseCaseContract> { UpdateScheduleInShopUseCase(get()) }
     single<AddShopUseCaseContract> { AddShopUseCase(get()) }
     single<CreateNoImageByteArrayUseCaseContract> { CreateNoImageByteArrayUseCase(get()) }
     single<CreateNoImageIfNeededUseCaseContract> { CreateNoImageIfNeededUseCase(get(), get()) }
+    single<CreateReportPhotoNameUseCaseContract> { CreateReportPhotoNameUseCase() }
     single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
+    single<DeleteReportUseCaseContract> { DeleteReportUseCase(get()) }
     single<DeleteScheduleInShopUseCaseContract> { DeleteScheduleInShopUseCase(get()) }
     single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
     single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
@@ -64,6 +74,7 @@ val useCaseModule = module {
     single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
     single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
     single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get(), get()) }
+    single<LoadFullReportUseCaseContract> { LoadFullReportUseCase(get(), get(), get()) }
     single<LoadFullReportsUseCaseContract> { LoadFullReportsUseCase(get(), get(), get()) }
     single<LoadThreeMonthsFullReportsUseCaseContract> {
         LoadThreeMonthsFullReportsUseCase(
@@ -82,4 +93,5 @@ val useCaseModule = module {
     single<UpdateShopCountInAreaUseCaseContract> { UpdateShopCountInAreaUseCase(get(), get()) }
     single<UpdateShopUseCaseContract> { UpdateShopUseCase(get()) }
     single<UpdateStarUseCaseContract> { UpdateStarUseCase(get()) }
+    single<UpdateReportUseCaseContract> { UpdateReportUseCase(get(), get()) }
 }

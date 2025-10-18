@@ -7,11 +7,11 @@ import dev.seabat.ramennote.domain.model.RunStatus
 
 class AddReportUseCase(
     private val createNoImageIfNeededUseCase: CreateNoImageIfNeededUseCaseContract,
-    private val reportsRepository: ReportsRepositoryContract,
-    private val localAreaImageRepository: LocalImageRepositoryContract
+    private val localImageRepository: LocalImageRepositoryContract,
+    private val reportsRepository: ReportsRepositoryContract
 ) : AddReportUseCaseContract {
     
-    override suspend operator fun invoke(report: Report, byteArray: ByteArray?): RunStatus<Int> {
+    override suspend operator fun invoke(report: Report, imageBytes: ByteArray?): RunStatus<Int> {
         return try {
             // 最新のReportのIDを取得して+1
             val newId = reportsRepository.load().let { reports ->
@@ -25,7 +25,7 @@ class AddReportUseCase(
 
             // ReportのIDを更新
             val updatedReport = report.copy(id = newId).let {
-                if (report.photoName.isEmpty() || byteArray == null) {
+                if (report.photoName.isEmpty() || imageBytes == null) {
                     it.copy(photoName = reportNoImageFileName)
                 } else {
                     it
@@ -33,7 +33,7 @@ class AddReportUseCase(
             }
             
             // 画像を保存
-            saveImage(byteArray, updatedReport.photoName)
+            saveImage(imageBytes, updatedReport.photoName)
 
             // SQLiteに保存
             reportsRepository.insert(updatedReport)
@@ -56,7 +56,7 @@ class AddReportUseCase(
         if (byteArray == null) {
             createNoImageIfNeededUseCase(reportNoImageFileName)
         } else {
-            localAreaImageRepository.save(byteArray, photoName)
+            localImageRepository.save(byteArray, photoName)
         }
     }
 }

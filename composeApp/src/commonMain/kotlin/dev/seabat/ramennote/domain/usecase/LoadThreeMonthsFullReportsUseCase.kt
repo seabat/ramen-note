@@ -40,6 +40,7 @@ class LoadThreeMonthsFullReportsUseCase(
             
             FullReport(
                 id = report.id,
+                shopId = report.shopId,
                 shopName = shop?.name ?: "不明な店舗",
                 menuName = report.menuName,
                 photoName = report.photoName,

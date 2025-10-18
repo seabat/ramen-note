@@ -6,11 +6,6 @@ import dev.seabat.ramennote.data.database.entity.ReportEntity
 import dev.seabat.ramennote.domain.model.Report
 import kotlinx.datetime.LocalDate
 
-interface ReportsRepositoryContract {
-    suspend fun load(): List<Report>
-    suspend fun insert(report: Report)
-}
-
 class ReportsRepository(
     private val database: RamenNoteDatabase
 ) : ReportsRepositoryContract {
@@ -23,6 +18,17 @@ class ReportsRepository(
     
     override suspend fun insert(report: Report) {
         reportDao.insert(report.toEntity())
+    }
+    override suspend fun loadById(id: Int): Report? {
+        return reportDao.getReportById(id)?.toDomain()
+    }
+    
+    override suspend fun update(report: Report) {
+        reportDao.update(report.toEntity())
+    }
+    
+    override suspend fun delete(id: Int) {
+        reportDao.deleteById(id)
     }
 }
 

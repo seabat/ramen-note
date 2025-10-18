@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.history
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,7 +33,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ReportCard(
     report: FullReport,
-    onClick: () -> Unit = {}
+    onLongPress: () -> Unit = {}
 ) {
     val date: LocalDate? = report.date
     val dayText = if (date != null) {
@@ -41,7 +43,14 @@ fun ReportCard(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth().height(135.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(135.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = { onLongPress() }
+                )
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -107,6 +116,7 @@ fun ReportCardPreview() {
             ReportCard(
                 report = FullReport(
                     id = 1,
+                    shopId = 1,
                     shopName = "一風堂 博多本店",
                     menuName = "白丸元味",
                     photoName = "hakata_ramen_1.jpg",
@@ -119,6 +129,7 @@ fun ReportCardPreview() {
             ReportCard(
                 report = FullReport(
                     id = 2,
+                    shopId = 2,
                     shopName = "一風堂 山口店",
                     menuName = "赤丸新味",
                     photoName = "hakata_ramen_2.jpg",

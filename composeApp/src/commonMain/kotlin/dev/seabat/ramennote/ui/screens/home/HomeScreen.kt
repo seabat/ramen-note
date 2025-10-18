@@ -513,6 +513,7 @@ fun ReportCardPreview() {
             ReportCard(
                 report = FullReport(
                     id = 1,
+                    shopId = 1,
                     shopName = "一風堂 博多本店",
                     menuName = "白丸元味",
                     photoName = "hakata_ramen_1.jpg",
@@ -520,7 +521,7 @@ fun ReportCardPreview() {
                     impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
                     date = kotlinx.datetime.LocalDate.parse("2024-12-15")
                 ),
-                onClick = { }
+                onLongPress = { }
             )
         }
     }

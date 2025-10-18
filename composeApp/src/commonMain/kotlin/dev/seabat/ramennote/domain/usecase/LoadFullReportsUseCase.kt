@@ -15,7 +15,7 @@ class LoadFullReportsUseCase(
         
         return reports.map { report ->
             val shop = shopsRepository.getShopById(report.shopId)
-            val photoData = try {
+            val imageBytes = try {
                 localAreaImageRepository.load(report.photoName)
             } catch (e: Exception) {
                 null
@@ -23,10 +23,11 @@ class LoadFullReportsUseCase(
             
             FullReport(
                 id = report.id,
+                shopId = report.shopId,
                 shopName = shop?.name ?: "不明な店舗",
                 menuName = report.menuName,
                 photoName = report.photoName,
-                imageBytes = photoData,
+                imageBytes = imageBytes,
                 impression = report.impression,
                 date = report.date!!
             )

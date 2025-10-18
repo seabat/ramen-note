@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
 
 interface ReportViewModelContract {
-    val image: StateFlow<SharedImage?>
     val reportedStatus: StateFlow<RunStatus<Int>>
 
     fun report(menuName: String, reportedDate: LocalDate, impression: String, shopId: Int, image: SharedImage?)

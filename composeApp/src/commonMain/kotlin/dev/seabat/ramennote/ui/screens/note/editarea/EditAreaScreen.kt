@@ -148,14 +148,14 @@ fun EditAreaScreen(
 
                 Spacer(Modifier.weight(1.0f))
 
-                BottomContent(
+                BottomButtons(
                     areaName = areaName,
                     onEditButtonClick = {
                         viewModel.editArea(areaName)
                     },
                     onDeleteButtonClick = {
                         shouldShowAlert = true
-                    },
+                    }
                 )
             }
         }
@@ -175,7 +175,7 @@ fun EditAreaScreen(
 }
 
 @Composable
-fun BottomContent(
+fun BottomButtons(
     areaName: String,
     onEditButtonClick: () -> Unit,
     onDeleteButtonClick: () -> Unit,

@@ -27,6 +27,7 @@ import ramennote.composeapp.generated.resources.history_no_data
 
 @Composable
 fun HistoryScreen(
+    goToEditReport: (reportId: Int) -> Unit = {},
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
     val reports by viewModel.reports.collectAsState()
@@ -40,7 +41,7 @@ fun HistoryScreen(
     ) {
         AppBar(title = stringResource(Res.string.screen_history_title),)
         if (reports.isNotEmpty()) {
-            ReportsList(reports = reports)
+            ReportsList(reports = reports, goToEditReport = goToEditReport)
         } else {
             Text(
                 text = stringResource(Res.string.history_no_data),
@@ -61,7 +62,8 @@ fun HistoryScreenPreview() {
 
 @Composable
 private fun ReportsList(
-    reports: List<FullReport>
+    reports: List<FullReport>,
+    goToEditReport: (Int) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped: Map<String, List<FullReport>> = reports
@@ -86,7 +88,9 @@ private fun ReportsList(
             }
 
             items(monthReports) { report ->
-                ReportCard(report = report)
+                ReportCard(report = report) {
+                    goToEditReport(report.id)
+                }
             }
         }
     }

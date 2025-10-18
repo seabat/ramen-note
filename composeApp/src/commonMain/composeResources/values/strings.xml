@@ -91,6 +91,10 @@
     <string name="report_header">食レポ</string>
     <string name="report_run">レポートする</string>
 
+    <!-- Edit Report Screen -->
+    <string name="editreport_delete_button">削除する</string>
+    <string name="editreport_edit_button">編集する</string>
+
     <!-- History Screen -->
     <string name="history_no_data">食レポがありません。\n「ノート」の店舗画面に遷移し、食レポを登録してください。</string>
 

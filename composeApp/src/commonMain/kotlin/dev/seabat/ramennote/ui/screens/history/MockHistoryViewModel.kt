@@ -20,6 +20,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
         _reports.value = listOf(
             FullReport(
                 id = 1,
+                shopId = 1,
                 shopName = "○○ラーメン",
                 menuName = "醤油ラーメン",
                 photoName = "report_001.jpg",
@@ -29,6 +30,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
             ),
             FullReport(
                 id = 2,
+                shopId = 2,
                 shopName = "△△家",
                 menuName = "味噌ラーメン",
                 photoName = "report_002.jpg",
@@ -38,6 +40,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
             ),
             FullReport(
                 id = 3,
+                shopId = 3,
                 shopName = "□□軒",
                 menuName = "塩ラーメン",
                 photoName = "report_003.jpg",
@@ -47,6 +50,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
             ),
             FullReport(
                 id = 4,
+                shopId = 4,
                 shopName = "◇◇食堂",
                 menuName = "つけ麺",
                 photoName = "report_004.jpg",
@@ -56,6 +60,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
             ),
             FullReport(
                 id = 5,
+                shopId = 5,
                 shopName = "☆☆家",
                 menuName = "家系ラーメン",
                 photoName = "report_005.jpg",
@@ -65,6 +70,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
             ),
             FullReport(
                 id = 6,
+                shopId = 6,
                 shopName = "◎◎ラーメン",
                 menuName = "担々麺",
                 photoName = "report_006.jpg",
