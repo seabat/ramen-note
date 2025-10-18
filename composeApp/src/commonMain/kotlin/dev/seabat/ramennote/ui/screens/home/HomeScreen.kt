@@ -308,17 +308,11 @@ fun Favorite(
                     Text(text = stringResource(Res.string.home_no_favorite))
                 }
             } else {
-                // アイテム数に基づいて行数を計算（最大3行）
-                val maxRows = 3
-                val columns = 3
-                val itemCount = favoriteShops.size
-                val rowCount = minOf((itemCount + columns - 1) / columns, maxRows)
-                
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(columns),
+                    columns = GridCells.Fixed(3),
                     modifier = Modifier
                         .padding(12.dp)
-                        .height((rowCount * favoriteShopItemHeight + (rowCount - 1) * 8 + 16).dp), // アイテム高さ + スペーシング + パディング
+                        .fillMaxHeight(), // 画面いっぱいまで使用
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
