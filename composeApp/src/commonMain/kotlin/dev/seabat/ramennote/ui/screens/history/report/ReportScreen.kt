@@ -34,6 +34,7 @@ import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
+import dev.seabat.ramennote.ui.screens.note.shop.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import dev.seabat.ramennote.ui.util.createFormattedDateString
 import kotlinx.datetime.Clock
@@ -48,6 +49,7 @@ import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
 import ramennote.composeapp.generated.resources.report_run
 import ramennote.composeapp.generated.resources.report_select_date
+import ramennote.composeapp.generated.resources.report_shop_name
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,6 +99,15 @@ fun ReportScreen(
                     .fillMaxSize()
                     .padding(horizontal = 24.dp)
             ) {
+                // 店名
+                ShopDetailItem(
+                    label = stringResource(Res.string.report_shop_name),
+                    value = shopName,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 日付選択
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
