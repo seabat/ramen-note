@@ -47,6 +47,8 @@ import dev.seabat.ramennote.domain.usecase.AddReportUseCase
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateNoImageIfNeededUseCase
 import dev.seabat.ramennote.domain.usecase.CreateNoImageIfNeededUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCase
+import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
 
 val useCaseModule = module {
     single<UpdateScheduleInShopUseCaseContract> { UpdateScheduleInShopUseCase(get()) }
@@ -63,6 +65,13 @@ val useCaseModule = module {
     single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
     single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get(), get()) }
     single<LoadFullReportsUseCaseContract> { LoadFullReportsUseCase(get(), get(), get()) }
+    single<LoadThreeMonthsFullReportsUseCaseContract> {
+        LoadThreeMonthsFullReportsUseCase(
+            get(),
+            get(),
+            get()
+        )
+    }
     single<AddReportUseCaseContract> { AddReportUseCase(get(), get(), get()) }
     single<LoadScheduledShopsUseCaseContract> { LoadScheduledShopsUseCase(get(), get()) }
     single<LoadFavoriteShopsUseCaseContract> { LoadFavoriteShopsUseCase(get()) }

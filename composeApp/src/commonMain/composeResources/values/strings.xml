@@ -24,6 +24,12 @@
 
     <!-- Home Screen -->
     <string name="home_detail_button">ノート</string>
+    <string name="home_report_subheading">最近の食レポ</string>
+    <string name="home_favorite_subheading">お気に入り店</string>
+    <string name="home_no_reports">過去3ヶ月分の食レポがありません</string>
+    <string name="home_no_favorite">お気に入り店が登録されていません</string>
+    <string name="home_no_web">WebサイトのURLが設定されていません</string>
+
 
     <!-- Note Screen -->
     <string name="note_area_selection">エリアを選択</string>
