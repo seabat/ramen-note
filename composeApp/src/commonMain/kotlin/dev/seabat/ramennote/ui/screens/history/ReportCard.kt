@@ -41,11 +41,11 @@ fun ReportCard(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth().height(150.dp),
+        modifier = Modifier.fillMaxWidth().height(135.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp).fillMaxSize(),
+            modifier = Modifier.padding(12.dp).fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(

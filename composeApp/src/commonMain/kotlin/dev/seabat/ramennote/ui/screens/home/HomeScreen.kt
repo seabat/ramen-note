@@ -95,7 +95,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 24.dp, horizontal = 16.dp),
+                .padding(top = 24.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -145,7 +145,7 @@ fun Schedule(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(180.dp)
                 .border(
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.background,
@@ -311,7 +311,7 @@ fun Favorite(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier
-                        .padding(12.dp)
+                        .padding(8.dp)
                         .fillMaxHeight(), // 画面いっぱいまで使用
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -415,15 +415,6 @@ fun ScheduledShopState(
     }
 }
 
-@Preview
-@Composable
-fun SchedulePreview() {
-    RamenNoteTheme {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Schedule(Schedule())
-        }
-    }
-}
 
 @Composable
 private fun RecentReports(
@@ -488,6 +479,16 @@ private fun RecentReports(
             ) {
                 Text(text = stringResource(Res.string.home_no_reports))
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SchedulePreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Schedule(Schedule())
         }
     }
 }
