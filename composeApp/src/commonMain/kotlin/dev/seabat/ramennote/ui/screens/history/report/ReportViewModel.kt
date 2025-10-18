@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.Report
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +28,7 @@ class ReportViewModel(
         menuName: String,
         reportedDate: LocalDate,
         impression: String,
-        shop: Shop,
+        shopId: Int,
         image: SharedImage?
     ) {
         viewModelScope.launch {
@@ -40,7 +39,7 @@ class ReportViewModel(
                 val result = addReportUseCase.invoke(
                     report = Report(
                         id = 0, // 後で更新される
-                        shopId = shop.id,
+                        shopId = shopId,
                         menuName = menuName,
                         photoName = createPhotoName(),
                         impression = impression,
@@ -55,7 +54,7 @@ class ReportViewModel(
             }
         }
     }
-    
+
     override fun setReportedStatusToIdle() {
         _reportedStatus.value = RunStatus.Idle()
     }

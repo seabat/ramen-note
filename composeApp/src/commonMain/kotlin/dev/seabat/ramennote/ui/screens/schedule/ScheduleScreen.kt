@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Schedule
-import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
@@ -53,8 +52,8 @@ import ramennote.composeapp.generated.resources.screen_schedule_title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    goToReport: (shop: Shop) -> Unit = {},
-    goToShop: (shop: Shop) -> Unit = {},
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ ->},
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ ->},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
     val schedules by viewModel.schedules.collectAsState()
@@ -84,16 +83,12 @@ fun ScheduleScreen(
                 ScheduleList(
                     schedules = schedules,
                     onReportClick = { schedule ->
-                        val shop = Shop(
-                            id = schedule.shopId,
-                            name = schedule.shopName,
-                            shopUrl = schedule.shopUrl,
-                            mapUrl = schedule.mapUrl,
-                            star = schedule.star,
-                            category = schedule.category,
-                            scheduledDate = schedule.scheduledDate
+                        goToReport(
+                            schedule.shopId,
+                            schedule.shopName,
+                            schedule.menuName,
+                            schedule.scheduledDate?.toString() ?: ""
                         )
-                        goToReport(shop)
                     },
                     onEditClick = { shopId ->
                         showDatePicker = true
@@ -103,16 +98,7 @@ fun ScheduleScreen(
                         viewModel.deleteSchedule(shopId)
                     },
                     onListItemClick = { schedule ->
-                        val shop = Shop(
-                            id = schedule.shopId,
-                            name = schedule.shopName,
-                            shopUrl = schedule.shopUrl,
-                            mapUrl = schedule.mapUrl,
-                            star = schedule.star,
-                            category = schedule.category,
-                            scheduledDate = schedule.scheduledDate
-                        )
-                        goToShop(shop)
+                        goToShop(schedule.shopId, schedule.shopName)
                     }
                 )
             } else {
@@ -292,6 +278,10 @@ private fun ScheduleRow(
 @Composable
 fun ScheduleScreenPreview() {
     RamenNoteTheme {
-        ScheduleScreen(goToReport = {}, viewModel = MockScheduleViewModel())
+        ScheduleScreen(
+            goToReport = {_, _, _, _ ->},
+            goToShop = {_, _ ->},
+            viewModel = MockScheduleViewModel()
+        )
     }
 }

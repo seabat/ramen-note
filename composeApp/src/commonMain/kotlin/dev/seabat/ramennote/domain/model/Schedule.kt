@@ -9,6 +9,8 @@ data class Schedule(
     val mapUrl: String = "",
     val star: Int = 0,
     val category: String = "",
+    val menuName: String = "",
+    val photoName: String = "",
     val scheduledDate: LocalDate? = null,
     val isReported : Boolean = false
 ) {
@@ -21,6 +23,8 @@ data class Schedule(
                 mapUrl = shop.mapUrl,
                 star = shop.star,
                 category = shop.category,
+                menuName = shop.menuName1,
+                photoName = shop.photoName1,
                 scheduledDate = shop.scheduledDate,
                 isReported = false
             )

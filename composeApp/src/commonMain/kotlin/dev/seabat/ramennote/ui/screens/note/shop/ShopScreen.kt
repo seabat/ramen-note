@@ -62,6 +62,7 @@ import ramennote.composeapp.generated.resources.favorite_enabled
 @Composable
 fun ShopScreen(
     shopId: Int,
+    shopName: String,
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
     onReportClick: (Shop) -> Unit = {},
@@ -483,6 +484,7 @@ fun ShopScreenPreview() {
     RamenNoteTheme {
         ShopScreen(
             shopId = 1,
+            shopName = "〇〇家",
             onBackClick = { },
             onEditClick = { },
             viewModel = MockShopViewModel()

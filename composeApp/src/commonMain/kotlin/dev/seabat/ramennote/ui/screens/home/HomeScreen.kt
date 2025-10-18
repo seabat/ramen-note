@@ -42,8 +42,8 @@ private const val favoriteShopItemHeight = 70
 
 @Composable
 fun HomeScreen(
-    goToNote: (shop: Shop) -> Unit = {},
-    gotToReport: (shop: Shop) -> Unit = {},
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ -> },
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ -> },
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val scheduledShop by viewModel.scheduledShop.collectAsStateWithLifecycle()
@@ -88,15 +88,15 @@ fun HomeScreen(
         ) {
             Schedule(
                 scheduledShop,
-                goToNote,
-                gotToReport
+                goToShop,
+                goToReport
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Favorite(
                 favoriteShops,
-                goToNote
+                goToShop
             )
             
             if (favoriteShops.isNotEmpty()) {
@@ -113,8 +113,8 @@ fun HomeScreen(
 @Composable
 fun Schedule(
     scheduledShop: Shop?,
-    goToNote: (shop: Shop) -> Unit = {},
-    gotToReport: (shop: Shop) -> Unit = {}
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ -> },
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ -> }
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -208,7 +208,12 @@ fun Schedule(
                             modifier = Modifier
                                 .size(24.dp)
                                 .clickable {
-                                    gotToReport(scheduledShop)
+                                    goToReport(
+                                        scheduledShop.id,
+                                        scheduledShop.name,
+                                        scheduledShop.menuName1,
+                                        scheduledShop.scheduledDate?.toString() ?: ""
+                                    )
                                 },
                             tint = Color.White
                         )
@@ -218,7 +223,7 @@ fun Schedule(
                             modifier = Modifier
                                 .size(24.dp)
                                 .clickable {
-                                    goToNote(scheduledShop)
+                                    goToShop(scheduledShop.id, scheduledShop.name)
                                 },
                             tint = Color.White
                         )
@@ -245,7 +250,10 @@ fun Schedule(
 
 
 @Composable
-fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit = {}) {
+fun Favorite(
+    favoriteShops: List<ShopWithImage>,
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_,_ -> }
+) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -289,7 +297,7 @@ fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit 
                         FavoriteShopItem(
                             shop = shopWithImage.shop,
                             imageBytes = shopWithImage.imageBytes,
-                            onClick = { goToNote(shopWithImage.shop) }
+                            onClick = { goToShop(shopWithImage.shop.id, shopWithImage.shop.name) }
                         )
                     }
                 }

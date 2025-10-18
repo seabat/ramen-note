@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
@@ -39,6 +38,7 @@ import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import dev.seabat.ramennote.ui.util.createFormattedDateString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -52,15 +52,18 @@ import ramennote.composeapp.generated.resources.report_select_date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportScreen(
-    shop: Shop,
+    shopId: Int,
+    shopName: String,
+    menuName: String,
+    scheduledDate: LocalDate? = null,
     onBackClick: () -> Unit,
     goToHistory: () -> Unit,
     viewModel: ReportViewModelContract = koinViewModel<ReportViewModel>()
 ) {
-    var menuName by remember { mutableStateOf(shop.menuName1) }
+    var menuName by remember { mutableStateOf(menuName) }
     var image by remember { mutableStateOf(SharedImage()) }
     var reportedDate by remember {
-        mutableStateOf(shop.scheduledDate ?:Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
+        mutableStateOf(scheduledDate ?:Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
     }
     var impression by remember { mutableStateOf("") }
 
@@ -132,10 +135,10 @@ fun ReportScreen(
                     text = stringResource(Res.string.report_run)
                 ) {
                     viewModel.report(
-                        menuName =menuName,
+                        menuName = menuName,
                         reportedDate = reportedDate,
                         impression = impression,
-                        shop = shop,
+                        shopId = shopId,
                         image = image
                     )
                 }

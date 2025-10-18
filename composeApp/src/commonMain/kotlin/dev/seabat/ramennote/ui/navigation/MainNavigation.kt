@@ -33,6 +33,7 @@ import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.settings.SettingsScreen
+import kotlinx.datetime.LocalDate
 import dev.seabat.ramennote.domain.model.Shop as ShopInfo
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
@@ -152,18 +153,13 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class Shop(val shopJson: String) : Screen {
+    data class Shop(val shopId: Int, val shopName: String) : Screen {
         override val route: String = getRouteName(Shop::class)
         @Composable
         override fun getIcon(): ImageVector { return Icons.Default.Star }
         @Composable
         override fun getTitle(): String { 
-            return try {
-                val shop = ShopInfo.fromJsonString(shopJson)
-                shop.name
-            } catch (_: Exception) {
-                "店舗詳細"
-            }
+            return shopName
         }
     }
 
@@ -193,18 +189,18 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class Repprt(val shopJson: String) : Screen {
-        override val route: String = getRouteName(Repprt::class)
+    data class Report(
+        val shopId: Int,
+        val shopName: String,
+        val menuName: String,
+        val iso8601Date: String
+    ) : Screen {
+        override val route: String = getRouteName(Report::class)
         @Composable
         override fun getIcon(): ImageVector { return Icons.Default.Star }
         @Composable
         override fun getTitle(): String {
-            return try {
-                val shop = ShopInfo.fromJsonString(shopJson)
-                "${shop.name} レポート"
-            } catch (_: Exception) {
-                "店舗詳細"
-            }
+            return "$shopName レポート"
         }
     }
 
@@ -241,9 +237,9 @@ fun MainNavigation() {
             if (withBottomNavigation) {
                 NavigationBar {
                     tabScreens.forEach { screen ->
-                        val isSelected = currentDestination?.route?.endsWith(screen.route) == true
+                        val isSelected = currentDestination.route?.endsWith(screen.route) == true
                         // デバッグ用: コンソールに出力
-                        println("Screen: ${screen.route}, Current: ${currentDestination?.route}, Selected: $isSelected")
+                        println("Screen: ${screen.route}, Current: ${currentDestination.route}, Selected: $isSelected")
                         NavigationBarItem(
                             icon = { 
                                 Icon(
@@ -295,21 +291,21 @@ fun MainNavigation() {
         ) {
             composable<Screen.Home> {
                 HomeScreen(
-                    goToNote = { shop ->
-                        navController.navigate(Screen.Shop(shop.toJsonString()))
+                    goToShop = { shopId, shopName ->
+                        navController.navigate(Screen.Shop(shopId, shopName))
                     },
-                    gotToReport = { shop ->
-                        navController.navigate(Screen.Repprt(shop.toJsonString()))
+                    goToReport = { shopId, shopName, menuName, iso8601Date ->
+                        navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
                     }
                 )
             }
             composable<Screen.Schedule> {
                 ScheduleScreen(
-                    goToReport = { shop ->
-                        navController.navigate(Screen.Repprt(shop.toJsonString()))
+                    goToReport = { shopId, shopName, menuName, iso8601Date ->
+                        navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
                     },
-                    goToShop = { shop ->
-                        navController.navigate(Screen.Shop(shop.toJsonString()))
+                    goToShop = { shopId, shopName ->
+                        navController.navigate(Screen.Shop(shopId, shopName))
                     }
                 )
             }
@@ -340,7 +336,7 @@ fun MainNavigation() {
                         navController.popBackStack()
                     },
                     onShopClick = { shop ->
-                        navController.navigate(Screen.Shop(shop.toJsonString()))
+                        navController.navigate(Screen.Shop(shop.id, shop.name))
                     },
                     onAddShopClick = { areaName ->
                         navController.navigate(Screen.AddShop(areaName))
@@ -363,28 +359,22 @@ fun MainNavigation() {
             }
             composable<Screen.Shop> { backStackEntry ->
                 val screen: Screen.Shop = backStackEntry.toRoute()
-                val shop = try {
-                    ShopInfo.fromJsonString(screen.shopJson)
-                } catch (_: Exception) {
-                    // エラーの場合はデフォルトのShopオブジェクトを作成
-                    ShopInfo(
-                        name = "エラー",
-                        area = "",
-                        shopUrl = "",
-                        mapUrl = "",
-                        star = 0,
-                        stationName = "",
-                        category = ""
-                    )
-                }
                 ShopScreen(
-                    shopId = shop.id,
+                    shopId = screen.shopId,
+                    shopName = screen.shopName,
                     onBackClick = { navController.popBackStack() },
                     onEditClick = { editShop ->
                         navController.navigate(Screen.EditShop(editShop.toJsonString()))
                     },
-                    onReportClick = { reportShop ->
-                        navController.navigate(Screen.Repprt(reportShop.toJsonString()))
+                    onReportClick = { shop ->
+                        navController.navigate(
+                            Screen.Report(
+                                shop.id,
+                                shop.name,
+                                shop.menuName1,
+                                iso8601Date = shop.scheduledDate.toString()
+                            )
+                        )
                     }
                 )
             }
@@ -425,24 +415,13 @@ fun MainNavigation() {
                     }
                 )
             }
-            composable<Screen.Repprt> { backStackEntry ->
-                val screen: Screen.Repprt = backStackEntry.toRoute()
-                val shop = try {
-                    ShopInfo.fromJsonString(screen.shopJson)
-                } catch (_: Exception) {
-                    // エラーの場合はデフォルトのShopオブジェクトを作成
-                    ShopInfo(
-                        name = "エラー",
-                        area = "",
-                        shopUrl = "",
-                        mapUrl = "",
-                        star = 0,
-                        stationName = "",
-                        category = ""
-                    )
-                }
+            composable<Screen.Report> { backStackEntry ->
+                val screen: Screen.Report = backStackEntry.toRoute()
                 ReportScreen(
-                    shop = shop,
+                    shopId = screen.shopId,
+                    shopName = screen.shopName,
+                    menuName = screen.menuName,
+                    scheduledDate = LocalDate.parse(screen.iso8601Date),
                     onBackClick = { navController.popBackStack() },
                     goToHistory = {
                         navController.navigate(Screen.History) {
