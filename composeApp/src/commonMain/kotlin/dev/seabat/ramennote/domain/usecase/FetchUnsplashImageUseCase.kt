@@ -25,7 +25,7 @@ class FetchUnsplashImageUseCase(
                 RunStatus.Error("Failed to load image from local storage")
             }
         } catch (e: Exception) {
-            RunStatus.Error("Failed to fetch image: ${e.message}")
+            RunStatus.Error("画像の生成に失敗しました")
         }
     }
 }
