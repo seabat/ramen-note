@@ -74,7 +74,7 @@ fun SettingsScreen() {
                 Text(
                     text = "プライバシーポリシー",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }

@@ -5,17 +5,17 @@ import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.FullReport
 
-class LoadReportsUseCase(
+class LoadFullReportsUseCase(
     private val reportsRepository: ReportsRepositoryContract,
     private val shopsRepository: ShopsRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
-): LoadReportsUseCaseContract {
+): LoadFullReportsUseCaseContract {
     override suspend operator fun invoke(): List<FullReport> {
         val reports = reportsRepository.load()
         
         return reports.map { report ->
             val shop = shopsRepository.getShopById(report.shopId)
-            val photoData = try {
+            val imageBytes = try {
                 localAreaImageRepository.load(report.photoName)
             } catch (e: Exception) {
                 null
@@ -23,12 +23,14 @@ class LoadReportsUseCase(
             
             FullReport(
                 id = report.id,
+                shopId = report.shopId,
                 shopName = shop?.name ?: "不明な店舗",
                 menuName = report.menuName,
                 photoName = report.photoName,
-                imageBytes = photoData,
+                imageBytes = imageBytes,
                 impression = report.impression,
-                date = report.date!!
+                date = report.date!!,
+                star = report.star
             )
         }
     }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,10 +31,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.Schedule
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -43,6 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.delete_24px
 import ramennote.composeapp.generated.resources.edit_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
@@ -52,13 +56,14 @@ import ramennote.composeapp.generated.resources.screen_schedule_title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    goToReport: (shop: Shop) -> Unit = {},
-    goToShop: (shop: Shop) -> Unit = {},
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ ->},
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ ->},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
-    val shops by viewModel.scheduledShops.collectAsState()
+    val schedules by viewModel.schedules.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
+    var showErrorDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
@@ -79,11 +84,16 @@ fun ScheduleScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            if (shops.isNotEmpty()) {
+            if (schedules.isNotEmpty()) {
                 ScheduleList(
-                    shops = shops,
-                    onHistoryClick = { shop ->
-                        goToReport(shop)
+                    schedules = schedules,
+                    onReportClick = { schedule ->
+                        goToReport(
+                            schedule.shopId,
+                            schedule.shopName,
+                            schedule.menuName,
+                            schedule.scheduledDate?.toString() ?: ""
+                        )
                     },
                     onEditClick = { shopId ->
                         showDatePicker = true
@@ -92,8 +102,8 @@ fun ScheduleScreen(
                     onDeleteClick = { shopId ->
                         viewModel.deleteSchedule(shopId)
                     },
-                    onScheduleClick = { shop ->
-                        goToShop(shop)
+                    onListItemClick = { schedule ->
+                        goToShop(schedule.shopId, schedule.shopName)
                     }
                 )
             } else {
@@ -111,14 +121,13 @@ fun ScheduleScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val millis = datePickerState.selectedDateMillis
-                        if (millis != null) {
-                            val date = Instant.fromEpochMilliseconds(millis)
-                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
-                            viewModel.editSchedule(clickedShopId, date)
-                        }
-                        showDatePicker = false
-                        clickedShopId = 0
+                        datePickerOnClickHandler(
+                            datePickerState,
+                            showErrorDialog = { showErrorDialog = true },
+                            clearClicked = { clickedShopId = 0 },
+                            dismissDatePicker = { showDatePicker = false },
+                            editSchedule = { date -> viewModel.editSchedule(clickedShopId, date) },
+                        )
                     }
                 ) { Text("OK") }
             },
@@ -129,19 +138,26 @@ fun ScheduleScreen(
             DatePicker(state = datePickerState)
         }
     }
+    // エラーダイアログ
+    if (showErrorDialog) {
+        AppAlert(
+            message = stringResource(Res.string.add_schedule_error_past_date_message),
+            onConfirm = { showErrorDialog = false }
+        )
+    }
 }
 
 @Composable
 private fun ScheduleList(
-    shops: List<Shop>,
-    onHistoryClick: (shop: Shop) -> Unit,
+    schedules: List<Schedule>,
+    onReportClick: (schedule: Schedule) -> Unit,
     onEditClick: (shopId: Int) -> Unit,
     onDeleteClick: (shopId: Int) -> Unit,
-    onScheduleClick: (shop: Shop) -> Unit
+    onListItemClick: (schedule: Schedule) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
-    val grouped: Map<String, List<Shop>> = shops.groupBy { shop ->
-        val date = shop.scheduledDate
+    val grouped: Map<String, List<Schedule>> = schedules.groupBy { schedule ->
+        val date = schedule.scheduledDate
         if (date != null) "${date.year}-${date.monthNumber.toString().padStart(2, '0')}" else ""
     }.filterKeys { it.isNotEmpty() }
 
@@ -156,7 +172,7 @@ private fun ScheduleList(
             )
         }
 
-        grouped.forEach { (yearMonth, monthShops) ->
+        grouped.forEach { (yearMonth, monthSchedules) ->
             item {
                 Text(
                     text = yearMonth,
@@ -173,20 +189,20 @@ private fun ScheduleList(
                 )
             }
 
-            items(monthShops) { shop ->
+            items(monthSchedules) { schedule ->
                 ScheduleRow(
-                    shop = shop,
-                    onHistoryClick = {
-                        onHistoryClick(shop)
+                    schedule = schedule,
+                    onReportClick = {
+                        onReportClick(schedule)
                     },
                     onEditClick = {
-                        onEditClick(shop.id)
+                        onEditClick(schedule.shopId)
                     },
                     onDeleteClick = {
-                        onDeleteClick(shop.id)
+                        onDeleteClick(schedule.shopId)
                     },
-                    onScheduleClick = {
-                        onScheduleClick(shop)
+                    onListItemClick = {
+                        onListItemClick(schedule)
                     }
                 )
             }
@@ -196,13 +212,13 @@ private fun ScheduleList(
 
 @Composable
 private fun ScheduleRow(
-    shop: Shop,
-    onHistoryClick: () -> Unit = {},
+    schedule: Schedule,
+    onReportClick: () -> Unit = {},
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onScheduleClick: () -> Unit = {}
+    onListItemClick: () -> Unit = {}
 ) {
-    val date: LocalDate? = shop.scheduledDate
+    val date: LocalDate? = schedule.scheduledDate
     val dayText = if (date != null) {
         "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
     } else {
@@ -215,27 +231,29 @@ private fun ScheduleRow(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .clickable {
-                    onScheduleClick()
+                    onListItemClick()
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(text = dayText, style = MaterialTheme.typography.titleMedium)
-                Text(text = shop.name, style = MaterialTheme.typography.titleMedium)
+                Text(text = schedule.shopName, style = MaterialTheme.typography.titleMedium)
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(Res.drawable.ramen_dining_24px),
-                    contentDescription = "食レポ",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            onHistoryClick()
-                        },
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (!schedule.isReported) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ramen_dining_24px),
+                        contentDescription = "食レポ",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                onReportClick()
+                            },
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Icon(
                     painter = painterResource(Res.drawable.edit_24px),
                     contentDescription = "編集",
@@ -265,12 +283,41 @@ private fun ScheduleRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+private fun datePickerOnClickHandler(
+    datePickerState: DatePickerState,
+    showErrorDialog: () -> Unit,
+    clearClicked: () -> Unit,
+    editSchedule: (LocalDate) -> Unit = { _ -> },
+    dismissDatePicker: () -> Unit
+) {
+    try {
+        val millis = datePickerState.selectedDateMillis
+        if (millis != null) {
+            val date = Instant.fromEpochMilliseconds(millis)
+                .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
+            // 今日を含めた未来日かどうかをチェック
+            if (!date.isTodayOrFuture()) {
+                showErrorDialog()
+            } else {
+                editSchedule(date)
+            }
+        }
+    } finally {
+        clearClicked
+        dismissDatePicker()
+    }
+}
 
 @Preview
 @Composable
 fun ScheduleScreenPreview() {
     RamenNoteTheme {
-        ScheduleScreen(goToReport = {}, viewModel = MockScheduleViewModel())
+        ScheduleScreen(
+            goToReport = {_, _, _, _ ->},
+            goToShop = {_, _ ->},
+            viewModel = MockScheduleViewModel()
+        )
     }
 }

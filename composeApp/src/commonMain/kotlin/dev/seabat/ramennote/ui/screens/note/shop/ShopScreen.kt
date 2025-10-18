@@ -40,16 +40,21 @@ import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
 import coil3.compose.AsyncImage
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import org.koin.compose.viewmodel.koinViewModel
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import ramennote.composeapp.generated.resources.add_no_url_label
 import ramennote.composeapp.generated.resources.add_report_button
 import ramennote.composeapp.generated.resources.add_schedule_add_button
 import ramennote.composeapp.generated.resources.add_schedule_edit_button
+import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.add_schedule_label
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
@@ -58,6 +63,7 @@ import ramennote.composeapp.generated.resources.favorite_enabled
 @Composable
 fun ShopScreen(
     shopId: Int,
+    shopName: String,
     onBackClick: () -> Unit,
     onEditClick: (Shop) -> Unit = {},
     onReportClick: (Shop) -> Unit = {},
@@ -73,6 +79,7 @@ fun ShopScreen(
     val imageBytes by viewModel.shopImage.collectAsState()
 
     var showDatePicker by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
 
     Box(
@@ -133,14 +140,13 @@ fun ShopScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val millis = datePickerState.selectedDateMillis
-                        if (millis != null) {
-                            val date = Instant.fromEpochMilliseconds(millis)
-                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
-                            viewModel.addSchedule(shopId, date)
-                            goToSchedule()
-                        }
-                        showDatePicker = false
+                        datePickerOnClickHandler(
+                            datePickerState,
+                            showErrorDialog = { showErrorDialog = true },
+                            goToSchedule = { goToSchedule() },
+                            addSchedule = { date -> viewModel.addSchedule(shopId, date) },
+                            dismissDatePicker = { showDatePicker = false }
+                        )
                     }
                 ) { Text("OK") }
             },
@@ -150,6 +156,14 @@ fun ShopScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+
+    // エラーダイアログ
+    if (showErrorDialog) {
+        AppAlert(
+            message = stringResource(Res.string.add_schedule_error_past_date_message),
+            onConfirm = { showErrorDialog = false }
+        )
     }
 }
 
@@ -257,12 +271,12 @@ fun ActionButtons(
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
-            val buttonText = if (shop?.scheduledDate == null) {
-                stringResource(Res.string.add_schedule_add_button)
-            } else {
+            val buttonText = if (shop?.scheduledDate?.isTodayOrFuture() == true) {
                 stringResource(Res.string.add_schedule_edit_button)
+            } else {
+                stringResource(Res.string.add_schedule_add_button)
             }
-            Text(buttonText, style = MaterialTheme.typography.titleMedium)
+            Text(buttonText, style = MaterialTheme.typography.titleSmall)
         }
 
         Button(
@@ -273,7 +287,7 @@ fun ActionButtons(
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
-            Text(stringResource(Res.string.add_report_button), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(Res.string.add_report_button), style = MaterialTheme.typography.titleSmall)
         }
 
         Button(
@@ -284,7 +298,7 @@ fun ActionButtons(
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
-            Text(stringResource(Res.string.add_edit_button), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(Res.string.add_edit_button), style = MaterialTheme.typography.titleSmall)
         }
     }
 }
@@ -337,11 +351,14 @@ fun Detail(
 
         // 予定（YYYY年mm月DD日 表記）
         shop.scheduledDate?.let { date ->
-            val formatted =createFormattedDateString(date)
-            ShopDetailItem(
-                label = stringResource(Res.string.add_schedule_label),
-                value = formatted,
-            )
+            // 今日を含めた未来日の場合のみ表示
+            if (date.isTodayOrFuture()) {
+                val formatted = createFormattedDateString(date)
+                ShopDetailItem(
+                    label = stringResource(Res.string.add_schedule_label),
+                    value = formatted,
+                )
+            }
         }
     }
 }
@@ -385,32 +402,6 @@ private fun UrlItem(
 }
 
 @Composable
-private fun ShopDetailItem(
-    label: String,
-    value: String,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium,
-        )
-
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-
-@Composable
 fun StarItem(star: Int) {
     Row(
         modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
@@ -434,12 +425,40 @@ fun StarItem(star: Int) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+private fun datePickerOnClickHandler(
+    datePickerState: DatePickerState,
+    showErrorDialog: () -> Unit,
+    goToSchedule: () -> Unit,
+    addSchedule: (LocalDate) -> Unit = { _ -> },
+    dismissDatePicker: () -> Unit
+) {
+    try {
+        val millis = datePickerState.selectedDateMillis
+        if (millis != null) {
+            val selectedDate = Instant.fromEpochMilliseconds(millis)
+                .toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+            // 今日を含めた未来日かどうかをチェック
+            if (!selectedDate.isTodayOrFuture()) {
+                showErrorDialog()
+            } else {
+                addSchedule(selectedDate)
+                goToSchedule()
+            }
+        }
+    } finally {
+        dismissDatePicker()
+    }
+}
+
 @Preview
 @Composable
 fun ShopScreenPreview() {
     RamenNoteTheme {
         ShopScreen(
             shopId = 1,
+            shopName = "〇〇家",
             onBackClick = { },
             onEditClick = { },
             viewModel = MockShopViewModel()

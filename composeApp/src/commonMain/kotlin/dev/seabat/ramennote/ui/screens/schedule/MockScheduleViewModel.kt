@@ -1,39 +1,39 @@
 package dev.seabat.ramennote.ui.screens.schedule
 
-import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.Schedule
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.LocalDate
 
 class MockScheduleViewModel : ScheduleViewModelContract {
-    private val _scheduledShops: MutableStateFlow<List<Shop>> = MutableStateFlow(
+    private val _schedules: MutableStateFlow<List<Schedule>> = MutableStateFlow(
         listOf(
-            Shop(
-                id = 101,
-                name = "中華そば 青葉",
-                area = "東京",
+            Schedule(
+                shopId = 101,
+                shopName = "中華そば 青葉",
                 scheduledDate = LocalDate.parse("2025-11-03"),
-                star = 3
+                star = 3,
+                isReported = false
             ),
-            Shop(
-                id = 102,
-                name = "ラーメン 花月",
-                area = "神奈川",
+            Schedule(
+                shopId = 102,
+                shopName = "ラーメン 花月",
                 scheduledDate = LocalDate.parse("2025-11-20"),
-                star = 2
+                star = 2,
+                isReported = true
             ),
-            Shop(
-                id = 103,
-                name = "麺屋 一例",
-                area = "東京",
+            Schedule(
+                shopId = 103,
+                shopName = "麺屋 一例",
                 scheduledDate = LocalDate.parse("2025-12-05"),
-                star = 1
+                star = 1,
+                isReported = false
             )
         )
     )
 
-    override val scheduledShops: StateFlow<List<Shop>> = _scheduledShops.asStateFlow()
+    override val schedules: StateFlow<List<Schedule>> = _schedules.asStateFlow()
 
     override fun loadSchedule() {
         // Preview / Mock 用: すでに初期値を流しているため何もしない

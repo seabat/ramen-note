@@ -2,7 +2,7 @@ package dev.seabat.ramennote.ui.screens.schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.usecase.DeleteScheduleInShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadScheduledShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
@@ -18,13 +18,13 @@ class ScheduleViewModel(
     private val updateScheduleInShopUseCaseContract: UpdateScheduleInShopUseCaseContract
 ) : ViewModel(), ScheduleViewModelContract {
 
-    private val _scheduledShops: MutableStateFlow<List<Shop>> = MutableStateFlow(emptyList())
-    override val scheduledShops: StateFlow<List<Shop>> = _scheduledShops.asStateFlow()
+    private val _schedules: MutableStateFlow<List<Schedule>> = MutableStateFlow(emptyList())
+    override val schedules: StateFlow<List<Schedule>> = _schedules.asStateFlow()
 
     override fun loadSchedule() {
         viewModelScope.launch {
-            val shops = loadScheduledShopsUseCase()
-            _scheduledShops.value = shops
+            val schedules = loadScheduledShopsUseCase()
+            _schedules.value = schedules
         }
     }
 
@@ -32,8 +32,8 @@ class ScheduleViewModel(
         viewModelScope.launch {
             updateScheduleInShopUseCaseContract(shopId, date)
 
-            val shops = loadScheduledShopsUseCase()
-            _scheduledShops.value = shops
+            val schedules = loadScheduledShopsUseCase()
+            _schedules.value = schedules
         }
     }
 
@@ -41,8 +41,8 @@ class ScheduleViewModel(
         viewModelScope.launch {
             deleteScheduleInShopUseCase(shopId)
 
-            val shops = loadScheduledShopsUseCase()
-            _scheduledShops.value = shops
+            val schedules = loadScheduledShopsUseCase()
+            _schedules.value = schedules
         }
     }
 }

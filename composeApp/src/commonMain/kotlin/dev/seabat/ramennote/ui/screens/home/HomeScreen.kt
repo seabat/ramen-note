@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.draw.clip
 import coil3.compose.AsyncImage
 import androidx.compose.material3.*
@@ -25,34 +27,45 @@ import androidx.compose.ui.unit.dp
 import ramennote.composeapp.generated.resources.Res
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import dev.seabat.ramennote.ui.screens.history.ReportCard
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.home_background
 import ramennote.composeapp.generated.resources.favorite_enabled
+import ramennote.composeapp.generated.resources.home_favorite_subheading
+import ramennote.composeapp.generated.resources.home_no_favorite
+import ramennote.composeapp.generated.resources.home_no_reports
+import ramennote.composeapp.generated.resources.home_no_web
+import ramennote.composeapp.generated.resources.home_report_subheading
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 
 private const val favoriteShopItemHeight = 70
 
 @Composable
 fun HomeScreen(
-    goToNote: (shop: Shop) -> Unit = {},
-    gotToReport: (shop: Shop) -> Unit = {},
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ -> },
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ -> },
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
-    val scheduledShop by viewModel.scheduledShop.collectAsStateWithLifecycle()
-    val scheduledShopState by viewModel.scheduledShopState.collectAsStateWithLifecycle()
+    val schedule by viewModel.schedule.collectAsStateWithLifecycle()
+    val scheduleState by viewModel.scheduleState.collectAsStateWithLifecycle()
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
+    val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
     
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
         viewModel.loadFavoriteShops()
+        viewModel.loadThreeMonthsReports()
     }
 
     BoxWithConstraints(
@@ -82,21 +95,28 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 24.dp, horizontal = 16.dp),
+                .padding(top = 24.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             Schedule(
-                scheduledShop,
-                goToNote,
-                gotToReport
+                schedule,
+                goToShop,
+                goToReport
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 過去3ヶ月分のレポートを水平ページャーで表示
+            RecentReports(
+                reports = threeMonthsReports
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Favorite(
                 favoriteShops,
-                goToNote
+                goToShop
             )
             
             if (favoriteShops.isNotEmpty()) {
@@ -104,17 +124,17 @@ fun HomeScreen(
             }
         }
 
-        ScheduledShopState(scheduledShopState) {
-            viewModel.setScheduledShopStateToIdle()
+        ScheduledShopState(scheduleState) {
+            viewModel.setScheduleStateToIdle()
         }
     }
 }
 
 @Composable
 fun Schedule(
-    scheduledShop: Shop?,
-    goToNote: (shop: Shop) -> Unit = {},
-    gotToReport: (shop: Shop) -> Unit = {}
+    schedule: Schedule?,
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ -> },
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ -> }
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -125,14 +145,14 @@ fun Schedule(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(180.dp)
                 .border(
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.background,
                     shape = RoundedCornerShape(10.dp)
                 )
                 .clickable {
-                    scheduledShop?.shopUrl?.let { url ->
+                    schedule?.shopUrl?.let { url ->
                         if (url.isNotBlank()) {
                             urlHandler.openUri(url)
                         }
@@ -140,11 +160,11 @@ fun Schedule(
                 },
             contentAlignment = Alignment.Center
         ) {
-            if (scheduledShop != null) {
+            if (schedule != null) {
                 // WebView
-                if (scheduledShop.shopUrl.isNotBlank()) {
+                if (schedule.shopUrl.isNotBlank()) {
                     PlatformWebView(
-                        url = scheduledShop.shopUrl,
+                        url = schedule.shopUrl,
                         modifier = Modifier
                             .fillMaxSize()
                             // コンテンツの角が外側のコンポーネントからはみ出さないようにする
@@ -157,7 +177,7 @@ fun Schedule(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(text = "Web サイトの URLが設定されていません")
+                        Text(text = stringResource(Res.string.home_no_web))
                     }
                 }
             }
@@ -181,7 +201,7 @@ fun Schedule(
             )
 
             // コンテンツ
-            if (scheduledShop != null) {
+            if (schedule != null) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -191,7 +211,7 @@ fun Schedule(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = scheduledShop.name,
+                        text = schedule.shopName,
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -202,23 +222,31 @@ fun Schedule(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ramen_dining_24px),
-                            contentDescription = "食レポ",
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clickable {
-                                    gotToReport(scheduledShop)
-                                },
-                            tint = Color.White
-                        )
+                        // schedule.isReportedがtrueの時は食レポアイコンを非表示
+                        if (!schedule.isReported) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ramen_dining_24px),
+                                contentDescription = "食レポ",
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable {
+                                        goToReport(
+                                            schedule.shopId,
+                                            schedule.shopName,
+                                            schedule.menuName,
+                                            schedule.scheduledDate?.toString() ?: ""
+                                        )
+                                    },
+                                tint = Color.White
+                            )
+                        }
                         Icon(
                             painter = painterResource(Res.drawable.book_5_24px),
                             contentDescription = "編集",
                             modifier = Modifier
                                 .size(24.dp)
                                 .clickable {
-                                    goToNote(scheduledShop)
+                                    goToShop(schedule.shopId, schedule.shopName)
                                 },
                             tint = Color.White
                         )
@@ -229,7 +257,7 @@ fun Schedule(
 
         // タイトルをborder上に配置
         Text(
-            text = scheduledShop?.scheduledDate?.let {
+            text = schedule?.scheduledDate?.let {
                 createFormattedDateString(it)
             } ?: "予定なし",
             modifier = Modifier
@@ -245,10 +273,21 @@ fun Schedule(
 
 
 @Composable
-fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit = {}) {
-    Box(
+fun Favorite(
+    favoriteShops: List<ShopWithImage>,
+    goToShop: (shopId: Int, shopName: String) -> Unit = {_,_ -> }
+) {
+    Column(
         modifier = Modifier.fillMaxWidth()
     ) {
+        Text(
+            text = stringResource(Res.string.home_favorite_subheading),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         // メインのBox
         Box(
             modifier = Modifier
@@ -258,8 +297,7 @@ fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit 
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(10.dp)
-                ),
-            contentAlignment = Alignment.Center
+                )
         ) {
             if (favoriteShops.isEmpty()) {
                 Column(
@@ -267,20 +305,14 @@ fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit 
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = "お気に入り店が登録されていません")
+                    Text(text = stringResource(Res.string.home_no_favorite))
                 }
             } else {
-                // アイテム数に基づいて行数を計算（最大3行）
-                val maxRows = 3
-                val columns = 3
-                val itemCount = favoriteShops.size
-                val rowCount = minOf((itemCount + columns - 1) / columns, maxRows)
-                
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(columns),
+                    columns = GridCells.Fixed(3),
                     modifier = Modifier
-                        .padding(12.dp)
-                        .height((rowCount * favoriteShopItemHeight + (rowCount - 1) * 8 + 16).dp), // アイテム高さ + スペーシング + パディング
+                        .padding(8.dp)
+                        .fillMaxHeight(), // 画面いっぱいまで使用
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -289,24 +321,12 @@ fun Favorite(favoriteShops: List<ShopWithImage>, goToNote: (shop: Shop) -> Unit 
                         FavoriteShopItem(
                             shop = shopWithImage.shop,
                             imageBytes = shopWithImage.imageBytes,
-                            onClick = { goToNote(shopWithImage.shop) }
+                            onClick = { goToShop(shopWithImage.shop.id, shopWithImage.shop.name) }
                         )
                     }
                 }
             }
         }
-
-        // タイトルをborder上に配置
-        Text(
-            text = "お気に入り",
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 16.dp, y = (-18).dp) // 位置調整
-                .background(MaterialTheme.colorScheme.background)
-                .padding(4.dp),
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleMedium
-        )
     }
 }
 
@@ -384,14 +404,82 @@ fun FavoriteCount(count: Int) {
 
 @Composable
 fun ScheduledShopState(
-    scheduledShopState: RunStatus<Shop?>,
+    scheduleState: RunStatus<Schedule?>,
     onError: () -> Unit
 ) {
-    when (scheduledShopState) {
+    when (scheduleState) {
         is RunStatus.Success -> {  /* Do nothing */ }
         is RunStatus.Error -> { /* Do nothing */ }
         is RunStatus.Loading -> { AppProgressBar() }
         is RunStatus.Idle -> { /* Do nothing */ }
+    }
+}
+
+
+@Composable
+private fun RecentReports(
+    reports: List<FullReport>
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(Res.string.home_report_subheading),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (reports.isNotEmpty()) {
+            // LazyRow の幅を動的に指定するために BoxWithConstraints を使用
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val availableWidth = maxWidth
+                val cardWidth = availableWidth - 30.dp // 次のカードの一部が見えるように60dp引く
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    itemsIndexed(reports) { index, report ->
+                        val isLastItem = index == reports.size - 1
+                        val itemWidth = if (isLastItem) {
+                            availableWidth // 最後のアイテムは全幅を使用
+                        } else {
+                            cardWidth // 最後以外は次のカードの一部が見える幅
+                        }
+
+                        Box(
+                            modifier = Modifier.width(itemWidth)
+                        ) {
+                            ReportCard(
+                                report = report
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .height(100.dp)
+                    .fillMaxWidth()
+                    .border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(10.dp)
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+
+            ) {
+                Text(text = stringResource(Res.string.home_no_reports))
+            }
+        }
     }
 }
 
@@ -400,7 +488,42 @@ fun ScheduledShopState(
 fun SchedulePreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            Schedule(Shop())
+            Schedule(Schedule())
+        }
+    }
+}
+
+@Preview
+@Composable
+fun RecentReportsPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            RecentReports(
+                reports = MockHomeViewModel().threeMonthsReports.value
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ReportCardPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            ReportCard(
+                report = FullReport(
+                    id = 1,
+                    shopId = 1,
+                    shopName = "一風堂 博多本店",
+                    menuName = "白丸元味",
+                    photoName = "hakata_ramen_1.jpg",
+                    imageBytes = null,
+                    impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
+                    date = kotlinx.datetime.LocalDate.parse("2024-12-15"),
+                    star = 1
+                ),
+                onLongPress = { }
+            )
         }
     }
 }
