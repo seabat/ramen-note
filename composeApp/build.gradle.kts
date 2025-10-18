@@ -136,6 +136,7 @@ afterEvaluate {
     )
     val composeGenTasks = listOf(
         "generateResourceAccessorsForAndroidDebug",
+        "generateResourceAccessorsForAndroidRelease",
         "generateResourceAccessorsForAndroidMain",
         "generateActualResourceCollectorsForAndroidMain",
         "generateComposeResClass",
