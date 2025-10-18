@@ -3,7 +3,7 @@ package dev.seabat.ramennote.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
@@ -19,27 +19,27 @@ class HomeViewModel(
     private val loadImageUseCase: LoadImageUseCaseContract
 ) : ViewModel(), HomeViewModelContract {
 
-    private val _scheduledShop = MutableStateFlow<Shop?>(null)
-    override val scheduledShop: StateFlow<Shop?> = _scheduledShop.asStateFlow()
+    private val _schedule = MutableStateFlow<Schedule?>(null)
+    override val schedule: StateFlow<Schedule?> = _schedule.asStateFlow()
     
-    private val _scheduledShopState = MutableStateFlow<RunStatus<Shop?>>(RunStatus.Idle())
-    override val scheduledShopState: StateFlow<RunStatus<Shop?>> = _scheduledShopState.asStateFlow()
+    private val _scheduleState = MutableStateFlow<RunStatus<Schedule?>>(RunStatus.Idle())
+    override val scheduleState: StateFlow<RunStatus<Schedule?>> = _scheduleState.asStateFlow()
     
     private val _favoriteShops = MutableStateFlow<List<ShopWithImage>>(emptyList())
     override val favoriteShops: StateFlow<List<ShopWithImage>> = _favoriteShops.asStateFlow()
 
     override fun loadRecentSchedule() {
         viewModelScope.launch {
-            _scheduledShopState.value = RunStatus.Loading()
+            _scheduleState.value = RunStatus.Loading()
             val result = loadRecentScheduleUseCase()
-            _scheduledShopState.value = result
+            _scheduleState.value = result
             
             when (result) {
                 is RunStatus.Success -> {
-                    _scheduledShop.value = result.data
+                    _schedule.value = result.data
                 }
                 is RunStatus.Error -> {
-                    _scheduledShop.value = null
+                    _schedule.value = null
                 }
                 is RunStatus.Loading -> {
                     // Loading状態は既に設定済み
@@ -49,8 +49,8 @@ class HomeViewModel(
         }
     }
 
-    override fun setScheduledShopStateToIdle() {
-        _scheduledShopState.value = RunStatus.Idle()
+    override fun setScheduleStateToIdle() {
+        _scheduleState.value = RunStatus.Idle()
     }
     
     override fun loadFavoriteShops() {

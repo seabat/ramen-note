@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import ramennote.composeapp.generated.resources.Res
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
@@ -46,8 +47,8 @@ fun HomeScreen(
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ -> },
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
-    val scheduledShop by viewModel.scheduledShop.collectAsStateWithLifecycle()
-    val scheduledShopState by viewModel.scheduledShopState.collectAsStateWithLifecycle()
+    val schedule by viewModel.schedule.collectAsStateWithLifecycle()
+    val scheduleState by viewModel.scheduleState.collectAsStateWithLifecycle()
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
     
     LaunchedEffect(Unit) {
@@ -87,7 +88,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Top
         ) {
             Schedule(
-                scheduledShop,
+                schedule,
                 goToShop,
                 goToReport
             )
@@ -104,15 +105,15 @@ fun HomeScreen(
             }
         }
 
-        ScheduledShopState(scheduledShopState) {
-            viewModel.setScheduledShopStateToIdle()
+        ScheduledShopState(scheduleState) {
+            viewModel.setScheduleStateToIdle()
         }
     }
 }
 
 @Composable
 fun Schedule(
-    scheduledShop: Shop?,
+    schedule: Schedule?,
     goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ -> },
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ -> }
 ) {
@@ -132,7 +133,7 @@ fun Schedule(
                     shape = RoundedCornerShape(10.dp)
                 )
                 .clickable {
-                    scheduledShop?.shopUrl?.let { url ->
+                    schedule?.shopUrl?.let { url ->
                         if (url.isNotBlank()) {
                             urlHandler.openUri(url)
                         }
@@ -140,11 +141,11 @@ fun Schedule(
                 },
             contentAlignment = Alignment.Center
         ) {
-            if (scheduledShop != null) {
+            if (schedule != null) {
                 // WebView
-                if (scheduledShop.shopUrl.isNotBlank()) {
+                if (schedule.shopUrl.isNotBlank()) {
                     PlatformWebView(
-                        url = scheduledShop.shopUrl,
+                        url = schedule.shopUrl,
                         modifier = Modifier
                             .fillMaxSize()
                             // コンテンツの角が外側のコンポーネントからはみ出さないようにする
@@ -181,7 +182,7 @@ fun Schedule(
             )
 
             // コンテンツ
-            if (scheduledShop != null) {
+            if (schedule != null) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -191,7 +192,7 @@ fun Schedule(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = scheduledShop.name,
+                        text = schedule.shopName,
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -202,28 +203,31 @@ fun Schedule(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ramen_dining_24px),
-                            contentDescription = "食レポ",
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clickable {
-                                    goToReport(
-                                        scheduledShop.id,
-                                        scheduledShop.name,
-                                        scheduledShop.menuName1,
-                                        scheduledShop.scheduledDate?.toString() ?: ""
-                                    )
-                                },
-                            tint = Color.White
-                        )
+                        // schedule.isReportedがtrueの時は食レポアイコンを非表示
+                        if (!schedule.isReported) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ramen_dining_24px),
+                                contentDescription = "食レポ",
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable {
+                                        goToReport(
+                                            schedule.shopId,
+                                            schedule.shopName,
+                                            schedule.menuName,
+                                            schedule.scheduledDate?.toString() ?: ""
+                                        )
+                                    },
+                                tint = Color.White
+                            )
+                        }
                         Icon(
                             painter = painterResource(Res.drawable.book_5_24px),
                             contentDescription = "編集",
                             modifier = Modifier
                                 .size(24.dp)
                                 .clickable {
-                                    goToShop(scheduledShop.id, scheduledShop.name)
+                                    goToShop(schedule.shopId, schedule.shopName)
                                 },
                             tint = Color.White
                         )
@@ -234,7 +238,7 @@ fun Schedule(
 
         // タイトルをborder上に配置
         Text(
-            text = scheduledShop?.scheduledDate?.let {
+            text = schedule?.scheduledDate?.let {
                 createFormattedDateString(it)
             } ?: "予定なし",
             modifier = Modifier
@@ -392,10 +396,10 @@ fun FavoriteCount(count: Int) {
 
 @Composable
 fun ScheduledShopState(
-    scheduledShopState: RunStatus<Shop?>,
+    scheduleState: RunStatus<Schedule?>,
     onError: () -> Unit
 ) {
-    when (scheduledShopState) {
+    when (scheduleState) {
         is RunStatus.Success -> {  /* Do nothing */ }
         is RunStatus.Error -> { /* Do nothing */ }
         is RunStatus.Loading -> { AppProgressBar() }
@@ -408,7 +412,7 @@ fun ScheduledShopState(
 fun SchedulePreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            Schedule(Shop())
+            Schedule(Schedule())
         }
     }
 }
