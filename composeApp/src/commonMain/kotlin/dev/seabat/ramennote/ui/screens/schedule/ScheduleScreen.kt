@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -56,7 +57,7 @@ fun ScheduleScreen(
     goToShop: (shop: Shop) -> Unit = {},
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
-    val shops by viewModel.scheduledShops.collectAsState()
+    val schedules by viewModel.schedules.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
     val datePickerState = rememberDatePickerState()
@@ -79,10 +80,19 @@ fun ScheduleScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            if (shops.isNotEmpty()) {
+            if (schedules.isNotEmpty()) {
                 ScheduleList(
-                    shops = shops,
-                    onHistoryClick = { shop ->
+                    schedules = schedules,
+                    onReportClick = { schedule ->
+                        val shop = Shop(
+                            id = schedule.shopId,
+                            name = schedule.shopName,
+                            shopUrl = schedule.shopUrl,
+                            mapUrl = schedule.mapUrl,
+                            star = schedule.star,
+                            category = schedule.category,
+                            scheduledDate = schedule.scheduledDate
+                        )
                         goToReport(shop)
                     },
                     onEditClick = { shopId ->
@@ -92,7 +102,16 @@ fun ScheduleScreen(
                     onDeleteClick = { shopId ->
                         viewModel.deleteSchedule(shopId)
                     },
-                    onScheduleClick = { shop ->
+                    onListItemClick = { schedule ->
+                        val shop = Shop(
+                            id = schedule.shopId,
+                            name = schedule.shopName,
+                            shopUrl = schedule.shopUrl,
+                            mapUrl = schedule.mapUrl,
+                            star = schedule.star,
+                            category = schedule.category,
+                            scheduledDate = schedule.scheduledDate
+                        )
                         goToShop(shop)
                     }
                 )
@@ -133,15 +152,15 @@ fun ScheduleScreen(
 
 @Composable
 private fun ScheduleList(
-    shops: List<Shop>,
-    onHistoryClick: (shop: Shop) -> Unit,
+    schedules: List<Schedule>,
+    onReportClick: (schedule: Schedule) -> Unit,
     onEditClick: (shopId: Int) -> Unit,
     onDeleteClick: (shopId: Int) -> Unit,
-    onScheduleClick: (shop: Shop) -> Unit
+    onListItemClick: (schedule: Schedule) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
-    val grouped: Map<String, List<Shop>> = shops.groupBy { shop ->
-        val date = shop.scheduledDate
+    val grouped: Map<String, List<Schedule>> = schedules.groupBy { schedule ->
+        val date = schedule.scheduledDate
         if (date != null) "${date.year}-${date.monthNumber.toString().padStart(2, '0')}" else ""
     }.filterKeys { it.isNotEmpty() }
 
@@ -156,7 +175,7 @@ private fun ScheduleList(
             )
         }
 
-        grouped.forEach { (yearMonth, monthShops) ->
+        grouped.forEach { (yearMonth, monthSchedules) ->
             item {
                 Text(
                     text = yearMonth,
@@ -173,20 +192,20 @@ private fun ScheduleList(
                 )
             }
 
-            items(monthShops) { shop ->
+            items(monthSchedules) { schedule ->
                 ScheduleRow(
-                    shop = shop,
-                    onHistoryClick = {
-                        onHistoryClick(shop)
+                    schedule = schedule,
+                    onReportClick = {
+                        onReportClick(schedule)
                     },
                     onEditClick = {
-                        onEditClick(shop.id)
+                        onEditClick(schedule.shopId)
                     },
                     onDeleteClick = {
-                        onDeleteClick(shop.id)
+                        onDeleteClick(schedule.shopId)
                     },
-                    onScheduleClick = {
-                        onScheduleClick(shop)
+                    onListItemClick = {
+                        onListItemClick(schedule)
                     }
                 )
             }
@@ -196,13 +215,13 @@ private fun ScheduleList(
 
 @Composable
 private fun ScheduleRow(
-    shop: Shop,
-    onHistoryClick: () -> Unit = {},
+    schedule: Schedule,
+    onReportClick: () -> Unit = {},
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onScheduleClick: () -> Unit = {}
+    onListItemClick: () -> Unit = {}
 ) {
-    val date: LocalDate? = shop.scheduledDate
+    val date: LocalDate? = schedule.scheduledDate
     val dayText = if (date != null) {
         "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
     } else {
@@ -215,27 +234,29 @@ private fun ScheduleRow(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .clickable {
-                    onScheduleClick()
+                    onListItemClick()
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(text = dayText, style = MaterialTheme.typography.titleMedium)
-                Text(text = shop.name, style = MaterialTheme.typography.titleMedium)
+                Text(text = schedule.shopName, style = MaterialTheme.typography.titleMedium)
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(Res.drawable.ramen_dining_24px),
-                    contentDescription = "食レポ",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            onHistoryClick()
-                        },
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (!schedule.isReported) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ramen_dining_24px),
+                        contentDescription = "食レポ",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                onReportClick()
+                            },
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Icon(
                     painter = painterResource(Res.drawable.edit_24px),
                     contentDescription = "編集",

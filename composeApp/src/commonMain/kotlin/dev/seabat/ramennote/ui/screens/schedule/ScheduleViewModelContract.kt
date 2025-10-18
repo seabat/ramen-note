@@ -1,11 +1,11 @@
 package dev.seabat.ramennote.ui.screens.schedule
 
-import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.Schedule
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
 
 interface ScheduleViewModelContract {
-    val scheduledShops: StateFlow<List<Shop>>
+    val schedules: StateFlow<List<Schedule>>
 
     fun loadSchedule()
 

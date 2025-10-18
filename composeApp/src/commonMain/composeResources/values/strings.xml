@@ -52,6 +52,7 @@
     <string name="add_category_label">系統</string>
     <string name="add_no_url_label">未設定</string>
     <string name="add_schedule_label">予定</string>
+    <string name="add_schedule_error_past_date_message">過去の日付を指定できません</string>
 
     <!-- Add Shop Screen -->
     <string name="add_shop_area">エリア</string>
