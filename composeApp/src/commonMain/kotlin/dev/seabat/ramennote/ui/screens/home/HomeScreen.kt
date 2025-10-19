@@ -95,7 +95,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 24.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                .padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -105,14 +105,14 @@ fun HomeScreen(
                 goToReport
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // 過去3ヶ月分のレポートを水平ページャーで表示
             RecentReports(
                 reports = threeMonthsReports
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Favorite(
                 favoriteShops,
@@ -136,12 +136,19 @@ fun Schedule(
     goToShop: (shopId: Int, shopName: String) -> Unit = {_, _ -> },
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = {_, _, _, _ -> }
 ) {
-    Box(
+    Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         val urlHandler = LocalUriHandler.current
 
-        // メインのBox
+        Text(
+            text = schedule?.scheduledDate?.let {
+                "${createFormattedDateString(it)}の予定"
+            } ?: "予定なし",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -158,7 +165,6 @@ fun Schedule(
                         }
                     }
                 },
-            contentAlignment = Alignment.Center
         ) {
             if (schedule != null) {
                 // WebView
@@ -254,20 +260,6 @@ fun Schedule(
                 }
             }
         }
-
-        // タイトルをborder上に配置
-        Text(
-            text = schedule?.scheduledDate?.let {
-                createFormattedDateString(it)
-            } ?: "予定なし",
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 16.dp, y = (-18).dp) // 位置調整
-                .background(MaterialTheme.colorScheme.background)
-                .padding(4.dp),
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleMedium
-        )
     }
 }
 

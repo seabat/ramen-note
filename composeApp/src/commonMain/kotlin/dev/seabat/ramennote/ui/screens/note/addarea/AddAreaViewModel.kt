@@ -6,6 +6,7 @@ import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
+import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +25,7 @@ class AddAreaViewModel(
     override val addState: StateFlow<RunStatus<ByteArray?>> = _addState.asStateFlow()
 
     override fun addArea(area: String) {
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val today = createTodayLocalDate()
         viewModelScope.launch {
             _addState.value = RunStatus.Loading()
             areasRepository.add(

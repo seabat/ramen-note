@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.ui.screens.history.report.ReportScreen
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
@@ -390,7 +391,7 @@ fun MainNavigation() {
                                 shop.id,
                                 shop.name,
                                 shop.menuName1,
-                                iso8601Date = shop.scheduledDate.toString()
+                                iso8601Date = shop.scheduledDate?.toString() ?: createTodayLocalDate().toString()
                             )
                         )
                     }

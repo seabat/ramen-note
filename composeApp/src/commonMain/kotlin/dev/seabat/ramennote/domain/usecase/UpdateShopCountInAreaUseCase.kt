@@ -2,6 +2,7 @@ package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
+import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -14,7 +15,7 @@ class UpdateShopCountInAreaUseCase(
         val shops = shopsRepository.getShopsByArea(area)
         val count = shops.size
         val existing = areasRepository.fetch(area) ?: return
-        val nowDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val nowDate = createTodayLocalDate()
         val updated = existing.copy(count = count, updatedDate = nowDate)
         areasRepository.edit(updated)
     }
