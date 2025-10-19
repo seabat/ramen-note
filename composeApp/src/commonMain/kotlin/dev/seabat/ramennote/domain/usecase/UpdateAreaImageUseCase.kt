@@ -3,6 +3,7 @@ package dev.seabat.ramennote.domain.usecase
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
@@ -21,7 +22,7 @@ class UpdateAreaImageUseCase(
         }
 
         val areaData = areasRepository.fetch(area)
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val today = createTodayLocalDate()
         val needUpdate = areaData == null || areaData.updatedDate < today.minus(1, kotlinx.datetime.DateTimeUnit.DAY)
         return if (needUpdate) {
             fetchUnsplashImageUseCase(area)

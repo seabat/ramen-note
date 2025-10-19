@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
@@ -65,7 +66,7 @@ fun ReportScreen(
     var menuName by remember { mutableStateOf(menuName) }
     var image by remember { mutableStateOf(SharedImage()) }
     var reportedDate by remember {
-        mutableStateOf(scheduledDate ?:Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
+        mutableStateOf(scheduledDate ?:createTodayLocalDate())
     }
     var impression by remember { mutableStateOf("") }
 
