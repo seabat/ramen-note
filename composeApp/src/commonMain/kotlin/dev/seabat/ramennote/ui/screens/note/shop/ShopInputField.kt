@@ -101,10 +101,16 @@ fun ShopInputField(
 @Composable
 fun ShopInputField() {
     RamenNoteTheme {
-        ShopInputField(
-            label = "店舗名",
-            value = "ラーメン太郎",
-            onValueChange = {}
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp)
+        ) {
+            ShopInputField(
+                label = "店舗名",
+                value = "ラーメン太郎",
+                onValueChange = {}
+            )
+        }
     }
 }

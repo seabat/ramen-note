@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,6 +116,24 @@ private fun DropdownAnchorField(
             .padding(end = 4.dp)
         ) {
             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ShopDropdownFieldPreview() {
+    MaterialTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp)
+        ) {
+            ShopDropdownField(
+                label = "味の種類",
+                value = "醤油",
+                onValueChange = { }
+            )
         }
     }
 }
