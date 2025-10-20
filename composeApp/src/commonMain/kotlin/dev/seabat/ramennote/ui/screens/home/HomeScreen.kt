@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ramennote.composeapp.generated.resources.Res
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -355,13 +356,15 @@ fun FavoriteShopItem(
         
         // 店舗名テキスト
         Text(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(horizontal = 8.dp),
             text = shop.name,
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 2,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurface
         )
         
@@ -515,6 +518,51 @@ fun ReportCardPreview() {
                     star = 1
                 ),
                 onLongPress = { }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun FavoriteShopItemPreview() {
+    RamenNoteTheme {
+        Column(
+            modifier = Modifier.width(130.dp).padding(all = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // 短い店舗名（通常表示）
+            FavoriteShopItem(
+                shop = Shop(
+                    id = 1,
+                    name = "一風堂",
+                    area = "福岡県",
+                    shopUrl = "https://www.ippudo.com/",
+                    mapUrl = "",
+                    star = 5,
+                    stationName = "博多駅",
+                    category = "とんこつラーメン",
+                    favorite = true
+                ),
+                imageBytes = null,
+                onClick = {}
+            )
+            
+            // 長い店舗名（...表示）
+            FavoriteShopItem(
+                shop = Shop(
+                    id = 2,
+                    name = "博多一風堂本店 天神地下街店 とんこつラーメン専門店",
+                    area = "福岡県",
+                    shopUrl = "https://www.ippudo.com/",
+                    mapUrl = "",
+                    star = 5,
+                    stationName = "天神駅",
+                    category = "とんこつラーメン",
+                    favorite = true
+                ),
+                imageBytes = null,
+                onClick = {}
             )
         }
     }
