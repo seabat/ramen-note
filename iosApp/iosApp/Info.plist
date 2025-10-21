@@ -22,7 +22,7 @@
     
     <!-- ネットワーク権限 -->
     <key>NSLocalNetworkUsageDescription</key>
-    <string>This app needs network access to load web content</string>
+    <string>このアプリは、Webコンテンツを読み込むためにネットワークアクセスが必要です</string>
     
     <!-- スプラッシュスクリーン設定 -->
     <key>UILaunchStoryboardName</key>

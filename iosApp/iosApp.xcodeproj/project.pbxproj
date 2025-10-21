@@ -106,10 +106,11 @@
 				};
 			};
 			buildConfigurationList = 06D0E277D9A19C13A3D5BBF4 /* Build configuration list for PBXProject "iosApp" */;
-			developmentRegion = en;
+			developmentRegion = ja;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ja,
 				Base,
 			);
 			mainGroup = BB505755E8318C4F3091C61A;
