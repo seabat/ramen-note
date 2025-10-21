@@ -27,5 +27,9 @@
     <!-- スプラッシュスクリーン設定 -->
     <key>UILaunchStoryboardName</key>
     <string>LaunchScreen</string>
+    
+    <!-- アプリ表示名 -->
+    <key>CFBundleDisplayName</key>
+    <string>ラーメンnote</string>
 </dict>
 </plist>
