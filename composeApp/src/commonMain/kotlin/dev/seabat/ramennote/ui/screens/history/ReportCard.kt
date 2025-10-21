@@ -47,7 +47,7 @@ fun ReportCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(135.dp)
+            .height(125.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = { onLongPress() }

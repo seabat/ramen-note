@@ -119,10 +119,6 @@ fun HomeScreen(
                 favoriteShops,
                 goToShop
             )
-            
-            if (favoriteShops.isNotEmpty()) {
-                FavoriteCount(favoriteShops.size)
-            }
         }
 
         ScheduledShopState(scheduleState) {
@@ -153,7 +149,7 @@ fun Schedule(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp)
+                .height(190.dp)
                 .border(
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.background,
@@ -273,11 +269,26 @@ fun Favorite(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(Res.string.home_favorite_subheading),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.secondary
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.home_favorite_subheading),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            
+            if (favoriteShops.isNotEmpty()) {
+                Text(
+                    modifier = Modifier.padding(end = 8.dp),
+                    text = "${favoriteShops.size}件",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -360,7 +371,7 @@ fun FavoriteShopItem(
                 .align(Alignment.Center)
                 .padding(horizontal = 8.dp),
             text = shop.name,
-            style = MaterialTheme.typography.bodyMedium.copy(
+            style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 2,
