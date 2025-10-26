@@ -53,6 +53,12 @@ import ramennote.composeapp.generated.resources.ramen_dining_24px
 import ramennote.composeapp.generated.resources.schedule_no_data
 import ramennote.composeapp.generated.resources.screen_schedule_title
 
+private sealed interface ShouldShowErrorDialog {
+    object Hidden : ShouldShowErrorDialog
+    object PastDate : ShouldShowErrorDialog
+    data class DeleteConfirm(val shopId: Int) : ShouldShowErrorDialog
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
@@ -63,7 +69,7 @@ fun ScheduleScreen(
     val schedules by viewModel.schedules.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
-    var showErrorDialog by remember { mutableStateOf(false) }
+    var shouldShowErrorDialog by remember { mutableStateOf<ShouldShowErrorDialog>(ShouldShowErrorDialog.Hidden) }
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
@@ -100,7 +106,7 @@ fun ScheduleScreen(
                         clickedShopId = shopId
                     },
                     onDeleteClick = { shopId ->
-                        viewModel.deleteSchedule(shopId)
+                        shouldShowErrorDialog = ShouldShowErrorDialog.DeleteConfirm(shopId)
                     },
                     onListItemClick = { schedule ->
                         goToShop(schedule.shopId, schedule.shopName)
@@ -123,7 +129,7 @@ fun ScheduleScreen(
                     onClick = {
                         datePickerOnClickHandler(
                             datePickerState,
-                            showErrorDialog = { showErrorDialog = true },
+                            showErrorDialog = { shouldShowErrorDialog = ShouldShowErrorDialog.PastDate },
                             clearClicked = { clickedShopId = 0 },
                             dismissDatePicker = { showDatePicker = false },
                             editSchedule = { date -> viewModel.editSchedule(clickedShopId, date) },
@@ -139,11 +145,25 @@ fun ScheduleScreen(
         }
     }
     // エラーダイアログ
-    if (showErrorDialog) {
-        AppAlert(
-            message = stringResource(Res.string.add_schedule_error_past_date_message),
-            onConfirm = { showErrorDialog = false }
-        )
+    when (val shouldShow = shouldShowErrorDialog) {
+        is ShouldShowErrorDialog.PastDate -> {
+            AppAlert(
+                message = stringResource(Res.string.add_schedule_error_past_date_message),
+                onConfirm = { shouldShowErrorDialog = ShouldShowErrorDialog.Hidden }
+            )
+        }
+        is ShouldShowErrorDialog.DeleteConfirm -> {
+            AppAlert(
+                message = "この予定を削除しますか？",
+                onConfirm = {
+                    viewModel.deleteSchedule(shouldShow.shopId)
+                    shouldShowErrorDialog = ShouldShowErrorDialog.Hidden
+                }
+            )
+        }
+        is ShouldShowErrorDialog.Hidden -> {
+            // 何も表示しない
+        }
     }
 }
 
