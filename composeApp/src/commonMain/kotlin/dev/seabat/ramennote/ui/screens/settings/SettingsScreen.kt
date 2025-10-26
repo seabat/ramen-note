@@ -34,9 +34,9 @@ fun SettingsScreen() {
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            Divider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                thickness = 1.dp
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
             Row(
                 modifier = Modifier
@@ -57,9 +57,9 @@ fun SettingsScreen() {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Divider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                thickness = 1.dp
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
             Row(
                 modifier = Modifier
@@ -78,9 +78,9 @@ fun SettingsScreen() {
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
-            Divider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                thickness = 1.dp
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
         }
     }

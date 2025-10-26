@@ -13,8 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -186,9 +186,9 @@ private fun ScheduleList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Divider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                thickness = 1.dp
+            HorizontalDivider(
+                Modifier, 1.dp,
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
         }
 
@@ -203,9 +203,9 @@ private fun ScheduleList(
             }
 
             item {
-                Divider(
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                    thickness = 1.dp
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                 )
             }
 
@@ -296,9 +296,9 @@ private fun ScheduleRow(
                 )
             }
         }
-        Divider(
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-            thickness = 1.dp
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
         )
     }
 }

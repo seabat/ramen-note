@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -100,9 +100,9 @@ private fun AreaShopListMainContent(
                 contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
             ) {
                 item {
-                    Divider(
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                        thickness = 1.dp
+                    HorizontalDivider(
+                        Modifier, 1.dp,
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                     )
                 }
                 items(shops) { shop ->
@@ -181,9 +181,9 @@ private fun ShopItem(
                 )
             }
         }
-        Divider(
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-            thickness = 1.dp
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
         )
     }
 }
