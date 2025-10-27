@@ -1,0 +1,47 @@
+root = true
+
+[*.{kt,kts}]
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+#trailing-comma ルールを無効化。コンストラクタ、関数、コレクションなどの最後の要素の後ろにコンマがなくても良い。
+ktlint_standard_trailing-comma = disabled
+ij_kotlin_allow_trailing_comma = false
+ij_kotlin_allow_trailing_comma_on_call_site = false
+
+# 関数（またはコンストラクタ）のシグネチャ（名前、引数、戻り値の型）のフォーマット、特に改行やインデントのスタイルへのルールを無効化
+ktlint_standard_function-signature = disabled
+
+# パラメータリストの改行ルールを無効化（より自然な改行を許可）
+ktlint_standard_parameter-list-wrapping = disabled
+
+# 式の改行ルールを無効化（より自然な改行を許可）
+ktlint_standard_expression-body-syntax = disabled
+
+# backing propertyルールを無効化（StateFlowパターンで使用される）
+ktlint_standard_backing-property = disabled
+ktlint_standard_property-naming = disabled
+
+# logd.android.kt のファイル名を許可
+ktlint_standard_filename = disabled
+
+[**/build/**/*.kt]
+ktlint = disabled
+
+[**/*.gradle.kts]
+ktlint = disabled
+
+[**/src/commonTest/kotlin/**/*.kt]
+ktlint = disabled
+
+[**/src/test/kotlin/**/*.kt]
+ktlint = disabled
+
+[**/secrets/**/*.kt]
+ktlint = disabled
+
+[**/presentation/resources/**]
+ktlint = disabled
+
+
+
+
