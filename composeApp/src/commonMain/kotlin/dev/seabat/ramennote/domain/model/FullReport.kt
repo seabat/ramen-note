@@ -1,10 +1,7 @@
 package dev.seabat.ramennote.domain.model
 
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 data class FullReport(
     val id: Int = 0,

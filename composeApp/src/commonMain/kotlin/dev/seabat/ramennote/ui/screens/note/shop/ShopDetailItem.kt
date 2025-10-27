@@ -17,19 +17,20 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ShopDetailItem(
     label: String,
-    value: String,
+    value: String
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.Medium
         )
 
         Text(
@@ -45,9 +46,10 @@ fun ShopDetailItem(
 fun ShopDetailItemPreview() {
     MaterialTheme {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
             ShopDetailItem(
                 label = "店舗名",

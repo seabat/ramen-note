@@ -1,20 +1,21 @@
 package dev.seabat.ramennote.ui.screens.note.editarea
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import coil3.compose.AsyncImage
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,28 +25,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.components.AppAlert
-import org.jetbrains.compose.resources.stringResource
-import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.editarea_change_image_button
-import ramennote.composeapp.generated.resources.editarea_title
-import ramennote.composeapp.generated.resources.editarea_delete_confirm
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.editarea_change_image_button
 import ramennote.composeapp.generated.resources.editarea_delete_button
+import ramennote.composeapp.generated.resources.editarea_delete_confirm
 import ramennote.composeapp.generated.resources.editarea_edit_button
 import ramennote.composeapp.generated.resources.editarea_image_load_error
+import ramennote.composeapp.generated.resources.editarea_title
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +55,6 @@ fun EditAreaScreen(
     onCompleted: () -> Unit,
     viewModel: EditAreaViewModelContract = koinViewModel<EditAreaViewModel>()
 ) {
-
     LaunchedEffect(Unit) {
         viewModel.currentAreaName = areaName
         viewModel.loadImage(areaName)
@@ -78,14 +77,18 @@ fun EditAreaScreen(
                 onBackClick = onBackClick
             )
 
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
             ) {
-                Column(modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures { focusManager.clearFocus() }
-                    }
+                Column(
+                    modifier =
+                        Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures { focusManager.clearFocus() }
+                            }
                 ) {
                     Text(text = "エリア", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
@@ -93,26 +96,29 @@ fun EditAreaScreen(
                         value = areaName,
                         onValueChange = { areaName = it },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.outline,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                            disabledBorderColor = MaterialTheme.colorScheme.outline,
-                            errorBorderColor = MaterialTheme.colorScheme.error
-                        ),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                                errorBorderColor = MaterialTheme.colorScheme.error
+                            ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = { focusManager.clearFocus() }
-                        )
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = { focusManager.clearFocus() }
+                            )
                     )
 
                     Spacer(Modifier.height(16.dp))
 
                     Button(
                         onClick = { viewModel.fetchImage(areaName) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
                     ) {
                         Text(
                             stringResource(Res.string.editarea_change_image_button),
@@ -126,9 +132,10 @@ fun EditAreaScreen(
                             AsyncImage(
                                 model = imageState.data,
                                 contentDescription = null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(180.dp)
                             )
                         }
                         is RunStatus.Loading -> {
@@ -178,7 +185,7 @@ fun EditAreaScreen(
 fun BottomButtons(
     areaName: String,
     onEditButtonClick: () -> Unit,
-    onDeleteButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit
 ) {
     Column {
         MaxWidthButton(
@@ -200,17 +207,21 @@ fun BottomButtons(
 fun EditStatus(
     deleteStatus: RunStatus<String>,
     onCompleted: () -> Unit
-){
+) {
     when (deleteStatus) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${deleteStatus.message}",
                 onConfirm = { onCompleted() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }
 
@@ -218,17 +229,21 @@ fun EditStatus(
 fun DeleteStatus(
     deleteStatus: RunStatus<String>,
     onCompleted: () -> Unit
-){
+) {
     when (deleteStatus) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${deleteStatus.message}",
                 onConfirm = { onCompleted() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }
 

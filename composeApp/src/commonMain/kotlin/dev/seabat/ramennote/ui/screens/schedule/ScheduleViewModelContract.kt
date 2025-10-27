@@ -13,5 +13,3 @@ interface ScheduleViewModelContract {
 
     fun deleteSchedule(shopId: Int)
 }
-
-

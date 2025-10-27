@@ -12,5 +12,3 @@ class UpdateScheduleInShopUseCase(
         shopsRepository.updateShop(updated)
     }
 }
-
-

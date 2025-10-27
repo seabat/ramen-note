@@ -14,25 +14,24 @@ import androidx.compose.ui.unit.dp
 fun MaxWidthButton(
     text: String,
     enabled: Boolean = true,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     Button(
         onClick = {
             onClick()
         },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 24.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-        ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            ),
         enabled = enabled,
         shape = MaterialTheme.shapes.medium
     ) {
         Text(text = text, style = MaterialTheme.typography.titleMedium)
     }
 }
-
-
-

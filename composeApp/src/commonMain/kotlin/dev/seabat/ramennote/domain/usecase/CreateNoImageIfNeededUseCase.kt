@@ -3,7 +3,7 @@ package dev.seabat.ramennote.domain.usecase
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.data.repository.NoImageRepositoryContract
 
-const val reportNoImageFileName = "R_NO_IMAGE"
+const val REPORT_NO_IMAGE_FILE_NAME = "R_NO_IMAGE"
 
 class CreateNoImageIfNeededUseCase(
     private val localImageRepository: LocalImageRepositoryContract,

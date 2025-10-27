@@ -4,5 +4,5 @@ import dev.seabat.ramennote.domain.model.Shop
 
 data class ShopWithImage(
     val shop: Shop,
-    val imageBytes: ByteArray? = null,
+    val imageBytes: ByteArray? = null
 )

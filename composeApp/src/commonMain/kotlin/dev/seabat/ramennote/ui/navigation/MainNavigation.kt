@@ -2,7 +2,11 @@ package dev.seabat.ramennote.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,172 +26,178 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
-import dev.seabat.ramennote.ui.screens.history.report.ReportScreen
-import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
-import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
-import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
-import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
-import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
-import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
 import dev.seabat.ramennote.ui.screens.history.HistoryScreen
 import dev.seabat.ramennote.ui.screens.history.editreport.EditReportScreen
+import dev.seabat.ramennote.ui.screens.history.report.ReportScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
+import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
+import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
+import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
+import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
+import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
+import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.settings.SettingsScreen
 import kotlinx.datetime.LocalDate
-import dev.seabat.ramennote.domain.model.Shop as ShopInfo
 import kotlinx.serialization.Serializable
-import kotlin.reflect.KClass
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.book_5_24px
+import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 import ramennote.composeapp.generated.resources.screen_area_shop_title
 import ramennote.composeapp.generated.resources.screen_history_title
 import ramennote.composeapp.generated.resources.screen_home_title
 import ramennote.composeapp.generated.resources.screen_schedule_title
 import ramennote.composeapp.generated.resources.screen_settings_title
+import kotlin.reflect.KClass
+import dev.seabat.ramennote.domain.model.Shop as ShopInfo
 
 sealed interface Screen {
     companion object {
-        fun getRouteName(clazz: KClass<out Screen>): String {
-            return clazz.simpleName ?: "Unknown"
-        }
+        fun getRouteName(clazz: KClass<out Screen>): String = clazz.simpleName ?: "Unknown"
     }
 
     @Serializable
     data object Home : Screen {
         override val route: String = getRouteName(Home::class)
+
         @Composable
-        override fun getIcon(): ImageVector {
-            return Icons.Default.Home
-        }
+        override fun getIcon(): ImageVector = Icons.Default.Home
+
         @Composable
-        override fun getTitle(): String {
-            return stringResource(Res.string.screen_home_title)
-        }
+        override fun getTitle(): String = stringResource(Res.string.screen_home_title)
     }
 
     @Serializable
     data object Schedule : Screen {
         override val route: String = getRouteName(Schedule::class)
+
         @Composable
-        override fun getIcon(): ImageVector {
-            return vectorResource(Res.drawable.event_note_24px)
-        }
+        override fun getIcon(): ImageVector = vectorResource(Res.drawable.event_note_24px)
+
         @Composable
-        override fun getTitle(): String {
-            return stringResource(Res.string.screen_schedule_title)
-        }
+        override fun getTitle(): String = stringResource(Res.string.screen_schedule_title)
     }
 
     @Serializable
     data object Note : Screen {
         override val route: String = getRouteName(Note::class)
+
         @Composable
-        override fun getIcon(): ImageVector {
-            return vectorResource(Res.drawable.book_5_24px)
-        }
+        override fun getIcon(): ImageVector = vectorResource(Res.drawable.book_5_24px)
+
         @Composable
-        override fun getTitle(): String {
-            return "ノート"
-        }
+        override fun getTitle(): String = "ノート"
     }
 
     @Serializable
     data object History : Screen {
         override val route: String = getRouteName(History::class)
+
         @Composable
-        override fun getIcon(): ImageVector {
-            return vectorResource(Res.drawable.ramen_dining_24px)
-        }
+        override fun getIcon(): ImageVector = vectorResource(Res.drawable.ramen_dining_24px)
+
         @Composable
-        override fun getTitle(): String {
-            return stringResource(Res.string.screen_history_title)
-        }
+        override fun getTitle(): String = stringResource(Res.string.screen_history_title)
     }
 
     @Serializable
     data object Settings : Screen {
         override val route: String = getRouteName(Settings::class)
+
         @Composable
-        override fun getIcon(): ImageVector {
-            return Icons.Default.Settings
-        }
+        override fun getIcon(): ImageVector = Icons.Default.Settings
+
         @Composable
-        override fun getTitle(): String {
-            return stringResource(Res.string.screen_settings_title)
-        }
+        override fun getTitle(): String = stringResource(Res.string.screen_settings_title)
     }
 
     @Serializable
-    data class AreaShopList(val areaName: String): Screen {
+    data class AreaShopList(
+        val areaName: String
+    ) : Screen {
         override val route: String = getRouteName(AreaShopList::class)
+
         @Composable
         override fun getIcon(): ImageVector {
             return Icons.Default.Star // 表示されないので適切なアイコン
         }
+
         @Composable
-        override fun getTitle(): String {
-            return stringResource(Res.string.screen_area_shop_title)
-        }
+        override fun getTitle(): String = stringResource(Res.string.screen_area_shop_title)
     }
 
     @Serializable
-    data class EditArea(val areaName: String): Screen {
+    data class EditArea(
+        val areaName: String
+    ) : Screen {
         override val route: String = getRouteName(EditArea::class)
+
         @Composable
-        override fun getIcon(): ImageVector { return Icons.Default.Edit }
+        override fun getIcon(): ImageVector = Icons.Default.Edit
+
         @Composable
-        override fun getTitle(): String { return "編集" }
+        override fun getTitle(): String = "編集"
     }
 
     @Serializable
     data object AddArea : Screen {
         override val route: String = getRouteName(AddArea::class)
+
         @Composable
-        override fun getIcon(): ImageVector { return Icons.Default.Add }
+        override fun getIcon(): ImageVector = Icons.Default.Add
+
         @Composable
-        override fun getTitle(): String { return "登録" }
+        override fun getTitle(): String = "登録"
     }
 
     @Serializable
-    data class Shop(val shopId: Int, val shopName: String) : Screen {
+    data class Shop(
+        val shopId: Int,
+        val shopName: String
+    ) : Screen {
         override val route: String = getRouteName(Shop::class)
+
         @Composable
-        override fun getIcon(): ImageVector { return Icons.Default.Star }
+        override fun getIcon(): ImageVector = Icons.Default.Star
+
         @Composable
-        override fun getTitle(): String { 
-            return shopName
-        }
+        override fun getTitle(): String = shopName
     }
 
     @Serializable
-    data class AddShop(val areaName: String) : Screen {
+    data class AddShop(
+        val areaName: String
+    ) : Screen {
         override val route: String = getRouteName(AddShop::class)
+
         @Composable
-        override fun getIcon(): ImageVector { return Icons.Default.Add }
+        override fun getIcon(): ImageVector = Icons.Default.Add
+
         @Composable
-        override fun getTitle(): String { return "店舗登録" }
+        override fun getTitle(): String = "店舗登録"
     }
 
     @Serializable
-    data class EditShop(val shopJson: String) : Screen {
+    data class EditShop(
+        val shopJson: String
+    ) : Screen {
         override val route: String = getRouteName(EditShop::class)
+
         @Composable
-        override fun getIcon(): ImageVector { return Icons.Default.Edit }
+        override fun getIcon(): ImageVector = Icons.Default.Edit
+
         @Composable
-        override fun getTitle(): String { 
-            return try {
+        override fun getTitle(): String =
+            try {
                 val shop = ShopInfo.fromJsonString(shopJson)
                 "${shop.name} 編集"
             } catch (_: Exception) {
                 "店舗編集"
             }
-        }
     }
 
     @Serializable
@@ -198,12 +208,12 @@ sealed interface Screen {
         val iso8601Date: String
     ) : Screen {
         override val route: String = getRouteName(Report::class)
+
         @Composable
-        override fun getIcon(): ImageVector { return Icons.Default.Star }
+        override fun getIcon(): ImageVector = Icons.Default.Star
+
         @Composable
-        override fun getTitle(): String {
-            return "$shopName レポート"
-        }
+        override fun getTitle(): String = "$shopName レポート"
     }
 
     @Serializable
@@ -211,17 +221,19 @@ sealed interface Screen {
         val reportId: Int
     ) : Screen {
         override val route: String = getRouteName(EditReport::class)
+
         @Composable
-        override fun getIcon(): ImageVector { return Icons.Default.Star }
+        override fun getIcon(): ImageVector = Icons.Default.Star
+
         @Composable
-        override fun getTitle(): String {
-            return "レポート編集"
-        }
+        override fun getTitle(): String = "レポート編集"
     }
 
     val route: String
+
     @Composable
     fun getIcon(): ImageVector
+
     @Composable
     fun getTitle(): String
 }
@@ -230,22 +242,24 @@ sealed interface Screen {
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
-    
-    val tabScreens = listOf(
-        Screen.Home,
-        Screen.Schedule,
-        Screen.Note,
-        Screen.History,
-        Screen.Settings
-    )
-    
+
+    val tabScreens =
+        listOf(
+            Screen.Home,
+            Screen.Schedule,
+            Screen.Note,
+            Screen.History,
+            Screen.Settings
+        )
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val withBottomNavigation = currentDestination?.hierarchy?.any { destination ->
-        destination.route?.let { route ->
-            tabScreens.any { screen -> route.contains(screen.route) }
+    val withBottomNavigation =
+        currentDestination?.hierarchy?.any { destination ->
+            destination.route?.let { route ->
+                tabScreens.any { screen -> route.contains(screen.route) }
+            } == true // null と比較する場合もあるので == true を使用する
         } == true // null と比較する場合もあるので == true を使用する
-    } == true // null と比較する場合もあるので == true を使用する
 
     Scaffold(
         bottomBar = {
@@ -256,26 +270,28 @@ fun MainNavigation() {
                         // デバッグ用: コンソールに出力
                         println("Screen: ${screen.route}, Current: ${currentDestination.route}, Selected: $isSelected")
                         NavigationBarItem(
-                            icon = { 
+                            icon = {
                                 Icon(
-                                    imageVector = screen.getIcon(), 
+                                    imageVector = screen.getIcon(),
                                     contentDescription = screen.getTitle(),
-                                    tint = if (isSelected) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    }
-                                ) 
+                                    tint =
+                                        if (isSelected) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
+                                )
                             },
-                            label = { 
+                            label = {
                                 Text(
                                     text = screen.getTitle(),
-                                    color = if (isSelected) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    }
-                                ) 
+                                    color =
+                                        if (isSelected) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
+                                )
                             },
                             selected = isSelected,
                             onClick = {
@@ -407,20 +423,21 @@ fun MainNavigation() {
             }
             composable<Screen.EditShop> { backStackEntry ->
                 val screen: Screen.EditShop = backStackEntry.toRoute()
-                val shop = try {
-                    ShopInfo.fromJsonString(screen.shopJson)
-                } catch (_: Exception) {
-                    // エラーの場合はデフォルトのShopオブジェクトを作成
-                    ShopInfo(
-                        name = "エラー",
-                        area = "",
-                        shopUrl = "",
-                        mapUrl = "",
-                        star = 0,
-                        stationName = "",
-                        category = ""
-                    )
-                }
+                val shop =
+                    try {
+                        ShopInfo.fromJsonString(screen.shopJson)
+                    } catch (_: Exception) {
+                        // エラーの場合はデフォルトのShopオブジェクトを作成
+                        ShopInfo(
+                            name = "エラー",
+                            area = "",
+                            shopUrl = "",
+                            mapUrl = "",
+                            star = 0,
+                            stationName = "",
+                            category = ""
+                        )
+                    }
                 EditShopScreen(
                     shop = shop,
                     onBackClick = { navController.popBackStack() },

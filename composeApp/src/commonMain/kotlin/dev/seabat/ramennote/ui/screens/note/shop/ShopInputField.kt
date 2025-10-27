@@ -51,13 +51,14 @@ fun ShopInputField(
 
         // OutlinedTextField は内部パディングが大きいので BasicTextField で代用
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(4.dp)
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(4.dp)
+                    )
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -66,29 +67,33 @@ fun ShopInputField(
                 BasicTextField(
                     value = value,
                     onValueChange = onValueChange,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
                     singleLine = singleLine,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
+                    textStyle =
+                        MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = { focusManager.clearFocus() }
-                    )
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        )
                 )
-                
+
                 // 右側にdeleteアイコンを表示
                 if (value.isNotEmpty()) {
                     Icon(
                         painter = painterResource(Res.drawable.delete_24px),
                         contentDescription = "クリア",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .padding(end = 8.dp)
-                            .clickable { onValueChange("") },
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .padding(end = 8.dp)
+                                .clickable { onValueChange("") },
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -102,9 +107,10 @@ fun ShopInputField(
 fun ShopInputField() {
     RamenNoteTheme {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
             ShopInputField(
                 label = "店舗名",

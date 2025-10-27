@@ -6,31 +6,35 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import java.io.ByteArrayOutputStream
 
-actual class SharedImage(private val bitmap: Bitmap?) {
+actual class SharedImage(
+    private val bitmap: Bitmap?
+) {
     actual constructor() : this(null)
 
     actual constructor(
         byteArray: ByteArray
     ) : this(
         BitmapFactory.decodeByteArray(
-        byteArray,
-        0,
-        byteArray.size
+            byteArray,
+            0,
+            byteArray.size
         )
     )
 
-    actual fun toByteArray(): ByteArray? {
-        return if (bitmap != null) {
+    actual fun toByteArray(): ByteArray? =
+        if (bitmap != null) {
             val byteArrayOutputStream = ByteArrayOutputStream()
-            @Suppress("MagicNumber") bitmap.compress(
-                android.graphics.Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream
+            @Suppress("MagicNumber")
+            bitmap.compress(
+                android.graphics.Bitmap.CompressFormat.PNG,
+                100,
+                byteArrayOutputStream
             )
             byteArrayOutputStream.toByteArray()
         } else {
             println("toByteArray null")
             null
         }
-    }
 
     actual fun toImageBitmap(): ImageBitmap? {
         val byteArray = toByteArray()

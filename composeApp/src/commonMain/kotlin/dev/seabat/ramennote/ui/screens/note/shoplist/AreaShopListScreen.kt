@@ -1,8 +1,6 @@
 package dev.seabat.ramennote.ui.screens.note.shoplist
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.StarIcon
-import org.jetbrains.compose.resources.painterResource
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,8 +57,9 @@ fun AreaShopListScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
         AppBar(
@@ -67,9 +68,10 @@ fun AreaShopListScreen(
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
         ) {
             AreaShopListMainContent(
                 areaName = areaName,
@@ -89,10 +91,10 @@ private fun AreaShopListMainContent(
     shops: List<Shop>
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier =
+            Modifier
+                .fillMaxSize()
     ) {
-
         if (shops.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -101,7 +103,8 @@ private fun AreaShopListMainContent(
             ) {
                 item {
                     HorizontalDivider(
-                        Modifier, 1.dp,
+                        Modifier,
+                        1.dp,
                         MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                     )
                 }
@@ -124,9 +127,10 @@ private fun AreaShopListMainContent(
         // 右下の追加ボタン
         FloatingActionButton(
             onClick = { onAddShopClick(areaName) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ) {
@@ -146,10 +150,11 @@ private fun ShopItem(
 ) {
     Column {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onShopClick() }
-                .padding(vertical = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { onShopClick() }
+                    .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -157,7 +162,7 @@ private fun ShopItem(
                 text = shop.name,
                 style = MaterialTheme.typography.titleMedium
             )
-            
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -165,17 +170,21 @@ private fun ShopItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(3) { index ->
                         StarIcon(
-                            onOff = index < shop.star,
+                            onOff = index < shop.star
                         )
                     }
                 }
-                
+
                 // お気に入りアイコン
                 Image(
-                    painter = painterResource(
-                        if (shop.favorite) Res.drawable.favorite_enabled
-                        else Res.drawable.favorite_disabled
-                    ),
+                    painter =
+                        painterResource(
+                            if (shop.favorite) {
+                                Res.drawable.favorite_enabled
+                            } else {
+                                Res.drawable.favorite_disabled
+                            }
+                        ),
                     contentDescription = if (shop.favorite) "お気に入り済み" else "お気に入り未設定",
                     modifier = Modifier.size(24.dp)
                 )

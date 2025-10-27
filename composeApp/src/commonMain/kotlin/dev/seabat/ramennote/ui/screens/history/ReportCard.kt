@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,14 +20,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.model.FullReport
-import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -38,21 +38,23 @@ fun ReportCard(
     onLongPress: () -> Unit = {}
 ) {
     val date: LocalDate? = report.date
-    val dayText = if (date != null) {
-        "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
-    } else {
-        ""
-    }
+    val dayText =
+        if (date != null) {
+            "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
+        } else {
+            ""
+        }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(125.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onLongPress = { onLongPress() }
-                )
-            },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(125.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = { onLongPress() }
+                    )
+                },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -62,18 +64,20 @@ fun ReportCard(
             AsyncImage(
                 model = report.imageBytes,
                 contentDescription = null,
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(8.dp)),
+                modifier =
+                    Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1.0f)
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .weight(1.0f)
             ) {
                 Text(
                     text = report.shopName,
@@ -118,31 +122,33 @@ fun ReportCardPreview() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             ReportCard(
-                report = FullReport(
-                    id = 1,
-                    shopId = 1,
-                    shopName = "一風堂 博多本店",
-                    menuName = "白丸元味",
-                    photoName = "hakata_ramen_1.jpg",
-                    imageBytes = null,
-                    impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
-                    date = LocalDate.parse("2024-12-15"),
-                    star = 1
-                )
+                report =
+                    FullReport(
+                        id = 1,
+                        shopId = 1,
+                        shopName = "一風堂 博多本店",
+                        menuName = "白丸元味",
+                        photoName = "hakata_ramen_1.jpg",
+                        imageBytes = null,
+                        impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
+                        date = LocalDate.parse("2024-12-15"),
+                        star = 1
+                    )
             )
-            
+
             ReportCard(
-                report = FullReport(
-                    id = 2,
-                    shopId = 2,
-                    shopName = "一風堂 山口店",
-                    menuName = "赤丸新味",
-                    photoName = "hakata_ramen_2.jpg",
-                    imageBytes = null,
-                    impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。",
-                    date = LocalDate.parse("2024-12-10"),
-                    star = 2
-                )
+                report =
+                    FullReport(
+                        id = 2,
+                        shopId = 2,
+                        shopName = "一風堂 山口店",
+                        menuName = "赤丸新味",
+                        photoName = "hakata_ramen_2.jpg",
+                        imageBytes = null,
+                        impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。",
+                        date = LocalDate.parse("2024-12-10"),
+                        star = 2
+                    )
             )
         }
     }

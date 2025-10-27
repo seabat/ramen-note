@@ -51,14 +51,14 @@ fun RamenField(
     ) {
         // メインのBox
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(10.dp)
+                    ).padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -84,11 +84,12 @@ fun RamenField(
         // タイトルをborder上に配置
         Text(
             text = "メニュー情報",
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 16.dp, y = (-8).dp) // 位置調整
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 4.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.TopStart)
+                    .offset(x = 16.dp, y = (-8).dp) // 位置調整
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 4.dp),
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -101,9 +102,10 @@ private fun PhotoSelectionField(
 ) {
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(sharedImage) {
-        val image = withContext(Dispatchers.IO) {
-            sharedImage?.toImageBitmap()
-        }
+        val image =
+            withContext(Dispatchers.IO) {
+                sharedImage?.toImageBitmap()
+            }
         imageBitmap = image
     }
 
@@ -130,21 +132,22 @@ private fun PhotoSelectionField(
             )
             if (imageBitmap != null) {
                 Image(
-                    modifier = Modifier
-                        .size(120.dp),
+                    modifier =
+                        Modifier
+                            .size(120.dp),
                     bitmap = imageBitmap!!,
                     contentDescription = null
                 )
             } else {
                 Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(4.dp)
-                        )
-                        .background(Color.White),
+                    modifier =
+                        Modifier
+                            .size(80.dp)
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(4.dp)
+                            ).background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -161,12 +164,12 @@ private fun PhotoSelectionField(
 @Preview
 @Composable
 private fun RamenPreview() {
-   MaterialTheme {
-       RamenField(
-           menuName = "チャーシューメン",
-           sharedImage = null,
-           enablePermission = {},
-           onMenuValueChange = {}
-       )
-   }
+    MaterialTheme {
+        RamenField(
+            menuName = "チャーシューメン",
+            sharedImage = null,
+            enablePermission = {},
+            onMenuValueChange = {}
+        )
+    }
 }

@@ -27,5 +27,3 @@ interface ReportDao {
     @Query("DELETE FROM reports WHERE id = :id")
     suspend fun deleteById(id: Int)
 }
-
-

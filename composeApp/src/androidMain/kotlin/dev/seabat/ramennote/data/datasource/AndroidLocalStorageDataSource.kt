@@ -4,11 +4,12 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileOutputStream
 import java.io.FileInputStream
+import java.io.FileOutputStream
 
-class AndroidLocalStorageDataSource(private val context: Context) : LocalStorageDataSourceContract {
-    
+class AndroidLocalStorageDataSource(
+    private val context: Context
+) : LocalStorageDataSourceContract {
     override suspend fun save(imageBytes: ByteArray, name: String) {
         withContext(Dispatchers.IO) {
             try {
@@ -23,8 +24,8 @@ class AndroidLocalStorageDataSource(private val context: Context) : LocalStorage
         }
     }
 
-    override suspend fun load(name: String): ByteArray? {
-        return withContext(Dispatchers.IO) {
+    override suspend fun load(name: String): ByteArray? =
+        withContext(Dispatchers.IO) {
             try {
                 val fileName = "$name.png"
                 val file = File(context.filesDir, fileName)
@@ -39,7 +40,6 @@ class AndroidLocalStorageDataSource(private val context: Context) : LocalStorage
                 null
             }
         }
-    }
 
     override suspend fun rename(oldName: String, newName: String) {
         withContext(Dispatchers.IO) {
@@ -48,7 +48,7 @@ class AndroidLocalStorageDataSource(private val context: Context) : LocalStorage
                 val newFileName = "$newName.png"
                 val oldFile = File(context.filesDir, oldFileName)
                 val newFile = File(context.filesDir, newFileName)
-                
+
                 if (oldFile.exists()) {
                     oldFile.renameTo(newFile)
                 }
@@ -63,7 +63,7 @@ class AndroidLocalStorageDataSource(private val context: Context) : LocalStorage
             try {
                 val fileName = "$name.png"
                 val file = File(context.filesDir, fileName)
-                
+
                 if (file.exists()) {
                     file.delete()
                 }

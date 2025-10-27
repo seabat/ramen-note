@@ -88,7 +88,7 @@ fun EditReportScreen(
     LaunchedEffect(Unit) {
         viewModel.loadReport(reportId)
     }
-    
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -102,14 +102,15 @@ fun EditReportScreen(
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
             ) {
                 // 店名
                 ShopDetailItem(
                     label = stringResource(Res.string.report_shop_name),
-                    value = fullReport.shopName,
+                    value = fullReport.shopName
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -118,7 +119,7 @@ fun EditReportScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = stringResource(Res.string.report_select_date),
                         style = MaterialTheme.typography.titleMedium,
@@ -144,7 +145,7 @@ fun EditReportScreen(
                     label = stringResource(Res.string.report_impressions),
                     value = impression,
                     singleLine = false,
-                    onValueChange = { impression = it },
+                    onValueChange = { impression = it }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -173,8 +174,11 @@ fun EditReportScreen(
                         onClick = {
                             val millis = datePickerState.selectedDateMillis
                             if (millis != null) {
-                                val date = Instant.fromEpochMilliseconds(millis)
-                                    .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                                val date =
+                                    Instant
+                                        .fromEpochMilliseconds(millis)
+                                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                                        .date
                                 reportedDate = date
                             }
                             showDatePicker = false
@@ -190,7 +194,7 @@ fun EditReportScreen(
         }
         EditedStatus(
             status = editedStatus,
-            onCompleted ={
+            onCompleted = {
                 viewModel.setReportedStatusToIdle()
                 onBackClick()
             },
@@ -200,7 +204,7 @@ fun EditReportScreen(
         )
         DeletedStatus(
             status = deletedStatus,
-            onCompleted ={
+            onCompleted = {
                 onBackClick()
                 viewModel.setDeletedStatusToIdle()
             },
@@ -218,15 +222,19 @@ fun EditedStatus(
     onErrorClosed: () -> Unit
 ) {
     when (status) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${status.message}",
                 onConfirm = { onErrorClosed() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }
 
@@ -237,22 +245,26 @@ fun DeletedStatus(
     onErrorClosed: () -> Unit
 ) {
     when (status) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${status.message}",
                 onConfirm = { onErrorClosed() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }
 
 @Composable
 fun BottomButtons(
     onEditButtonClick: () -> Unit,
-    onDeleteButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit
 ) {
     Column {
         MaxWidthButton(text = stringResource(Res.string.editreport_edit_button)) {

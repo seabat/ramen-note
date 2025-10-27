@@ -19,7 +19,9 @@ import dev.seabat.ramennote.data.database.entity.ShopEntity
 @ConstructedBy(RamenNoteDatabaseConstructor::class)
 abstract class RamenNoteDatabase : RoomDatabase() {
     abstract fun areaDao(): AreaDao
+
     abstract fun shopDao(): ShopDao
+
     abstract fun reportDao(): ReportDao
 }
 
@@ -27,6 +29,3 @@ abstract class RamenNoteDatabase : RoomDatabase() {
 expect object RamenNoteDatabaseConstructor : RoomDatabaseConstructor<RamenNoteDatabase> {
     override fun initialize(): RamenNoteDatabase
 }
-
-
-

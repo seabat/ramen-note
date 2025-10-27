@@ -16,8 +16,8 @@ class ScheduleViewModel(
     private val deleteScheduleInShopUseCase: DeleteScheduleInShopUseCaseContract,
     private val loadScheduledShopsUseCase: LoadScheduledShopsUseCaseContract,
     private val updateScheduleInShopUseCaseContract: UpdateScheduleInShopUseCaseContract
-) : ViewModel(), ScheduleViewModelContract {
-
+) : ViewModel(),
+    ScheduleViewModelContract {
     private val _schedules: MutableStateFlow<List<Schedule>> = MutableStateFlow(emptyList())
     override val schedules: StateFlow<List<Schedule>> = _schedules.asStateFlow()
 
@@ -46,5 +46,3 @@ class ScheduleViewModel(
         }
     }
 }
-
-

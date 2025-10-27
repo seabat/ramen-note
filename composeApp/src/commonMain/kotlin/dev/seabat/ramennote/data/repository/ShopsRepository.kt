@@ -11,7 +11,6 @@ import kotlinx.datetime.LocalDate
 class ShopsRepository(
     private val database: RamenNoteDatabase
 ) : ShopsRepositoryContract {
-
     private val shopDao: ShopDao by lazy {
         database.shopDao()
     }
@@ -21,19 +20,14 @@ class ShopsRepository(
         return shops.map { it.toDomainModel() }
     }
 
-    override fun getAllShopsFlow(): Flow<List<Shop>> {
-        return shopDao.getAllShopsFlow().map { entities ->
+    override fun getAllShopsFlow(): Flow<List<Shop>> =
+        shopDao.getAllShopsFlow().map { entities ->
             entities.map { it.toDomainModel() }
         }
-    }
 
-    override suspend fun getShopById(id: Int): Shop? {
-        return shopDao.getShopById(id)?.toDomainModel()
-    }
+    override suspend fun getShopById(id: Int): Shop? = shopDao.getShopById(id)?.toDomainModel()
 
-    override suspend fun getShopsByArea(area: String): List<Shop> {
-        return shopDao.getShopsByArea(area).map { it.toDomainModel() }
-    }
+    override suspend fun getShopsByArea(area: String): List<Shop> = shopDao.getShopsByArea(area).map { it.toDomainModel() }
 
     override suspend fun insertShop(shop: Shop) {
         shopDao.insertShop(shop.toEntity())
@@ -52,8 +46,8 @@ class ShopsRepository(
     }
 }
 
-private fun ShopEntity.toDomainModel(): Shop {
-    return Shop(
+private fun ShopEntity.toDomainModel(): Shop =
+    Shop(
         id = id,
         name = name,
         area = area,
@@ -74,10 +68,9 @@ private fun ShopEntity.toDomainModel(): Shop {
         description3 = description3,
         favorite = favorite
     )
-}
 
-private fun Shop.toEntity(): ShopEntity {
-    return ShopEntity(
+private fun Shop.toEntity(): ShopEntity =
+    ShopEntity(
         id = id,
         name = name,
         area = area,
@@ -98,4 +91,3 @@ private fun Shop.toEntity(): ShopEntity {
         description3 = description3,
         favorite = favorite
     )
-}

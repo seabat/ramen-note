@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 
 class HistoryViewModel(
     private val loadReportsUseCase: LoadFullReportsUseCaseContract
-) : ViewModel(), HistoryViewModelContract {
-
+) : ViewModel(),
+    HistoryViewModelContract {
     private val _reports = MutableStateFlow<List<FullReport>>(emptyList())
     override val reports: StateFlow<List<FullReport>> = _reports.asStateFlow()
 
@@ -22,5 +22,3 @@ class HistoryViewModel(
         }
     }
 }
-
-

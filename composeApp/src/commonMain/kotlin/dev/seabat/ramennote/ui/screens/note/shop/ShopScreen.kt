@@ -15,47 +15,60 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.util.createFormattedDateString
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_edit_button
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
-import ramennote.composeapp.generated.resources.add_station_label
-import ramennote.composeapp.generated.resources.add_web_site_label
-import coil3.compose.AsyncImage
-import dev.seabat.ramennote.ui.components.AppAlert
-import dev.seabat.ramennote.ui.components.StarIcon
-import dev.seabat.ramennote.ui.util.createFormattedDateString
-import dev.seabat.ramennote.domain.extension.isTodayOrFuture
-import org.koin.compose.viewmodel.koinViewModel
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import ramennote.composeapp.generated.resources.add_no_url_label
 import ramennote.composeapp.generated.resources.add_report_button
 import ramennote.composeapp.generated.resources.add_schedule_add_button
 import ramennote.composeapp.generated.resources.add_schedule_edit_button
 import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.add_schedule_label
+import ramennote.composeapp.generated.resources.add_station_label
+import ramennote.composeapp.generated.resources.add_web_site_label
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
 
@@ -95,8 +108,9 @@ fun ShopScreen(
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier =
+                    Modifier
+                        .fillMaxSize()
             ) {
                 // ヘッダー画像エリア
                 Header(
@@ -125,8 +139,8 @@ fun ShopScreen(
                 shop?.let { shopData ->
                     Detail(
                         shopData,
-                        updateStar = {
-                                newStar -> viewModel.updateStar(newStar, shopId)
+                        updateStar = { newStar ->
+                            viewModel.updateStar(newStar, shopId)
                         }
                     )
                 }
@@ -174,10 +188,11 @@ fun Header(
     onFavoriteClick: (Boolean, Int) -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+                .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         if (imageBytes != null) {
             AsyncImage(
@@ -190,35 +205,42 @@ fun Header(
 
         // オーバーレイ（半透明の黒い背景）
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.70f)
-                        ),
-                        startY = 0f,
-                        endY = 1000f
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.70f)
+                                ),
+                            startY = 0f,
+                            endY = 1000f
+                        )
                     )
-                )
         )
 
         // お気に入りボタン（右上）
         if (shop != null) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .clickable {
-                        onFavoriteClick(!shop.favorite, shop.id)
-                    }
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .clickable {
+                            onFavoriteClick(!shop.favorite, shop.id)
+                        }
             ) {
                 Image(
-                    painter = painterResource(
-                        if (shop.favorite) Res.drawable.favorite_enabled
-                        else Res.drawable.favorite_disabled
-                    ),
+                    painter =
+                        painterResource(
+                            if (shop.favorite) {
+                                Res.drawable.favorite_enabled
+                            } else {
+                                Res.drawable.favorite_disabled
+                            }
+                        ),
                     contentDescription = if (shop.favorite) "お気に入り解除" else "お気に入り追加",
                     modifier = Modifier.size(32.dp)
                 )
@@ -258,34 +280,38 @@ fun ActionButtons(
     onAddScheduleClick: () -> Unit = {}
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
             onClick = { onAddScheduleClick() },
             modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
         ) {
-            val buttonText = if (shop?.scheduledDate?.isTodayOrFuture() == true) {
-                stringResource(Res.string.add_schedule_edit_button)
-            } else {
-                stringResource(Res.string.add_schedule_add_button)
-            }
+            val buttonText =
+                if (shop?.scheduledDate?.isTodayOrFuture() == true) {
+                    stringResource(Res.string.add_schedule_edit_button)
+                } else {
+                    stringResource(Res.string.add_schedule_add_button)
+                }
             Text(buttonText, style = MaterialTheme.typography.titleSmall)
         }
 
         Button(
             onClick = onReportClick,
             modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
         ) {
             Text(stringResource(Res.string.add_report_button), style = MaterialTheme.typography.titleSmall)
         }
@@ -293,10 +319,11 @@ fun ActionButtons(
         Button(
             onClick = onEditClick,
             modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
         ) {
             Text(stringResource(Res.string.add_edit_button), style = MaterialTheme.typography.titleSmall)
         }
@@ -309,12 +336,12 @@ fun Detail(
     updateStar: (Int) -> Unit = { }
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 8.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
-
         // Webサイト
         UrlItem(
             label = stringResource(Res.string.add_web_site_label),
@@ -340,13 +367,13 @@ fun Detail(
         // 最寄り駅
         ShopDetailItem(
             label = stringResource(Res.string.add_station_label),
-            value = shop.stationName,
+            value = shop.stationName
         )
 
         // 系統
         ShopDetailItem(
             label = stringResource(Res.string.add_category_label),
-            value = shop.category,
+            value = shop.category
         )
 
         // 予定（YYYY年mm月DD日 表記）
@@ -356,7 +383,7 @@ fun Detail(
                 val formatted = createFormattedDateString(date)
                 ShopDetailItem(
                     label = stringResource(Res.string.add_schedule_label),
-                    value = formatted,
+                    value = formatted
                 )
             }
         }
@@ -366,22 +393,23 @@ fun Detail(
 @Composable
 private fun UrlItem(
     label: String,
-    url: String,
+    url: String
 ) {
     val urlHandler = LocalUriHandler.current
     val isUrlEmpty = url.isEmpty()
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp)
-            .let { modifier ->
-                if (isUrlEmpty) {
-                    modifier
-                } else {
-                    modifier.clickable { urlHandler.openUri(url) }
-                }
-            },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp)
+                .let { modifier ->
+                    if (isUrlEmpty) {
+                        modifier
+                    } else {
+                        modifier.clickable { urlHandler.openUri(url) }
+                    }
+                },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -395,7 +423,7 @@ private fun UrlItem(
             Text(
                 text = stringResource(Res.string.add_no_url_label),
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Medium
             )
         }
     }
@@ -418,7 +446,7 @@ fun StarItem(star: Int) {
         Row {
             repeat(3) { index ->
                 StarIcon(
-                    onOff = index < star,
+                    onOff = index < star
                 )
             }
         }
@@ -436,8 +464,11 @@ private fun datePickerOnClickHandler(
     try {
         val millis = datePickerState.selectedDateMillis
         if (millis != null) {
-            val selectedDate = Instant.fromEpochMilliseconds(millis)
-                .toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val selectedDate =
+                Instant
+                    .fromEpochMilliseconds(millis)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
 
             // 今日を含めた未来日かどうかをチェック
             if (!selectedDate.isTodayOrFuture()) {

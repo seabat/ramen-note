@@ -13,7 +13,6 @@ import kotlin.lazy
 class AreasRepository(
     private val database: RamenNoteDatabase
 ) : AreasRepositoryContract {
-
     private val areaDao: AreaDao by lazy {
         database.areaDao()
     }
@@ -39,11 +38,12 @@ class AreasRepository(
     }
 
     override suspend fun add(area: Area) {
-        val entity = AreaEntity(
-            name = area.name,
-            count = area.count,
-            date = area.updatedDate.toString()
-        )
+        val entity =
+            AreaEntity(
+                name = area.name,
+                count = area.count,
+                date = area.updatedDate.toString()
+            )
         areaDao.insertArea(entity)
     }
 

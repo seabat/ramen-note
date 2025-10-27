@@ -7,5 +7,3 @@ data class Area(
     val updatedDate: LocalDate,
     val count: Int
 )
-
-

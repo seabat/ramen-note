@@ -1,9 +1,19 @@
 package dev.seabat.ramennote.ui.screens.settings
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -19,10 +29,11 @@ fun SettingsScreen() {
     val appVersionDataSource = remember { AppVersionDataSource() }
     val versionName = remember { appVersionDataSource.getVersionName() }
     val uriHandler = LocalUriHandler.current
-    
+
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
         AppBar(
@@ -30,19 +41,21 @@ fun SettingsScreen() {
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
         ) {
             HorizontalDivider(
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(horizontal = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -62,13 +75,14 @@ fun SettingsScreen() {
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(horizontal = 16.dp)
-                    .clickable {
-                        uriHandler.openUri("https://seabat.notion.site/Ramen-Note-28f13cfcd0e780eca35ff6bd93873457")
-                    },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(horizontal = 16.dp)
+                        .clickable {
+                            uriHandler.openUri("https://seabat.notion.site/Ramen-Note-28f13cfcd0e780eca35ff6bd93873457")
+                        },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(

@@ -50,11 +50,12 @@ fun AppBar(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "戻る",
-                    tint = if (onBackClick == null) {
-                        Color.Transparent
-                    } else {
-                        MaterialTheme.colorScheme.primary
-                    }
+                    tint =
+                        if (onBackClick == null) {
+                            Color.Transparent
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
                 )
             }
         },
@@ -68,10 +69,11 @@ fun AppBar(
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-            navigationIconContentColor = MaterialTheme.colorScheme.background
-        )
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+                navigationIconContentColor = MaterialTheme.colorScheme.background
+            )
     )
 }

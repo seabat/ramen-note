@@ -5,5 +5,6 @@ import dev.seabat.ramennote.data.datasource.NoImageDataSourceContract
 
 interface SwiftLibDependencyFactoryContract {
     fun provideLocalStorageDataSourceContract(): LocalStorageDataSourceContract
+
     fun provideNoImageDataSourceContract(): NoImageDataSourceContract
 }

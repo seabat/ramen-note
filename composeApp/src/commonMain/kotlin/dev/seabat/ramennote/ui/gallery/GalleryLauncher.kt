@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 @Composable
 expect fun createRememberedGalleryLauncher(onResult: (SharedImage?) -> Unit): GalleryLauncher
 
-
 expect class GalleryLauncher(
     onLaunch: () -> Unit
 ) {

@@ -18,20 +18,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import org.jetbrains.compose.resources.stringResource
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.screen_history_title
-import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import ramennote.composeapp.generated.resources.history_no_data
-import kotlinx.coroutines.delay
+import ramennote.composeapp.generated.resources.screen_history_title
 
 @Composable
 fun HistoryScreen(
@@ -43,11 +43,12 @@ fun HistoryScreen(
     LaunchedEffect(Unit) { viewModel.loadReports() }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
     ) {
-        AppBar(title = stringResource(Res.string.screen_history_title),)
+        AppBar(title = stringResource(Res.string.screen_history_title))
         if (reports.isNotEmpty()) {
             Box {
                 // レポート一覧
@@ -98,12 +99,13 @@ private fun ReportsList(
     goToEditReport: (Int) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
-    val grouped: Map<String, List<FullReport>> = reports
-        .sortedByDescending { it.date }
-        .groupBy { report ->
-            val date = report.date
-            "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
-        }.filterKeys { it.isNotEmpty() }
+    val grouped: Map<String, List<FullReport>> =
+        reports
+            .sortedByDescending { it.date }
+            .groupBy { report ->
+                val date = report.date
+                "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
+            }.filterKeys { it.isNotEmpty() }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

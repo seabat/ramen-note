@@ -11,14 +11,14 @@ import kotlinx.coroutines.launch
 
 class AreaShopListViewModel(
     private val shopsRepository: ShopsRepositoryContract
-) : ViewModel(), AreaShopListViewModelContract {
-    
+) : ViewModel(),
+    AreaShopListViewModelContract {
     private val _shops = MutableStateFlow<List<Shop>>(emptyList())
     override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
-    
+
     // init での自動読み込みを削除
     // 画面表示時に手動で呼び出す
-    
+
     override fun loadShops(area: String) {
         viewModelScope.launch {
             try {

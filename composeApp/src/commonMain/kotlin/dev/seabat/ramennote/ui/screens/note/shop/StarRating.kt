@@ -19,7 +19,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_evaluation_label
 
-
 @Composable
 fun StarRating(
     star: Int,
@@ -77,7 +76,7 @@ fun StarRatingRow(
 @Composable
 fun StarRatingPreview() {
     Row(modifier = Modifier.width(200.dp)) {
-        StarRating(star = 3){}
+        StarRating(star = 3) {}
     }
 }
 
@@ -85,7 +84,6 @@ fun StarRatingPreview() {
 @Composable
 fun StarRatingRowPreview() {
     Row(modifier = Modifier.width(200.dp)) {
-        StarRatingRow(star = 3){}
+        StarRatingRow(star = 3) {}
     }
 }
-

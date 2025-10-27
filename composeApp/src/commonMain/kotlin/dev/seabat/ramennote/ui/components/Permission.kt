@@ -24,8 +24,10 @@ fun Permission(
                 when (status) {
                     PermissionStatus.GRANTED -> {
                         when (permissionType) {
-                            PermissionType.CAMERA -> {  /* カメラ起動の処理 */}
-                            PermissionType.GALLERY -> { permissionEnabled() }
+                            PermissionType.CAMERA -> { /* カメラ起動の処理 */ }
+                            PermissionType.GALLERY -> {
+                                permissionEnabled()
+                            }
                         }
                     }
                     else -> {

@@ -8,9 +8,5 @@ import io.ktor.client.request.get
 class AreaImageRepository(
     private val httpClient: HttpClient
 ) : AreaImageRepositoryContract {
-    override suspend fun fetch(): ByteArray {
-        return httpClient.get("https://placehold.jp/800x500.png").body()
-    }
+    override suspend fun fetch(): ByteArray = httpClient.get("https://placehold.jp/800x500.png").body()
 }
-
-

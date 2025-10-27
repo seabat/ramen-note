@@ -23,14 +23,15 @@ import ramennote.composeapp.generated.resources.report_select_date
 @OptIn(ExperimentalMaterial3Api::class)
 fun DateSelectItem(
     date: LocalDate,
-    showDatePicker: () -> Unit,
+    showDatePicker: () -> Unit
 ) {
     Row(
-    modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 8.dp),
-    horizontalArrangement = Arrangement.SpaceBetween
-){
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         Text(
             text = stringResource(Res.string.report_select_date),
             style = MaterialTheme.typography.titleMedium,

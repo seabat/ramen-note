@@ -14,11 +14,10 @@ class MockAddShopViewModel : AddShopViewModelContract {
     override fun saveShop(shop: Shop, sharedImage: SharedImage?) {
         // Preview用なので何もしない
     }
+
     override fun setSaveStateToIdle() {
         // Preview用なので何もしない
     }
 
-    override fun createNoImage(): ByteArray {
-        return ByteArray(0)
-    }
+    override fun createNoImage(): ByteArray = ByteArray(0)
 }

@@ -8,28 +8,25 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
 class IosDatabaseFactory : DatabaseFactoryContract {
-    override fun getBuilder(): RoomDatabase.Builder<RamenNoteDatabase> {
-        return getDatabaseBuilder()
-    }
+    override fun getBuilder(): RoomDatabase.Builder<RamenNoteDatabase> = getDatabaseBuilder()
 }
 
 private fun getDatabaseBuilder(): RoomDatabase.Builder<RamenNoteDatabase> {
     val dbFilePath = documentDirectory() + "/my_room.db"
     return Room.databaseBuilder<RamenNoteDatabase>(
-        name = dbFilePath,
+        name = dbFilePath
     )
 }
 
 @OptIn(ExperimentalForeignApi::class)
 private fun documentDirectory(): String {
-    val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
-        directory = NSDocumentDirectory,
-        inDomain = NSUserDomainMask,
-        appropriateForURL = null,
-        create = false,
-        error = null,
-    )
+    val documentDirectory =
+        NSFileManager.defaultManager.URLForDirectory(
+            directory = NSDocumentDirectory,
+            inDomain = NSUserDomainMask,
+            appropriateForURL = null,
+            create = false,
+            error = null
+        )
     return requireNotNull(documentDirectory?.path)
 }
-
-
