@@ -221,6 +221,25 @@ fun Header(
                     )
         )
 
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = shop?.menuName1 ?: "",
+                style =
+                    MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                color = Color.White
+            )
+        }
+
         // お気に入りボタン（右上）
         if (shop != null) {
             Box(
