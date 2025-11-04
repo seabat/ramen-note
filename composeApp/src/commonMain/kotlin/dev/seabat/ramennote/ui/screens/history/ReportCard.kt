@@ -35,6 +35,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ReportCard(
     report: FullReport,
+    onPress: () -> Unit = {},
     onLongPress: () -> Unit = {}
 ) {
     val date: LocalDate? = report.date
@@ -52,7 +53,8 @@ fun ReportCard(
                 .height(125.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onLongPress = { onLongPress() }
+                        onLongPress = { onLongPress() },
+                        onTap = { onPress() }
                     )
                 },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

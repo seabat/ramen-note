@@ -74,6 +74,7 @@ private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
 fun HomeScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
+    goToHistory: (reportId: Int) -> Unit = { _ -> },
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
@@ -130,7 +131,8 @@ fun HomeScreen(
 
             // 過去3ヶ月分のレポートを水平ページャーで表示
             RecentReports(
-                reports = threeMonthsReports
+                reports = threeMonthsReports,
+                goToHistory = goToHistory
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -307,6 +309,7 @@ fun Favorite(
                 color = MaterialTheme.colorScheme.secondary
             )
 
+            // お気に入り店数
             if (favoriteShops.isNotEmpty()) {
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
@@ -427,23 +430,6 @@ fun FavoriteShopItem(
 }
 
 @Composable
-fun FavoriteCount(count: Int) {
-    Box(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = "${count}件",
-            modifier = Modifier.align(Alignment.CenterEnd),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
 fun ScheduledShopState(
     scheduleState: RunStatus<Schedule?>,
     onError: () -> Unit
@@ -460,7 +446,8 @@ fun ScheduledShopState(
 
 @Composable
 private fun RecentReports(
-    reports: List<FullReport>
+    reports: List<FullReport>,
+    goToHistory: (reportId: Int) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -479,7 +466,7 @@ private fun RecentReports(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val availableWidth = maxWidth
-                val cardWidth = availableWidth - 30.dp // 次のカードの一部が見えるように60dp引く
+                val cardWidth = availableWidth - 30.dp // 次のカードの一部が見えるように30dp引く
 
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -497,10 +484,18 @@ private fun RecentReports(
                             }
 
                         Box(
-                            modifier = Modifier.width(itemWidth)
+                            modifier =
+                                Modifier
+                                    .width(itemWidth)
+                                    .clickable {
+                                        goToHistory(report.id)
+                                    }
                         ) {
                             ReportCard(
-                                report = report
+                                report = report,
+                                onPress = {
+                                    goToHistory(report.id)
+                                }
                             )
                         }
                     }
@@ -544,7 +539,7 @@ fun RecentReportsPreview() {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             RecentReports(
                 reports = MockHomeViewModel().threeMonthsReports.value
-            )
+            ) {}
         }
     }
 }

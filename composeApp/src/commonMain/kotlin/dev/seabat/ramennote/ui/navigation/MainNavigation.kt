@@ -94,7 +94,9 @@ sealed interface Screen {
     }
 
     @Serializable
-    data object History : Screen {
+    data class History(
+        val reportId: Int? = null
+    ) : Screen {
         override val route: String = getRouteName(History::class)
 
         @Composable
@@ -248,7 +250,7 @@ fun MainNavigation() {
             Screen.Home,
             Screen.Schedule,
             Screen.Note,
-            Screen.History,
+            Screen.History(),
             Screen.Settings
         )
 
@@ -327,6 +329,15 @@ fun MainNavigation() {
                     },
                     goToReport = { shopId, shopName, menuName, iso8601Date ->
                         navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
+                    },
+                    goToHistory = { reportId ->
+                        navController.navigate(Screen.History(reportId = reportId)) {
+                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                            launchSingleTop = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                        }
                     }
                 )
             }
@@ -353,8 +364,10 @@ fun MainNavigation() {
                     }
                 )
             }
-            composable<Screen.History> {
+            composable<Screen.History> { backStackEntry ->
+                val screen: Screen.History = backStackEntry.toRoute()
                 HistoryScreen(
+                    reportId = screen.reportId,
                     goToEditReport = { reportId ->
                         navController.navigate(Screen.EditReport(reportId))
                     }
@@ -460,7 +473,7 @@ fun MainNavigation() {
                     scheduledDate = LocalDate.parse(screen.iso8601Date),
                     onBackClick = { navController.popBackStack() },
                     goToHistory = {
-                        navController.navigate(Screen.History) {
+                        navController.navigate(Screen.History()) {
                             // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
                             launchSingleTop = true
                             popUpTo(navController.graph.findStartDestination().id) {
