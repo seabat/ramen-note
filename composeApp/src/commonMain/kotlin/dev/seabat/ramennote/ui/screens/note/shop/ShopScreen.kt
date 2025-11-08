@@ -61,7 +61,8 @@ import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_edit_button
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
-import ramennote.composeapp.generated.resources.add_no_url_label
+import ramennote.composeapp.generated.resources.add_no_data_label
+import ramennote.composeapp.generated.resources.add_note_label
 import ramennote.composeapp.generated.resources.add_report_button
 import ramennote.composeapp.generated.resources.add_schedule_add_button
 import ramennote.composeapp.generated.resources.add_schedule_edit_button
@@ -359,8 +360,20 @@ fun Detail(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 8.dp)
+                .padding(horizontal = 24.dp)
     ) {
+        // 予定（YYYY年mm月DD日 表記）
+        shop.scheduledDate?.let { date ->
+            // 今日を含めた未来日の場合のみ表示
+            if (date.isTodayOrFuture()) {
+                val formatted = createFormattedDateString(date)
+                ShopDetailItem(
+                    label = stringResource(Res.string.add_schedule_label),
+                    value = formatted
+                )
+            }
+        }
+
         // Webサイト
         UrlItem(
             label = stringResource(Res.string.add_web_site_label),
@@ -386,26 +399,21 @@ fun Detail(
         // 最寄り駅
         ShopDetailItem(
             label = stringResource(Res.string.add_station_label),
-            value = shop.stationName
+            value = shop.stationName.ifEmpty { stringResource(Res.string.add_no_data_label) }
         )
 
         // 系統
         ShopDetailItem(
             label = stringResource(Res.string.add_category_label),
-            value = shop.category
+            value = shop.category.ifEmpty { stringResource(Res.string.add_no_data_label) }
         )
 
-        // 予定（YYYY年mm月DD日 表記）
-        shop.scheduledDate?.let { date ->
-            // 今日を含めた未来日の場合のみ表示
-            if (date.isTodayOrFuture()) {
-                val formatted = createFormattedDateString(date)
-                ShopDetailItem(
-                    label = stringResource(Res.string.add_schedule_label),
-                    value = formatted
-                )
-            }
-        }
+        // note
+        ShopDetailItem(
+            label = stringResource(Res.string.add_note_label),
+            value = shop.stationName.ifEmpty { stringResource(Res.string.add_no_data_label) },
+            enabledBorder = true
+        )
     }
 }
 
@@ -421,7 +429,7 @@ private fun UrlItem(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp)
+                .padding(vertical = 6.dp)
                 .let { modifier ->
                     if (isUrlEmpty) {
                         modifier
@@ -440,7 +448,7 @@ private fun UrlItem(
         )
         if (isUrlEmpty) {
             Text(
-                text = stringResource(Res.string.add_no_url_label),
+                text = stringResource(Res.string.add_no_data_label),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )

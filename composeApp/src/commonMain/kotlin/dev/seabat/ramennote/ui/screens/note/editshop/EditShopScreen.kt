@@ -32,6 +32,7 @@ import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
+import dev.seabat.ramennote.ui.screens.note.shop.ShopMultilineInputField
 import dev.seabat.ramennote.ui.screens.note.shop.StarRating
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
@@ -39,6 +40,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_map_label
+import ramennote.composeapp.generated.resources.add_note_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
@@ -161,9 +163,18 @@ fun EditShopScreen(
                     onValueChange = { category = "$it" }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                // ラーメン
+                // ノート
+                ShopMultilineInputField(
+                    label = stringResource(Res.string.add_note_label),
+                    value = stationName,
+                    onValueChange = { stationName = it }
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // メニュー情報
                 RamenField(
                     menuName = menuName,
                     sharedImage = shopImage,
