@@ -304,11 +304,18 @@ fun MainNavigation() {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
+                                    // restoreState を true だと前回画面遷移時のパラメーターが復元されてしまう。
+                                    // つまり NavigationBar で HistoryScreen に画面遷移しようとすると  HomeScreen から HistoryScreen に遷移した際の reportId で画面遷移してしまう。
+                                    // restoreState を false にするとデフォルトの画面遷移パラメーター(=Screen.History(reportId = null) で HistoryScreen に画面遷移する。
+                                    if (screen is Screen.History) {
+                                        restoreState = false
+                                    } else {
+                                        // Restore state when reselecting a previously selected item
+                                        restoreState = true
+                                    }
                                     // Avoid multiple copies of the same destination when
                                     // reselecting the same item
                                     launchSingleTop = true
-                                    // Restore state when reselecting a previously selected item
-                                    restoreState = true
                                 }
                             }
                         )
