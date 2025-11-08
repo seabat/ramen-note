@@ -245,7 +245,7 @@ sealed interface Screen {
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
-    
+
     // HistoryScreenに遷移する際のreportIdを管理するState
     var historyReportId by remember { mutableStateOf<Int?>(null) }
 

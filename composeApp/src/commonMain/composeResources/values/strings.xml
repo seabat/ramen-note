@@ -79,9 +79,12 @@
     <string name="edit_shop_edit_error_message">編集に失敗しました</string>
     <string name="edit_shop_delete_error_message">削除に失敗しました</string>
     <string name="edit_category_label">系統</string>
+    <string name="edit_shop_delete_confirm">この店舗を削除しますか？</string>
 
     <!-- Schedule Screen -->
     <string name="schedule_no_data">予定がありません。\n「ノート」の店舗画面に遷移し、予定を登録してください。</string>
+    <string name="schedule_delete_confirm">この予定を削除しますか？</string>
+
 
     <!-- Report Screen -->
     <string name="report_shop_name">店名</string>
@@ -90,6 +93,7 @@
     <string name="report_impressions">感想</string>
     <string name="report_header">食レポ</string>
     <string name="report_run">レポートする</string>
+    <string name="report_delete_confirm">この食レポを削除しますか？</string>
 
     <!-- Edit Report Screen -->
     <string name="editreport_delete_button">削除する</string>

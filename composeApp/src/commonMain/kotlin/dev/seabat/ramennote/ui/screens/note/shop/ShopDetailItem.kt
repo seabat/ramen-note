@@ -44,14 +44,15 @@ fun ShopDetailItem(
             modifier =
                 Modifier
                     .then(
-                        if (enabledBorder
-                                && (value.isNotEmpty() && value != stringResource(Res.string.add_no_data_label))
-                            ) {
-                            Modifier.border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.outline,
-                                shape = RoundedCornerShape(8.dp)
-                            ).fillMaxWidth()
+                        if (enabledBorder &&
+                            (value.isNotEmpty() && value != stringResource(Res.string.add_no_data_label))
+                        ) {
+                            Modifier
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.outline,
+                                    shape = RoundedCornerShape(8.dp)
+                                ).fillMaxWidth()
                         } else {
                             Modifier
                         }

@@ -111,7 +111,7 @@ fun HistoryScreen(
                         delay(500)
                         listState.animateScrollToItem(targetIndex)
                     }
-                    
+
                     // reportIdを処理した後、Stateをクリア
                     clearReportId()
                 }

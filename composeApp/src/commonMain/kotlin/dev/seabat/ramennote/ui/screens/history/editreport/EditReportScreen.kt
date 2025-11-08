@@ -46,10 +46,19 @@ import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.editreport_delete_button
 import ramennote.composeapp.generated.resources.editreport_edit_button
+import ramennote.composeapp.generated.resources.report_delete_confirm
 import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
 import ramennote.composeapp.generated.resources.report_select_date
 import ramennote.composeapp.generated.resources.report_shop_name
+
+private sealed interface ErrorDialogType {
+    object Hidden : ErrorDialogType
+
+    data class DeleteConfirm(
+        val reportId: Int
+    ) : ErrorDialogType
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,6 +87,7 @@ fun EditReportScreen(
     val deletedStatus by viewModel.deletedStatus.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
+    var errorDialogType by remember { mutableStateOf<ErrorDialogType>(ErrorDialogType.Hidden) }
 
     PhotoSelectionHandler(
         onImageSelected = { image = it },
@@ -161,7 +171,7 @@ fun EditReportScreen(
                         )
                     },
                     onDeleteButtonClick = {
-                        viewModel.deleteReport(fullReport.id)
+                        errorDialogType = ErrorDialogType.DeleteConfirm(fullReport.id)
                     }
                 )
             }
@@ -212,6 +222,22 @@ fun EditReportScreen(
                 viewModel.setDeletedStatusToIdle()
             }
         )
+
+        // エラーダイアログ
+        when (val shouldShow = errorDialogType) {
+            is ErrorDialogType.DeleteConfirm -> {
+                AppAlert(
+                    message = stringResource(Res.string.report_delete_confirm),
+                    onConfirm = {
+                        viewModel.deleteReport(shouldShow.reportId)
+                        errorDialogType = ErrorDialogType.Hidden
+                    }
+                )
+            }
+            is ErrorDialogType.Hidden -> {
+                // 何も表示しない
+            }
+        }
     }
 }
 

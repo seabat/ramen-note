@@ -46,10 +46,19 @@ import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
 import ramennote.composeapp.generated.resources.edit_category_label
 import ramennote.composeapp.generated.resources.edit_shop_delete_button
+import ramennote.composeapp.generated.resources.edit_shop_delete_confirm
 import ramennote.composeapp.generated.resources.edit_shop_delete_error_message
 import ramennote.composeapp.generated.resources.edit_shop_edit_button
 import ramennote.composeapp.generated.resources.edit_shop_edit_error_message
 import ramennote.composeapp.generated.resources.edit_shop_title
+
+private sealed interface ErrorDialogType {
+    object Hidden : ErrorDialogType
+
+    data class DeleteConfirm(
+        val shopId: Int
+    ) : ErrorDialogType
+}
 
 @Composable
 fun EditShopScreen(
@@ -73,6 +82,7 @@ fun EditShopScreen(
     val shopImage by viewModel.shopImage.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
+    var errorDialogType by remember { mutableStateOf<ErrorDialogType>(ErrorDialogType.Hidden) }
 
     // 画像読み込み
     LaunchedEffect(shop.name) {
@@ -202,11 +212,13 @@ fun EditShopScreen(
                         viewModel.updateShop(updatedShop, shopImage)
                     }
                 )
+
+                // 削除ボタン
                 MaxWidthButton(
                     text = stringResource(Res.string.edit_shop_delete_button),
                     enabled = name.isNotBlank()
                 ) {
-                    viewModel.deleteShop(shop.id)
+                    errorDialogType = ErrorDialogType.DeleteConfirm(shop.id)
                 }
             }
         }
@@ -241,6 +253,22 @@ fun EditShopScreen(
                 )
             }
             else -> { }
+        }
+
+        // エラーダイアログ
+        when (val shouldShow = errorDialogType) {
+            is ErrorDialogType.DeleteConfirm -> {
+                AppAlert(
+                    message = stringResource(Res.string.edit_shop_delete_confirm),
+                    onConfirm = {
+                        viewModel.deleteShop(shouldShow.shopId)
+                        errorDialogType = ErrorDialogType.Hidden
+                    }
+                )
+            }
+            is ErrorDialogType.Hidden -> {
+                // 何も表示しない
+            }
         }
     }
 }
