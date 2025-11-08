@@ -94,7 +94,7 @@ fun ShopInputField(
                         modifier =
                             Modifier
                                 .size(24.dp)
-                                .padding(end = 8.dp)
+                                .padding(end = 8.dp) // Icon の内側に padding を入れてアイコン画像を少し小さくする
                                 .clickable { onValueChange("") },
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
