@@ -39,6 +39,7 @@ import ramennote.composeapp.generated.resources.screen_history_title
 fun HistoryScreen(
     reportId: Int? = null,
     goToEditReport: (reportId: Int) -> Unit = {},
+    clearReportId: () -> Unit = {},
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
     val reports by viewModel.reports.collectAsState()
@@ -110,6 +111,9 @@ fun HistoryScreen(
                         delay(500)
                         listState.animateScrollToItem(targetIndex)
                     }
+                    
+                    // reportIdを処理した後、Stateをクリア
+                    clearReportId()
                 }
             }
         } else {

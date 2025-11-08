@@ -16,6 +16,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -94,9 +97,7 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class History(
-        val reportId: Int? = null
-    ) : Screen {
+    data object History : Screen {
         override val route: String = getRouteName(History::class)
 
         @Composable
@@ -244,13 +245,16 @@ sealed interface Screen {
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
+    
+    // HistoryScreenに遷移する際のreportIdを管理するState
+    var historyReportId by remember { mutableStateOf<Int?>(null) }
 
     val tabScreens =
         listOf(
             Screen.Home,
             Screen.Schedule,
             Screen.Note,
-            Screen.History(),
+            Screen.History,
             Screen.Settings
         )
 
@@ -304,15 +308,8 @@ fun MainNavigation() {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
-                                    // restoreState を true だと前回画面遷移時のパラメーターが復元されてしまう。
-                                    // つまり NavigationBar で HistoryScreen に画面遷移しようとすると  HomeScreen から HistoryScreen に遷移した際の reportId で画面遷移してしまう。
-                                    // restoreState を false にするとデフォルトの画面遷移パラメーター(=Screen.History(reportId = null) で HistoryScreen に画面遷移する。
-                                    if (screen is Screen.History) {
-                                        restoreState = false
-                                    } else {
-                                        // Restore state when reselecting a previously selected item
-                                        restoreState = true
-                                    }
+                                    // Restore state when reselecting a previously selected item
+                                    restoreState = true
                                     // Avoid multiple copies of the same destination when
                                     // reselecting the same item
                                     launchSingleTop = true
@@ -338,7 +335,10 @@ fun MainNavigation() {
                         navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
                     },
                     goToHistory = { reportId ->
-                        navController.navigate(Screen.History(reportId = reportId)) {
+                        // NavigationBar は restoreState = true を設定しているので、一度 Screen クラスのプロパティを使ってタブ画面に遷移すると 画面遷移する度にそのプロパティが復元されてしまう。
+                        // タブ画面への遷移時に使用するパラメータは Screen クラスのプロパティを使用せず、生存期間が長い変数を使用する。
+                        historyReportId = reportId
+                        navController.navigate(Screen.History) {
                             // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
                             launchSingleTop = true
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -371,12 +371,14 @@ fun MainNavigation() {
                     }
                 )
             }
-            composable<Screen.History> { backStackEntry ->
-                val screen: Screen.History = backStackEntry.toRoute()
+            composable<Screen.History> {
                 HistoryScreen(
-                    reportId = screen.reportId,
+                    reportId = historyReportId,
                     goToEditReport = { reportId ->
                         navController.navigate(Screen.EditReport(reportId))
+                    },
+                    clearReportId = {
+                        historyReportId = null
                     }
                 )
             }
@@ -480,7 +482,7 @@ fun MainNavigation() {
                     scheduledDate = LocalDate.parse(screen.iso8601Date),
                     onBackClick = { navController.popBackStack() },
                     goToHistory = {
-                        navController.navigate(Screen.History()) {
+                        navController.navigate(Screen.History) {
                             // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
                             launchSingleTop = true
                             popUpTo(navController.graph.findStartDestination().id) {
