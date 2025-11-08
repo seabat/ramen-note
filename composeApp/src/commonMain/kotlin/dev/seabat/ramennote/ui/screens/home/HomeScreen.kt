@@ -31,6 +31,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -50,9 +55,13 @@ import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
+import dev.seabat.ramennote.ui.components.rememberLifecycleState
 import dev.seabat.ramennote.ui.screens.history.ReportCard
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -123,6 +132,7 @@ fun HomeScreen(
         ) {
             Schedule(
                 schedule,
+                favoriteShops,
                 goToShop,
                 goToReport
             )
@@ -152,6 +162,7 @@ fun HomeScreen(
 @Composable
 fun Schedule(
     schedule: Schedule?,
+    favoriteShops: List<ShopWithImage>,
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> }
 ) {
@@ -186,7 +197,48 @@ fun Schedule(
                         }
                     }
         ) {
-            if (schedule != null) {
+            if (schedule == null) {
+                // favoriteShopsのshopUrlを10秒ごとに切り替えながら表示
+                val validUrls =
+                    favoriteShops
+                        .map { it.shop.shopUrl }
+                        .filter { it.isNotBlank() }
+
+                if (validUrls.isNotEmpty()) {
+                    var currentIndex by remember(validUrls) { mutableIntStateOf(0) }
+                    val currentUrl = validUrls[currentIndex]
+                    val lifecycleState = rememberLifecycleState()
+
+                    // 10秒ごとにインデックスを更新（無限ループ）
+                    // フォアグラウンドの時のみループを実行
+                    LaunchedEffect(validUrls.size) {
+                        snapshotFlow { lifecycleState.isResumed }
+                            .distinctUntilChanged()
+                            .filter { it } // lifecycleState.isResumed == true つまりフォアグラウンドの時のみ処理
+                            .collect {
+                                // フォアグラウンドになったらループを開始
+                                while (lifecycleState.isResumed) {
+                                    delay(10000) // 10秒
+                                    if (lifecycleState.isResumed) {
+                                        currentIndex = (currentIndex + 1) % validUrls.size
+                                    }
+                                }
+                            }
+                    }
+
+                    // keyを使ってURLが変更されたときにWebViewを再作成
+                    key(currentUrl) {
+                        PlatformWebView(
+                            url = currentUrl,
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .align(Alignment.BottomCenter)
+                        )
+                    }
+                }
+            } else {
                 // WebView
                 if (schedule.shopUrl.isNotBlank()) {
                     PlatformWebView(
@@ -527,7 +579,7 @@ private fun RecentReports(
 fun SchedulePreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            Schedule(Schedule())
+            Schedule(Schedule(), emptyList())
         }
     }
 }
