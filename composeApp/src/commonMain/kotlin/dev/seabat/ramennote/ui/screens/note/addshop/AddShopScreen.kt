@@ -103,7 +103,7 @@ fun AddShopScreen(
         AppTwoButtonAlert(
             message = "写真を選択するには、ストレージのアクセス許可が必要です。設定から許可してください。",
             confirmButtonText = "Settings",
-            nagativeButtonText = "Cancel",
+            negativeButtonText = "Cancel",
             onConfirm = {
                 shouldShowPermissionRationalDialog = false
                 shouldLaunchSetting = true

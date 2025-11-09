@@ -27,6 +27,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
@@ -258,10 +259,13 @@ fun EditShopScreen(
         // エラーダイアログ
         when (val shouldShow = errorDialogType) {
             is ErrorDialogType.DeleteConfirm -> {
-                AppAlert(
+                AppTwoButtonAlert(
                     message = stringResource(Res.string.edit_shop_delete_confirm),
                     onConfirm = {
                         viewModel.deleteShop(shouldShow.shopId)
+                        errorDialogType = ErrorDialogType.Hidden
+                    },
+                    onNegative = {
                         errorDialogType = ErrorDialogType.Hidden
                     }
                 )

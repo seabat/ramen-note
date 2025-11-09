@@ -31,6 +31,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.gallery.SharedImage
@@ -226,10 +227,13 @@ fun EditReportScreen(
         // エラーダイアログ
         when (val shouldShow = errorDialogType) {
             is ErrorDialogType.DeleteConfirm -> {
-                AppAlert(
+                AppTwoButtonAlert(
                     message = stringResource(Res.string.report_delete_confirm),
                     onConfirm = {
                         viewModel.deleteReport(shouldShow.reportId)
+                        errorDialogType = ErrorDialogType.Hidden
+                    },
+                    onNegative = {
                         errorDialogType = ErrorDialogType.Hidden
                     }
                 )

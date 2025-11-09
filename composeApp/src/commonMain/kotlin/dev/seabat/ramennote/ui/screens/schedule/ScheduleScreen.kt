@@ -35,6 +35,7 @@ import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.Instant
@@ -160,10 +161,13 @@ fun ScheduleScreen(
             )
         }
         is ErrorDialogType.DeleteConfirm -> {
-            AppAlert(
+            AppTwoButtonAlert(
                 message = stringResource(Res.string.schedule_delete_confirm),
                 onConfirm = {
                     viewModel.deleteSchedule(shouldShow.shopId)
+                    errorDialogType = ErrorDialogType.Hidden
+                },
+                onNegative = {
                     errorDialogType = ErrorDialogType.Hidden
                 }
             )

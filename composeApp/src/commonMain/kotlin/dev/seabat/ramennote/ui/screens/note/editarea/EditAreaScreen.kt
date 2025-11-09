@@ -34,6 +34,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
@@ -168,10 +169,13 @@ fun EditAreaScreen(
         }
 
         if (shouldShowAlert) {
-            AppAlert(
+            AppTwoButtonAlert(
                 message = stringResource(Res.string.editarea_delete_confirm, areaName),
                 onConfirm = {
                     viewModel.deleteArea(areaName)
+                    shouldShowAlert = false
+                },
+                onNegative = {
                     shouldShowAlert = false
                 }
             )
@@ -215,7 +219,7 @@ fun EditStatus(
         is RunStatus.Error -> {
             AppAlert(
                 message = "${deleteStatus.message}",
-                onConfirm = { onCompleted() }
+                onConfirm = { onCompleted() },
             )
         }
         is RunStatus.Loading -> {
