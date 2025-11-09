@@ -76,6 +76,7 @@ import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
 import ramennote.composeapp.generated.resources.ramen_dining_24px
+import kotlin.collections.filter
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
 
@@ -160,7 +161,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun Schedule(
+private fun Schedule(
     schedule: Schedule?,
     favoriteShops: List<ShopWithImage>,
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
@@ -197,68 +198,11 @@ fun Schedule(
                         }
                     }
         ) {
+            // コンテンツ
             if (schedule == null) {
-                // favoriteShopsのshopUrlを10秒ごとに切り替えながら表示
-                val validUrls =
-                    favoriteShops
-                        .map { it.shop.shopUrl }
-                        .filter { it.isNotBlank() }
-
-                if (validUrls.isNotEmpty()) {
-                    var currentIndex by remember(validUrls) { mutableIntStateOf(0) }
-                    val currentUrl = validUrls[currentIndex]
-                    val lifecycleState = rememberLifecycleState()
-
-                    // 10秒ごとにインデックスを更新（無限ループ）
-                    // フォアグラウンドの時のみループを実行
-                    LaunchedEffect(validUrls.size) {
-                        snapshotFlow { lifecycleState.isResumed }
-                            .distinctUntilChanged()
-                            .filter { it } // lifecycleState.isResumed == true つまりフォアグラウンドの時のみ処理
-                            .collect {
-                                // フォアグラウンドになったらループを開始
-                                while (lifecycleState.isResumed) {
-                                    delay(10000) // 10秒
-                                    if (lifecycleState.isResumed) {
-                                        currentIndex = (currentIndex + 1) % validUrls.size
-                                    }
-                                }
-                            }
-                    }
-
-                    // keyを使ってURLが変更されたときにWebViewを再作成
-                    key(currentUrl) {
-                        PlatformWebView(
-                            url = currentUrl,
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .align(Alignment.BottomCenter)
-                        )
-                    }
-                }
+                FavoriteShopWeb(Modifier.align(Alignment.BottomCenter), favoriteShops)
             } else {
-                // WebView
-                if (schedule.shopUrl.isNotBlank()) {
-                    PlatformWebView(
-                        url = schedule.shopUrl,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                // コンテンツの角が外側のコンポーネントからはみ出さないようにする
-                                .clip(RoundedCornerShape(10.dp))
-                                .align(Alignment.BottomCenter)
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(text = stringResource(Res.string.home_no_web))
-                    }
-                }
+                ScheduledShopWeb(Modifier.align(Alignment.BottomCenter), schedule)
             }
 
             // オーバーレイ（半透明の黒い背景）
@@ -281,69 +225,155 @@ fun Schedule(
                         )
             )
 
-            // コンテンツ
+            // メニュー
             if (schedule != null) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = schedule.shopName,
-                        style =
-                            MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                        color = Color.White
-                    )
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // schedule.isReportedがtrueの時は食レポアイコンを非表示
-                        if (!schedule.isReported) {
-                            Icon(
-                                painter = painterResource(Res.drawable.ramen_dining_24px),
-                                contentDescription = "食レポ",
-                                modifier =
-                                    Modifier
-                                        .size(24.dp)
-                                        .clickable {
-                                            goToReport(
-                                                schedule.shopId,
-                                                schedule.shopName,
-                                                schedule.menuName,
-                                                schedule.scheduledDate?.toString() ?: ""
-                                            )
-                                        },
-                                tint = Color.White
-                            )
-                        }
-                        Icon(
-                            painter = painterResource(Res.drawable.book_5_24px),
-                            contentDescription = "編集",
-                            modifier =
-                                Modifier
-                                    .size(24.dp)
-                                    .clickable {
-                                        goToShop(schedule.shopId, schedule.shopName)
-                                    },
-                            tint = Color.White
-                        )
-                    }
-                }
+                ScheduleMenu(
+                    Modifier.align(Alignment.BottomStart),
+                    schedule,
+                    goToShop,
+                    goToReport
+                )
             }
         }
     }
 }
 
 @Composable
-fun Favorite(
+private fun ScheduledShopWeb(
+    modifier: Modifier,
+    schedule: Schedule
+) {
+    // WebView
+    if (schedule.shopUrl.isNotBlank()) {
+        PlatformWebView(
+            url = schedule.shopUrl,
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    // コンテンツの角が外側のコンポーネントからはみ出さないようにする
+                    .clip(RoundedCornerShape(10.dp))
+        )
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = stringResource(Res.string.home_no_web))
+        }
+    }
+}
+
+@Composable
+private fun FavoriteShopWeb(
+    modifier: Modifier,
+    favoriteShops: List<ShopWithImage>
+) {
+    // favoriteShopsのshopUrlを10秒ごとに切り替えながら表示
+    val validUrls =
+        favoriteShops
+            .map { it.shop.shopUrl }
+            .filter { it.isNotBlank() }
+
+    if (validUrls.isNotEmpty()) {
+        var currentIndex by remember(validUrls) { mutableIntStateOf(0) }
+        val currentUrl = validUrls[currentIndex]
+        val lifecycleState = rememberLifecycleState()
+
+        // 10秒ごとにインデックスを更新（無限ループ）
+        // フォアグラウンドの時のみループを実行
+        LaunchedEffect(validUrls.size) {
+            snapshotFlow { lifecycleState.isResumed }
+                .distinctUntilChanged()
+                .filter { it } // lifecycleState.isResumed == true つまりフォアグラウンドの時のみ処理
+                .collect {
+                    // フォアグラウンドになったらループを開始
+                    while (lifecycleState.isResumed) {
+                        delay(20000) // 10秒
+                        if (lifecycleState.isResumed) {
+                            currentIndex = (currentIndex + 1) % validUrls.size
+                        }
+                    }
+                }
+        }
+
+        // keyを使ってURLが変更されたときにWebViewを再作成
+        key(currentUrl) {
+            PlatformWebView(
+                url = currentUrl,
+                modifier =
+                    modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(10.dp))
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScheduleMenu(
+    modifier: Modifier,
+    schedule: Schedule,
+    goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> }
+) {
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = schedule.shopName,
+            style =
+                MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+            color = Color.White
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // schedule.isReportedがtrueの時は食レポアイコンを非表示
+            if (!schedule.isReported) {
+                Icon(
+                    painter = painterResource(Res.drawable.ramen_dining_24px),
+                    contentDescription = "食レポ",
+                    modifier =
+                        Modifier
+                            .size(24.dp)
+                            .clickable {
+                                goToReport(
+                                    schedule.shopId,
+                                    schedule.shopName,
+                                    schedule.menuName,
+                                    schedule.scheduledDate?.toString() ?: ""
+                                )
+                            },
+                    tint = Color.White
+                )
+            }
+            Icon(
+                painter = painterResource(Res.drawable.book_5_24px),
+                contentDescription = "編集",
+                modifier =
+                    Modifier
+                        .size(24.dp)
+                        .clickable {
+                            goToShop(schedule.shopId, schedule.shopName)
+                        },
+                tint = Color.White
+            )
+        }
+    }
+}
+
+@Composable
+private fun Favorite(
     favoriteShops: List<ShopWithImage>,
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> }
 ) {
@@ -420,7 +450,7 @@ fun Favorite(
 }
 
 @Composable
-fun FavoriteShopItem(
+private fun FavoriteShopItem(
     shop: Shop,
     imageBytes: ByteArray?,
     onClick: () -> Unit
@@ -482,7 +512,7 @@ fun FavoriteShopItem(
 }
 
 @Composable
-fun ScheduledShopState(
+private fun ScheduledShopState(
     scheduleState: RunStatus<Schedule?>,
     onError: () -> Unit
 ) {
@@ -581,6 +611,21 @@ fun SchedulePreview() {
         Column(modifier = Modifier.padding(16.dp)) {
             Schedule(Schedule(), emptyList())
         }
+    }
+}
+
+@Preview
+@Composable
+fun ScheduleMenuPreview() {
+    RamenNoteTheme {
+        ScheduleMenu(
+            Modifier.background(Color.Gray),
+            Schedule(
+                shopId = 1,
+                shopName = "一風堂 博多本店",
+                isReported = false,
+            )
+        )
     }
 }
 
