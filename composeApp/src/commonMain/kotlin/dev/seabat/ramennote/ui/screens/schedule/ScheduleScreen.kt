@@ -347,7 +347,7 @@ private fun datePickerOnClickHandler(
             }
         }
     } finally {
-        clearClicked
+        clearClicked()
         dismissDatePicker()
     }
 }
