@@ -1,6 +1,9 @@
 package dev.seabat.ramennote.data.di
 
+import androidx.room.migration.Migration
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.execSQL
 import dev.seabat.ramennote.data.database.DatabaseFactoryContract
 import dev.seabat.ramennote.data.database.RamenNoteDatabase
 import dev.seabat.ramennote.data.repository.AreaImageRepository
@@ -65,6 +68,15 @@ val repositoryModule =
         single<ShopsRepositoryContract> { ShopsRepository(get()) }
     }
 
+/**
+ * データベースバージョンを 3 から 4 にマイグレーションする
+ */
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("ALTER TABLE shops ADD COLUMN note TEXT NOT NULL DEFAULT ''")
+    }
+}
+
 fun getRamenNoteDatabase(
     factory: DatabaseFactoryContract
 ): RamenNoteDatabase =
@@ -72,4 +84,5 @@ fun getRamenNoteDatabase(
         .getBuilder()
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
+        .addMigrations(MIGRATION_3_4)
         .build()

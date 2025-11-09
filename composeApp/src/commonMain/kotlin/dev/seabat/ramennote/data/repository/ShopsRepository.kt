@@ -66,7 +66,8 @@ private fun ShopEntity.toDomainModel(): Shop =
         description1 = description1,
         description2 = description2,
         description3 = description3,
-        favorite = favorite
+        favorite = favorite,
+        note = note
     )
 
 private fun Shop.toEntity(): ShopEntity =
@@ -89,5 +90,6 @@ private fun Shop.toEntity(): ShopEntity =
         description1 = description1,
         description2 = description2,
         description3 = description3,
-        favorite = favorite
+        favorite = favorite,
+        note = note
     )

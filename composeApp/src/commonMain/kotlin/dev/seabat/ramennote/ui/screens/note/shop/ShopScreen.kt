@@ -411,7 +411,7 @@ fun Detail(
         // note
         ShopDetailItem(
             label = stringResource(Res.string.add_note_label),
-            value = shop.stationName.ifEmpty { stringResource(Res.string.add_no_data_label) },
+            value = shop.note.ifEmpty { stringResource(Res.string.add_no_data_label) },
             enabledBorder = true
         )
     }

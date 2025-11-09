@@ -24,7 +24,8 @@ data class Shop(
     val description1: String = "",
     val description2: String = "",
     val description3: String = "",
-    val favorite: Boolean = false
+    val favorite: Boolean = false,
+    val note: String = ""
 ) {
     fun toJsonString(): String = Json.encodeToString(this)
 

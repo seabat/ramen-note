@@ -77,6 +77,7 @@ fun EditShopScreen(
     val focusManager = LocalFocusManager.current
     var category by remember { mutableStateOf(shop.category) }
     var menuName by remember { mutableStateOf(shop.menuName1) }
+    var note by remember { mutableStateOf(shop.note) }
 
     val saveState by viewModel.saveState.collectAsState()
     val deleteState by viewModel.deleteState.collectAsState()
@@ -179,8 +180,8 @@ fun EditShopScreen(
                 // ノート
                 ShopMultilineInputField(
                     label = stringResource(Res.string.add_note_label),
-                    value = stationName,
-                    onValueChange = { stationName = it }
+                    value = note,
+                    onValueChange = { note = it }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -208,7 +209,8 @@ fun EditShopScreen(
                                 star = star,
                                 stationName = stationName,
                                 category = category,
-                                menuName1 = menuName
+                                menuName1 = menuName,
+                                note = note
                             )
                         viewModel.updateShop(updatedShop, shopImage)
                     }
