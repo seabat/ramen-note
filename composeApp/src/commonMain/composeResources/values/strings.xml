@@ -29,6 +29,7 @@
     <string name="home_no_reports">過去3ヶ月分の食レポがありません</string>
     <string name="home_no_favorite">お気に入り店が登録されていません</string>
     <string name="home_no_web">WebサイトのURLが設定されていません</string>
+    <string name="home_patrol_web"> お気に入り店のWebサイトを巡回中</string>
 
 
     <!-- Note Screen -->

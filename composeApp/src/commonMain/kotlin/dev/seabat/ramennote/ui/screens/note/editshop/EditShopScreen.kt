@@ -117,7 +117,7 @@ fun EditShopScreen(
                     Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp)
+                        .padding(horizontal = 16.dp)
                         .pointerInput(Unit) {
                             detectTapGestures(onTap = {
                                 focusManager.clearFocus()

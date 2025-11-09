@@ -52,7 +52,9 @@ fun AddAreaScreen(
     val addState by viewModel.addState.collectAsState()
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier =
+            Modifier
+                .fillMaxSize()
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             AppBar(
@@ -63,7 +65,7 @@ fun AddAreaScreen(
             Column(
                 modifier =
                     Modifier
-                        .padding(horizontal = 24.dp)
+                        .padding(horizontal = 16.dp)
                         .pointerInput(Unit) {
                             detectTapGestures { focusManager.clearFocus() }
                         },

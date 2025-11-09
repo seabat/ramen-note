@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -303,7 +304,7 @@ fun ActionButtons(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
@@ -313,7 +314,8 @@ fun ActionButtons(
                 ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
+                ),
+            contentPadding = PaddingValues(0.dp)
         ) {
             val buttonText =
                 if (shop?.scheduledDate?.isTodayOrFuture() == true) {
@@ -331,7 +333,8 @@ fun ActionButtons(
                 ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
+                ),
+            contentPadding = PaddingValues(0.dp)
         ) {
             Text(stringResource(Res.string.add_report_button), style = MaterialTheme.typography.titleSmall)
         }
@@ -343,7 +346,8 @@ fun ActionButtons(
                 ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
+                ),
+            contentPadding = PaddingValues(0.dp)
         ) {
             Text(stringResource(Res.string.add_edit_button), style = MaterialTheme.typography.titleSmall)
         }
@@ -360,7 +364,7 @@ fun Detail(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 16.dp)
     ) {
         // 予定（YYYY年mm月DD日 表記）
         shop.scheduledDate?.let { date ->
@@ -386,7 +390,7 @@ fun Detail(
             url = shop.mapUrl
         )
 
-        Spacer(modifier = Modifier.height(7.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         // 評価（星）
         StarRatingRow(
@@ -394,7 +398,7 @@ fun Detail(
             onValueChange = { newStar -> updateStar(newStar) }
         )
 
-        Spacer(modifier = Modifier.height(7.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         // 最寄り駅
         ShopDetailItem(

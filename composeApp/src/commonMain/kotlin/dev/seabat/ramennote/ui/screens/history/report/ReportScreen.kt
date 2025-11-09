@@ -77,7 +77,9 @@ fun ReportScreen(
     )
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier =
+            Modifier
+                .fillMaxSize()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -92,7 +94,7 @@ fun ReportScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 24.dp)
+                        .padding(horizontal = 16.dp)
             ) {
                 // 店名
                 ShopDetailItem(

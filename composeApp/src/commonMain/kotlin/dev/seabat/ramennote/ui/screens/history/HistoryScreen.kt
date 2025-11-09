@@ -51,7 +51,7 @@ fun HistoryScreen(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         AppBar(title = stringResource(Res.string.screen_history_title))
         if (reports.isNotEmpty()) {

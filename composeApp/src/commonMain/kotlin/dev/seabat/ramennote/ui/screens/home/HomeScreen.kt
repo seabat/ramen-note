@@ -1,5 +1,10 @@
 package dev.seabat.ramennote.ui.screens.home
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -76,6 +81,7 @@ import ramennote.composeapp.generated.resources.home_favorite_subheading
 import ramennote.composeapp.generated.resources.home_no_favorite
 import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
+import ramennote.composeapp.generated.resources.home_patrol_web
 import ramennote.composeapp.generated.resources.home_report_subheading
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 import kotlin.collections.filter
@@ -129,7 +135,7 @@ fun HomeScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                    .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -140,7 +146,7 @@ fun HomeScreen(
                 goToReport
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // 過去3ヶ月分のレポートを水平ページャーで表示
             RecentReports(
@@ -148,7 +154,7 @@ fun HomeScreen(
                 goToHistory = goToHistory
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Favorite(
                 favoriteShops,
@@ -187,7 +193,7 @@ private fun Schedule(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(190.dp)
+                    .height(216.dp)
                     .border(
                         width = 2.dp,
                         color = MaterialTheme.colorScheme.background,
@@ -235,6 +241,10 @@ private fun Schedule(
                     goToShop,
                     goToReport
                 )
+            } else {
+                if (favoriteShops.isNotEmpty()) {
+                    PatrolWeb(Modifier.align(Alignment.BottomStart))
+                }
             }
         }
     }
@@ -264,6 +274,35 @@ private fun ScheduledShopWeb(
             Text(text = stringResource(Res.string.home_no_web))
         }
     }
+}
+
+@Composable
+private fun PatrolWeb(
+    modifier: Modifier
+) {
+    // 点滅アニメーション
+    val infiniteTransition = rememberInfiniteTransition(label = "blink")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.3f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = 2000),
+                repeatMode = RepeatMode.Reverse
+            ),
+        label = "alpha"
+    )
+
+    Text(
+        modifier =
+            modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .alpha(alpha),
+        text = stringResource(Res.string.home_patrol_web),
+        style =
+            MaterialTheme.typography.titleMedium,
+        color = Color.White
+    )
 }
 
 @Composable
@@ -338,7 +377,7 @@ private fun ScheduleMenu(
         Text(
             text = schedule.shopName,
             style =
-                MaterialTheme.typography.headlineSmall.copy(
+                MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
             color = Color.White
@@ -412,8 +451,6 @@ private fun Favorite(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
         // メインのBox
         Box(
             modifier =
@@ -439,7 +476,7 @@ private fun Favorite(
                     columns = GridCells.Fixed(3),
                     modifier =
                         Modifier
-                            .padding(8.dp)
+                            .padding(4.dp)
                             .fillMaxHeight(),
                     // 画面いっぱいまで使用
                     contentPadding = PaddingValues(8.dp),
@@ -549,8 +586,6 @@ private fun RecentReports(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         if (reports.isNotEmpty()) {
             // LazyRow の幅を動的に指定するために BoxWithConstraints を使用
