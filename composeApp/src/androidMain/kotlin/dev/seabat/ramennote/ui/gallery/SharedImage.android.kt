@@ -32,7 +32,7 @@ actual class SharedImage(
             )
             byteArrayOutputStream.toByteArray()
         } else {
-            println("toByteArray null")
+            println("[RamenNote]: toByteArray(null)")
             null
         }
 
@@ -41,7 +41,7 @@ actual class SharedImage(
         return if (byteArray != null) {
             return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).asImageBitmap()
         } else {
-            println("toImageBitmap null")
+            println("[RamenNote]: toImageBitmap(null)")
             null
         }
     }

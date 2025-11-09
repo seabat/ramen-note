@@ -40,10 +40,10 @@ fun Permission(
     val permissionLauncher = createRememberedPermissionsLauncher(currentCallback)
     val isGranted = permissionLauncher.isPermissionGranted(PermissionType.GALLERY)
     if (isGranted) {
-        logd("ramen-note", "GALLERY Permission: granted")
+        logd(message = "GALLERY Permission(granted)")
         showGallery()
     } else {
-        logd("ramen-note", "GALLERY Permission: not Granted")
+        logd(message = "GALLERY Permission(not Granted)")
         permissionLauncher.askPermission(PermissionType.GALLERY)
     }
 }

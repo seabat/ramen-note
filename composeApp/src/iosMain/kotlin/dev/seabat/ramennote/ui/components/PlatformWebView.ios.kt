@@ -29,12 +29,9 @@ actual fun PlatformWebView(
                     configuration = configuration
                 )
 
-            // デバッグ用のログ
-            println("Loading URL: $url")
-
             val nsUrl: NSURL? = NSURL.URLWithString(url) ?: NSURL.URLWithString("about:blank")
             nsUrl?.let { url: NSURL ->
-                println("NSURL created: $url")
+                println("[RamenNote]: NSURL created($url)")
                 webView.loadRequest(NSURLRequest.requestWithURL(url))
             }
             webView

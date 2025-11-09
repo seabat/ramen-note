@@ -53,6 +53,7 @@ import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.components.rememberLifecycleState
@@ -61,7 +62,8 @@ import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.takeWhile
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -280,19 +282,27 @@ private fun FavoriteShopWeb(
         val currentUrl = validUrls[currentIndex]
         val lifecycleState = rememberLifecycleState()
 
-        // 10秒ごとにインデックスを更新（無限ループ）
-        // フォアグラウンドの時のみループを実行
+        // 10秒ごとにインデックスを更新
+        // フォアグラウンドの時のみ更新処理が動作する
         LaunchedEffect(validUrls.size) {
-            snapshotFlow { lifecycleState.isResumed }
-                .distinctUntilChanged()
-                .filter { it } // lifecycleState.isResumed == true つまりフォアグラウンドの時のみ処理
-                .collect {
-                    // フォアグラウンドになったらループを開始
-                    while (lifecycleState.isResumed) {
-                        delay(20000) // 10秒
-                        if (lifecycleState.isResumed) {
-                            currentIndex = (currentIndex + 1) % validUrls.size
-                        }
+            snapshotFlow {
+                lifecycleState.isResumed
+            }.distinctUntilChanged()
+                .collect { isResumed ->
+                    if (isResumed) {
+                        // フォアグラウンドになったら定期的なFlowを開始
+                        // takeWhileでlifecycleState.isResumedがfalseになったら自動的に停止
+                        flow {
+                            while (true) {
+                                logd(message = "Home Timer emit")
+                                emit(Unit)
+                                delay(10000) // 20秒待機
+                            }
+                        }.takeWhile { lifecycleState.isResumed }
+                            .collect {
+                                logd(message = "Home Timer collect after takeWhile")
+                                currentIndex = (currentIndex + 1) % validUrls.size
+                            }
                     }
                 }
         }
@@ -623,7 +633,7 @@ fun ScheduleMenuPreview() {
             Schedule(
                 shopId = 1,
                 shopName = "一風堂 博多本店",
-                isReported = false,
+                isReported = false
             )
         )
     }

@@ -219,7 +219,7 @@ fun EditStatus(
         is RunStatus.Error -> {
             AppAlert(
                 message = "${deleteStatus.message}",
-                onConfirm = { onCompleted() },
+                onConfirm = { onCompleted() }
             )
         }
         is RunStatus.Loading -> {

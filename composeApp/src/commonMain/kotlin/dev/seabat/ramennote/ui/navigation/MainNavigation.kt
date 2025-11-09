@@ -29,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
+import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.screens.history.HistoryScreen
 import dev.seabat.ramennote.ui.screens.history.editreport.EditReportScreen
 import dev.seabat.ramennote.ui.screens.history.report.ReportScreen
@@ -274,7 +275,7 @@ fun MainNavigation() {
                     tabScreens.forEach { screen ->
                         val isSelected = currentDestination.route?.endsWith(screen.route) == true
                         // デバッグ用: コンソールに出力
-                        println("Screen: ${screen.route}, Current: ${currentDestination.route}, Selected: $isSelected")
+                        logd(message = "Screen(${screen.route}), Current(${currentDestination.route}), Selected($isSelected)")
                         NavigationBarItem(
                             icon = {
                                 Icon(

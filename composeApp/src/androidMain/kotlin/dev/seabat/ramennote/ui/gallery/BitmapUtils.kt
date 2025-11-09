@@ -3,6 +3,7 @@ package dev.seabat.ramennote.ui.gallery
 import android.content.ContentResolver
 import android.graphics.BitmapFactory
 import android.net.Uri
+import dev.seabat.ramennote.domain.util.logd
 import java.io.InputStream
 
 object BitmapUtils {
@@ -15,8 +16,8 @@ object BitmapUtils {
             return s
         } catch (e: Exception) {
             e.printStackTrace()
-            println("getBitmapFromUri Exception: ${e.message}")
-            println("getBitmapFromUri Exception: ${e.localizedMessage}")
+            logd(message = "getBitmapFromUri Exception message(${e.message}")
+            logd(message = "getBitmapFromUri Exception localizedMessage(${e.localizedMessage})")
             return null
         }
     }
