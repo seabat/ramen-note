@@ -1,31 +1,40 @@
 package dev.seabat.ramennote.ui.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import dev.seabat.ramennote.domain.util.logd
 
 @Composable
-actual fun rememberLifecycleState(): LifecycleState {
+actual fun rememberLifecycleState(): State<LifecycleState> {
     val lifecycleOwner = LocalLifecycleOwner.current
-    var isResumed by remember {
-        mutableStateOf(
-            lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
-        )
-    }
+    val lifecycleState =
+        remember {
+            mutableStateOf(
+                LifecycleState(
+                    isResumed =
+                        lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+                )
+            )
+        }
 
     androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
         val observer =
-            androidx.lifecycle.LifecycleEventObserver { _, event ->
-                isResumed = event == androidx.lifecycle.Lifecycle.Event.ON_RESUME
+            LifecycleEventObserver { _, event ->
+                logd(message = "event: $event")
+                lifecycleState.value = lifecycleState.value.copy(isResumed = event == Lifecycle.Event.ON_RESUME)
             }
+        logd(message = "start observe lifecycle")
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            logd(message = "stop observe lifecycle")
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
-    return LifecycleState(isResumed = isResumed)
+    return lifecycleState
 }

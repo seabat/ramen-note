@@ -2,10 +2,9 @@ package dev.seabat.ramennote.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
@@ -13,8 +12,8 @@ import platform.UIKit.UIApplicationWillResignActiveNotification
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
-actual fun rememberLifecycleState(): LifecycleState {
-    var isResumed by remember { mutableStateOf(true) } // デフォルトはtrue（アプリ起動時はフォアグラウンド）
+actual fun rememberLifecycleState(): State<LifecycleState> {
+    val lifecycleState = remember { mutableStateOf(LifecycleState(isResumed = true)) } // デフォルトはtrue（アプリ起動時はフォアグラウンド）
 
     DisposableEffect(Unit) {
         val notificationCenter = NSNotificationCenter.defaultCenter
@@ -25,7 +24,7 @@ actual fun rememberLifecycleState(): LifecycleState {
                 `object` = null,
                 queue = null
             ) { _ ->
-                isResumed = true
+                lifecycleState.value = lifecycleState.value.copy(isResumed = true)
             }
 
         val resignActiveObserver =
@@ -34,7 +33,7 @@ actual fun rememberLifecycleState(): LifecycleState {
                 `object` = null,
                 queue = null
             ) { _ ->
-                isResumed = false
+                lifecycleState.value = lifecycleState.value.copy(isResumed = false)
             }
 
         onDispose {
@@ -43,5 +42,5 @@ actual fun rememberLifecycleState(): LifecycleState {
         }
     }
 
-    return LifecycleState(isResumed = isResumed)
+    return lifecycleState
 }

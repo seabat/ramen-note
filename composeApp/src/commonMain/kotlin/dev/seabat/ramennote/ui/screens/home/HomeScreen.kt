@@ -1,10 +1,5 @@
 package dev.seabat.ramennote.ui.screens.home
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -81,7 +76,6 @@ import ramennote.composeapp.generated.resources.home_favorite_subheading
 import ramennote.composeapp.generated.resources.home_no_favorite
 import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
-import ramennote.composeapp.generated.resources.home_patrol_web
 import ramennote.composeapp.generated.resources.home_report_subheading
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 import kotlin.collections.filter
@@ -184,7 +178,7 @@ private fun Schedule(
             text =
                 schedule?.scheduledDate?.let {
                     "${createFormattedDateString(it)}の予定"
-                } ?: "予定なし",
+                } ?: "お気に入り店のWebサイト",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary
         )
@@ -208,7 +202,7 @@ private fun Schedule(
         ) {
             // コンテンツ
             if (schedule == null) {
-                FavoriteShopWeb(Modifier.align(Alignment.BottomCenter), favoriteShops)
+                FavoriteShopsWeb(Modifier.align(Alignment.BottomCenter), favoriteShops)
             } else {
                 ScheduledShopWeb(Modifier.align(Alignment.BottomCenter), schedule)
             }
@@ -241,10 +235,6 @@ private fun Schedule(
                     goToShop,
                     goToReport
                 )
-            } else {
-                if (favoriteShops.isNotEmpty()) {
-                    PatrolWeb(Modifier.align(Alignment.BottomStart))
-                }
             }
         }
     }
@@ -277,36 +267,7 @@ private fun ScheduledShopWeb(
 }
 
 @Composable
-private fun PatrolWeb(
-    modifier: Modifier
-) {
-    // 点滅アニメーション
-    val infiniteTransition = rememberInfiniteTransition(label = "blink")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.3f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(durationMillis = 2000),
-                repeatMode = RepeatMode.Reverse
-            ),
-        label = "alpha"
-    )
-
-    Text(
-        modifier =
-            modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .alpha(alpha),
-        text = stringResource(Res.string.home_patrol_web),
-        style =
-            MaterialTheme.typography.titleMedium,
-        color = Color.White
-    )
-}
-
-@Composable
-private fun FavoriteShopWeb(
+private fun FavoriteShopsWeb(
     modifier: Modifier,
     favoriteShops: List<ShopWithImage>
 ) {
@@ -325,9 +286,10 @@ private fun FavoriteShopWeb(
         // フォアグラウンドの時のみ更新処理が動作する
         LaunchedEffect(validUrls.size) {
             snapshotFlow {
-                lifecycleState.isResumed
+                lifecycleState.value.isResumed
             }.distinctUntilChanged()
                 .collect { isResumed ->
+                    logd(message = "collect isResumed($isResumed)")
                     if (isResumed) {
                         // フォアグラウンドになったら定期的なFlowを開始
                         // takeWhileでlifecycleState.isResumedがfalseになったら自動的に停止
@@ -335,9 +297,9 @@ private fun FavoriteShopWeb(
                             while (true) {
                                 logd(message = "Home Timer emit")
                                 emit(Unit)
-                                delay(10000) // 20秒待機
+                                delay(30000) // 30秒待機
                             }
-                        }.takeWhile { lifecycleState.isResumed }
+                        }.takeWhile { lifecycleState.value.isResumed }
                             .collect {
                                 logd(message = "Home Timer collect after takeWhile")
                                 currentIndex = (currentIndex + 1) % validUrls.size
