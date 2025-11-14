@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun AppTwoButtonAlert(
-    confirmButtonText: String,
-    nagativeButtonText: String,
+    confirmButtonText: String = "はい",
+    negativeButtonText: String = "いいえ",
     message: String,
     onConfirm: () -> Unit,
     onNegative: () -> Unit
@@ -26,7 +26,7 @@ fun AppTwoButtonAlert(
             Button(
                 onClick = { onNegative() }
             ) {
-                Text(text = nagativeButtonText)
+                Text(text = negativeButtonText)
             }
         },
         title = null,

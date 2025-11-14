@@ -55,9 +55,10 @@ fun ShopDropdownField(
                 text = value,
                 expanded = expanded,
                 onToggle = { expanded = !expanded },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -86,34 +87,38 @@ private fun DropdownAnchorField(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(4.dp)
-            )
-            .clickable { onToggle() }
+        modifier =
+            modifier
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(4.dp)
+                ).clickable { onToggle() }
     ) {
         // テキスト入力領域（読み取り専用として扱う）
         BasicTextField(
             value = text,
             onValueChange = { /* readOnly */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start =12.dp, end = 28.dp, top = 8.dp, bottom = 8.dp) // 右側にアイコン分の余白
-                .focusable(false),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 28.dp, top = 8.dp, bottom = 8.dp) // 右側にアイコン分の余白
+                    .focusable(false),
             readOnly = true,
             singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface
-            ),
+            textStyle =
+                MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
         )
 
         // 末尾のドロップダウンアイコン
-        Box(modifier = Modifier
-            .align(Alignment.CenterEnd)
-            .padding(end = 4.dp)
+        Box(
+            modifier =
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 4.dp)
         ) {
             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
@@ -125,9 +130,10 @@ private fun DropdownAnchorField(
 fun ShopDropdownFieldPreview() {
     MaterialTheme {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
             ShopDropdownField(
                 label = "味の種類",

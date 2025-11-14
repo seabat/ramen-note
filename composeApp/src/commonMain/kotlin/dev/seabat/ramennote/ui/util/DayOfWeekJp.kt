@@ -3,8 +3,8 @@ package dev.seabat.ramennote.ui.util
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.isoDayNumber
 
-fun dayOfWeekJp(date: LocalDate): String {
-    return when (date.dayOfWeek.isoDayNumber) {
+fun dayOfWeekJp(date: LocalDate): String =
+    when (date.dayOfWeek.isoDayNumber) {
         1 -> "月"
         2 -> "火"
         3 -> "水"
@@ -14,4 +14,3 @@ fun dayOfWeekJp(date: LocalDate): String {
         7 -> "日"
         else -> ""
     }
-}

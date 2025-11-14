@@ -12,7 +12,9 @@ import platform.UIKit.UIImagePickerControllerSourceType
 import platform.UIKit.UINavigationControllerDelegateProtocol
 import platform.darwin.NSObject
 
-actual class GalleryLauncher actual constructor(private val onLaunch: () -> Unit) {
+actual class GalleryLauncher actual constructor(
+    private val onLaunch: () -> Unit
+) {
     actual fun launch() {
         onLaunch()
     }
@@ -21,22 +23,27 @@ actual class GalleryLauncher actual constructor(private val onLaunch: () -> Unit
 @Composable
 actual fun createRememberedGalleryLauncher(onResult: (SharedImage?) -> Unit): GalleryLauncher {
     val imagePicker = UIImagePickerController()
-    val galleryDelegate = remember {
-        object : NSObject(), UIImagePickerControllerDelegateProtocol,
-            UINavigationControllerDelegateProtocol {
-            override fun imagePickerController(
-                picker: UIImagePickerController, didFinishPickingMediaWithInfo: Map<Any?, *>
-            ) {
-                val image = didFinishPickingMediaWithInfo.getValue(
-                    UIImagePickerControllerEditedImage
-                ) as? UIImage ?: didFinishPickingMediaWithInfo.getValue(
-                    UIImagePickerControllerOriginalImage
-                ) as? UIImage
-                onResult.invoke(SharedImage(image))
-                picker.dismissViewControllerAnimated(true, null)
+    val galleryDelegate =
+        remember {
+            object :
+                NSObject(),
+                UIImagePickerControllerDelegateProtocol,
+                UINavigationControllerDelegateProtocol {
+                override fun imagePickerController(
+                    picker: UIImagePickerController,
+                    didFinishPickingMediaWithInfo: Map<Any?, *>
+                ) {
+                    val image =
+                        didFinishPickingMediaWithInfo.getValue(
+                            UIImagePickerControllerEditedImage
+                        ) as? UIImage ?: didFinishPickingMediaWithInfo.getValue(
+                            UIImagePickerControllerOriginalImage
+                        ) as? UIImage
+                    onResult.invoke(SharedImage(image))
+                    picker.dismissViewControllerAnimated(true, null)
+                }
             }
         }
-    }
 
     return remember {
         GalleryLauncher {
@@ -44,7 +51,9 @@ actual fun createRememberedGalleryLauncher(onResult: (SharedImage?) -> Unit): Ga
             imagePicker.setAllowsEditing(true)
             imagePicker.setDelegate(galleryDelegate)
             UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(
-                imagePicker, true, null
+                imagePicker,
+                true,
+                null
             )
         }
     }

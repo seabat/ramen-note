@@ -6,9 +6,10 @@ import kotlinx.datetime.toLocalDateTime
 
 class CreateReportPhotoNameUseCase : CreateReportPhotoNameUseCaseContract {
     override fun invoke(): String {
-        val now = Clock.System.now().toLocalDateTime(
-            TimeZone.currentSystemDefault()
-        )
+        val now =
+            Clock.System.now().toLocalDateTime(
+                TimeZone.currentSystemDefault()
+            )
         val currentTime = "${now.year}${now.monthNumber.toString()
             .padStart(2, '0')}${now.dayOfMonth.toString()
             .padStart(2, '0')}T${now.hour.toString()

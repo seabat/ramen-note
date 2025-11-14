@@ -16,8 +16,8 @@ import kotlinx.datetime.LocalDate
 class ReportViewModel(
     private val createReportPhotoNameUseCase: CreateReportPhotoNameUseCaseContract,
     private val addReportUseCase: AddReportUseCaseContract
-) : ViewModel(), ReportViewModelContract {
-
+) : ViewModel(),
+    ReportViewModelContract {
     private val _reportedStatus = MutableStateFlow<RunStatus<Int>>(RunStatus.Idle())
     override val reportedStatus: StateFlow<RunStatus<Int>> = _reportedStatus.asStateFlow()
 
@@ -31,21 +31,22 @@ class ReportViewModel(
         viewModelScope.launch {
             try {
                 _reportedStatus.value = RunStatus.Loading()
-                
+
                 // AddReportUseCaseで画像保存とSQLite保存
-                val result = addReportUseCase.invoke(
-                    report = Report(
-                        id = 0, // 後で更新される
-                        shopId = shopId,
-                        menuName = menuName,
-                        photoName = createReportPhotoNameUseCase(),
-                        impression = impression,
-                        date = reportedDate
-                    ),
-                    imageBytes = image?.toByteArray()
-                )
+                val result =
+                    addReportUseCase.invoke(
+                        report =
+                            Report(
+                                id = 0, // 後で更新される
+                                shopId = shopId,
+                                menuName = menuName,
+                                photoName = createReportPhotoNameUseCase(),
+                                impression = impression,
+                                date = reportedDate
+                            ),
+                        imageBytes = image?.toByteArray()
+                    )
                 _reportedStatus.value = result
-                
             } catch (e: Exception) {
                 _reportedStatus.value = RunStatus.Error(e.message ?: "レポートの保存に失敗しました")
             }

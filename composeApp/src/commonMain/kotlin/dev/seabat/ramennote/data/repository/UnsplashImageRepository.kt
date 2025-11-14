@@ -11,29 +11,34 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
+const val BASE_URL = "https://api.unsplash.com"
+
 class UnsplashImageRepository(
     private val httpClient: HttpClient
 ) : UnsplashImageRepositoryContract {
-
-    val BASE_URL = "https://api.unsplash.com"
-
-    override suspend fun fetch(query: String): ByteArray {
-        return withContext(Dispatchers.IO) {
-            val response:UnsplashSearchResponse = httpClient.get("$BASE_URL/search/photos") {
-                headers {
-                    append("Authorization", "Client-ID ${UnsplashConfig.ACCESS_KEY}")
-                }
-                parameter("query", query)
-                parameter("page", 1)
-                parameter("per_page", 1)
-                parameter("orientation", "landscape")
-            }.body()
+    override suspend fun fetch(query: String): ByteArray =
+        withContext(Dispatchers.IO) {
+            val response: UnsplashSearchResponse =
+                httpClient
+                    .get("$BASE_URL/search/photos") {
+                        headers {
+                            append("Authorization", "Client-ID ${UnsplashConfig.ACCESS_KEY}")
+                        }
+                        parameter("query", query)
+                        parameter("page", 1)
+                        parameter("per_page", 1)
+                        parameter("orientation", "landscape")
+                    }.body()
 
             // 画像URLから画像データを取得
-            val imageResponse = httpClient.get(response.results.get(0).urls.regular)
+            val imageResponse =
+                httpClient.get(
+                    response.results
+                        .get(0)
+                        .urls.regular
+                )
             imageResponse.body<ByteArray>()
         }
-    }
 }
 
 @Serializable

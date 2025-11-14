@@ -11,7 +11,7 @@ class UpdateReportUseCase(
     override suspend operator fun invoke(report: Report, imageBytes: ByteArray?) {
         reportsRepository.update(report)
         if (imageBytes != null) {
-            localImageRepository.save(name =report.photoName, imageBytes = imageBytes)
+            localImageRepository.save(name = report.photoName, imageBytes = imageBytes)
         }
     }
 }

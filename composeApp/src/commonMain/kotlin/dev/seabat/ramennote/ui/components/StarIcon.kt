@@ -20,19 +20,21 @@ fun StarIcon(
     onClick: (() -> Unit)? = null
 ) {
     Icon(
-        modifier = Modifier
-            .then(
-                if (onClick != null) {
-                    Modifier.padding(end = 4.dp).clickable { onClick.invoke() }
-                } else {
-                    Modifier
-                }
-            ),
-        imageVector = if (onOff) {
-            vectorResource(Res.drawable.kid_star_24px_fill)
-        } else {
-            vectorResource(Res.drawable.kid_star_24px_empty)
-        },
+        modifier =
+            Modifier
+                .then(
+                    if (onClick != null) {
+                        Modifier.padding(end = 4.dp).clickable { onClick.invoke() }
+                    } else {
+                        Modifier
+                    }
+                ),
+        imageVector =
+            if (onOff) {
+                vectorResource(Res.drawable.kid_star_24px_fill)
+            } else {
+                vectorResource(Res.drawable.kid_star_24px_empty)
+            },
         contentDescription = "星",
         tint = if (onOff) Color(0xFFFFEA00) else Color.Gray.copy(alpha = 0.3f)
     )
@@ -53,5 +55,3 @@ fun StarIconOff() {
         StarIcon(onOff = false, onClick = {})
     }
 }
-
-

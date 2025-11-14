@@ -14,5 +14,3 @@ data class ReportEntity(
     val date: String, // ISO8601 format string (yyyy-MM-dd)
     val star: Int
 )
-
-

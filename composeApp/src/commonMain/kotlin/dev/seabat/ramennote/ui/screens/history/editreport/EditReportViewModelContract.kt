@@ -12,8 +12,12 @@ interface EditReportViewModelContract {
     val deletedStatus: StateFlow<RunStatus<String>>
 
     fun loadReport(reportId: Int)
+
     fun editReport(menuName: String, reportedDate: LocalDate, impression: String, shopId: Int, image: SharedImage?)
+
     fun deleteReport(reportId: Int)
+
     fun setReportedStatusToIdle()
+
     fun setDeletedStatusToIdle()
 }

@@ -11,15 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 class AddAreaViewModel(
     private val areasRepository: AreasRepositoryContract,
     private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
-): ViewModel(), AddAreaViewModelContract {
-
+) : ViewModel(),
+    AddAreaViewModelContract {
     private val _addState: MutableStateFlow<RunStatus<ByteArray?>> =
         MutableStateFlow(RunStatus.Idle())
     override val addState: StateFlow<RunStatus<ByteArray?>> = _addState.asStateFlow()
@@ -39,5 +36,3 @@ class AddAreaViewModel(
         }
     }
 }
-
-

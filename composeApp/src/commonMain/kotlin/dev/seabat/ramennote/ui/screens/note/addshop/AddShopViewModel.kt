@@ -2,12 +2,12 @@ package dev.seabat.ramennote.ui.screens.note.addshop
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
+import dev.seabat.ramennote.domain.usecase.CreateNoImageByteArrayUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
-import dev.seabat.ramennote.domain.usecase.CreateNoImageByteArrayUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +18,8 @@ class AddShopViewModel(
     private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
     private val createNoImageUseCase: CreateNoImageByteArrayUseCaseContract,
     private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract
-) : ViewModel(), AddShopViewModelContract {
-
+) : ViewModel(),
+    AddShopViewModelContract {
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
     override val saveState: StateFlow<RunStatus<String>> = _saveState
 
@@ -32,7 +32,7 @@ class AddShopViewModel(
                     val byteArray = sharedImage.toByteArray()
                     saveShopMenuImageUseCase(shop.photoName1, byteArray!!)
                 }
-                
+
                 // 店舗情報を保存
                 addShopUseCase.invoke(shop)
                 // エリア件数更新
@@ -48,7 +48,5 @@ class AddShopViewModel(
         _saveState.value = RunStatus.Idle()
     }
 
-    override fun createNoImage(): ByteArray {
-        return createNoImageUseCase.invoke()
-    }
+    override fun createNoImage(): ByteArray = createNoImageUseCase.invoke()
 }

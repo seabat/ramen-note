@@ -8,8 +8,8 @@ class FetchUnsplashImageUseCase(
     private val unsplashImageRepository: UnsplashImageRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
 ) : FetchUnsplashImageUseCaseContract {
-    override suspend operator fun invoke(query: String): RunStatus<ByteArray?> {
-        return try {
+    override suspend operator fun invoke(query: String): RunStatus<ByteArray?> =
+        try {
             // Fetch image from remote repository
             val imageBytes = unsplashImageRepository.fetch(query)
 
@@ -27,5 +27,4 @@ class FetchUnsplashImageUseCase(
         } catch (e: Exception) {
             RunStatus.Error("画像の生成に失敗しました")
         }
-    }
 }

@@ -1,18 +1,20 @@
 package dev.seabat.ramennote.ui.screens.note.addarea
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,10 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
@@ -52,7 +52,9 @@ fun AddAreaScreen(
     val addState by viewModel.addState.collectAsState()
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier =
+            Modifier
+                .fillMaxSize()
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             AppBar(
@@ -61,11 +63,12 @@ fun AddAreaScreen(
             )
 
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .pointerInput(Unit) {
-                        detectTapGestures { focusManager.clearFocus() }
-                    },
+                modifier =
+                    Modifier
+                        .padding(horizontal = 16.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures { focusManager.clearFocus() }
+                        },
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -78,16 +81,18 @@ fun AddAreaScreen(
                         value = areaName,
                         onValueChange = { areaName = it },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.outline,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                            disabledBorderColor = MaterialTheme.colorScheme.outline,
-                            errorBorderColor = MaterialTheme.colorScheme.error
-                        ),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                                errorBorderColor = MaterialTheme.colorScheme.error
+                            ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = { focusManager.clearFocus() }
-                        )
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = { focusManager.clearFocus() }
+                            )
                     )
                     Spacer(Modifier.height(16.dp))
                 }
@@ -110,17 +115,21 @@ fun AddAreaScreen(
 fun AddStatus(
     addStatus: RunStatus<ByteArray?>,
     onCompleted: () -> Unit
-){
+) {
     when (addStatus) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${addStatus.message}",
                 onConfirm = { onCompleted() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }
 

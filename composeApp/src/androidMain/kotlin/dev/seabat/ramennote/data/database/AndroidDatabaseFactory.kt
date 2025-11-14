@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-class AndroidDatabaseFactory(private val context: Context) : DatabaseFactoryContract {
-    override fun getBuilder(): RoomDatabase.Builder<RamenNoteDatabase> {
-        return getDatabaseBuilder(context)
-    }
+class AndroidDatabaseFactory(
+    private val context: Context
+) : DatabaseFactoryContract {
+    override fun getBuilder(): RoomDatabase.Builder<RamenNoteDatabase> = getDatabaseBuilder(context)
 }
 
 private fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<RamenNoteDatabase> {

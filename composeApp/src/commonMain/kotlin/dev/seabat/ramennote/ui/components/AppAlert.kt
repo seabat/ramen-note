@@ -15,7 +15,8 @@ fun AppAlert(
         confirmButton = {
             Button(
                 onClick = {
-                    onConfirm() }
+                    onConfirm()
+                }
             ) {
                 Text(text = "はい")
             }

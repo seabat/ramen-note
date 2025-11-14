@@ -10,7 +10,6 @@ class UpdateAreaUseCase(
     private val localAreaImageRepository: LocalImageRepositoryContract,
     private val shopsRepository: ShopsRepositoryContract
 ) : UpdateAreaUseCaseContract {
-
     override suspend fun invoke(oldName: String, newName: String): RunStatus<String> {
         val result = areasRepository.edit(oldName, newName)
         return if (result is RunStatus.Success) {

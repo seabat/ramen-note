@@ -24,15 +24,12 @@ data class Shop(
     val description1: String = "",
     val description2: String = "",
     val description3: String = "",
-    val favorite: Boolean = false
+    val favorite: Boolean = false,
+    val note: String = ""
 ) {
-    fun toJsonString(): String {
-        return Json.encodeToString(this)
-    }
-    
+    fun toJsonString(): String = Json.encodeToString(this)
+
     companion object {
-        fun fromJsonString(jsonString: String): Shop {
-            return Json.decodeFromString(jsonString)
-        }
+        fun fromJsonString(jsonString: String): Shop = Json.decodeFromString(jsonString)
     }
 }

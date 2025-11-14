@@ -7,7 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface AddShopViewModelContract {
     val saveState: StateFlow<RunStatus<String>>
+
     fun saveShop(shop: Shop, sharedImage: SharedImage?)
+
     fun setSaveStateToIdle()
+
     fun createNoImage(): ByteArray
 }

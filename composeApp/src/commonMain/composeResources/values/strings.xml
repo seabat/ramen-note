@@ -29,6 +29,7 @@
     <string name="home_no_reports">過去3ヶ月分の食レポがありません</string>
     <string name="home_no_favorite">お気に入り店が登録されていません</string>
     <string name="home_no_web">WebサイトのURLが設定されていません</string>
+    <string name="home_patrol_web"> お気に入り店のWebサイトを巡回中</string>
 
 
     <!-- Note Screen -->
@@ -45,7 +46,6 @@
     <string name="editarea_image_load_error">画像の読み込みに失敗しました: </string>
     
     <!-- Shop Screen -->
-
     <string name="shoplist_no_data">お店が登録されていません。\n画面下のプラスボタンで登録してください。</string>
     <string name="add_schedule_add_button">予定追加</string>
     <string name="add_schedule_edit_button">予定変更</string>
@@ -56,7 +56,8 @@
     <string name="add_evaluation_label">評価</string>
     <string name="add_station_label">最寄り駅</string>
     <string name="add_category_label">系統</string>
-    <string name="add_no_url_label">未設定</string>
+    <string name="add_note_label">ノート</string>
+    <string name="add_no_data_label">未設定</string>
     <string name="add_schedule_label">予定</string>
     <string name="add_schedule_error_past_date_message">過去の日付を指定できません</string>
 
@@ -79,9 +80,12 @@
     <string name="edit_shop_edit_error_message">編集に失敗しました</string>
     <string name="edit_shop_delete_error_message">削除に失敗しました</string>
     <string name="edit_category_label">系統</string>
+    <string name="edit_shop_delete_confirm">この店舗を削除しますか？</string>
 
     <!-- Schedule Screen -->
     <string name="schedule_no_data">予定がありません。\n「ノート」の店舗画面に遷移し、予定を登録してください。</string>
+    <string name="schedule_delete_confirm">この予定を削除しますか？</string>
+
 
     <!-- Report Screen -->
     <string name="report_shop_name">店名</string>
@@ -90,6 +94,7 @@
     <string name="report_impressions">感想</string>
     <string name="report_header">食レポ</string>
     <string name="report_run">レポートする</string>
+    <string name="report_delete_confirm">この食レポを削除しますか？</string>
 
     <!-- Edit Report Screen -->
     <string name="editreport_delete_button">削除する</string>

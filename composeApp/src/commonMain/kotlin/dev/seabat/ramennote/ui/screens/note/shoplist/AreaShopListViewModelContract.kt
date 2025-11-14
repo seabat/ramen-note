@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface AreaShopListViewModelContract {
     val shops: StateFlow<List<Shop>>
+
     fun loadShops(area: String)
 }

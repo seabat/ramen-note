@@ -2,7 +2,9 @@ package dev.seabat.ramennote.ui.permission
 
 import androidx.compose.runtime.Composable
 
-expect class PermissionsLauncher(callback: PermissionCallback) : PermissionHandler
+expect class PermissionsLauncher(
+    callback: PermissionCallback
+) : PermissionHandler
 
 interface PermissionCallback {
     fun onPermissionStatus(permissionType: PermissionType, status: PermissionStatus)

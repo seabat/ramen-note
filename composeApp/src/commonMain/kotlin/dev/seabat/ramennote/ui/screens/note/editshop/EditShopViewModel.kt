@@ -2,14 +2,14 @@ package dev.seabat.ramennote.ui.screens.note.editshop
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
-import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,8 +23,8 @@ class EditShopViewModel(
     private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
     private val deleteShopAndImageUseCase: DeleteShopAndImageUseCaseContract,
     private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract
-) : ViewModel(), EditShopViewModelContract {
-
+) : ViewModel(),
+    EditShopViewModelContract {
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
     override val saveState: StateFlow<RunStatus<String>> = _saveState
 
@@ -42,9 +42,11 @@ class EditShopViewModel(
                 return@launch
             }
             when (val result = loadImageUseCase(name)) {
-                is RunStatus.Success -> _shopImage.value = result.data?.let {
-                    SharedImage(result.data)
-                }
+                is RunStatus.Success ->
+                    _shopImage.value =
+                        result.data?.let {
+                            SharedImage(result.data)
+                        }
                 is RunStatus.Error -> _shopImage.value = null
                 is RunStatus.Loading -> { }
                 is RunStatus.Idle -> { }
@@ -65,7 +67,7 @@ class EditShopViewModel(
                     val byteArray = sharedImage.toByteArray()
                     saveShopMenuImageUseCase(shop.photoName1, byteArray!!)
                 }
-                
+
                 // 店舗情報を更新
                 updateShopUseCase.updateShop(shop)
                 _saveState.value = RunStatus.Success("")

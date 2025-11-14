@@ -12,15 +12,9 @@ data class Report(
     val date: LocalDate? = null,
     val star: Int = 0
 ) {
-    fun toJsonString(): String {
-        return Json.encodeToString(this)
-    }
+    fun toJsonString(): String = Json.encodeToString(this)
 
     companion object {
-        fun fromJsonString(jsonString: String): Shop {
-            return Json.decodeFromString(jsonString)
-        }
+        fun fromJsonString(jsonString: String): Shop = Json.decodeFromString(jsonString)
     }
 }
-
-

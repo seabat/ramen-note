@@ -17,12 +17,13 @@ import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.launch
 
 @Composable
-actual fun createRememberedPermissionsLauncher(callback: PermissionCallback): PermissionsLauncher {
-    return remember { PermissionsLauncher(callback) }
-}
+actual fun createRememberedPermissionsLauncher(
+    callback: PermissionCallback
+): PermissionsLauncher = remember { PermissionsLauncher(callback) }
 
-actual class PermissionsLauncher actual constructor(private val callback: PermissionCallback) :
-    PermissionHandler {
+actual class PermissionsLauncher actual constructor(
+    private val callback: PermissionCallback
+) : PermissionHandler {
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     override fun askPermission(permission: PermissionType) {
@@ -35,7 +36,8 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
                     if (!permissionResult.isGranted) {
                         if (permissionResult.shouldShowRationale) {
                             callback.onPermissionStatus(
-                                permission, PermissionStatus.SHOW_RATIONAL
+                                permission,
+                                PermissionStatus.SHOW_RATIONAL
                             )
                         } else {
                             lifecycleOwner.lifecycleScope.launch {
@@ -44,7 +46,8 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
                         }
                     } else {
                         callback.onPermissionStatus(
-                            permission, PermissionStatus.GRANTED
+                            permission,
+                            PermissionStatus.GRANTED
                         )
                     }
                 }
@@ -54,17 +57,17 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
                 // Granted by default because in Android GetContent API does not require any
                 // runtime permissions, and i am using it to access gallery in my app
                 callback.onPermissionStatus(
-                    permission, PermissionStatus.GRANTED
+                    permission,
+                    PermissionStatus.GRANTED
                 )
             }
         }
     }
 
-
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
-    override fun isPermissionGranted(permission: PermissionType): Boolean {
-        return when (permission) {
+    override fun isPermissionGranted(permission: PermissionType): Boolean =
+        when (permission) {
             PermissionType.CAMERA -> {
                 val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
                 cameraPermissionState.status.isGranted
@@ -76,7 +79,6 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
                 true
             }
         }
-    }
 }
 
 @Composable

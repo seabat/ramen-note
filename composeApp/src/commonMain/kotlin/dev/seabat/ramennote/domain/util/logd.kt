@@ -1,3 +1,3 @@
 package dev.seabat.ramennote.domain.util
 
-expect fun logd(tag: String, message: String)
+expect fun logd(tag: String = "[RamenNote]", message: String)

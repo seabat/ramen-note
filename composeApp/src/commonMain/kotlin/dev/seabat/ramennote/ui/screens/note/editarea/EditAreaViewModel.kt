@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
-import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +17,8 @@ class EditAreaViewModel(
     private val updateAreaUseCase: UpdateAreaUseCaseContract,
     private val updateAreaImageUseCase: UpdateAreaImageUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract
-): ViewModel(), EditAreaViewModelContract {
-
+) : ViewModel(),
+    EditAreaViewModelContract {
     private val _deleteState: MutableStateFlow<RunStatus<String>> =
         MutableStateFlow(RunStatus.Idle())
     override val deleteState: StateFlow<RunStatus<String>> = _deleteState.asStateFlow()
@@ -44,7 +44,7 @@ class EditAreaViewModel(
     override fun deleteArea(areaName: String) {
         viewModelScope.launch {
             _deleteState.value = RunStatus.Loading()
-            _editState.value = deleteAreaUseCase( areaName)
+            _editState.value = deleteAreaUseCase(areaName)
         }
     }
 

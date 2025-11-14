@@ -6,8 +6,5 @@ import dev.seabat.ramennote.domain.model.Shop
 class LoadFavoriteShopsUseCase(
     private val shopsRepository: ShopsRepositoryContract
 ) : LoadFavoriteShopsUseCaseContract {
-    
-    override suspend operator fun invoke(): List<Shop> {
-        return shopsRepository.getAllShops().filter { it.favorite }
-    }
+    override suspend operator fun invoke(): List<Shop> = shopsRepository.getAllShops().filter { it.favorite }
 }

@@ -9,5 +9,6 @@ interface ReportViewModelContract {
     val reportedStatus: StateFlow<RunStatus<Int>>
 
     fun report(menuName: String, reportedDate: LocalDate, impression: String, shopId: Int, image: SharedImage?)
+
     fun setReportedStatusToIdle()
 }

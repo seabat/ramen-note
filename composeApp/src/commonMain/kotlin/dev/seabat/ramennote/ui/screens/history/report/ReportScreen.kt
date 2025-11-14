@@ -59,7 +59,7 @@ fun ReportScreen(
     var menuName by remember { mutableStateOf(menuName) }
     var image by remember { mutableStateOf(SharedImage()) }
     var reportedDate by remember {
-        mutableStateOf(scheduledDate ?:createTodayLocalDate())
+        mutableStateOf(scheduledDate ?: createTodayLocalDate())
     }
     var impression by remember { mutableStateOf("") }
 
@@ -77,7 +77,9 @@ fun ReportScreen(
     )
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier =
+            Modifier
+                .fillMaxSize()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -89,14 +91,15 @@ fun ReportScreen(
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
             ) {
                 // 店名
                 ShopDetailItem(
                     label = stringResource(Res.string.report_shop_name),
-                    value = shopName,
+                    value = shopName
                 )
 
                 // 日付選択
@@ -120,7 +123,7 @@ fun ReportScreen(
                     label = stringResource(Res.string.report_impressions),
                     value = impression,
                     singleLine = false,
-                    onValueChange = { impression = it },
+                    onValueChange = { impression = it }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -146,8 +149,11 @@ fun ReportScreen(
                         onClick = {
                             val millis = datePickerState.selectedDateMillis
                             if (millis != null) {
-                                val date = Instant.fromEpochMilliseconds(millis)
-                                    .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                                val date =
+                                    Instant
+                                        .fromEpochMilliseconds(millis)
+                                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                                        .date
                                 reportedDate = date
                             }
                             showDatePicker = false
@@ -163,10 +169,10 @@ fun ReportScreen(
         }
         ReportStatus(
             status = reportedStatus,
-            onCompleted ={
+            onCompleted = {
                 viewModel.setReportedStatusToIdle()
                 onBackClick()
-                //FIXME: History に遷移した後に Schedule タブをタップすると Report が表示されてしまう
+                // FIXME: History に遷移した後に Schedule タブをタップすると Report が表示されてしまう
 //                goToHistory()
             },
             onErrorClosed = {
@@ -183,14 +189,18 @@ fun ReportStatus(
     onErrorClosed: () -> Unit
 ) {
     when (status) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${status.message}",
                 onConfirm = { onErrorClosed() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }

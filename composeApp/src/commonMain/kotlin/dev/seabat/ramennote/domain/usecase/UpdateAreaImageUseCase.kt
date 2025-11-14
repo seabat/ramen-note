@@ -4,10 +4,7 @@ import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
-import kotlinx.datetime.toLocalDateTime
 
 class UpdateAreaImageUseCase(
     private val areasRepository: AreasRepositoryContract,
@@ -31,5 +28,3 @@ class UpdateAreaImageUseCase(
         }
     }
 }
-
-

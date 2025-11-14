@@ -8,18 +8,16 @@ import kotlinx.coroutines.withContext
 class LocalImageRepository(
     private val localStorageDataSource: LocalStorageDataSourceContract
 ) : LocalImageRepositoryContract {
-    
     override suspend fun save(imageBytes: ByteArray, name: String) {
         withContext(Dispatchers.IO) {
             localStorageDataSource.save(imageBytes, name)
         }
     }
-    
-    override suspend fun load(name: String): ByteArray? {
-        return withContext(Dispatchers.IO) {
+
+    override suspend fun load(name: String): ByteArray? =
+        withContext(Dispatchers.IO) {
             localStorageDataSource.load(name)
         }
-    }
 
     override suspend fun rename(oldName: String, newName: String) {
         withContext(Dispatchers.IO) {

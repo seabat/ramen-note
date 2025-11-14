@@ -31,6 +31,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
 import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.gallery.SharedImage
@@ -46,10 +47,19 @@ import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.editreport_delete_button
 import ramennote.composeapp.generated.resources.editreport_edit_button
+import ramennote.composeapp.generated.resources.report_delete_confirm
 import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
 import ramennote.composeapp.generated.resources.report_select_date
 import ramennote.composeapp.generated.resources.report_shop_name
+
+private sealed interface ErrorDialogType {
+    object Hidden : ErrorDialogType
+
+    data class DeleteConfirm(
+        val reportId: Int
+    ) : ErrorDialogType
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,6 +88,7 @@ fun EditReportScreen(
     val deletedStatus by viewModel.deletedStatus.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
+    var errorDialogType by remember { mutableStateOf<ErrorDialogType>(ErrorDialogType.Hidden) }
 
     PhotoSelectionHandler(
         onImageSelected = { image = it },
@@ -88,7 +99,7 @@ fun EditReportScreen(
     LaunchedEffect(Unit) {
         viewModel.loadReport(reportId)
     }
-    
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -102,14 +113,15 @@ fun EditReportScreen(
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
             ) {
                 // 店名
                 ShopDetailItem(
                     label = stringResource(Res.string.report_shop_name),
-                    value = fullReport.shopName,
+                    value = fullReport.shopName
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -118,7 +130,7 @@ fun EditReportScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = stringResource(Res.string.report_select_date),
                         style = MaterialTheme.typography.titleMedium,
@@ -144,7 +156,7 @@ fun EditReportScreen(
                     label = stringResource(Res.string.report_impressions),
                     value = impression,
                     singleLine = false,
-                    onValueChange = { impression = it },
+                    onValueChange = { impression = it }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -160,7 +172,7 @@ fun EditReportScreen(
                         )
                     },
                     onDeleteButtonClick = {
-                        viewModel.deleteReport(fullReport.id)
+                        errorDialogType = ErrorDialogType.DeleteConfirm(fullReport.id)
                     }
                 )
             }
@@ -173,8 +185,11 @@ fun EditReportScreen(
                         onClick = {
                             val millis = datePickerState.selectedDateMillis
                             if (millis != null) {
-                                val date = Instant.fromEpochMilliseconds(millis)
-                                    .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                                val date =
+                                    Instant
+                                        .fromEpochMilliseconds(millis)
+                                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                                        .date
                                 reportedDate = date
                             }
                             showDatePicker = false
@@ -190,7 +205,7 @@ fun EditReportScreen(
         }
         EditedStatus(
             status = editedStatus,
-            onCompleted ={
+            onCompleted = {
                 viewModel.setReportedStatusToIdle()
                 onBackClick()
             },
@@ -200,7 +215,7 @@ fun EditReportScreen(
         )
         DeletedStatus(
             status = deletedStatus,
-            onCompleted ={
+            onCompleted = {
                 onBackClick()
                 viewModel.setDeletedStatusToIdle()
             },
@@ -208,6 +223,25 @@ fun EditReportScreen(
                 viewModel.setDeletedStatusToIdle()
             }
         )
+
+        // エラーダイアログ
+        when (val shouldShow = errorDialogType) {
+            is ErrorDialogType.DeleteConfirm -> {
+                AppTwoButtonAlert(
+                    message = stringResource(Res.string.report_delete_confirm),
+                    onConfirm = {
+                        viewModel.deleteReport(shouldShow.reportId)
+                        errorDialogType = ErrorDialogType.Hidden
+                    },
+                    onNegative = {
+                        errorDialogType = ErrorDialogType.Hidden
+                    }
+                )
+            }
+            is ErrorDialogType.Hidden -> {
+                // 何も表示しない
+            }
+        }
     }
 }
 
@@ -218,15 +252,19 @@ fun EditedStatus(
     onErrorClosed: () -> Unit
 ) {
     when (status) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${status.message}",
                 onConfirm = { onErrorClosed() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }
 
@@ -237,22 +275,26 @@ fun DeletedStatus(
     onErrorClosed: () -> Unit
 ) {
     when (status) {
-        is RunStatus.Success -> { onCompleted() }
+        is RunStatus.Success -> {
+            onCompleted()
+        }
         is RunStatus.Error -> {
             AppAlert(
                 message = "${status.message}",
                 onConfirm = { onErrorClosed() }
             )
         }
-        is RunStatus.Loading -> { AppProgressBar() }
-        is RunStatus.Idle -> { /* Do nothing */}
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
     }
 }
 
 @Composable
 fun BottomButtons(
     onEditButtonClick: () -> Unit,
-    onDeleteButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit
 ) {
     Column {
         MaxWidthButton(text = stringResource(Res.string.editreport_edit_button)) {

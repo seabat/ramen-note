@@ -10,8 +10,6 @@ import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.authorizationStatusForMediaType
 import platform.AVFoundation.requestAccessForMediaType
-import platform.darwin.dispatch_async
-import platform.darwin.dispatch_get_main_queue
 import platform.Foundation.NSURL
 import platform.Photos.PHAuthorizationStatus
 import platform.Photos.PHAuthorizationStatusAuthorized
@@ -20,14 +18,15 @@ import platform.Photos.PHAuthorizationStatusNotDetermined
 import platform.Photos.PHPhotoLibrary
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
 @Composable
-actual fun createRememberedPermissionsLauncher(callback: PermissionCallback): PermissionsLauncher {
-    return PermissionsLauncher(callback)
-}
+actual fun createRememberedPermissionsLauncher(callback: PermissionCallback): PermissionsLauncher = PermissionsLauncher(callback)
 
-actual class PermissionsLauncher actual constructor(private val callback: PermissionCallback) :
-    PermissionHandler {
+actual class PermissionsLauncher actual constructor(
+    private val callback: PermissionCallback
+) : PermissionHandler {
     @Composable
     override fun askPermission(permission: PermissionType) {
         when (permission) {
@@ -42,12 +41,13 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
                     remember { PHPhotoLibrary.authorizationStatus() }
                 askGalleryPermission(status, permission, callback)
             }
-
         }
     }
 
     private fun askCameraPermission(
-        status: AVAuthorizationStatus, permission: PermissionType, callback: PermissionCallback
+        status: AVAuthorizationStatus,
+        permission: PermissionType,
+        callback: PermissionCallback
     ) {
         when (status) {
             AVAuthorizationStatusAuthorized -> {
@@ -73,7 +73,9 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
     }
 
     private fun askGalleryPermission(
-        status: PHAuthorizationStatus, permission: PermissionType, callback: PermissionCallback
+        status: PHAuthorizationStatus,
+        permission: PermissionType,
+        callback: PermissionCallback
     ) {
         when (status) {
             PHAuthorizationStatusAuthorized -> {
@@ -88,7 +90,8 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
 
             PHAuthorizationStatusDenied -> {
                 callback.onPermissionStatus(
-                    permission, PermissionStatus.DENIED
+                    permission,
+                    PermissionStatus.DENIED
                 )
             }
 
@@ -97,8 +100,8 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
     }
 
     @Composable
-    override fun isPermissionGranted(permission: PermissionType): Boolean {
-        return when (permission) {
+    override fun isPermissionGranted(permission: PermissionType): Boolean =
+        when (permission) {
             PermissionType.CAMERA -> {
                 val status: AVAuthorizationStatus =
                     remember { AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo) }
@@ -111,7 +114,6 @@ actual class PermissionsLauncher actual constructor(private val callback: Permis
                 status == PHAuthorizationStatusAuthorized
             }
         }
-    }
 }
 
 @Composable

@@ -7,10 +7,12 @@ import kotlinx.datetime.LocalDate
 interface ShopViewModelContract {
     val shop: StateFlow<Shop?>
     val shopImage: StateFlow<ByteArray?>
+
     fun loadShopAndImage(id: Int)
+
     fun addSchedule(shopId: Int, date: LocalDate)
+
     fun switchFavorite(onOff: Boolean, shopId: Int)
+
     fun updateStar(star: Int, shopId: Int)
 }
-
-
