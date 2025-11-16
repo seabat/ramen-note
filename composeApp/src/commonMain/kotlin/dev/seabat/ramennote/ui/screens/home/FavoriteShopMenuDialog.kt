@@ -31,10 +31,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.event_note_24px
-import ramennote.composeapp.generated.resources.home_menu_shop_detail
 import ramennote.composeapp.generated.resources.home_menu_map
 import ramennote.composeapp.generated.resources.home_menu_report
 import ramennote.composeapp.generated.resources.home_menu_schedule
+import ramennote.composeapp.generated.resources.home_menu_shop_detail
 import ramennote.composeapp.generated.resources.location_on_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 
