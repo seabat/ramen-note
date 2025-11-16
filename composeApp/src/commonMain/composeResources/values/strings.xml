@@ -56,7 +56,7 @@
     <string name="add_schedule_add_button">予定追加</string>
     <string name="add_schedule_edit_button">予定変更</string>
     <string name="add_edit_button">編集</string>
-    <string name="add_report_button">食レポ</string>
+    <string name="add_report_button">食レポ追加</string>
     <string name="add_web_site_label">Webサイト</string>
     <string name="add_map_label">地図(GoogleマップのURL)</string>
     <string name="add_evaluation_label">評価</string>
