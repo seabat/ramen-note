@@ -15,7 +15,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
         loadReports()
     }
 
-    override fun loadReports() {
+    override fun loadReports(shopId: Int?) {
         _reports.value =
             listOf(
                 FullReport(

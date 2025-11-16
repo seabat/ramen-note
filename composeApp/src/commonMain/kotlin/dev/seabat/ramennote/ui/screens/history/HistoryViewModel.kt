@@ -16,9 +16,9 @@ class HistoryViewModel(
     private val _reports = MutableStateFlow<List<FullReport>>(emptyList())
     override val reports: StateFlow<List<FullReport>> = _reports.asStateFlow()
 
-    override fun loadReports() {
+    override fun loadReports(shopId: Int?) {
         viewModelScope.launch {
-            _reports.value = loadReportsUseCase.invoke()
+            _reports.value = loadReportsUseCase.invoke(shopId)
         }
     }
 }

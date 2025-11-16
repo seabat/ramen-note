@@ -1,6 +1,5 @@
 package dev.seabat.ramennote.ui.screens.history
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +19,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
@@ -38,14 +39,22 @@ import ramennote.composeapp.generated.resources.screen_history_title
 @Composable
 fun HistoryScreen(
     reportId: Int? = null,
+    shop: Shop? = null,
     goToEditReport: (reportId: Int) -> Unit = {},
-    clearReportId: () -> Unit = {},
+    clearReportIdParam: () -> Unit = {},
+    clearShopParam: () -> Unit = {},
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
+    var shopName by remember { mutableStateOf("") }
     val reports by viewModel.reports.collectAsState()
     val listState = rememberLazyListState()
 
-    LaunchedEffect(Unit) { viewModel.loadReports() }
+    LaunchedEffect(Unit) {
+        viewModel.loadReports(shop?.id)
+        // NOTE: clearShopParam による再コンポーズで shopName がクリアされないよう LaunchedEffect(Unit) で shopName を設定
+        shopName = shop?.name ?: ""
+        clearShopParam()
+    }
 
     Column(
         modifier =
@@ -53,7 +62,14 @@ fun HistoryScreen(
                 .fillMaxSize()
                 .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
-        AppBar(title = stringResource(Res.string.screen_history_title))
+        AppBar(
+            title =
+                if (shopName.isNotEmpty()) {
+                    "${stringResource(Res.string.screen_history_title)}($shopName)"
+                } else {
+                    stringResource(Res.string.screen_history_title)
+                }
+        )
         if (reports.isNotEmpty()) {
             Box {
                 // レポート一覧
@@ -113,7 +129,7 @@ fun HistoryScreen(
                     }
 
                     // reportIdを処理した後、Stateをクリア
-                    clearReportId()
+                    clearReportIdParam()
                 }
             }
         } else {

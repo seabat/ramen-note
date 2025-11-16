@@ -61,14 +61,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_category_label
-import ramennote.composeapp.generated.resources.add_edit_button
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_no_data_label
 import ramennote.composeapp.generated.resources.add_note_label
-import ramennote.composeapp.generated.resources.add_report_button
-import ramennote.composeapp.generated.resources.add_schedule_add_button
-import ramennote.composeapp.generated.resources.add_schedule_edit_button
 import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.add_schedule_label
 import ramennote.composeapp.generated.resources.add_station_label
@@ -78,16 +74,22 @@ import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.ramen_dining_24px
+import ramennote.composeapp.generated.resources.shop_menu_edit_button
+import ramennote.composeapp.generated.resources.shop_menu_history_button
+import ramennote.composeapp.generated.resources.shop_menu_report_button
+import ramennote.composeapp.generated.resources.shop_menu_schedule_add_button
+import ramennote.composeapp.generated.resources.shop_menu_schedule_edit_button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
     shopId: Int,
     shopName: String,
-    onBackClick: () -> Unit,
-    onEditClick: (Shop) -> Unit = {},
-    onReportClick: (Shop) -> Unit = {},
+    goBack: () -> Unit,
+    goToEditShop: (Shop) -> Unit = {},
+    goToReport: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
+    goToHistory: (shop: Shop) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
@@ -111,7 +113,7 @@ fun ShopScreen(
         ) {
             AppBar(
                 title = shop?.name ?: "",
-                onBackClick = onBackClick
+                onBackClick = goBack
             )
 
             Column(
@@ -131,14 +133,17 @@ fun ShopScreen(
                 // アクションボタン
                 Menu(
                     shop,
-                    onEditClick = {
-                        shop?.let { onEditClick(it) }
-                    },
-                    onReportClick = {
-                        shop?.let { onReportClick(it) }
-                    },
                     onAddScheduleClick = {
                         showDatePicker = true
+                    },
+                    onReportClick = {
+                        shop?.let { goToReport(it) }
+                    },
+                    onHistoryClick = {
+                        shop?.let { goToHistory(it) }
+                    },
+                    onEditClick = {
+                        shop?.let { goToEditShop(it) }
                     }
                 )
 
@@ -303,6 +308,7 @@ fun Menu(
     shop: Shop?,
     onEditClick: () -> Unit = {},
     onReportClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {},
     onAddScheduleClick: () -> Unit = {}
 ) {
     Row(
@@ -310,7 +316,8 @@ fun Menu(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+//        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         ScheduleButton(
             hasScheduledDate = shop?.scheduledDate?.isTodayOrFuture() == true,
@@ -320,6 +327,11 @@ fun Menu(
 
         ReportButton(
             onClick = onReportClick,
+            modifier = Modifier.weight(1f)
+        )
+
+        HistoryButton(
+            onClick = onHistoryClick,
             modifier = Modifier.weight(1f)
         )
 
@@ -498,9 +510,9 @@ private fun ScheduleButton(
 ) {
     val buttonText =
         if (hasScheduledDate) {
-            stringResource(Res.string.add_schedule_edit_button)
+            stringResource(Res.string.shop_menu_schedule_edit_button)
         } else {
-            stringResource(Res.string.add_schedule_add_button)
+            stringResource(Res.string.shop_menu_schedule_add_button)
         }
     ActionButton(
         icon = vectorResource(Res.drawable.event_note_24px),
@@ -517,7 +529,20 @@ private fun ReportButton(
 ) {
     ActionButton(
         icon = vectorResource(Res.drawable.ramen_dining_24px),
-        text = stringResource(Res.string.add_report_button),
+        text = stringResource(Res.string.shop_menu_report_button),
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun HistoryButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ActionButton(
+        icon = vectorResource(Res.drawable.ramen_dining_24px),
+        text = stringResource(Res.string.shop_menu_history_button),
         onClick = onClick,
         modifier = modifier
     )
@@ -530,7 +555,7 @@ private fun EditButton(
 ) {
     ActionButton(
         icon = vectorResource(Res.drawable.edit_24px),
-        text = stringResource(Res.string.add_edit_button),
+        text = stringResource(Res.string.shop_menu_edit_button),
         onClick = onClick,
         modifier = modifier
     )
@@ -544,11 +569,12 @@ private fun ActionButton(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.tertiaryContainer)
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -558,18 +584,17 @@ private fun ActionButton(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onTertiaryContainer
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
         }
     }
 }
-
 
 @Preview
 @Composable
@@ -604,8 +629,26 @@ fun ShopScreenPreview() {
         ShopScreen(
             shopId = 1,
             shopName = "〇〇家",
-            onBackClick = { },
-            onEditClick = { },
+            goBack = { },
+            goToEditShop = { },
+            goToReport = { },
+            goToSchedule = { },
+            viewModel = MockShopViewModel()
+        )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 640, name = "Small Phone")
+@Composable
+fun ShopScreenSmallPhonePreview() {
+    RamenNoteTheme {
+        ShopScreen(
+            shopId = 1,
+            shopName = "〇〇家",
+            goBack = { },
+            goToEditShop = { },
+            goToReport = { },
+            goToSchedule = { },
             viewModel = MockShopViewModel()
         )
     }
