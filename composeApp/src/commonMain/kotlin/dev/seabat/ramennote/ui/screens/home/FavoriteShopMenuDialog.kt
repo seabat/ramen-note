@@ -64,7 +64,7 @@ fun FavoriteShopMenuDialog(
                     Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
                 Column(
                     modifier =
