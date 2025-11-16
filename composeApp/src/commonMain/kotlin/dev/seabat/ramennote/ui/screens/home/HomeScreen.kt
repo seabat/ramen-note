@@ -25,14 +25,20 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -46,14 +52,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.domain.util.logd
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.components.rememberLifecycleState
@@ -64,16 +74,23 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.takeWhile
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.home_background
+import ramennote.composeapp.generated.resources.home_complete_add_schedule
 import ramennote.composeapp.generated.resources.home_favorite_subheading
 import ramennote.composeapp.generated.resources.home_no_favorite
+import ramennote.composeapp.generated.resources.home_no_map
 import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
@@ -82,6 +99,25 @@ import kotlin.collections.filter
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
 
+private sealed interface DialogState {
+    object Hidden : DialogState
+
+    data class FavoriteShopMenu(
+        val shop: Shop
+    ) : DialogState
+
+    data class DatePicker(
+        val shop: Shop
+    ) : DialogState
+
+    object PastDateAlert : DialogState
+
+    object EmptyMapAlert : DialogState
+
+    object CompleteAddSchedule : DialogState
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
@@ -90,9 +126,12 @@ fun HomeScreen(
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
-    val scheduleState by viewModel.scheduleState.collectAsStateWithLifecycle()
+    val loadedScheduleState by viewModel.loadedScheduleState.collectAsStateWithLifecycle()
+    val addedScheduleState by viewModel.addedScheduleState.collectAsStateWithLifecycle()
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
     val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
+    var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
+    val urlHandler = LocalUriHandler.current
 
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
@@ -105,25 +144,7 @@ fun HomeScreen(
     ) {
         val imageHeight = maxHeight * 0.5f
 
-        // ラーメンの背景画像
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .alpha(0.3f) // 半透明
-        ) {
-            // ラーメンの背景画像を表示
-            Image(
-                painter = painterResource(Res.drawable.home_background),
-                contentDescription = "ラーメンの背景画像",
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomStart) // 画面の左下に配置
-                        .offset(x = 100.dp) // 右側が見切れるように
-                        .height(imageHeight),
-                contentScale = ContentScale.Fit
-            )
-        }
+        HomeBackground(imageHeight)
 
         Column(
             modifier =
@@ -152,13 +173,77 @@ fun HomeScreen(
 
             Favorite(
                 favoriteShops,
-                goToShop
+                onShopClick = { shop ->
+                    dialogState = DialogState.FavoriteShopMenu(shop)
+                }
             )
         }
 
-        ScheduledShopState(scheduleState) {
-            viewModel.setScheduleStateToIdle()
+        ScheduledShopState(loadedScheduleState) {
+            viewModel.setLoadedScheduleStateToIdle()
         }
+
+        AddScheduleState(addedScheduleState) {
+            dialogState = DialogState.CompleteAddSchedule
+            viewModel.setAddedScheduleStateToIdle()
+        }
+
+        HomeDialog(
+            dialogState,
+            onDismiss = { dialogState = DialogState.Hidden },
+            goToShop = { shopId, shopName ->
+                goToShop(shopId, shopName)
+                dialogState = DialogState.Hidden
+            },
+            goToReport = { shopId, shopName, menuName, iso8601Date ->
+                goToReport(shopId, shopName, menuName, iso8601Date)
+                dialogState = DialogState.Hidden
+            },
+            showDatePicker = { shop ->
+                dialogState = DialogState.DatePicker(shop)
+            },
+            launchMap = { mapUrl ->
+                urlHandler.openUri(mapUrl)
+                dialogState = DialogState.Hidden
+            },
+            showEmptyMapError = {
+                dialogState = DialogState.EmptyMapAlert
+            },
+            showPastDateError = {
+                dialogState = DialogState.PastDateAlert
+            },
+            addSchedule = { shopId, date ->
+                viewModel.addSchedule(shopId, date)
+                dialogState = DialogState.Hidden
+            },
+            reloadSchedule = {
+                viewModel.loadRecentSchedule()
+                dialogState = DialogState.Hidden
+            }
+        )
+    }
+}
+
+@Composable
+private fun HomeBackground(imageHeight: Dp) {
+    // ラーメンの背景画像
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .alpha(0.3f) // 半透明
+    ) {
+        // ラーメンの背景画像を表示
+        Image(
+            painter = painterResource(Res.drawable.home_background),
+            contentDescription = "ラーメンの背景画像",
+            modifier =
+                Modifier
+                    .align(Alignment.BottomStart) // 画面の左下に配置
+                    .offset(x = 100.dp) // 右側が見切れるように
+                    .height(imageHeight),
+            contentScale = ContentScale.Fit
+        )
     }
 }
 
@@ -386,7 +471,7 @@ private fun ScheduleMenu(
 @Composable
 private fun Favorite(
     favoriteShops: List<ShopWithImage>,
-    goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> }
+    onShopClick: (Shop) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -396,6 +481,7 @@ private fun Favorite(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // タイトル
             Text(
                 text = stringResource(Res.string.home_favorite_subheading),
                 style = MaterialTheme.typography.titleMedium,
@@ -449,7 +535,7 @@ private fun Favorite(
                         FavoriteShopItem(
                             shop = shopWithImage.shop,
                             imageBytes = shopWithImage.imageBytes,
-                            onClick = { goToShop(shopWithImage.shop.id, shopWithImage.shop.name) }
+                            onClick = { onShopClick(shopWithImage.shop) }
                         )
                     }
                 }
@@ -522,11 +608,30 @@ private fun FavoriteShopItem(
 
 @Composable
 private fun ScheduledShopState(
-    scheduleState: RunStatus<Schedule?>,
-    onError: () -> Unit
+    state: RunStatus<Schedule?>,
+    setIdle: () -> Unit
 ) {
-    when (scheduleState) {
-        is RunStatus.Success -> { /* Do nothing */ }
+    when (state) {
+        is RunStatus.Success -> {
+            setIdle()
+        }
+        is RunStatus.Error -> { /* Do nothing */ }
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
+    }
+}
+
+@Composable
+private fun AddScheduleState(
+    state: RunStatus<String>,
+    onCompleteAddSchedule: () -> Unit
+) {
+    when (state) {
+        is RunStatus.Success -> {
+            onCompleteAddSchedule()
+        }
         is RunStatus.Error -> { /* Do nothing */ }
         is RunStatus.Loading -> {
             AppProgressBar()
@@ -607,6 +712,105 @@ private fun RecentReports(
             ) {
                 Text(text = stringResource(Res.string.home_no_reports))
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeDialog(
+    dialogState: DialogState,
+    onDismiss: () -> Unit,
+    goToShop: (shopId: Int, shopName: String) -> Unit,
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit,
+    showDatePicker: (shop: Shop) -> Unit,
+    launchMap: (mapUrl: String) -> Unit,
+    addSchedule: (shopId: Int, date: LocalDate) -> Unit,
+    showEmptyMapError: () -> Unit,
+    showPastDateError: () -> Unit,
+    reloadSchedule: () -> Unit
+) {
+    when (dialogState) {
+        is DialogState.Hidden -> {}
+        is DialogState.FavoriteShopMenu -> {
+            FavoriteShopMenuDialog(
+                onDismiss = { onDismiss() },
+                onShowDetails = {
+                    goToShop(dialogState.shop.id, dialogState.shop.name)
+                    onDismiss()
+                },
+                onShowMap = {
+                    if (dialogState.shop.mapUrl.isNotEmpty()) {
+                        launchMap(dialogState.shop.mapUrl)
+                    } else {
+                        showEmptyMapError()
+                    }
+                },
+                onAddReport = {
+                    goToReport(
+                        dialogState.shop.id,
+                        dialogState.shop.name,
+                        "",
+                        dialogState.shop.scheduledDate?.toString() ?: createTodayLocalDate().toString()
+                    )
+                    onDismiss()
+                },
+                onAddSchedule = {
+                    showDatePicker(dialogState.shop)
+                }
+            )
+        }
+        is DialogState.DatePicker -> {
+            // メニューダイアログと日付ピッカーの状態管理
+            val datePickerState = rememberDatePickerState()
+            DatePickerDialog(
+                onDismissRequest = { onDismiss() },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val millis = datePickerState.selectedDateMillis
+                            if (millis != null) {
+                                val selectedDate =
+                                    Instant
+                                        .fromEpochMilliseconds(millis)
+                                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                                        .date
+
+                                // 今日を含めた未来日かどうかをチェック
+                                if (!selectedDate.isTodayOrFuture()) {
+                                    showPastDateError()
+                                } else {
+                                    addSchedule(dialogState.shop.id, selectedDate)
+                                }
+                            }
+                            onDismiss()
+                        }
+                    ) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { onDismiss() }) { Text("Cancel") }
+                }
+            ) {
+                DatePicker(state = datePickerState)
+            }
+        }
+        is DialogState.PastDateAlert -> {
+            AppAlert(
+                message = stringResource(Res.string.add_schedule_error_past_date_message),
+                onConfirm = { onDismiss() }
+            )
+        }
+        is DialogState.EmptyMapAlert -> {
+            AppAlert(
+                message = stringResource(Res.string.home_no_map),
+                onConfirm = { onDismiss() }
+            )
+        }
+        is DialogState.CompleteAddSchedule -> {
+            AppAlert(
+                message = stringResource(Res.string.home_complete_add_schedule),
+                onConfirm = { reloadSchedule() }
+            )
         }
     }
 }
@@ -725,7 +929,8 @@ fun FavoritePreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
             Favorite(
-                MockHomeViewModel().favoriteShops.value
+                MockHomeViewModel().favoriteShops.value,
+                {}
             )
         }
     }

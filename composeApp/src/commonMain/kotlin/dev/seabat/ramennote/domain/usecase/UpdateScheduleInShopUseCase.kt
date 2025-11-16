@@ -3,6 +3,11 @@ package dev.seabat.ramennote.domain.usecase
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import kotlinx.datetime.LocalDate
 
+/**
+ * スケジュールの追加・更新
+ *
+ * @property shopsRepository
+ */
 class UpdateScheduleInShopUseCase(
     private val shopsRepository: ShopsRepositoryContract
 ) : UpdateScheduleInShopUseCaseContract {
