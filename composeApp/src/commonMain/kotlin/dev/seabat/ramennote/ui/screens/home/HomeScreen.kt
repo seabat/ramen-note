@@ -25,14 +25,20 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -50,11 +56,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.util.logd
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.components.rememberLifecycleState
@@ -65,11 +73,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.takeWhile
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.home_background
@@ -83,6 +95,7 @@ import kotlin.collections.filter
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
@@ -94,6 +107,13 @@ fun HomeScreen(
     val scheduleState by viewModel.scheduleState.collectAsStateWithLifecycle()
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
     val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
+
+    // メニューダイアログと日付ピッカーの状態管理
+    var selectedShop by remember { mutableStateOf<Shop?>(null) }
+    var showMenuDialog by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
@@ -135,13 +155,83 @@ fun HomeScreen(
 
             Favorite(
                 favoriteShops,
-                goToShop
+                onShopClick = { shop ->
+                    selectedShop = shop
+                    showMenuDialog = true
+                }
             )
         }
 
         ScheduledShopState(scheduleState) {
             viewModel.setScheduleStateToIdle()
         }
+    }
+
+    // メニューダイアログ
+    if (showMenuDialog && selectedShop != null) {
+        FavoriteShopMenuDialog(
+            onDismiss = { showMenuDialog = false },
+            onShowDetails = {
+                selectedShop?.let { shop ->
+                    goToShop(shop.id, shop.name)
+                }
+                showMenuDialog = false
+            },
+            onAddReport = {
+                selectedShop?.let { shop ->
+                    goToReport(shop.id, shop.name, "", "")
+                }
+                showMenuDialog = false
+            },
+            onAddSchedule = {
+                showMenuDialog = false
+                showDatePicker = true
+            }
+        )
+    }
+
+    // 日付ピッカーダイアログ
+    if (showDatePicker && selectedShop != null) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val millis = datePickerState.selectedDateMillis
+                        if (millis != null) {
+                            val selectedDate =
+                                Instant
+                                    .fromEpochMilliseconds(millis)
+                                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                                    .date
+
+                            // 今日を含めた未来日かどうかをチェック
+                            if (!selectedDate.isTodayOrFuture()) {
+                                showErrorDialog = true
+                            } else {
+                                selectedShop?.let { shop ->
+                                    viewModel.addSchedule(shop.id, selectedDate)
+                                }
+                            }
+                        }
+                        showDatePicker = false
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // エラーダイアログ
+    if (showErrorDialog) {
+        AppAlert(
+            message = stringResource(Res.string.add_schedule_error_past_date_message),
+            onConfirm = { showErrorDialog = false }
+        )
     }
 }
 
@@ -392,7 +482,7 @@ private fun ScheduleMenu(
 @Composable
 private fun Favorite(
     favoriteShops: List<ShopWithImage>,
-    goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> }
+    onShopClick: (Shop) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -402,6 +492,7 @@ private fun Favorite(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // タイトル
             Text(
                 text = stringResource(Res.string.home_favorite_subheading),
                 style = MaterialTheme.typography.titleMedium,
@@ -455,7 +546,7 @@ private fun Favorite(
                         FavoriteShopItem(
                             shop = shopWithImage.shop,
                             imageBytes = shopWithImage.imageBytes,
-                            onClick = { goToShop(shopWithImage.shop.id, shopWithImage.shop.name) }
+                            onClick = { onShopClick(shopWithImage.shop) }
                         )
                     }
                 }
@@ -731,7 +822,8 @@ fun FavoritePreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
             Favorite(
-                MockHomeViewModel().favoriteShops.value
+                MockHomeViewModel().favoriteShops.value,
+                {}
             )
         }
     }

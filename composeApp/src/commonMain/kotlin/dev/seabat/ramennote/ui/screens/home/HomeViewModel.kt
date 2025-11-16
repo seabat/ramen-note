@@ -9,17 +9,20 @@ import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 
 class HomeViewModel(
     private val loadRecentScheduleUseCase: LoadRecentScheduleUseCaseContract,
     private val loadFavoriteShopsUseCase: LoadFavoriteShopsUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
-    private val loadThreeMonthsFullReportsUseCase: LoadThreeMonthsFullReportsUseCaseContract
+    private val loadThreeMonthsFullReportsUseCase: LoadThreeMonthsFullReportsUseCaseContract,
+    private val updateScheduleInShopUseCase: UpdateScheduleInShopUseCaseContract
 ) : ViewModel(),
     HomeViewModelContract {
     private val _schedule = MutableStateFlow<Schedule?>(null)
@@ -84,6 +87,14 @@ class HomeViewModel(
     override fun loadThreeMonthsReports() {
         viewModelScope.launch {
             _threeMonthsReports.value = loadThreeMonthsFullReportsUseCase()
+        }
+    }
+
+    override fun addSchedule(shopId: Int, date: LocalDate) {
+        viewModelScope.launch {
+            updateScheduleInShopUseCase(shopId, date)
+            // 予定を追加した後、最新の予定を再読み込み
+            loadRecentSchedule()
         }
     }
 }

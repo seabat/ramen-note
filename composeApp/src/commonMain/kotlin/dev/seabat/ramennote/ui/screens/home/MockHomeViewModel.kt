@@ -197,4 +197,8 @@ class MockHomeViewModel : HomeViewModelContract {
     override fun loadThreeMonthsReports() {
         // Preview用なので何もしない
     }
+
+    override fun addSchedule(shopId: Int, date: LocalDate) {
+        // Preview用なので何もしない
+    }
 }

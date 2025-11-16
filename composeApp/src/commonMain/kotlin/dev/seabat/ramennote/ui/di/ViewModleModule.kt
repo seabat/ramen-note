@@ -24,7 +24,7 @@ val viewModelModule =
         viewModel { EditReportViewModel(get(), get(), get(), get()) }
         viewModel { EditShopViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { HistoryViewModel(get()) }
-        viewModel { HomeViewModel(get(), get(), get(), get()) }
+        viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
         viewModel { NoteViewModel(get(), get()) }
         viewModel { ReportViewModel(get(), get()) }
         viewModel { ShopViewModel(get(), get(), get(), get(), get()) }
