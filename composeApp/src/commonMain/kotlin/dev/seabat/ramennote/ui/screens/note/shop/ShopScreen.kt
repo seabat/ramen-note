@@ -62,7 +62,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_evaluation_label
-import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_no_data_label
 import ramennote.composeapp.generated.resources.add_note_label
 import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
