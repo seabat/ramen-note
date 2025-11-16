@@ -28,7 +28,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -84,7 +83,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
-import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.home_background
 import ramennote.composeapp.generated.resources.home_complete_add_schedule
@@ -94,7 +92,6 @@ import ramennote.composeapp.generated.resources.home_no_map
 import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
-import ramennote.composeapp.generated.resources.ramen_dining_24px
 import kotlin.collections.filter
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
@@ -106,6 +103,10 @@ private sealed interface DialogState {
         val shop: Shop
     ) : DialogState
 
+    data class ScheduleMenu(
+        val schedule: Schedule
+    ) : DialogState
+
     data class DatePicker(
         val shop: Shop
     ) : DialogState
@@ -113,6 +114,8 @@ private sealed interface DialogState {
     object PastDateAlert : DialogState
 
     object EmptyMapAlert : DialogState
+
+    object EmptyWebAlert : DialogState
 
     object CompleteAddSchedule : DialogState
 }
@@ -154,11 +157,12 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Schedule(
+            ScheduleContent(
                 schedule,
                 favoriteShops,
-                goToShop,
-                goToReport
+                showScheduleMenu = {
+                    dialogState = DialogState.ScheduleMenu(it)
+                }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -209,6 +213,9 @@ fun HomeScreen(
             showEmptyMapError = {
                 dialogState = DialogState.EmptyMapAlert
             },
+            showEmptyWebError = {
+                dialogState = DialogState.EmptyWebAlert
+            },
             showPastDateError = {
                 dialogState = DialogState.PastDateAlert
             },
@@ -248,11 +255,10 @@ private fun HomeBackground(imageHeight: Dp) {
 }
 
 @Composable
-private fun Schedule(
+private fun ScheduleContent(
     schedule: Schedule?,
     favoriteShops: List<ShopWithImage>,
-    goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
-    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> }
+    showScheduleMenu: (schedule: Schedule) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -309,16 +315,18 @@ private fun Schedule(
                             ),
                             // オーバーレイの角が外側のコンポーネントからはみ出さないようにする
                             shape = RoundedCornerShape(10.dp)
-                        )
+                        ).clickable {
+                            schedule?.let {
+                                showScheduleMenu(it)
+                            }
+                        }
             )
 
             // メニュー
             if (schedule != null) {
                 ScheduleMenu(
                     Modifier.align(Alignment.BottomStart),
-                    schedule,
-                    goToShop,
-                    goToReport
+                    schedule
                 )
             }
         }
@@ -409,16 +417,14 @@ private fun FavoriteShopsWeb(
 @Composable
 private fun ScheduleMenu(
     modifier: Modifier,
-    schedule: Schedule,
-    goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
-    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> }
+    schedule: Schedule
 ) {
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -429,42 +435,6 @@ private fun ScheduleMenu(
                 ),
             color = Color.White
         )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // schedule.isReportedがtrueの時は食レポアイコンを非表示
-            if (!schedule.isReported) {
-                Icon(
-                    painter = painterResource(Res.drawable.ramen_dining_24px),
-                    contentDescription = "食レポ",
-                    modifier =
-                        Modifier
-                            .size(24.dp)
-                            .clickable {
-                                goToReport(
-                                    schedule.shopId,
-                                    schedule.shopName,
-                                    schedule.menuName,
-                                    schedule.scheduledDate?.toString() ?: ""
-                                )
-                            },
-                    tint = Color.White
-                )
-            }
-            Icon(
-                painter = painterResource(Res.drawable.book_5_24px),
-                contentDescription = "編集",
-                modifier =
-                    Modifier
-                        .size(24.dp)
-                        .clickable {
-                            goToShop(schedule.shopId, schedule.shopName)
-                        },
-                tint = Color.White
-            )
-        }
     }
 }
 
@@ -727,6 +697,7 @@ private fun HomeDialog(
     launchMap: (mapUrl: String) -> Unit,
     addSchedule: (shopId: Int, date: LocalDate) -> Unit,
     showEmptyMapError: () -> Unit,
+    showEmptyWebError: () -> Unit,
     showPastDateError: () -> Unit,
     reloadSchedule: () -> Unit
 ) {
@@ -757,6 +728,39 @@ private fun HomeDialog(
                 },
                 onAddSchedule = {
                     showDatePicker(dialogState.shop)
+                }
+            )
+        }
+        is DialogState.ScheduleMenu -> {
+            ScheduleMenuDialog(
+                schedule = dialogState.schedule,
+                onDismiss = { onDismiss() },
+                onShowDetails = {
+                    goToShop(dialogState.schedule.shopId, dialogState.schedule.shopName)
+                    onDismiss()
+                },
+                onShowWeb = {
+                    if (dialogState.schedule.shopUrl.isNotEmpty()) {
+                        launchMap(dialogState.schedule.shopUrl)
+                    } else {
+                        showEmptyWebError()
+                    }
+                },
+                onShowMap = {
+                    if (dialogState.schedule.mapUrl.isNotEmpty()) {
+                        launchMap(dialogState.schedule.mapUrl)
+                    } else {
+                        showEmptyMapError()
+                    }
+                },
+                onAddReport = {
+                    goToReport(
+                        dialogState.schedule.shopId,
+                        dialogState.schedule.shopName,
+                        "",
+                        dialogState.schedule.scheduledDate?.toString() ?: createTodayLocalDate().toString()
+                    )
+                    onDismiss()
                 }
             )
         }
@@ -806,6 +810,12 @@ private fun HomeDialog(
                 onConfirm = { onDismiss() }
             )
         }
+        is DialogState.EmptyWebAlert -> {
+            AppAlert(
+                message = stringResource(Res.string.home_no_web),
+                onConfirm = { onDismiss() }
+            )
+        }
         is DialogState.CompleteAddSchedule -> {
             AppAlert(
                 message = stringResource(Res.string.home_complete_add_schedule),
@@ -817,10 +827,10 @@ private fun HomeDialog(
 
 @Preview
 @Composable
-fun SchedulePreview() {
+fun ScheduleContentPreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            Schedule(Schedule(), emptyList())
+            ScheduleContent(Schedule(), emptyList(), {})
         }
     }
 }

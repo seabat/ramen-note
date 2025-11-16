@@ -24,27 +24,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.book_5_24px
-import ramennote.composeapp.generated.resources.event_note_24px
+import ramennote.composeapp.generated.resources.globe_24px
 import ramennote.composeapp.generated.resources.home_menu_shop_detail
 import ramennote.composeapp.generated.resources.home_menu_map
 import ramennote.composeapp.generated.resources.home_menu_report
-import ramennote.composeapp.generated.resources.home_menu_schedule
+import ramennote.composeapp.generated.resources.home_menu_web
 import ramennote.composeapp.generated.resources.location_on_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 
 @Composable
-fun FavoriteShopMenuDialog(
+fun ScheduleMenuDialog(
+    schedule: Schedule,
     onDismiss: () -> Unit,
     onShowDetails: () -> Unit,
+    onShowWeb: () -> Unit,
     onShowMap: () -> Unit,
-    onAddReport: () -> Unit,
-    onAddSchedule: () -> Unit
+    onAddReport: () -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -79,23 +81,30 @@ fun FavoriteShopMenuDialog(
                         onClick = onShowDetails
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    // Web サイト
+                    MenuItem(
+                        icon = vectorResource(Res.drawable.globe_24px),
+                        text = stringResource(Res.string.home_menu_web),
+                        onClick = onShowWeb
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 地図
                     MenuItem(
                         icon = vectorResource(Res.drawable.location_on_24px),
                         text = stringResource(Res.string.home_menu_map),
                         onClick = onShowMap
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    MenuItem(
-                        icon = vectorResource(Res.drawable.event_note_24px),
-                        text = stringResource(Res.string.home_menu_schedule),
-                        onClick = onAddSchedule
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    MenuItem(
-                        icon = vectorResource(Res.drawable.ramen_dining_24px),
-                        text = stringResource(Res.string.home_menu_report),
-                        onClick = onAddReport
-                    )
+
+                    if (!schedule.isReported) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        MenuItem(
+                            icon = vectorResource(Res.drawable.ramen_dining_24px),
+                            text = stringResource(Res.string.home_menu_report),
+                            onClick = onAddReport
+                        )
+                    }
                 }
             }
 
