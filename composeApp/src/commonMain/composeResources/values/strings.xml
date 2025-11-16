@@ -30,6 +30,10 @@
     <string name="home_no_favorite">お気に入り店が登録されていません</string>
     <string name="home_no_web">WebサイトのURLが設定されていません</string>
     <string name="home_patrol_web"> お気に入り店のWebサイトを巡回中</string>
+    <string name="home_complete_add_schedule">予定を追加しました</string>
+    <string name="home_favorite_shop_menu_detail">詳細を表示する</string>
+    <string name="home_favorite_shop_menu_schedule">予定を追加しました</string>
+    <string name="home_favorite_shop_menu_report">食レポを書く</string>
 
 
     <!-- Note Screen -->

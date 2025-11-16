@@ -8,13 +8,16 @@ import kotlinx.datetime.LocalDate
 
 interface HomeViewModelContract {
     val schedule: StateFlow<Schedule?>
-    val scheduleState: StateFlow<RunStatus<Schedule?>>
+    val loadedScheduleState: StateFlow<RunStatus<Schedule?>>
+    val addedScheduleState: StateFlow<RunStatus<String>>
     val favoriteShops: StateFlow<List<ShopWithImage>>
     val threeMonthsReports: StateFlow<List<FullReport>>
 
     fun loadRecentSchedule()
 
-    fun setScheduleStateToIdle()
+    fun setLoadedScheduleStateToIdle()
+
+    fun setAddedScheduleStateToIdle()
 
     fun loadFavoriteShops()
 

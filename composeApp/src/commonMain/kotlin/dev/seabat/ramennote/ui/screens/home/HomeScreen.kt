@@ -61,6 +61,7 @@ import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppProgressBar
@@ -74,6 +75,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
@@ -85,6 +87,7 @@ import ramennote.composeapp.generated.resources.add_schedule_error_past_date_mes
 import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.home_background
+import ramennote.composeapp.generated.resources.home_complete_add_schedule
 import ramennote.composeapp.generated.resources.home_favorite_subheading
 import ramennote.composeapp.generated.resources.home_no_favorite
 import ramennote.composeapp.generated.resources.home_no_reports
@@ -95,6 +98,22 @@ import kotlin.collections.filter
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
 
+private sealed interface DialogState {
+    object Hidden : DialogState
+
+    data class FavoriteShopMenu(
+        val shop: Shop
+    ) : DialogState
+
+    data class DatePicker(
+        val shop: Shop
+    ) : DialogState
+
+    object PastDateAlert : DialogState
+
+    object CompleteAddSchedule : DialogState
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -104,16 +123,11 @@ fun HomeScreen(
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
-    val scheduleState by viewModel.scheduleState.collectAsStateWithLifecycle()
+    val loadedScheduleState by viewModel.loadedScheduleState.collectAsStateWithLifecycle()
+    val addedScheduleState by viewModel.addedScheduleState.collectAsStateWithLifecycle()
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
     val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
-
-    // メニューダイアログと日付ピッカーの状態管理
-    var selectedShop by remember { mutableStateOf<Shop?>(null) }
-    var showMenuDialog by remember { mutableStateOf(false) }
-    var showDatePicker by remember { mutableStateOf(false) }
-    var showErrorDialog by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
+    var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
 
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
@@ -156,81 +170,45 @@ fun HomeScreen(
             Favorite(
                 favoriteShops,
                 onShopClick = { shop ->
-                    selectedShop = shop
-                    showMenuDialog = true
+                    dialogState = DialogState.FavoriteShopMenu(shop)
                 }
             )
         }
 
-        ScheduledShopState(scheduleState) {
-            viewModel.setScheduleStateToIdle()
+        ScheduledShopState(loadedScheduleState) {
+            viewModel.setLoadedScheduleStateToIdle()
         }
-    }
 
-    // メニューダイアログ
-    if (showMenuDialog && selectedShop != null) {
-        FavoriteShopMenuDialog(
-            onDismiss = { showMenuDialog = false },
-            onShowDetails = {
-                selectedShop?.let { shop ->
-                    goToShop(shop.id, shop.name)
-                }
-                showMenuDialog = false
-            },
-            onAddReport = {
-                selectedShop?.let { shop ->
-                    goToReport(shop.id, shop.name, "", "")
-                }
-                showMenuDialog = false
-            },
-            onAddSchedule = {
-                showMenuDialog = false
-                showDatePicker = true
-            }
-        )
-    }
-
-    // 日付ピッカーダイアログ
-    if (showDatePicker && selectedShop != null) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val millis = datePickerState.selectedDateMillis
-                        if (millis != null) {
-                            val selectedDate =
-                                Instant
-                                    .fromEpochMilliseconds(millis)
-                                    .toLocalDateTime(TimeZone.currentSystemDefault())
-                                    .date
-
-                            // 今日を含めた未来日かどうかをチェック
-                            if (!selectedDate.isTodayOrFuture()) {
-                                showErrorDialog = true
-                            } else {
-                                selectedShop?.let { shop ->
-                                    viewModel.addSchedule(shop.id, selectedDate)
-                                }
-                            }
-                        }
-                        showDatePicker = false
-                    }
-                ) { Text("OK") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-            }
-        ) {
-            DatePicker(state = datePickerState)
+        AddScheduleState(addedScheduleState) {
+            dialogState = DialogState.CompleteAddSchedule
+            viewModel.setAddedScheduleStateToIdle()
         }
-    }
 
-    // エラーダイアログ
-    if (showErrorDialog) {
-        AppAlert(
-            message = stringResource(Res.string.add_schedule_error_past_date_message),
-            onConfirm = { showErrorDialog = false }
+        HomeDialog(
+            dialogState,
+            onDismiss = { dialogState = DialogState.Hidden },
+            goToShop = { shopId, shopName ->
+                goToShop(shopId, shopName)
+                dialogState = DialogState.Hidden
+            },
+            goToReport = { shopId, shopName, menuName, iso8601Date ->
+                goToReport(shopId, shopName, menuName, iso8601Date)
+                dialogState = DialogState.Hidden
+            },
+            showDatePicker = { shop ->
+                dialogState = DialogState.DatePicker(shop)
+            },
+            showPastDateError = {
+                dialogState = DialogState.PastDateAlert
+            },
+            addSchedule = { shopId, date ->
+                viewModel.addSchedule(shopId, date)
+                dialogState = DialogState.Hidden
+            },
+            reloadSchedule = {
+                viewModel.loadRecentSchedule()
+                dialogState = DialogState.Hidden
+            }
         )
     }
 }
@@ -619,11 +597,30 @@ private fun FavoriteShopItem(
 
 @Composable
 private fun ScheduledShopState(
-    scheduleState: RunStatus<Schedule?>,
-    onError: () -> Unit
+    state: RunStatus<Schedule?>,
+    setIdle: () -> Unit
 ) {
-    when (scheduleState) {
-        is RunStatus.Success -> { /* Do nothing */ }
+    when (state) {
+        is RunStatus.Success -> {
+            setIdle()
+        }
+        is RunStatus.Error -> { /* Do nothing */ }
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Idle -> { /* Do nothing */ }
+    }
+}
+
+@Composable
+private fun AddScheduleState(
+    state: RunStatus<String>,
+    onCompleteAddSchedule: () -> Unit
+) {
+    when (state) {
+        is RunStatus.Success -> {
+            onCompleteAddSchedule()
+        }
         is RunStatus.Error -> { /* Do nothing */ }
         is RunStatus.Loading -> {
             AppProgressBar()
@@ -704,6 +701,90 @@ private fun RecentReports(
             ) {
                 Text(text = stringResource(Res.string.home_no_reports))
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeDialog(
+    dialogState: DialogState,
+    onDismiss: () -> Unit = {},
+    goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
+    showDatePicker: (shop: Shop) -> Unit = {},
+    addSchedule: (shopId: Int, date: LocalDate) -> Unit = { _, _ -> },
+    showPastDateError: () -> Unit = {},
+    reloadSchedule: () -> Unit = {}
+) {
+    when (dialogState) {
+        is DialogState.Hidden -> {}
+        is DialogState.FavoriteShopMenu -> {
+            FavoriteShopMenuDialog(
+                onDismiss = { onDismiss() },
+                onShowDetails = {
+                    goToShop(dialogState.shop.id, dialogState.shop.name)
+                    onDismiss()
+                },
+                onAddReport = {
+                    goToReport(
+                        dialogState.shop.id,
+                        dialogState.shop.name,
+                        "",
+                        dialogState.shop.scheduledDate?.toString() ?: createTodayLocalDate().toString()
+                    )
+                    onDismiss()
+                },
+                onAddSchedule = {
+                    showDatePicker(dialogState.shop)
+                }
+            )
+        }
+        is DialogState.DatePicker -> {
+            // メニューダイアログと日付ピッカーの状態管理
+            val datePickerState = rememberDatePickerState()
+            DatePickerDialog(
+                onDismissRequest = { onDismiss() },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val millis = datePickerState.selectedDateMillis
+                            if (millis != null) {
+                                val selectedDate =
+                                    Instant
+                                        .fromEpochMilliseconds(millis)
+                                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                                        .date
+
+                                // 今日を含めた未来日かどうかをチェック
+                                if (!selectedDate.isTodayOrFuture()) {
+                                    showPastDateError()
+                                } else {
+                                    addSchedule(dialogState.shop.id, selectedDate)
+                                }
+                            }
+                            onDismiss()
+                        }
+                    ) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { onDismiss() }) { Text("Cancel") }
+                }
+            ) {
+                DatePicker(state = datePickerState)
+            }
+        }
+        is DialogState.PastDateAlert -> {
+            AppAlert(
+                message = stringResource(Res.string.add_schedule_error_past_date_message),
+                onConfirm = { onDismiss() }
+            )
+        }
+        is DialogState.CompleteAddSchedule -> {
+            AppAlert(
+                message = stringResource(Res.string.home_complete_add_schedule),
+                onConfirm = { reloadSchedule() }
+            )
         }
     }
 }

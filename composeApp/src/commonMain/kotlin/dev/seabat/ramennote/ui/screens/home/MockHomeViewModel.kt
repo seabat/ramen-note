@@ -14,8 +14,10 @@ class MockHomeViewModel : HomeViewModelContract {
     override val schedule: StateFlow<Schedule?> = _schedule.asStateFlow()
 
     private val _scheduleState = MutableStateFlow<RunStatus<Schedule?>>(RunStatus.Idle())
-    override val scheduleState: StateFlow<RunStatus<Schedule?>> = _scheduleState.asStateFlow()
+    override val loadedScheduleState: StateFlow<RunStatus<Schedule?>> = _scheduleState.asStateFlow()
 
+    private val _addScheduleState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
+    override val addedScheduleState: StateFlow<RunStatus<String>> = _addScheduleState.asStateFlow()
     private val _threeMonthsReports =
         MutableStateFlow<List<FullReport>>(
             listOf(
@@ -186,7 +188,11 @@ class MockHomeViewModel : HomeViewModelContract {
         // Preview用なので何もしない
     }
 
-    override fun setScheduleStateToIdle() {
+    override fun setLoadedScheduleStateToIdle() {
+        // Preview用なので何もしない
+    }
+
+    override fun setAddedScheduleStateToIdle() {
         // Preview用なので何もしない
     }
 
