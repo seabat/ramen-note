@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -105,25 +106,7 @@ fun HomeScreen(
     ) {
         val imageHeight = maxHeight * 0.5f
 
-        // ラーメンの背景画像
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .alpha(0.3f) // 半透明
-        ) {
-            // ラーメンの背景画像を表示
-            Image(
-                painter = painterResource(Res.drawable.home_background),
-                contentDescription = "ラーメンの背景画像",
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomStart) // 画面の左下に配置
-                        .offset(x = 100.dp) // 右側が見切れるように
-                        .height(imageHeight),
-                contentScale = ContentScale.Fit
-            )
-        }
+        HomeBackground(imageHeight)
 
         Column(
             modifier =
@@ -159,6 +142,29 @@ fun HomeScreen(
         ScheduledShopState(scheduleState) {
             viewModel.setScheduleStateToIdle()
         }
+    }
+}
+
+@Composable
+private fun HomeBackground(imageHeight: Dp) {
+    // ラーメンの背景画像
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .alpha(0.3f) // 半透明
+    ) {
+        // ラーメンの背景画像を表示
+        Image(
+            painter = painterResource(Res.drawable.home_background),
+            contentDescription = "ラーメンの背景画像",
+            modifier =
+                Modifier
+                    .align(Alignment.BottomStart) // 画面の左下に配置
+                    .offset(x = 100.dp) // 右側が見切れるように
+                    .height(imageHeight),
+            contentScale = ContentScale.Fit
+        )
     }
 }
 
