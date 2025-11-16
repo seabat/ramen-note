@@ -74,6 +74,7 @@ import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.ramen_dining_24px
+import ramennote.composeapp.generated.resources.shop_map_label
 import ramennote.composeapp.generated.resources.shop_menu_edit_button
 import ramennote.composeapp.generated.resources.shop_menu_history_button
 import ramennote.composeapp.generated.resources.shop_menu_report_button
@@ -374,7 +375,7 @@ fun Detail(
 
         // 地図
         UrlItem(
-            label = stringResource(Res.string.add_map_label),
+            label = stringResource(Res.string.shop_map_label),
             url = shop.mapUrl
         )
 

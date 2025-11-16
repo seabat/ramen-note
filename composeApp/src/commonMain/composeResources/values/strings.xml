@@ -58,6 +58,7 @@
     <string name="shop_menu_edit_button">編集</string>
     <string name="shop_menu_report_button">追加</string>
     <string name="shop_menu_history_button">一覧</string>
+    <string name="shop_map_label">地図</string>
     <string name="add_web_site_label">Webサイト</string>
     <string name="add_map_label">地図(GoogleマップのURL)</string>
     <string name="add_evaluation_label">評価</string>
