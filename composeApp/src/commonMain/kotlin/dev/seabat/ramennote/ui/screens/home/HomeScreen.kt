@@ -263,8 +263,6 @@ private fun ScheduleContent(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        val urlHandler = LocalUriHandler.current
-
         Text(
             text =
                 schedule?.scheduledDate?.let {
@@ -283,13 +281,7 @@ private fun ScheduleContent(
                         width = 2.dp,
                         color = MaterialTheme.colorScheme.background,
                         shape = RoundedCornerShape(10.dp)
-                    ).clickable {
-                        schedule?.shopUrl?.let { url ->
-                            if (url.isNotBlank()) {
-                                urlHandler.openUri(url)
-                            }
-                        }
-                    }
+                    )
         ) {
             // コンテンツ
             if (schedule == null) {
