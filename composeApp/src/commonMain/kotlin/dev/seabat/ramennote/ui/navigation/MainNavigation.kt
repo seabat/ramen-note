@@ -248,7 +248,10 @@ fun MainNavigation() {
     val navController = rememberNavController()
 
     // HistoryScreenに遷移する際のreportIdを管理するState
-    var historyReportId by remember { mutableStateOf<Int?>(null) }
+    var reportIdParam by remember { mutableStateOf<Int?>(null) }
+
+    // HistoryScreenに遷移する際のshopIdを管理するState
+    var shopParam by remember { mutableStateOf<ShopInfo?>(null) }
 
     val tabScreens =
         listOf(
@@ -338,7 +341,7 @@ fun MainNavigation() {
                     goToHistory = { reportId ->
                         // NavigationBar は restoreState = true を設定しているので、一度 Screen クラスのプロパティを使ってタブ画面に遷移すると 画面遷移する度にそのプロパティが復元されてしまう。
                         // タブ画面への遷移時に使用するパラメータは Screen クラスのプロパティを使用せず、生存期間が長い変数を使用する。
-                        historyReportId = reportId
+                        reportIdParam = reportId
                         navController.navigate(Screen.History) {
                             // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
                             launchSingleTop = true
@@ -374,12 +377,16 @@ fun MainNavigation() {
             }
             composable<Screen.History> {
                 HistoryScreen(
-                    reportId = historyReportId,
+                    reportId = reportIdParam,
+                    shop = shopParam,
                     goToEditReport = { reportId ->
                         navController.navigate(Screen.EditReport(reportId))
                     },
-                    clearReportId = {
-                        historyReportId = null
+                    clearReportIdParam = {
+                        reportIdParam = null
+                    },
+                    clearShopParam = {
+                        shopParam = null
                     }
                 )
             }
@@ -420,11 +427,11 @@ fun MainNavigation() {
                 ShopScreen(
                     shopId = screen.shopId,
                     shopName = screen.shopName,
-                    onBackClick = { navController.popBackStack() },
-                    onEditClick = { editShop ->
+                    goBack = { navController.popBackStack() },
+                    goToEditShop = { editShop ->
                         navController.navigate(Screen.EditShop(editShop.toJsonString()))
                     },
-                    onReportClick = { shop ->
+                    goToReport = { shop ->
                         navController.navigate(
                             Screen.Report(
                                 shop.id,
@@ -433,6 +440,16 @@ fun MainNavigation() {
                                 iso8601Date = shop.scheduledDate?.toString() ?: createTodayLocalDate().toString()
                             )
                         )
+                    },
+                    goToHistory = { shop ->
+                        shopParam = shop
+                        navController.navigate(Screen.History) {
+                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                            launchSingleTop = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                        }
                     }
                 )
             }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,13 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,8 +34,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
@@ -55,34 +56,40 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_category_label
-import ramennote.composeapp.generated.resources.add_edit_button
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_map_label
 import ramennote.composeapp.generated.resources.add_no_data_label
 import ramennote.composeapp.generated.resources.add_note_label
-import ramennote.composeapp.generated.resources.add_report_button
-import ramennote.composeapp.generated.resources.add_schedule_add_button
-import ramennote.composeapp.generated.resources.add_schedule_edit_button
 import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.add_schedule_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
+import ramennote.composeapp.generated.resources.edit_24px
+import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
+import ramennote.composeapp.generated.resources.ramen_dining_24px
+import ramennote.composeapp.generated.resources.shop_menu_edit_button
+import ramennote.composeapp.generated.resources.shop_menu_history_button
+import ramennote.composeapp.generated.resources.shop_menu_report_button
+import ramennote.composeapp.generated.resources.shop_menu_schedule_add_button
+import ramennote.composeapp.generated.resources.shop_menu_schedule_edit_button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
     shopId: Int,
     shopName: String,
-    onBackClick: () -> Unit,
-    onEditClick: (Shop) -> Unit = {},
-    onReportClick: (Shop) -> Unit = {},
+    goBack: () -> Unit,
+    goToEditShop: (Shop) -> Unit = {},
+    goToReport: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
+    goToHistory: (shop: Shop) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
@@ -106,7 +113,7 @@ fun ShopScreen(
         ) {
             AppBar(
                 title = shop?.name ?: "",
-                onBackClick = onBackClick
+                onBackClick = goBack
             )
 
             Column(
@@ -124,16 +131,19 @@ fun ShopScreen(
                 )
 
                 // アクションボタン
-                ActionButtons(
+                Menu(
                     shop,
-                    onEditClick = {
-                        shop?.let { onEditClick(it) }
-                    },
-                    onReportClick = {
-                        shop?.let { onReportClick(it) }
-                    },
                     onAddScheduleClick = {
                         showDatePicker = true
+                    },
+                    onReportClick = {
+                        shop?.let { goToReport(it) }
+                    },
+                    onHistoryClick = {
+                        shop?.let { goToHistory(it) }
+                    },
+                    onEditClick = {
+                        shop?.let { goToEditShop(it) }
                     }
                 )
 
@@ -294,10 +304,11 @@ fun Header(
 
 // アクションボタン
 @Composable
-fun ActionButtons(
+fun Menu(
     shop: Shop?,
     onEditClick: () -> Unit = {},
     onReportClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {},
     onAddScheduleClick: () -> Unit = {}
 ) {
     Row(
@@ -305,52 +316,29 @@ fun ActionButtons(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+//        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Button(
+        ScheduleButton(
+            hasScheduledDate = shop?.scheduledDate?.isTodayOrFuture() == true,
             onClick = { onAddScheduleClick() },
-            modifier = Modifier.weight(1f),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                ),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            val buttonText =
-                if (shop?.scheduledDate?.isTodayOrFuture() == true) {
-                    stringResource(Res.string.add_schedule_edit_button)
-                } else {
-                    stringResource(Res.string.add_schedule_add_button)
-                }
-            Text(buttonText, style = MaterialTheme.typography.titleSmall)
-        }
+            modifier = Modifier.weight(1f)
+        )
 
-        Button(
+        ReportButton(
             onClick = onReportClick,
-            modifier = Modifier.weight(1f),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                ),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(stringResource(Res.string.add_report_button), style = MaterialTheme.typography.titleSmall)
-        }
+            modifier = Modifier.weight(1f)
+        )
 
-        Button(
+        HistoryButton(
+            onClick = onHistoryClick,
+            modifier = Modifier.weight(1f)
+        )
+
+        EditButton(
             onClick = onEditClick,
-            modifier = Modifier.weight(1f),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                ),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(stringResource(Res.string.add_edit_button), style = MaterialTheme.typography.titleSmall)
-        }
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -514,6 +502,126 @@ private fun datePickerOnClickHandler(
     }
 }
 
+@Composable
+private fun ScheduleButton(
+    hasScheduledDate: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val buttonText =
+        if (hasScheduledDate) {
+            stringResource(Res.string.shop_menu_schedule_edit_button)
+        } else {
+            stringResource(Res.string.shop_menu_schedule_add_button)
+        }
+    ActionButton(
+        icon = vectorResource(Res.drawable.event_note_24px),
+        text = buttonText,
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun ReportButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ActionButton(
+        icon = vectorResource(Res.drawable.ramen_dining_24px),
+        text = stringResource(Res.string.shop_menu_report_button),
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun HistoryButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ActionButton(
+        icon = vectorResource(Res.drawable.ramen_dining_24px),
+        text = stringResource(Res.string.shop_menu_history_button),
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun EditButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ActionButton(
+        icon = vectorResource(Res.drawable.edit_24px),
+        text = stringResource(Res.string.shop_menu_edit_button),
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun ActionButton(
+    icon: ImageVector,
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ActionButtonPreview() {
+    RamenNoteTheme {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // 予定追加
+            ScheduleButton(
+                hasScheduledDate = false,
+                onClick = {}
+            )
+            // 予定変更
+            ScheduleButton(
+                hasScheduledDate = true,
+                onClick = {}
+            )
+            // 食レポ
+            ReportButton(onClick = {})
+            // 編集
+            EditButton(onClick = {})
+        }
+    }
+}
+
 @Preview
 @Composable
 fun ShopScreenPreview() {
@@ -521,8 +629,26 @@ fun ShopScreenPreview() {
         ShopScreen(
             shopId = 1,
             shopName = "〇〇家",
-            onBackClick = { },
-            onEditClick = { },
+            goBack = { },
+            goToEditShop = { },
+            goToReport = { },
+            goToSchedule = { },
+            viewModel = MockShopViewModel()
+        )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 640, name = "Small Phone")
+@Composable
+fun ShopScreenSmallPhonePreview() {
+    RamenNoteTheme {
+        ShopScreen(
+            shopId = 1,
+            shopName = "〇〇家",
+            goBack = { },
+            goToEditShop = { },
+            goToReport = { },
+            goToSchedule = { },
             viewModel = MockShopViewModel()
         )
     }

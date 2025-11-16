@@ -10,8 +10,11 @@ class LoadFullReportsUseCase(
     private val shopsRepository: ShopsRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
 ) : LoadFullReportsUseCaseContract {
-    override suspend operator fun invoke(): List<FullReport> {
-        val reports = reportsRepository.load()
+    override suspend operator fun invoke(shopId: Int?): List<FullReport> {
+        val reports =
+            reportsRepository
+                .load()
+                .filter { shopId == null || it.shopId == shopId }
 
         return reports.map { report ->
             val shop = shopsRepository.getShopById(report.shopId)
