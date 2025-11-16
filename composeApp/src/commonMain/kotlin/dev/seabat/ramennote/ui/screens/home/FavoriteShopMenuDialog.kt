@@ -31,6 +31,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.home_favorite_shop_menu_detail
+import ramennote.composeapp.generated.resources.home_favorite_shop_menu_map
 import ramennote.composeapp.generated.resources.home_favorite_shop_menu_report
 import ramennote.composeapp.generated.resources.home_favorite_shop_menu_schedule
 
@@ -38,6 +39,7 @@ import ramennote.composeapp.generated.resources.home_favorite_shop_menu_schedule
 fun FavoriteShopMenuDialog(
     onDismiss: () -> Unit,
     onShowDetails: () -> Unit,
+    onShowMap: () -> Unit,
     onAddReport: () -> Unit,
     onAddSchedule: () -> Unit
 ) {
@@ -71,6 +73,11 @@ fun FavoriteShopMenuDialog(
                     MenuItem(
                         text = stringResource(Res.string.home_favorite_shop_menu_detail),
                         onClick = onShowDetails
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuItem(
+                        text = stringResource(Res.string.home_favorite_shop_menu_map),
+                        onClick = onShowMap
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     MenuItem(
@@ -143,6 +150,7 @@ private fun FavoriteShopMenuDialogPreview() {
     RamenNoteTheme {
         FavoriteShopMenuDialog(
             onDismiss = {},
+            onShowMap = {},
             onShowDetails = {},
             onAddReport = {},
             onAddSchedule = {}

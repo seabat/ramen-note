@@ -29,10 +29,12 @@
     <string name="home_no_reports">過去3ヶ月分の食レポがありません</string>
     <string name="home_no_favorite">お気に入り店が登録されていません</string>
     <string name="home_no_web">WebサイトのURLが設定されていません</string>
+    <string name="home_no_map">地図が設定されていませんく</string>
     <string name="home_patrol_web"> お気に入り店のWebサイトを巡回中</string>
     <string name="home_complete_add_schedule">予定を追加しました</string>
     <string name="home_favorite_shop_menu_detail">詳細を表示する</string>
-    <string name="home_favorite_shop_menu_schedule">予定を追加しました</string>
+    <string name="home_favorite_shop_menu_map">マップを表示する</string>
+    <string name="home_favorite_shop_menu_schedule">予定を追加する</string>
     <string name="home_favorite_shop_menu_report">食レポを書く</string>
 
 
@@ -56,7 +58,7 @@
     <string name="add_edit_button">編集</string>
     <string name="add_report_button">食レポ</string>
     <string name="add_web_site_label">Webサイト</string>
-    <string name="add_map_label">地図</string>
+    <string name="add_map_label">地図(GoogleマップのURL)</string>
     <string name="add_evaluation_label">評価</string>
     <string name="add_station_label">最寄り駅</string>
     <string name="add_category_label">系統</string>

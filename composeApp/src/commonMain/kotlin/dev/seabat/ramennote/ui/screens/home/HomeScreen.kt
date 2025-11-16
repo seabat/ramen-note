@@ -90,6 +90,7 @@ import ramennote.composeapp.generated.resources.home_background
 import ramennote.composeapp.generated.resources.home_complete_add_schedule
 import ramennote.composeapp.generated.resources.home_favorite_subheading
 import ramennote.composeapp.generated.resources.home_no_favorite
+import ramennote.composeapp.generated.resources.home_no_map
 import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
@@ -111,6 +112,8 @@ private sealed interface DialogState {
 
     object PastDateAlert : DialogState
 
+    object EmptyMapAlert : DialogState
+
     object CompleteAddSchedule : DialogState
 }
 
@@ -128,6 +131,7 @@ fun HomeScreen(
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
     val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
+    val urlHandler = LocalUriHandler.current
 
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
@@ -197,6 +201,13 @@ fun HomeScreen(
             },
             showDatePicker = { shop ->
                 dialogState = DialogState.DatePicker(shop)
+            },
+            launchMap = { mapUrl ->
+                urlHandler.openUri(mapUrl)
+                dialogState = DialogState.Hidden
+            },
+            showEmptyMapError = {
+                dialogState = DialogState.EmptyMapAlert
             },
             showPastDateError = {
                 dialogState = DialogState.PastDateAlert
@@ -709,13 +720,15 @@ private fun RecentReports(
 @Composable
 private fun HomeDialog(
     dialogState: DialogState,
-    onDismiss: () -> Unit = {},
-    goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
-    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
-    showDatePicker: (shop: Shop) -> Unit = {},
-    addSchedule: (shopId: Int, date: LocalDate) -> Unit = { _, _ -> },
-    showPastDateError: () -> Unit = {},
-    reloadSchedule: () -> Unit = {}
+    onDismiss: () -> Unit,
+    goToShop: (shopId: Int, shopName: String) -> Unit,
+    goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit,
+    showDatePicker: (shop: Shop) -> Unit,
+    launchMap: (mapUrl: String) -> Unit,
+    addSchedule: (shopId: Int, date: LocalDate) -> Unit,
+    showEmptyMapError: () -> Unit,
+    showPastDateError: () -> Unit,
+    reloadSchedule: () -> Unit
 ) {
     when (dialogState) {
         is DialogState.Hidden -> {}
@@ -725,6 +738,13 @@ private fun HomeDialog(
                 onShowDetails = {
                     goToShop(dialogState.shop.id, dialogState.shop.name)
                     onDismiss()
+                },
+                onShowMap = {
+                    if (dialogState.shop.mapUrl.isNotEmpty()) {
+                        launchMap(dialogState.shop.mapUrl)
+                    } else {
+                        showEmptyMapError()
+                    }
                 },
                 onAddReport = {
                     goToReport(
@@ -777,6 +797,12 @@ private fun HomeDialog(
         is DialogState.PastDateAlert -> {
             AppAlert(
                 message = stringResource(Res.string.add_schedule_error_past_date_message),
+                onConfirm = { onDismiss() }
+            )
+        }
+        is DialogState.EmptyMapAlert -> {
+            AppAlert(
+                message = stringResource(Res.string.home_no_map),
                 onConfirm = { onDismiss() }
             )
         }
