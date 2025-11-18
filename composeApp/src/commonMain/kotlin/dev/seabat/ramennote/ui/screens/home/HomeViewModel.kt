@@ -9,24 +9,24 @@ import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 
 class HomeViewModel(
     private val loadRecentScheduleUseCase: LoadRecentScheduleUseCaseContract,
     private val loadFavoriteShopsUseCase: LoadFavoriteShopsUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
-    private val loadThreeMonthsFullReportsUseCase: LoadThreeMonthsFullReportsUseCaseContract
+    private val loadThreeMonthsFullReportsUseCase: LoadThreeMonthsFullReportsUseCaseContract,
+    private val updateScheduleInShopUseCase: UpdateScheduleInShopUseCaseContract
 ) : ViewModel(),
     HomeViewModelContract {
     private val _schedule = MutableStateFlow<Schedule?>(null)
     override val schedule: StateFlow<Schedule?> = _schedule.asStateFlow()
-
-    private val _scheduleState = MutableStateFlow<RunStatus<Schedule?>>(RunStatus.Idle())
-    override val scheduleState: StateFlow<RunStatus<Schedule?>> = _scheduleState.asStateFlow()
 
     private val _favoriteShops = MutableStateFlow<List<ShopWithImage>>(emptyList())
     override val favoriteShops: StateFlow<List<ShopWithImage>> = _favoriteShops.asStateFlow()
@@ -34,11 +34,19 @@ class HomeViewModel(
     private val _threeMonthsReports = MutableStateFlow<List<FullReport>>(emptyList())
     override val threeMonthsReports: StateFlow<List<FullReport>> = _threeMonthsReports.asStateFlow()
 
+    /** 最新の予定読み込み状態 */
+    private val _loadedScheduleState = MutableStateFlow<RunStatus<Schedule?>>(RunStatus.Idle())
+    override val loadedScheduleState: StateFlow<RunStatus<Schedule?>> = _loadedScheduleState.asStateFlow()
+
+    /** 予定追加状態 */
+    private val _addedScheduleState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
+    override val addedScheduleState: StateFlow<RunStatus<String>> = _addedScheduleState.asStateFlow()
+
     override fun loadRecentSchedule() {
         viewModelScope.launch {
-            _scheduleState.value = RunStatus.Loading()
+            _loadedScheduleState.value = RunStatus.Loading()
             val result = loadRecentScheduleUseCase()
-            _scheduleState.value = result
+            _loadedScheduleState.value = result
 
             when (result) {
                 is RunStatus.Success -> {
@@ -55,8 +63,8 @@ class HomeViewModel(
         }
     }
 
-    override fun setScheduleStateToIdle() {
-        _scheduleState.value = RunStatus.Idle()
+    override fun setLoadedScheduleStateToIdle() {
+        _loadedScheduleState.value = RunStatus.Idle()
     }
 
     override fun loadFavoriteShops() {
@@ -85,5 +93,17 @@ class HomeViewModel(
         viewModelScope.launch {
             _threeMonthsReports.value = loadThreeMonthsFullReportsUseCase()
         }
+    }
+
+    override fun addSchedule(shopId: Int, date: LocalDate) {
+        viewModelScope.launch {
+            _addedScheduleState.value = RunStatus.Loading()
+            updateScheduleInShopUseCase(shopId, date)
+            _addedScheduleState.value = RunStatus.Success("")
+        }
+    }
+
+    override fun setAddedScheduleStateToIdle() {
+        _addedScheduleState.value = RunStatus.Idle()
     }
 }
