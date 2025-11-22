@@ -32,6 +32,7 @@ import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.MaxWidthButton
+import dev.seabat.ramennote.ui.components.ShopAiInfoAlert
 import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
@@ -78,6 +79,9 @@ fun AddShopScreen(
     var note by remember { mutableStateOf("") }
 
     val saveState by viewModel.saveState.collectAsState()
+    val shopAiInfoState by viewModel.shopAiInfoState.collectAsState()
+
+    var showShopAiInfoDialog by remember { mutableStateOf(true) }
 
     var permissionEnabled by remember { mutableStateOf(false) }
     var shouldLaunchSetting by remember { mutableStateOf(false) }
@@ -118,6 +122,16 @@ fun AddShopScreen(
     if (shouldLaunchSetting) {
         launchSettings()
         shouldLaunchSetting = false
+    }
+
+    // AI店舗情報取得ダイアログ
+    if (showShopAiInfoDialog) {
+        ShopAiInfoAlert(
+            onConfirm = { shopName ->
+                showShopAiInfoDialog = false
+                viewModel.fetchShopAiInfo(shopName)
+            }
+        )
     }
 
     Box(
@@ -256,6 +270,24 @@ fun AddShopScreen(
             is RunStatus.Error -> {
                 AppAlert(
                     message = saveState.message ?: "不明なエラーが発生しました",
+                    onConfirm = { /* エラー処理 */ }
+                )
+            }
+            else -> { /* その他の状態は何もしない */ }
+        }
+        when (val state = shopAiInfoState) {
+            is RunStatus.Success -> {
+                state.data?.let { aiInfo ->
+                    name = aiInfo.shopName
+                    shopUrl = aiInfo.shopUrl
+                    mapUrl = aiInfo.mapUrl
+                    stationName = aiInfo.stationName
+                    category = aiInfo.category
+                }
+            }
+            is RunStatus.Error -> {
+                AppAlert(
+                    message = state.message ?: "店舗情報の取得に失敗しました",
                     onConfirm = { /* エラー処理 */ }
                 )
             }

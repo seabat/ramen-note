@@ -39,6 +39,10 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             implementation(libs.accompanist.permissions)
+
+            // Firebase
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.ai)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -73,6 +77,9 @@ kotlin {
             // Coil for image loading
             implementation(libs.coil)
             implementation(libs.coil.compose)
+
+            // AI/ML dependencies
+            implementation(libs.gemini.ai)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
