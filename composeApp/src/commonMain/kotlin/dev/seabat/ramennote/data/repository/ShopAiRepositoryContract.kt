@@ -4,5 +4,5 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.ShopAiInfo
 
 interface ShopAiRepositoryContract {
-    suspend fun fetch(shopName: String) : RunStatus<ShopAiInfo>
+    suspend fun fetch(prompt: String): RunStatus<ShopAiInfo>
 }

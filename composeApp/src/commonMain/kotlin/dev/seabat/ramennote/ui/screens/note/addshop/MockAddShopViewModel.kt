@@ -24,7 +24,12 @@ class MockAddShopViewModel : AddShopViewModelContract {
     }
 
     override fun createNoImage(): ByteArray = ByteArray(0)
-    override fun fetchShopAiInfo(shopName: String) {
+
+    override fun fetchShopAiInfo(areaName: String, shopName: String) {
+        // Preview用なので何もしない
+    }
+
+    override fun setShopAiInfoStateToIdle() {
         // Preview用なので何もしない
     }
 }

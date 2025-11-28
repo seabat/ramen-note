@@ -129,7 +129,7 @@ fun AddShopScreen(
         ShopAiInfoAlert(
             onConfirm = { shopName ->
                 showShopAiInfoDialog = false
-                viewModel.fetchShopAiInfo(shopName)
+                viewModel.fetchShopAiInfo(areaName, shopName)
             }
         )
     }

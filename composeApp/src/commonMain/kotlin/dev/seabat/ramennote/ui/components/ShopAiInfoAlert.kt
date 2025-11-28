@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,6 +16,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
+import org.jetbrains.compose.resources.stringResource
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_shop_alert_button
+import ramennote.composeapp.generated.resources.add_shop_alert_enter_shop_name
+import ramennote.composeapp.generated.resources.add_shop_alert_shop_name
+import ramennote.composeapp.generated.resources.add_shop_alert_warning
 
 @Composable
 fun ShopAiInfoAlert(
@@ -29,7 +35,7 @@ fun ShopAiInfoAlert(
             Button(
                 onClick = { onConfirm(shopName) }
             ) {
-                Text(text = "はい")
+                Text(text = stringResource(Res.string.add_shop_alert_button))
             }
         },
         title = null,
@@ -38,16 +44,19 @@ fun ShopAiInfoAlert(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "店名を入力してください。Web サイト等の情報を店名をヒントにしてを自動入力します。"
+                    text = stringResource(Res.string.add_shop_alert_enter_shop_name)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 ShopInputField(
-                    label = "店名",
+                    label = stringResource(Res.string.add_shop_alert_shop_name),
                     value = shopName,
                     onValueChange = { shopName = it }
+                )
+                Text(
+                    text = stringResource(Res.string.add_shop_alert_warning),
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
     )
 }
-

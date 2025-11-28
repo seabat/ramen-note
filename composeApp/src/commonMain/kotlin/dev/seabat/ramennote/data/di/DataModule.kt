@@ -10,6 +10,8 @@ import dev.seabat.ramennote.data.repository.AreaImageRepository
 import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
 import dev.seabat.ramennote.data.repository.AreasRepository
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
+import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepository
+import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalImageRepository
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.data.repository.NoImageRepository
@@ -68,7 +70,8 @@ val repositoryModule =
         single<NoImageRepositoryContract> { NoImageRepository(get()) }
         single<ReportsRepositoryContract> { ReportsRepository(get()) }
         single<ShopsRepositoryContract> { ShopsRepository(get()) }
-        single<ShopAiRepositoryContract> { ShopAiRepository() }
+        single<ShopAiRepositoryContract> { ShopAiRepository(get()) }
+        single<GoogleMapSearchUrlRepositoryContract> { GoogleMapSearchUrlRepository() }
     }
 
 /**

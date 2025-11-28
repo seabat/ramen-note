@@ -57,15 +57,19 @@ class AddShopViewModel(
 
     override fun createNoImage(): ByteArray = createNoImageUseCase.invoke()
 
-    override fun fetchShopAiInfo(shopName: String) {
+    override fun fetchShopAiInfo(areaName: String, shopName: String) {
         viewModelScope.launch {
             _shopAiInfoState.value = RunStatus.Loading()
             try {
-                val result = fetchAiShopInfoUseCase(shopName)
+                val result = fetchAiShopInfoUseCase(areaName, shopName)
                 _shopAiInfoState.value = result
             } catch (e: Exception) {
                 _shopAiInfoState.value = RunStatus.Error("店舗情報の取得に失敗しました: ${e.message}")
             }
         }
+    }
+
+    override fun setShopAiInfoStateToIdle() {
+        _shopAiInfoState.value = RunStatus.Idle()
     }
 }

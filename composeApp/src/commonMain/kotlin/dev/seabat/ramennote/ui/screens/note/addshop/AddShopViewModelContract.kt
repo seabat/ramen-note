@@ -16,5 +16,7 @@ interface AddShopViewModelContract {
 
     fun createNoImage(): ByteArray
 
-    fun fetchShopAiInfo(shopName: String)
+    fun fetchShopAiInfo(areaName: String, shopName: String)
+
+    fun setShopAiInfoStateToIdle()
 }
