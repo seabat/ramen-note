@@ -29,12 +29,12 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.model.ShopAiInfo
 import dev.seabat.ramennote.domain.util.logd
-import dev.seabat.ramennote.ui.components.AppAlert
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
-import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
-import dev.seabat.ramennote.ui.components.MaxWidthButton
-import dev.seabat.ramennote.ui.components.ShopAiInfoAlert
+import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.components.button.MaxWidthButton
+import dev.seabat.ramennote.ui.components.alert.ShopAiInfoAlert
 import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
