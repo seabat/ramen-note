@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.googleService) apply false
 }
 
 subprojects {

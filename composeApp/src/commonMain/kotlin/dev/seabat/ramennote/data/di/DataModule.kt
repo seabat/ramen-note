@@ -10,12 +10,16 @@ import dev.seabat.ramennote.data.repository.AreaImageRepository
 import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
 import dev.seabat.ramennote.data.repository.AreasRepository
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
+import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepository
+import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalImageRepository
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.data.repository.NoImageRepository
 import dev.seabat.ramennote.data.repository.NoImageRepositoryContract
 import dev.seabat.ramennote.data.repository.ReportsRepository
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
+import dev.seabat.ramennote.data.repository.ShopAiRepository
+import dev.seabat.ramennote.data.repository.ShopAiRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepository
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.data.repository.UnsplashImageRepository
@@ -66,6 +70,8 @@ val repositoryModule =
         single<NoImageRepositoryContract> { NoImageRepository(get()) }
         single<ReportsRepositoryContract> { ReportsRepository(get()) }
         single<ShopsRepositoryContract> { ShopsRepository(get()) }
+        single<ShopAiRepositoryContract> { ShopAiRepository(get()) }
+        single<GoogleMapSearchUrlRepositoryContract> { GoogleMapSearchUrlRepository() }
     }
 
 /**
