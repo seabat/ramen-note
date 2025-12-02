@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.components
+package dev.seabat.ramennote.ui.components.alert
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
