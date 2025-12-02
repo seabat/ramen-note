@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.googleService)
     id("co.touchlab.skie") version "0.10.6"
 }
 
@@ -40,11 +39,6 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             implementation(libs.accompanist.permissions)
-
-            // Firebase
-            implementation(project.dependencies.platform(libs.firebase.bom))
-            implementation(libs.firebase.ai)
-            implementation(libs.firebase.analytics)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -79,9 +73,6 @@ kotlin {
             // Coil for image loading
             implementation(libs.coil)
             implementation(libs.coil.compose)
-
-            // AI/ML dependencies
-            implementation(libs.gemini.ai)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
