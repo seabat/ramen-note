@@ -37,7 +37,7 @@ fun WideDialog(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .clickable { onDismiss() }
+                    .clickable { /* Do nothing */ }
                     .padding(32.dp),
             contentAlignment = Alignment.Center
         ) {

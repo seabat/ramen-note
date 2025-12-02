@@ -649,7 +649,7 @@ private fun RecentReports(
                         ) {
                             ReportCard(
                                 report = report,
-                                onPress = {
+                                onTap = {
                                     goToHistory(report.id)
                                 }
                             )

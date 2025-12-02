@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.history
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,8 +36,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ReportCard(
     report: FullReport,
-    onPress: () -> Unit = {},
-    onLongPress: () -> Unit = {}
+    onTap: () -> Unit = {},
+    onLongPress: () -> Unit = {},
+    onImageTap: () -> Unit = {}
 ) {
     val date: LocalDate? = report.date
     val dayText =
@@ -54,7 +56,7 @@ fun ReportCard(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = { onLongPress() },
-                        onTap = { onPress() }
+                        onTap = { onTap() }
                     )
                 },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -69,7 +71,8 @@ fun ReportCard(
                 modifier =
                     Modifier
                         .size(100.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onImageTap() },
                 contentScale = ContentScale.Crop
             )
 
