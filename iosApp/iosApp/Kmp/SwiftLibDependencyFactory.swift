@@ -11,5 +11,9 @@ class SwiftLibDependencyFactory: SwiftLibDependencyFactoryContract {
     func provideNoImageDataSourceContract() -> any NoImageDataSourceContract {
         return IosNoImageDataSource()
     }
+
+    func provideShopAiDataSourceContract() -> any ShopAiDataSourceContract {
+        return IosShopAiDataSource()
+    }
 }
 
