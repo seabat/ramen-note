@@ -18,6 +18,8 @@ import dev.seabat.ramennote.domain.usecase.DeleteScheduleInShopUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteScheduleInShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchAiShopInfoUseCase
+import dev.seabat.ramennote.domain.usecase.FetchAiShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCase
@@ -69,6 +71,7 @@ val useCaseModule =
         single<DeleteReportUseCaseContract> { DeleteReportUseCase(get()) }
         single<DeleteScheduleInShopUseCaseContract> { DeleteScheduleInShopUseCase(get()) }
         single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
+        single<FetchAiShopUseCaseContract> { FetchAiShopInfoUseCase(get(), get()) }
         single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
         single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }

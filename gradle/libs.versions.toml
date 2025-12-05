@@ -25,6 +25,10 @@ koin-bom = "4.1.1"
 ktor = "3.3.0"
 coil = "3.3.0"
 ktlint = "13.1.0"
+gemini = "0.7.0"
+firebase-bom = "34.6.0"
+googleService = "4.4.4"
+
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -63,6 +67,11 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin" }
 coil = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "materialIconsCore" }
+# AI/ML dependencies
+gemini-ai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "gemini" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-ai = { module = "com.google.firebase:firebase-ai" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 
 
 [plugins]
@@ -75,3 +84,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+googleService = { id = "com.google.gms.google-services", version.ref = "googleService" }

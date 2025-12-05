@@ -27,11 +27,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.model.ShopAiInfo
 import dev.seabat.ramennote.domain.util.logd
-import dev.seabat.ramennote.ui.components.AppAlert
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
-import dev.seabat.ramennote.ui.components.MaxWidthButton
+import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.components.button.MaxWidthButton
+import dev.seabat.ramennote.ui.components.alert.ShopAiInfoAlert
 import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
@@ -44,6 +47,7 @@ import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopMultilineInputField
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -78,6 +82,9 @@ fun AddShopScreen(
     var note by remember { mutableStateOf("") }
 
     val saveState by viewModel.saveState.collectAsState()
+    val shopAiInfoState by viewModel.shopAiInfoState.collectAsState()
+
+    var showShopAiInfoDialog by remember { mutableStateOf(true) }
 
     var permissionEnabled by remember { mutableStateOf(false) }
     var shouldLaunchSetting by remember { mutableStateOf(false) }
@@ -118,6 +125,16 @@ fun AddShopScreen(
     if (shouldLaunchSetting) {
         launchSettings()
         shouldLaunchSetting = false
+    }
+
+    // AI店舗情報取得ダイアログ
+    if (showShopAiInfoDialog) {
+        ShopAiInfoAlert(
+            onConfirm = { shopName ->
+                showShopAiInfoDialog = false
+                viewModel.fetchShopAiInfo(areaName, shopName)
+            }
+        )
     }
 
     Box(
@@ -249,18 +266,20 @@ fun AddShopScreen(
             }
         }
         // 保存状態の処理
-        when (saveState) {
-            is RunStatus.Success -> {
-                onCompleted()
+        SaveShopState(
+            saveState = saveState,
+            onCompleted = onCompleted
+        )
+        ShopAiInfoState(
+            shopAiInfoState = shopAiInfoState,
+            onShopUpdate = { aiInfo ->
+                name = aiInfo.shopName
+                shopUrl = aiInfo.shopUrl
+                mapUrl = aiInfo.mapUrl
+                stationName = aiInfo.stationName
+                category = aiInfo.category
             }
-            is RunStatus.Error -> {
-                AppAlert(
-                    message = saveState.message ?: "不明なエラーが発生しました",
-                    onConfirm = { /* エラー処理 */ }
-                )
-            }
-            else -> { /* その他の状態は何もしない */ }
-        }
+        )
     }
 }
 
@@ -342,13 +361,61 @@ private fun StarRating(
     }
 }
 
+@Composable
+private fun SaveShopState(
+    saveState: RunStatus<String>,
+    onCompleted: () -> Unit
+) {
+    when (saveState) {
+        is RunStatus.Success -> {
+            onCompleted()
+        }
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Error -> {
+            AppAlert(
+                message = saveState.message ?: "不明なエラーが発生しました",
+                onConfirm = { /* エラー処理 */ }
+            )
+        }
+        else -> { /* その他の状態は何もしない */ }
+    }
+}
+
+@Composable
+private fun ShopAiInfoState(
+    shopAiInfoState: RunStatus<ShopAiInfo>,
+    onShopUpdate: (ShopAiInfo) -> Unit
+) {
+    when (val state = shopAiInfoState) {
+        is RunStatus.Success -> {
+            state.data?.let { aiInfo ->
+                onShopUpdate(aiInfo)
+            }
+        }
+        is RunStatus.Loading -> {
+            AppProgressBar()
+        }
+        is RunStatus.Error -> {
+            AppAlert(
+                message = state.message ?: "店舗情報の取得に失敗しました",
+                onConfirm = { /* エラー処理 */ }
+            )
+        }
+        else -> { /* その他の状態は何もしない */ }
+    }
+}
+
 @Preview
 @Composable
 fun AddShopScreenPreview() {
-    AddShopScreen(
-        areaName = "Tokyo",
-        onBackClick = {},
-        onCompleted = {},
-        viewModel = MockAddShopViewModel()
-    )
+    RamenNoteTheme {
+        AddShopScreen(
+            areaName = "Tokyo",
+            onBackClick = {},
+            onCompleted = {},
+            viewModel = MockAddShopViewModel()
+        )
+    }
 }

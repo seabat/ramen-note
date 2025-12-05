@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.googleService)
     id("co.touchlab.skie") version "0.10.6"
 }
 
@@ -39,6 +40,11 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             implementation(libs.accompanist.permissions)
+
+            // Firebase
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.ai)
+            implementation(libs.firebase.analytics)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -73,6 +79,9 @@ kotlin {
             // Coil for image loading
             implementation(libs.coil)
             implementation(libs.coil.compose)
+
+            // AI/ML dependencies
+            implementation(libs.gemini.ai)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -91,8 +100,8 @@ android {
         applicationId = "dev.seabat.ramennote"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 6
-        versionName = "1.0.4"
+        versionCode = 9
+        versionName = "1.0.6"
     }
     buildFeatures {
         buildConfig = true

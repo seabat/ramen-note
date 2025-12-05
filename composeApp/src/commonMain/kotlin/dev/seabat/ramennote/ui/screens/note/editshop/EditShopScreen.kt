@@ -25,10 +25,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.components.AppAlert
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
-import dev.seabat.ramennote.ui.components.MaxWidthButton
+import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
