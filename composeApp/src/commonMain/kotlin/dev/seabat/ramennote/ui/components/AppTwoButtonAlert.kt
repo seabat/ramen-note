@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.components.alert
+package dev.seabat.ramennote.ui.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button

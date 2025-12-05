@@ -48,7 +48,6 @@ fun HistoryScreen(
     var shopName by remember { mutableStateOf("") }
     val reports by viewModel.reports.collectAsState()
     val listState = rememberLazyListState()
-    var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadReports(shop?.id)
@@ -77,8 +76,7 @@ fun HistoryScreen(
                 ReportsList(
                     reports = reports,
                     listState = listState,
-                    goToEditReport = goToEditReport,
-                    onImageTap = { imageBytes -> selectedImageBytes = imageBytes }
+                    goToEditReport = goToEditReport
                 )
 
                 // 起動時に右上へ5秒間表示しフェードアウトするヒント
@@ -134,14 +132,6 @@ fun HistoryScreen(
                     clearReportIdParam()
                 }
             }
-
-            // 画像ダイアログ
-            selectedImageBytes?.let { imageBytes ->
-                ReportImageDialog(
-                    imageBytes = imageBytes,
-                    onDismiss = { selectedImageBytes = null }
-                )
-            }
         } else {
             Text(
                 text = stringResource(Res.string.history_no_data),
@@ -164,8 +154,7 @@ fun HistoryScreenPreview() {
 private fun ReportsList(
     reports: List<FullReport>,
     listState: LazyListState,
-    goToEditReport: (Int) -> Unit,
-    onImageTap: (ByteArray?) -> Unit
+    goToEditReport: (Int) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped = groupReports(reports)
@@ -185,12 +174,9 @@ private fun ReportsList(
             }
 
             items(monthReports) { report ->
-                ReportCard(
-                    report = report,
-                    onLongPress = { goToEditReport(report.id) },
-                    onImageTap = { onImageTap(report.imageBytes) },
-                    onTap = {}
-                )
+                ReportCard(report = report) {
+                    goToEditReport(report.id)
+                }
             }
         }
     }

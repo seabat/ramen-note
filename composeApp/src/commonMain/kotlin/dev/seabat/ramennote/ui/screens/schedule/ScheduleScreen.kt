@@ -33,9 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Schedule
-import dev.seabat.ramennote.ui.components.alert.AppAlert
+import dev.seabat.ramennote.ui.components.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.components.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.Instant

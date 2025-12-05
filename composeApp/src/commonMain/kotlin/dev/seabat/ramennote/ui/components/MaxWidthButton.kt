@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.components.button
+package dev.seabat.ramennote.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
