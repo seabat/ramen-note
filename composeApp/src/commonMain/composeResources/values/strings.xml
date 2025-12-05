@@ -81,11 +81,6 @@
     <string name="add_shop_register_button">登録</string>
     <string name="add_shop_option1">Option 1</string>
     <string name="add_shop_menu_name_label">メニュー</string>
-    <string name="add_shop_alert_enter_shop_name">店名を入力してください。\n(エリアと入力された店名をヒントにして AI を使って店舗情報を取得します。)</string>
-    <string name="add_shop_alert_shop_name">店名</string>
-    <string name="add_shop_alert_warning">AI が生成する地図データは Google マップの検索 URL です。後で店舗位置を示す Google マップ URL に置き換えることをお勧めします。</string>
-    <string name="add_shop_alert_button">店舗情報を取得</string>
-
 
     <!-- Edit Shop Screen -->
     <string name="edit_shop_title">編集</string>
