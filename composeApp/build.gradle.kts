@@ -100,8 +100,8 @@ android {
         applicationId = "dev.seabat.ramennote"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 8
-        versionName = "1.0.5"
+        versionCode = 9
+        versionName = "1.0.6"
     }
     buildFeatures {
         buildConfig = true
