@@ -96,6 +96,7 @@
     <string name="edit_shop_edit_error_message">編集に失敗しました</string>
     <string name="edit_shop_delete_error_message">削除に失敗しました</string>
     <string name="edit_category_label">系統</string>
+    <string name="edit_area_label">エリア</string>
     <string name="edit_shop_delete_confirm">この店舗を削除しますか？</string>
 
     <!-- Schedule Screen -->

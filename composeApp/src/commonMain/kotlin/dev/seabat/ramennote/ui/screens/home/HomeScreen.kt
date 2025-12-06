@@ -62,9 +62,9 @@ import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.domain.util.logd
-import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.rememberLifecycleState
 import dev.seabat.ramennote.ui.screens.history.ReportCard
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme

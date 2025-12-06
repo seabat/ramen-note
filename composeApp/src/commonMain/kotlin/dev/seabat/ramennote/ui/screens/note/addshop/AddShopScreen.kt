@@ -29,13 +29,12 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.model.ShopAiInfo
 import dev.seabat.ramennote.domain.util.logd
-import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.StarIcon
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
-import dev.seabat.ramennote.ui.screens.note.addshop.ShopAiInfoDialog
-import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
 import dev.seabat.ramennote.ui.permission.PermissionCallback
@@ -43,6 +42,8 @@ import dev.seabat.ramennote.ui.permission.PermissionStatus
 import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
+import dev.seabat.ramennote.ui.screens.note.addshop.ShopAiInfoDialog
+import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
@@ -213,6 +214,7 @@ fun AddShopScreen(
                 // 系統
                 ShopDropdownField(
                     label = stringResource(Res.string.add_category_label),
+                    options = categoryList,
                     value = category,
                     onValueChange = { category = "$it" }
                 )
