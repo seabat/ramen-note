@@ -71,7 +71,9 @@
     <string name="add_schedule_error_past_date_message">過去の日付を指定できません</string>
 
     <!-- Add Shop Screen -->
-    <string name="add_shop_area">エリア</string>
+    <string name="add_shop_area_input">エリア名を入力してください。</string>
+    <string name="add_shop_area_description">エリアは店舗の所在をグループ化するための名称です。グループ化の単位は任意ですが、〇〇市、〇〇県、〇〇区にすることをお勧めします。</string>
+    <string name="add_shop_area_title">エリア登録</string>
     <string name="add_shop_title">登録</string>
     <string name="add_shop_add_button">登録する</string>
     <string name="add_shop_name_label">名前</string>
