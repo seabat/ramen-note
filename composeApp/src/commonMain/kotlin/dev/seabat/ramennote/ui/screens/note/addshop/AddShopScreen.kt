@@ -34,7 +34,7 @@ import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
-import dev.seabat.ramennote.ui.components.alert.ShopAiInfoAlert
+import dev.seabat.ramennote.ui.screens.note.addshop.ShopAiInfoDialog
 import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
@@ -129,7 +129,7 @@ fun AddShopScreen(
 
     // AI店舗情報取得ダイアログ
     if (showShopAiInfoDialog) {
-        ShopAiInfoAlert(
+        ShopAiInfoDialog(
             onConfirm = { shopName ->
                 showShopAiInfoDialog = false
                 viewModel.fetchShopAiInfo(areaName, shopName)
