@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -512,18 +514,21 @@ private fun FavoriteShopItem(
     imageBytes: ByteArray?,
     onClick: () -> Unit
 ) {
-    Box(
+    Card(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(8.dp)
-                ).height(FAVORITE_SHOP_ITEM_HEIGHT.dp)
-                .clickable { onClick() },
-        contentAlignment = Alignment.Center
+                .height(FAVORITE_SHOP_ITEM_HEIGHT.dp),
+        onClick = onClick,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
     ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
         // 背景画像（半透明）
         if (imageBytes != null) {
             AsyncImage(
@@ -565,6 +570,7 @@ private fun FavoriteShopItem(
                     .alpha(0.4f)
                     .size(12.dp)
         )
+        }
     }
 }
 
