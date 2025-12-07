@@ -372,6 +372,9 @@ fun MainNavigation() {
                     },
                     onAreaLongClick = { areaName ->
                         navController.navigate(Screen.EditArea(areaName))
+                    },
+                    onSortClick = {
+                        // TODO: ソート機能の実装
                     }
                 )
             }

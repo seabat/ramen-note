@@ -43,6 +43,8 @@
     <string name="note_area_selection">エリアを選択</string>
     <string name="note_item_count">件</string>
     <string name="note_no_data">エリアが登録されていません。\nお店を登録する前にお店が存在するエリアを画面下のプラスボタンで登録してください。</string>
+    <string name="note_sort">並び替え</string>
+
 
     <!-- Edit Area Screen -->
     <string name="editarea_change_image_button">画像を変更する</string>
