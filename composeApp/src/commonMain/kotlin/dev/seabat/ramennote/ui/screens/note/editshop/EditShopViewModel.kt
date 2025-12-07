@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
-import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
-import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
-import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateShopUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,10 +17,8 @@ import kotlinx.coroutines.launch
 class EditShopViewModel(
     private val updateShopUseCase: UpdateShopUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
-    private val loadShopUseCase: LoadShopUseCaseContract,
-    private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
     private val deleteShopAndImageUseCase: DeleteShopAndImageUseCaseContract,
-    private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract
+    private val loadAreasUseCase: LoadAreasUseCaseContract
 ) : ViewModel(),
     EditShopViewModelContract {
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
@@ -33,6 +29,9 @@ class EditShopViewModel(
 
     private val _shopImage = MutableStateFlow<SharedImage?>(null)
     override val shopImage: StateFlow<SharedImage?> = _shopImage.asStateFlow()
+
+    private val _areasState = MutableStateFlow<List<String>>(emptyList())
+    override val areasState: StateFlow<List<String>> = _areasState.asStateFlow()
 
     override fun loadImage(shop: Shop) {
         viewModelScope.launch {
@@ -54,22 +53,16 @@ class EditShopViewModel(
         }
     }
 
-    override fun updateImage(sharedImage: SharedImage?) {
+    override fun setImage(sharedImage: SharedImage?) {
         _shopImage.value = sharedImage
     }
 
-    override fun updateShop(shop: Shop, sharedImage: SharedImage?) {
+    override fun updateShop(shop: Shop, sharedImage: SharedImage?, oldArea: String) {
         viewModelScope.launch {
             _saveState.value = RunStatus.Loading()
             try {
-                // 画像を保存
-                if (sharedImage != null && shop.photoName1.isNotEmpty()) {
-                    val byteArray = sharedImage.toByteArray()
-                    saveShopMenuImageUseCase(shop.photoName1, byteArray!!)
-                }
-
-                // 店舗情報を更新
-                updateShopUseCase.updateShop(shop)
+                // 店舗情報と画像を更新
+                updateShopUseCase(shop, sharedImage?.toByteArray(), oldArea)
                 _saveState.value = RunStatus.Success("")
             } catch (e: Exception) {
                 _saveState.value = RunStatus.Error("店舗の更新に失敗しました: ${e.message}")
@@ -80,16 +73,8 @@ class EditShopViewModel(
     override fun deleteShop(shopId: Int) {
         viewModelScope.launch {
             _deleteState.value = RunStatus.Loading()
-            // 削除前にエリア名を取得
-            val shop = loadShopUseCase.invoke(shopId)
-            val areaName = shop?.area
-
             val result = deleteShopAndImageUseCase.invoke(shopId)
             _deleteState.value = result
-            // 削除成功時にエリア件数を更新する
-            if (result is RunStatus.Success && !areaName.isNullOrEmpty()) {
-                updateShopCountInAreaUseCase(areaName)
-            }
         }
     }
 
@@ -99,5 +84,12 @@ class EditShopViewModel(
 
     override fun setDeleteStateToIdle() {
         _deleteState.value = RunStatus.Idle()
+    }
+
+    override fun loadAreas() {
+        viewModelScope.launch {
+            val areasList = loadAreasUseCase()
+            _areasState.value = areasList.map { it.name }
+        }
     }
 }

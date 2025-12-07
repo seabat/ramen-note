@@ -38,6 +38,7 @@ import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen
 import dev.seabat.ramennote.ui.screens.note.addshop.AddShopScreen
 import dev.seabat.ramennote.ui.screens.note.editarea.EditAreaScreen
+import dev.seabat.ramennote.ui.screens.note.editareasort.EditAreaSortScreen
 import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
@@ -156,6 +157,17 @@ sealed interface Screen {
 
         @Composable
         override fun getTitle(): String = "登録"
+    }
+
+    @Serializable
+    data object EditAreaSort : Screen {
+        override val route: String = getRouteName(EditAreaSort::class)
+
+        @Composable
+        override fun getIcon(): ImageVector = Icons.Default.Edit
+
+        @Composable
+        override fun getTitle(): String = "ソート"
     }
 
     @Serializable
@@ -372,6 +384,9 @@ fun MainNavigation() {
                     },
                     onAreaLongClick = { areaName ->
                         navController.navigate(Screen.EditArea(areaName))
+                    },
+                    onSortClick = {
+                        navController.navigate(Screen.EditAreaSort)
                     }
                 )
             }
@@ -418,6 +433,12 @@ fun MainNavigation() {
                 val screen: Screen.EditArea = backStackEntry.toRoute()
                 EditAreaScreen(
                     areaName = screen.areaName,
+                    onBackClick = { navController.popBackStack() },
+                    onCompleted = { navController.popBackStack() }
+                )
+            }
+            composable<Screen.EditAreaSort> {
+                EditAreaSortScreen(
                     onBackClick = { navController.popBackStack() },
                     onCompleted = { navController.popBackStack() }
                 )

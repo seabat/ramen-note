@@ -28,9 +28,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
@@ -38,7 +38,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_shop_add_button
-import ramennote.composeapp.generated.resources.add_shop_area
+import ramennote.composeapp.generated.resources.add_shop_area_description
+import ramennote.composeapp.generated.resources.add_shop_area_input
+import ramennote.composeapp.generated.resources.add_shop_area_title
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +60,7 @@ fun AddAreaScreen(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             AppBar(
-                title = "登録",
+                title = stringResource(Res.string.add_shop_area_title),
                 onBackClick = onBackClick
             )
 
@@ -73,8 +75,12 @@ fun AddAreaScreen(
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = stringResource(Res.string.add_shop_area),
+                        text = stringResource(Res.string.add_shop_area_input),
                         style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(Res.string.add_shop_area_description),
+                        style = MaterialTheme.typography.bodySmall
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(

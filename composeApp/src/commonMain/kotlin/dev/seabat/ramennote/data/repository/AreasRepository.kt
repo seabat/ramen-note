@@ -23,7 +23,8 @@ class AreasRepository(
             Area(
                 name = entity.name,
                 updatedDate = LocalDate.parse(entity.date),
-                count = entity.count
+                count = entity.count,
+                sort = entity.sort
             )
         }
     }
@@ -33,16 +34,19 @@ class AreasRepository(
         return Area(
             name = entity.name,
             updatedDate = LocalDate.parse(entity.date),
-            count = entity.count
+            count = entity.count,
+            sort = entity.sort
         )
     }
 
     override suspend fun add(area: Area) {
+        val maxSort = areaDao.getMaxSort()
         val entity =
             AreaEntity(
                 name = area.name,
                 count = area.count,
-                date = area.updatedDate.toString()
+                date = area.updatedDate.toString(),
+                sort = maxSort + 1
             )
         areaDao.insertArea(entity)
     }
@@ -66,13 +70,41 @@ class AreasRepository(
     override suspend fun edit(area: Area): RunStatus<String> {
         val existingEntity = areaDao.getAreaByName(area.name)
         return if (existingEntity != null) {
-            val updated = existingEntity.copy(count = area.count, date = area.updatedDate.toString())
+            val updated =
+                existingEntity.copy(
+                    count = area.count,
+                    date = area.updatedDate.toString(),
+                    sort = area.sort
+                )
             areaDao.updateArea(updated)
             RunStatus.Success("")
         } else {
             RunStatus.Error("${area.name}は登録されていません。編集に失敗しました")
         }
     }
+
+    override suspend fun editAll(areas: List<Area>): RunStatus<String> =
+        try {
+            database.useWriterConnection { transactor ->
+                transactor.immediateTransaction {
+                    areas.forEach { area ->
+                        val existingEntity = areaDao.getAreaByName(area.name)
+                        if (existingEntity != null) {
+                            val updated =
+                                existingEntity.copy(
+                                    count = area.count,
+                                    date = area.updatedDate.toString(),
+                                    sort = area.sort
+                                )
+                            areaDao.updateArea(updated)
+                        }
+                    }
+                }
+            }
+            RunStatus.Success("")
+        } catch (e: Exception) {
+            RunStatus.Error("エリアの更新に失敗しました: ${e.message}")
+        }
 
     override suspend fun delete(areaName: String): RunStatus<String> {
         val existingEntity = areaDao.getAreaByName(areaName)

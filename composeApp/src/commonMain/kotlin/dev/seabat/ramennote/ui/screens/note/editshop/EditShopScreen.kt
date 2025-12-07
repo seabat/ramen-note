@@ -25,11 +25,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
-import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
+import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
@@ -45,6 +46,7 @@ import ramennote.composeapp.generated.resources.add_note_label
 import ramennote.composeapp.generated.resources.add_shop_name_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
+import ramennote.composeapp.generated.resources.edit_area_label
 import ramennote.composeapp.generated.resources.edit_category_label
 import ramennote.composeapp.generated.resources.edit_shop_delete_button
 import ramennote.composeapp.generated.resources.edit_shop_delete_confirm
@@ -70,6 +72,7 @@ fun EditShopScreen(
     viewModel: EditShopViewModelContract = koinViewModel<EditShopViewModel>()
 ) {
     var name by remember { mutableStateOf(shop.name) }
+    var area by remember { mutableStateOf(shop.area) }
     var shopUrl by remember { mutableStateOf(shop.shopUrl) }
     var mapUrl by remember { mutableStateOf(shop.mapUrl) }
     var star by remember { mutableStateOf(shop.star) }
@@ -82,6 +85,7 @@ fun EditShopScreen(
     val saveState by viewModel.saveState.collectAsState()
     val deleteState by viewModel.deleteState.collectAsState()
     val shopImage by viewModel.shopImage.collectAsState()
+    val areasState by viewModel.areasState.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
     var errorDialogType by remember { mutableStateOf<ErrorDialogType>(ErrorDialogType.Hidden) }
@@ -91,8 +95,13 @@ fun EditShopScreen(
         viewModel.loadImage(shop)
     }
 
+    // エリアリスト読み込み
+    LaunchedEffect(Unit) {
+        viewModel.loadAreas()
+    }
+
     PhotoSelectionHandler(
-        onImageSelected = { viewModel.updateImage(it) },
+        onImageSelected = { viewModel.setImage(it) },
         permissionEnabled = permissionEnabled,
         onPermissionEnabledChange = { permissionEnabled = it }
     )
@@ -129,6 +138,14 @@ fun EditShopScreen(
                     label = stringResource(Res.string.add_shop_name_label),
                     value = name,
                     onValueChange = { name = it }
+                )
+
+                // エリア
+                ShopDropdownField(
+                    label = stringResource(Res.string.edit_area_label),
+                    options = areasState,
+                    value = area,
+                    onValueChange = { area = it }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -171,6 +188,7 @@ fun EditShopScreen(
                 // 系統
                 ShopDropdownField(
                     label = stringResource(Res.string.edit_category_label),
+                    options = categoryList,
                     value = category,
                     onValueChange = { category = "$it" }
                 )
@@ -204,6 +222,7 @@ fun EditShopScreen(
                         val updatedShop =
                             shop.copy(
                                 name = name,
+                                area = area,
                                 shopUrl = shopUrl,
                                 mapUrl = mapUrl,
                                 star = star,
@@ -212,7 +231,7 @@ fun EditShopScreen(
                                 menuName1 = menuName,
                                 note = note
                             )
-                        viewModel.updateShop(updatedShop, shopImage)
+                        viewModel.updateShop(updatedShop, shopImage, shop.area)
                     }
                 )
 

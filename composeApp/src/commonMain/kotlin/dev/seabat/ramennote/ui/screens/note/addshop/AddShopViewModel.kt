@@ -8,8 +8,6 @@ import dev.seabat.ramennote.domain.model.ShopAiInfo
 import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateNoImageByteArrayUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchAiShopUseCaseContract
-import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
-import dev.seabat.ramennote.domain.usecase.UpdateShopCountInAreaUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,9 +16,7 @@ import kotlinx.coroutines.launch
 
 class AddShopViewModel(
     private val addShopUseCase: AddShopUseCaseContract,
-    private val saveShopMenuImageUseCase: SaveShopMenuImageUseCaseContract,
     private val createNoImageUseCase: CreateNoImageByteArrayUseCaseContract,
-    private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract,
     private val fetchAiShopInfoUseCase: FetchAiShopUseCaseContract
 ) : ViewModel(),
     AddShopViewModelContract {
@@ -34,16 +30,8 @@ class AddShopViewModel(
         viewModelScope.launch {
             _saveState.value = RunStatus.Loading()
             try {
-                // 画像を保存
-                if (sharedImage != null && shop.photoName1.isNotEmpty()) {
-                    val byteArray = sharedImage.toByteArray()
-                    saveShopMenuImageUseCase(shop.photoName1, byteArray!!)
-                }
-
-                // 店舗情報を保存
-                addShopUseCase.invoke(shop)
-                // エリア件数更新
-                updateShopCountInAreaUseCase(shop.area)
+                // 店舗情報と画像を保存
+                addShopUseCase.invoke(shop, sharedImage?.toByteArray())
                 _saveState.value = RunStatus.Success("")
             } catch (e: Exception) {
                 _saveState.value = RunStatus.Error("店舗の保存に失敗しました: ${e.message}")

@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,9 +64,9 @@ import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.domain.util.logd
-import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
+import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.rememberLifecycleState
 import dev.seabat.ramennote.ui.screens.history.ReportCard
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -512,59 +514,64 @@ private fun FavoriteShopItem(
     imageBytes: ByteArray?,
     onClick: () -> Unit
 ) {
-    Box(
+    Card(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(8.dp)
-                ).height(FAVORITE_SHOP_ITEM_HEIGHT.dp)
-                .clickable { onClick() },
-        contentAlignment = Alignment.Center
+                .height(FAVORITE_SHOP_ITEM_HEIGHT.dp),
+        onClick = onClick,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background
+            )
     ) {
-        // 背景画像（半透明）
-        if (imageBytes != null) {
-            AsyncImage(
-                model = imageBytes,
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            // 背景画像（半透明）
+            if (imageBytes != null) {
+                AsyncImage(
+                    model = imageBytes,
+                    contentDescription = null,
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .alpha(0.3f)
+                            .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            // 店舗名テキスト
+            Text(
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 8.dp),
+                text = shop.name,
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            // 右上にfavorite_enabledアイコンを半透明で表示
+            Image(
+                painter = painterResource(Res.drawable.favorite_enabled),
                 contentDescription = null,
                 modifier =
                     Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f)
-                        .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .alpha(0.4f)
+                        .size(12.dp)
             )
         }
-
-        // 店舗名テキスト
-        Text(
-            modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = 8.dp),
-            text = shop.name,
-            style =
-                MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        // 右上にfavorite_enabledアイコンを半透明で表示
-        Image(
-            painter = painterResource(Res.drawable.favorite_enabled),
-            contentDescription = null,
-            modifier =
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(6.dp)
-                    .alpha(0.4f)
-                    .size(12.dp)
-        )
     }
 }
 

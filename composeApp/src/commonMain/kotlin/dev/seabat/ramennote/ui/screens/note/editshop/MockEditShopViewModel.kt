@@ -16,20 +16,27 @@ class MockEditShopViewModel : EditShopViewModelContract {
     private val _shopImage = MutableStateFlow<SharedImage?>(null)
     override val shopImage: StateFlow<SharedImage?> = _shopImage
 
+    private val _areasState = MutableStateFlow<List<String>>(listOf("東京", "大阪", "京都", "北海道"))
+    override val areasState: StateFlow<List<String>> = _areasState
+
     override fun loadImage(shop: Shop) {
         _shopImage.value = null
     }
 
-    override fun updateImage(sharedImage: SharedImage?) {
+    override fun setImage(sharedImage: SharedImage?) {
         _shopImage.value = null
     }
 
-    override fun updateShop(shop: Shop, sharedImage: SharedImage?) {
+    override fun updateShop(shop: Shop, sharedImage: SharedImage?, oldArea: String) {
         _saveState.value = RunStatus.Success("")
     }
 
     override fun deleteShop(shopId: Int) {
         _shopImage.value = null
+    }
+
+    override fun loadAreas() {
+        // Mock implementation - do nothing
     }
 
     override fun setSaveStateToIdle() {

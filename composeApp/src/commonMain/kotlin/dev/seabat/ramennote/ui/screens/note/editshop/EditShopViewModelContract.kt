@@ -9,14 +9,17 @@ interface EditShopViewModelContract {
     val saveState: StateFlow<RunStatus<String>>
     val deleteState: StateFlow<RunStatus<String>>
     val shopImage: StateFlow<SharedImage?>
+    val areasState: StateFlow<List<String>>
 
     fun loadImage(shop: Shop)
 
-    fun updateImage(sharedImage: SharedImage?)
+    fun setImage(sharedImage: SharedImage?)
 
-    fun updateShop(shop: Shop, sharedImage: SharedImage?)
+    fun updateShop(shop: Shop, sharedImage: SharedImage?, oldArea: String)
 
     fun deleteShop(shopId: Int)
+
+    fun loadAreas()
 
     fun setSaveStateToIdle()
 
