@@ -216,7 +216,6 @@ private fun Menu(onSortClick: () -> Unit = {}) {
                 color = MaterialTheme.colorScheme.error
             )
         }
-
     }
 }
 
@@ -232,7 +231,6 @@ private fun SortButton(
         modifier = modifier
     )
 }
-
 
 @Composable
 private fun AreaItem(

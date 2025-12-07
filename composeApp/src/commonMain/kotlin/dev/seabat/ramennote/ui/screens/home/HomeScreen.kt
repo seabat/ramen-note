@@ -521,55 +521,56 @@ private fun FavoriteShopItem(
                 .height(FAVORITE_SHOP_ITEM_HEIGHT.dp),
         onClick = onClick,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background
+            )
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-        // 背景画像（半透明）
-        if (imageBytes != null) {
-            AsyncImage(
-                model = imageBytes,
+            // 背景画像（半透明）
+            if (imageBytes != null) {
+                AsyncImage(
+                    model = imageBytes,
+                    contentDescription = null,
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .alpha(0.3f)
+                            .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            // 店舗名テキスト
+            Text(
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 8.dp),
+                text = shop.name,
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            // 右上にfavorite_enabledアイコンを半透明で表示
+            Image(
+                painter = painterResource(Res.drawable.favorite_enabled),
                 contentDescription = null,
                 modifier =
                     Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f)
-                        .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .alpha(0.4f)
+                        .size(12.dp)
             )
-        }
-
-        // 店舗名テキスト
-        Text(
-            modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = 8.dp),
-            text = shop.name,
-            style =
-                MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        // 右上にfavorite_enabledアイコンを半透明で表示
-        Image(
-            painter = painterResource(Res.drawable.favorite_enabled),
-            contentDescription = null,
-            modifier =
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(6.dp)
-                    .alpha(0.4f)
-                    .size(12.dp)
-        )
         }
     }
 }

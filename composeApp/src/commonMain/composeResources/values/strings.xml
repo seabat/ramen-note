@@ -53,7 +53,11 @@
     <string name="editarea_delete_confirm">%1$sを削除して良いですか？</string>
     <string name="editarea_title">編集</string>
     <string name="editarea_image_load_error">画像の読み込みに失敗しました: </string>
-    
+
+    <!-- Edit Area Sort Screen -->
+    <string name="editareasort_title">エリアの並び替え</string>
+    <string name="editareasort_description">数値の大きい順に並びます。</string>
+
     <!-- Shop Screen -->
     <string name="shoplist_no_data">お店が登録されていません。\n画面下のプラスボタンで登録してください。</string>
     <string name="shop_menu_schedule_add_button">追加</string>
