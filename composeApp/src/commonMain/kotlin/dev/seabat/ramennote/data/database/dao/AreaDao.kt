@@ -31,4 +31,7 @@ interface AreaDao {
 
     @Query("DELETE FROM areas WHERE name = :name")
     suspend fun deleteAreaByName(name: String)
+
+    @Query("SELECT COALESCE(MAX(sort), 0) FROM areas")
+    suspend fun getMaxSort(): Int
 }
