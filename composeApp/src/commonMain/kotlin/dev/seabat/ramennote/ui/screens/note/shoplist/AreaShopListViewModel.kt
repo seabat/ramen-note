@@ -2,15 +2,15 @@ package dev.seabat.ramennote.ui.screens.note.shoplist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AreaShopListViewModel(
-    private val shopsRepository: ShopsRepositoryContract
+    private val loadShopListByAreaUseCase: LoadShopListByAreaUseCaseContract
 ) : ViewModel(),
     AreaShopListViewModelContract {
     private val _shops = MutableStateFlow<List<Shop>>(emptyList())
@@ -22,7 +22,7 @@ class AreaShopListViewModel(
     override fun loadShops(area: String) {
         viewModelScope.launch {
             try {
-                val shopsList = shopsRepository.getShopsByArea(area)
+                val shopsList = loadShopListByAreaUseCase(area)
                 _shops.value = shopsList
             } catch (e: Exception) {
                 // エラーハンドリング
