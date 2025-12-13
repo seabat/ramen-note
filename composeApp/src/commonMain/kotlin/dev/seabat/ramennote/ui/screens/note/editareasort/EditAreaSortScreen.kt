@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.ui.screens.note.editareasort
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +20,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,12 +45,16 @@ import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.add_circle_24px
+import ramennote.composeapp.generated.resources.do_not_disturb_on_24px
 import ramennote.composeapp.generated.resources.editarea_edit_button
 import ramennote.composeapp.generated.resources.editareasort_description
 import ramennote.composeapp.generated.resources.editareasort_title
+import ramennote.composeapp.generated.resources.ramen_dining_24px
 
 @Composable
 fun EditAreaSortScreen(
@@ -145,6 +153,18 @@ private fun AreaItem(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                imageVector = vectorResource(Res.drawable.do_not_disturb_on_24px),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        val newSort = (area.sort - 1).coerceAtLeast(0)
+                        onValueChange(newSort.toString())
+                    },
+                tint = MaterialTheme.colorScheme.tertiaryContainer
+            )
+            Spacer(modifier= Modifier.width(4.dp))
             Box(
                 modifier =
                     Modifier
@@ -185,6 +205,17 @@ private fun AreaItem(
                     )
                 }
             }
+            Spacer(modifier= Modifier.width(4.dp))
+            Icon(
+                imageVector = vectorResource(Res.drawable.add_circle_24px),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        onValueChange((area.sort + 1).toString())
+                    },
+                tint = MaterialTheme.colorScheme.tertiaryContainer
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -219,6 +250,18 @@ private fun EditAreasStatus(
             AppProgressBar()
         }
         is RunStatus.Idle -> { /* Do nothing */ }
+    }
+}
+
+@Preview
+@Composable
+fun EditAreaSortScreenPreview() {
+    RamenNoteTheme {
+        EditAreaSortScreen(
+            onBackClick = {},
+            onCompleted = {},
+            viewModel = MockEditAreaSortViewModel()
+        )
     }
 }
 
