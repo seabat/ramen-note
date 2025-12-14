@@ -15,6 +15,19 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
   <img src="docs/400x800bb-4.png" width="200" alt="スクリーンショット4">
 </div>
 
+## ダウンロード
+
+このアプリは以下のストアからダウンロードできます。
+
+<div align="center">
+  <a href="https://play.google.com/store/apps/details?id=jp.seabatlab.ramennote">
+    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/ja_badge_web_generic.png" alt="Google Play で手に入れよう" style="height: 60px; vertical-align: bottom;">
+  </a>
+  <a href="https://apps.apple.com/jp/app/%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3note/id6754216932">
+    <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/ja-jp?size=250x83&releaseDate=1276560000" alt="App Store からダウンロード" style="height: 60px; vertical-align: bottom;">
+  </a>
+</div>
+
 ## 主な機能
 
 - **ホーム画面**: 最近の食レポやお気に入り店を一覧表示
