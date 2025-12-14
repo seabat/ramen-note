@@ -8,6 +8,8 @@ import dev.seabat.ramennote.data.database.DatabaseFactoryContract
 import dev.seabat.ramennote.data.database.RamenNoteDatabase
 import dev.seabat.ramennote.data.repository.AreaImageRepository
 import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.AppVersionRepository
+import dev.seabat.ramennote.data.repository.AppVersionRepositoryContract
 import dev.seabat.ramennote.data.repository.AreasRepository
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepository
@@ -44,6 +46,7 @@ expect val factoryModule: Module
 
 val repositoryModule =
     module {
+        single<AppVersionRepositoryContract> { AppVersionRepository() }
         single<AreasRepositoryContract> { AreasRepository(get()) }
         single<AreaImageRepositoryContract> {
             AreaImageRepository(
