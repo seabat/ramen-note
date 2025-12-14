@@ -53,6 +53,7 @@ import ramennote.composeapp.generated.resources.edit_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 import ramennote.composeapp.generated.resources.schedule_delete_confirm
 import ramennote.composeapp.generated.resources.schedule_no_data
+import ramennote.composeapp.generated.resources.schedule_picker_label
 import ramennote.composeapp.generated.resources.screen_schedule_title
 
 private sealed interface ErrorDialogType {
@@ -149,7 +150,14 @@ fun ScheduleScreen(
                 TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
             }
         ) {
-            DatePicker(state = datePickerState)
+            Column {
+                Text(
+                    text = stringResource(Res.string.schedule_picker_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                DatePicker(state = datePickerState)
+            }
         }
     }
     // エラーダイアログ

@@ -94,6 +94,7 @@ import ramennote.composeapp.generated.resources.home_no_map
 import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
+import ramennote.composeapp.generated.resources.schedule_picker_label
 import kotlin.collections.filter
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
@@ -794,7 +795,14 @@ private fun HomeDialog(
                     TextButton(onClick = { onDismiss() }) { Text("Cancel") }
                 }
             ) {
-                DatePicker(state = datePickerState)
+                Column {
+                    Text(
+                        text = stringResource(Res.string.schedule_picker_label),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    DatePicker(state = datePickerState)
+                }
             }
         }
         is DialogState.PastDateAlert -> {

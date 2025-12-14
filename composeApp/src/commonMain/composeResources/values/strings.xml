@@ -108,6 +108,7 @@
     <!-- Schedule Screen -->
     <string name="schedule_no_data">予定がありません。\n「ノート」の店舗画面に遷移し、予定を登録してください。</string>
     <string name="schedule_delete_confirm">この予定を削除しますか？</string>
+    <string name="schedule_picker_label">訪店予定日を選択して下さい</string>
 
 
     <!-- Report Screen -->
