@@ -70,6 +70,7 @@ import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.ramen_dining_24px
+import ramennote.composeapp.generated.resources.schedule_picker_label
 import ramennote.composeapp.generated.resources.shop_map_label
 import ramennote.composeapp.generated.resources.shop_menu_edit_button
 import ramennote.composeapp.generated.resources.shop_menu_history_button
@@ -177,7 +178,14 @@ fun ShopScreen(
                 TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
             }
         ) {
-            DatePicker(state = datePickerState)
+            Column {
+                Text(
+                    text = stringResource(Res.string.schedule_picker_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                DatePicker(state = datePickerState)
+            }
         }
     }
 
