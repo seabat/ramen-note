@@ -24,6 +24,8 @@ import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCase
+import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCase
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCase
@@ -78,6 +80,7 @@ val useCaseModule =
         single<FetchAiShopUseCaseContract> { FetchAiShopInfoUseCase(get(), get()) }
         single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
         single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }
+        single<InquiryAppVersionUseCaseContract> { InquiryAppVersionUseCase(get()) }
         single<LoadAreasUseCaseContract> { LoadAreasUseCase(get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
