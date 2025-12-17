@@ -34,12 +34,11 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ShopDropdownField(
     label: String,
+    options: List<String>,
     value: String,
     onValueChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val options = listOf("", "醤油", "味噌", "塩", "豚骨", "豚骨醤油", "家系", "二郎系", "つけ麺", "その他")
-
     Column {
         Text(
             text = label,
@@ -137,6 +136,7 @@ fun ShopDropdownFieldPreview() {
         ) {
             ShopDropdownField(
                 label = "味の種類",
+                options = listOf("醤油", "味噌", "塩", "豚骨"),
                 value = "醤油",
                 onValueChange = { }
             )

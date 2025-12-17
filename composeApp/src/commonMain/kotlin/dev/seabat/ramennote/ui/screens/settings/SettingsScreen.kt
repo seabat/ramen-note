@@ -13,22 +13,30 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
-import dev.seabat.ramennote.data.datasource.AppVersionDataSource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.settings_title
 
 @Composable
-fun SettingsScreen() {
-    val appVersionDataSource = remember { AppVersionDataSource() }
-    val versionName = remember { appVersionDataSource.getVersionName() }
-    val uriHandler = LocalUriHandler.current
+fun SettingsScreen(
+    viewModel: SettingsViewModelContract = koinViewModel<SettingsViewModel>()
+) {
+    val versionName by viewModel.versionName.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.inquiryAppVersion()
+    }
 
     Column(
         modifier =
@@ -50,52 +58,87 @@ fun SettingsScreen() {
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "バージョン",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = versionName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            AppVersion(versionName = versionName)
             HorizontalDivider(
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .padding(horizontal = 16.dp)
-                        .clickable {
-                            uriHandler.openUri("https://seabat.notion.site/Ramen-Note-28f13cfcd0e780eca35ff6bd93873457")
-                        },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "プライバシーポリシー",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
+            PrivacyPolicy()
             HorizontalDivider(
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
         }
+    }
+}
+
+@Composable
+fun AppVersion(versionName: String) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "バージョン",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = versionName,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun PrivacyPolicy() {
+    val uriHandler = LocalUriHandler.current
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 16.dp)
+                .clickable {
+                    uriHandler.openUri("https://seabat.notion.site/Ramen-Note-28f13cfcd0e780eca35ff6bd93873457")
+                },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "プライバシーポリシー",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Preview
+@Composable
+fun PrivacyPolicyPreview() {
+    RamenNoteTheme {
+        PrivacyPolicy()
+    }
+}
+
+@Preview
+@Composable
+fun AppVersionPreview() {
+    RamenNoteTheme {
+        AppVersion(versionName = "1.0.0")
+    }
+}
+
+@Preview
+@Composable
+fun SettingsScreenPreview() {
+    RamenNoteTheme {
+        SettingsScreen(viewModel = MockSettingsViewModel())
     }
 }

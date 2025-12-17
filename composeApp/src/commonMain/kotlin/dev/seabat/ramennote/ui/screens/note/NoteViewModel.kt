@@ -2,8 +2,8 @@ package dev.seabat.ramennote.ui.screens.note
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NoteViewModel(
-    private val areasRepository: AreasRepositoryContract,
+    private val loadAreasUseCase: LoadAreasUseCaseContract,
     private val loadImageListUseCase: LoadImageUseCaseContract
 ) : ViewModel(),
     NoteViewModelContract {
@@ -24,7 +24,7 @@ class NoteViewModel(
 
     override fun fetchAreas() {
         viewModelScope.launch {
-            val area = areasRepository.fetch()
+            val area = loadAreasUseCase()
             area
                 .map { area ->
                     val image = loadImageListUseCase(area.name)

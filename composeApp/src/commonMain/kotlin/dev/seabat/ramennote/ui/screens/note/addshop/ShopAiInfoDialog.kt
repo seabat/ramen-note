@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.components.alert
+package dev.seabat.ramennote.ui.screens.note.addshop
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +24,7 @@ import ramennote.composeapp.generated.resources.add_shop_alert_shop_name
 import ramennote.composeapp.generated.resources.add_shop_alert_warning
 
 @Composable
-fun ShopAiInfoAlert(
+fun ShopAiInfoDialog(
     onConfirm: (String) -> Unit
 ) {
     var shopName by remember { mutableStateOf("") }

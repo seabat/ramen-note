@@ -13,7 +13,7 @@ import dev.seabat.ramennote.data.database.entity.ShopEntity
 
 @Database(
     entities = [AreaEntity::class, ShopEntity::class, ReportEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @ConstructedBy(RamenNoteDatabaseConstructor::class)

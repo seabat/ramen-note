@@ -1,5 +1,7 @@
 package dev.seabat.ramennote.ui.screens.note
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -17,19 +19,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,23 +40,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.button.ActionButton
+import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.note_area_selection
 import ramennote.composeapp.generated.resources.note_background
 import ramennote.composeapp.generated.resources.note_item_count
 import ramennote.composeapp.generated.resources.note_no_data
+import ramennote.composeapp.generated.resources.note_sort
 import ramennote.composeapp.generated.resources.screen_note_title
+import ramennote.composeapp.generated.resources.sort_24px
 
 @Composable
 fun NoteScreen(
     onAreaClick: (String) -> Unit = {},
     onAddAreaClick: () -> Unit = {},
     onAreaLongClick: (String) -> Unit = {},
+    onSortClick: () -> Unit = {},
     viewModel: NoteViewModelContract = koinViewModel<NoteViewModel>()
 ) {
     Column(
@@ -70,7 +76,8 @@ fun NoteScreen(
             viewModel = viewModel,
             onAreaClick = onAreaClick,
             onAddAreaClick = onAddAreaClick,
-            onAreaLongClick = onAreaLongClick
+            onAreaLongClick = onAreaLongClick,
+            onSortClick = onSortClick
         )
     }
 }
@@ -86,7 +93,8 @@ private fun MainContent(
     viewModel: NoteViewModelContract,
     onAreaClick: (String) -> Unit = {},
     onAddAreaClick: () -> Unit = {},
-    onAreaLongClick: (String) -> Unit = {}
+    onAreaLongClick: (String) -> Unit = {},
+    onSortClick: () -> Unit = {}
 ) {
     BoxWithConstraints(
         modifier =
@@ -135,11 +143,7 @@ private fun MainContent(
                     contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
                 ) {
                     item {
-                        Text(
-                            text = stringResource(Res.string.note_area_selection),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
+                        Menu(onSortClick = onSortClick)
                     }
 
                     items(areas) { area ->
@@ -160,23 +164,60 @@ private fun MainContent(
                 )
             }
 
-            // 右下の追加ボタン
-            FloatingActionButton(
-                onClick = { onAddAreaClick() },
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "追加"
-                )
-            }
+            AddFab(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                onAddClick = {
+                    onAddAreaClick()
+                }
+            )
         }
     }
+}
+
+@Composable
+private fun Menu(onSortClick: () -> Unit = {}) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp, vertical = 4.dp),
+//        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        SortButton(onClick = onSortClick)
+
+        // 起動時に右上へ5秒間表示しフェードアウトするヒント
+        val showHint = remember { mutableStateOf(true) }
+        LaunchedEffect(Unit) {
+            delay(5000)
+            showHint.value = false
+        }
+        androidx.compose.animation.AnimatedVisibility(
+            visible = showHint.value,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = "カードを長押しすると編集できます",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+private fun SortButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ActionButton(
+        icon = vectorResource(Res.drawable.sort_24px),
+        text = stringResource(Res.string.note_sort),
+        onClick = onClick,
+        modifier = modifier
+    )
 }
 
 @Composable

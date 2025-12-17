@@ -24,9 +24,15 @@ import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCase
+import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCase
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCase
+import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCase
+import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCaseContract
@@ -40,10 +46,10 @@ import dev.seabat.ramennote.domain.usecase.LoadShopUseCase
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
-import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCase
-import dev.seabat.ramennote.domain.usecase.SaveShopMenuImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCase
 import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCaseContract
+import dev.seabat.ramennote.domain.usecase.UpdateAllAreasUseCase
+import dev.seabat.ramennote.domain.usecase.UpdateAllAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCase
 import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCase
@@ -63,19 +69,22 @@ import org.koin.dsl.module
 val useCaseModule =
     module {
         single<UpdateScheduleInShopUseCaseContract> { UpdateScheduleInShopUseCase(get()) }
-        single<AddShopUseCaseContract> { AddShopUseCase(get()) }
+        single<AddShopUseCaseContract> { AddShopUseCase(get(), get(), get()) }
         single<CreateNoImageByteArrayUseCaseContract> { CreateNoImageByteArrayUseCase(get()) }
         single<CreateNoImageIfNeededUseCaseContract> { CreateNoImageIfNeededUseCase(get(), get()) }
         single<CreateReportPhotoNameUseCaseContract> { CreateReportPhotoNameUseCase() }
         single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
         single<DeleteReportUseCaseContract> { DeleteReportUseCase(get()) }
         single<DeleteScheduleInShopUseCaseContract> { DeleteScheduleInShopUseCase(get()) }
-        single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get()) }
+        single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get(), get()) }
         single<FetchAiShopUseCaseContract> { FetchAiShopInfoUseCase(get(), get()) }
         single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
         single<FetchUnsplashImageUseCaseContract> { FetchUnsplashImageUseCase(get(), get()) }
+        single<InquiryAppVersionUseCaseContract> { InquiryAppVersionUseCase(get()) }
+        single<LoadAreasUseCaseContract> { LoadAreasUseCase(get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
+        single<LoadShopListByAreaUseCaseContract> { LoadShopListByAreaUseCase(get()) }
         single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
         single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get(), get()) }
         single<LoadFullReportUseCaseContract> { LoadFullReportUseCase(get(), get(), get()) }
@@ -90,12 +99,12 @@ val useCaseModule =
         single<AddReportUseCaseContract> { AddReportUseCase(get(), get(), get()) }
         single<LoadScheduledShopsUseCaseContract> { LoadScheduledShopsUseCase(get(), get()) }
         single<LoadFavoriteShopsUseCaseContract> { LoadFavoriteShopsUseCase(get()) }
-        single<SaveShopMenuImageUseCaseContract> { SaveShopMenuImageUseCase(get()) }
         single<SwitchFavoriteUseCaseContract> { SwitchFavoriteUseCase(get()) }
         single<UpdateAreaImageUseCaseContract> { UpdateAreaImageUseCase(get(), get(), get()) }
         single<UpdateAreaUseCaseContract> { UpdateAreaUseCase(get(), get(), get()) }
         single<UpdateShopCountInAreaUseCaseContract> { UpdateShopCountInAreaUseCase(get(), get()) }
-        single<UpdateShopUseCaseContract> { UpdateShopUseCase(get()) }
+        single<UpdateShopUseCaseContract> { UpdateShopUseCase(get(), get(), get()) }
+        single<UpdateAllAreasUseCaseContract> { UpdateAllAreasUseCase(get()) }
         single<UpdateStarUseCaseContract> { UpdateStarUseCase(get()) }
         single<UpdateReportUseCaseContract> { UpdateReportUseCase(get(), get()) }
     }

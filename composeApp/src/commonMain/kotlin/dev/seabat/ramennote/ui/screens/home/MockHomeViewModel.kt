@@ -13,11 +13,11 @@ class MockHomeViewModel : HomeViewModelContract {
     private val _schedule = MutableStateFlow<Schedule?>(Schedule())
     override val schedule: StateFlow<Schedule?> = _schedule.asStateFlow()
 
-    private val _scheduleState = MutableStateFlow<RunStatus<Schedule?>>(RunStatus.Idle())
-    override val loadedScheduleState: StateFlow<RunStatus<Schedule?>> = _scheduleState.asStateFlow()
+    private val _loadedScheduleState = MutableStateFlow<RunStatus<Schedule?>>(RunStatus.Idle())
+    override val loadedScheduleState: StateFlow<RunStatus<Schedule?>> = _loadedScheduleState.asStateFlow()
 
-    private val _addScheduleState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
-    override val addedScheduleState: StateFlow<RunStatus<String>> = _addScheduleState.asStateFlow()
+    private val _addedScheduleState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
+    override val addedScheduleState: StateFlow<RunStatus<String>> = _addedScheduleState.asStateFlow()
     private val _threeMonthsReports =
         MutableStateFlow<List<FullReport>>(
             listOf(

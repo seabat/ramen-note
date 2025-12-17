@@ -88,5 +88,3 @@ fun WideDialog(
         }
     }
 }
-
-

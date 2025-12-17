@@ -29,7 +29,8 @@ class AddAreaViewModel(
                 Area(
                     name = area.trim(),
                     updatedDate = today,
-                    count = 0
+                    count = 0,
+                    sort = 0
                 )
             )
             _addState.value = fetchUnsplashImageUseCase(area)

@@ -8,6 +8,8 @@ import dev.seabat.ramennote.data.database.DatabaseFactoryContract
 import dev.seabat.ramennote.data.database.RamenNoteDatabase
 import dev.seabat.ramennote.data.repository.AreaImageRepository
 import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
+import dev.seabat.ramennote.data.repository.AppVersionRepository
+import dev.seabat.ramennote.data.repository.AppVersionRepositoryContract
 import dev.seabat.ramennote.data.repository.AreasRepository
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepository
@@ -44,6 +46,7 @@ expect val factoryModule: Module
 
 val repositoryModule =
     module {
+        single<AppVersionRepositoryContract> { AppVersionRepository() }
         single<AreasRepositoryContract> { AreasRepository(get()) }
         single<AreaImageRepositoryContract> {
             AreaImageRepository(
@@ -84,6 +87,16 @@ val MIGRATION_3_4 =
         }
     }
 
+/**
+ * データベースバージョンを 4 から 5 にマイグレーションする
+ */
+val MIGRATION_4_5 =
+    object : Migration(4, 5) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE areas ADD COLUMN sort INTEGER NOT NULL DEFAULT 1")
+        }
+    }
+
 fun getRamenNoteDatabase(
     factory: DatabaseFactoryContract
 ): RamenNoteDatabase =
@@ -91,5 +104,5 @@ fun getRamenNoteDatabase(
         .getBuilder()
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(MIGRATION_3_4)
+        .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
         .build()

@@ -14,5 +14,7 @@ interface AreasRepositoryContract {
 
     suspend fun edit(area: Area): RunStatus<String>
 
+    suspend fun editAll(areas: List<Area>): RunStatus<String>
+
     suspend fun delete(areaName: String): RunStatus<String>
 }
