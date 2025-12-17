@@ -20,8 +20,6 @@ import dev.seabat.ramennote.data.repository.NoImageRepository
 import dev.seabat.ramennote.data.repository.NoImageRepositoryContract
 import dev.seabat.ramennote.data.repository.ReportsRepository
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
-import dev.seabat.ramennote.data.repository.SettingsRepository
-import dev.seabat.ramennote.data.repository.SettingsRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopAiRepository
 import dev.seabat.ramennote.data.repository.ShopAiRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepository
@@ -74,7 +72,6 @@ val repositoryModule =
         single<LocalImageRepositoryContract> { LocalImageRepository(get()) }
         single<NoImageRepositoryContract> { NoImageRepository(get()) }
         single<ReportsRepositoryContract> { ReportsRepository(get()) }
-        single<SettingsRepositoryContract> { SettingsRepository(get()) }
         single<ShopsRepositoryContract> { ShopsRepository(get()) }
         single<ShopAiRepositoryContract> { ShopAiRepository(get()) }
         single<GoogleMapSearchUrlRepositoryContract> { GoogleMapSearchUrlRepository() }
@@ -100,23 +97,6 @@ val MIGRATION_4_5 =
         }
     }
 
-/**
- * データベースバージョンを 5 から 6 にマイグレーションする
- */
-val MIGRATION_5_6 =
-    object : Migration(5, 6) {
-        override fun migrate(connection: SQLiteConnection) {
-            connection.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS settings (
-                    key TEXT NOT NULL PRIMARY KEY,
-                    value TEXT NOT NULL
-                )
-                """.trimIndent()
-            )
-        }
-    }
-
 fun getRamenNoteDatabase(
     factory: DatabaseFactoryContract
 ): RamenNoteDatabase =
@@ -124,5 +104,5 @@ fun getRamenNoteDatabase(
         .getBuilder()
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+        .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
         .build()

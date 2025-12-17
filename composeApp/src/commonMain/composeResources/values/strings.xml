@@ -119,7 +119,7 @@
     <string name="report_header">食レポ</string>
     <string name="report_run">レポートする</string>
     <string name="report_delete_confirm">この食レポを削除しますか？</string>
-    <string name="report_post_x">X(旧Twitter)に投稿する</string>
+    <string name="report_post_x">他アプリへ共有する(Xに投稿する等)</string>
 
     <!-- Edit Report Screen -->
     <string name="editreport_delete_button">削除する</string>

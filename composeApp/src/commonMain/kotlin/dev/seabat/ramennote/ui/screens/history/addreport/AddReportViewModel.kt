@@ -7,6 +7,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateReportPhotoNameUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,6 +51,27 @@ class AddReportViewModel(
             } catch (e: Exception) {
                 _reportedStatus.value = RunStatus.Error(e.message ?: "レポートの保存に失敗しました")
             }
+        }
+    }
+
+    override fun shareToX(
+        shopName: String,
+        menuName: String,
+        impression: String,
+        image: SharedImage,
+        xShareLauncher: XShareLauncher
+    ) {
+        viewModelScope.launch {
+            val postText = buildString {
+                append("${shopName}")
+                if (menuName.isNotBlank()) {
+                    append("\n${menuName}")
+                }
+                if (impression.isNotBlank()) {
+                    append("\n${impression}")
+                }
+            }
+            xShareLauncher.shareToX(postText, image)
         }
     }
 

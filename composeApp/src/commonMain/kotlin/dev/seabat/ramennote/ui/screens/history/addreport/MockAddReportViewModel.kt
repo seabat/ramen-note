@@ -2,6 +2,7 @@ package dev.seabat.ramennote.ui.screens.history.addreport
 
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +23,16 @@ class MockAddReportViewModel : AddReportViewModelContract {
         impression: String,
         shopId: Int,
         image: SharedImage?
+    ) {
+        // Preview用なので何もしない
+    }
+
+    override fun shareToX(
+        shopName: String,
+        menuName: String,
+        impression: String,
+        image: SharedImage,
+        xShareLauncher: XShareLauncher
     ) {
         // Preview用なので何もしない
     }

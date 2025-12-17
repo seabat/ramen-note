@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,8 @@ import dev.seabat.ramennote.ui.screens.note.shop.DateSelectItem
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
+import dev.seabat.ramennote.ui.share.XShareLauncher
+import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -76,6 +79,8 @@ fun AddReportScreen(
     val reportedStatus by viewModel.reportedStatus.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
+    
+    val xShareLauncher = createRememberedXShareLauncher()
 
     PhotoSelectionHandler(
         onImageSelected = { image = it },
@@ -185,6 +190,9 @@ fun AddReportScreen(
             status = reportedStatus,
             onCompleted = {
                 viewModel.setReportedStatusToIdle()
+                if (postToX) {
+                    viewModel.shareToX(shopName, menuName, impression, image, xShareLauncher)
+                }
                 onBackClick()
                 // FIXME: History に遷移した後に Schedule タブをタップすると Report が表示されてしまう
 //                goToHistory()
@@ -223,6 +231,11 @@ fun ReportStatus(
     onCompleted: () -> Unit,
     onErrorClosed: () -> Unit
 ) {
+    // RunStatus.Successの場合にXへの投稿処理を実行
+    LaunchedEffect(status) {
+
+    }
+    
     when (status) {
         is RunStatus.Success -> {
             onCompleted()
