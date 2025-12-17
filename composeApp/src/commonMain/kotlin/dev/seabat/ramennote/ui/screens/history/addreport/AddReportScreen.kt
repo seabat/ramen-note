@@ -3,10 +3,12 @@ package dev.seabat.ramennote.ui.screens.history.addreport
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
@@ -46,6 +49,7 @@ import ramennote.composeapp.generated.resources.report_impressions
 import ramennote.composeapp.generated.resources.report_run
 import ramennote.composeapp.generated.resources.report_shop_name
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import ramennote.composeapp.generated.resources.report_post_x
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +68,7 @@ fun AddReportScreen(
         mutableStateOf(scheduledDate ?: createTodayLocalDate())
     }
     var impression by remember { mutableStateOf("") }
+    var postToX by remember { mutableStateOf(false) }
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -128,6 +133,13 @@ fun AddReportScreen(
                     onValueChange = { impression = it }
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PostX(
+                    checked = postToX,
+                    onCheckedChange = { postToX = it }
+                )
+
                 Spacer(modifier = Modifier.weight(1f))
 
                 MaxWidthButton(
@@ -180,6 +192,27 @@ fun AddReportScreen(
             onErrorClosed = {
                 viewModel.setReportedStatusToIdle()
             }
+        )
+    }
+}
+
+@Composable
+fun PostX(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+        Text(
+            text = stringResource(Res.string.report_post_x),
+            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }

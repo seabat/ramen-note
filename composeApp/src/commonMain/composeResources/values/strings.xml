@@ -111,7 +111,7 @@
     <string name="schedule_picker_label">訪店予定日を選択して下さい</string>
 
 
-    <!-- Report Screen -->
+    <!-- Add Report Screen -->
     <string name="report_shop_name">店名</string>
     <string name="report_select_date">日付選択</string>
     <string name="report_no_set">未設定</string>
@@ -119,6 +119,7 @@
     <string name="report_header">食レポ</string>
     <string name="report_run">レポートする</string>
     <string name="report_delete_confirm">この食レポを削除しますか？</string>
+    <string name="report_post_x">X(旧Twitter)に投稿する</string>
 
     <!-- Edit Report Screen -->
     <string name="editreport_delete_button">削除する</string>
