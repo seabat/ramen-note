@@ -38,12 +38,14 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
 import ramennote.composeapp.generated.resources.report_run
 import ramennote.composeapp.generated.resources.report_shop_name
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -202,5 +204,21 @@ fun ReportStatus(
             AppProgressBar()
         }
         is RunStatus.Idle -> { /* Do nothing */ }
+    }
+}
+
+@Preview
+@Composable
+fun ReportScreenPreview() {
+    RamenNoteTheme {
+        ReportScreen(
+            shopId = 1,
+            shopName = "〇〇家",
+            menuName = "味玉らーめん",
+            scheduledDate = null,
+            onBackClick = { },
+            goToHistory = { },
+            viewModel = MockReportViewModel()
+        )
     }
 }
