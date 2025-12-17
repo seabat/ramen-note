@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.history.report
+package dev.seabat.ramennote.ui.screens.history.addreport
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 
-class ReportViewModel(
+class AddReportViewModel(
     private val createReportPhotoNameUseCase: CreateReportPhotoNameUseCaseContract,
     private val addReportUseCase: AddReportUseCaseContract
 ) : ViewModel(),
-    ReportViewModelContract {
+    AddReportViewModelContract {
     private val _reportedStatus = MutableStateFlow<RunStatus<Int>>(RunStatus.Idle())
     override val reportedStatus: StateFlow<RunStatus<Int>> = _reportedStatus.asStateFlow()
 

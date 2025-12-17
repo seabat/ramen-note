@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.history.report
+package dev.seabat.ramennote.ui.screens.history.addreport
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,14 +49,14 @@ import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportScreen(
+fun AddReportScreen(
     shopId: Int,
     shopName: String,
     menuName: String,
     scheduledDate: LocalDate? = null,
     onBackClick: () -> Unit,
     goToHistory: () -> Unit,
-    viewModel: ReportViewModelContract = koinViewModel<ReportViewModel>()
+    viewModel: AddReportViewModelContract = koinViewModel<AddReportViewModel>()
 ) {
     var menuName by remember { mutableStateOf(menuName) }
     var image by remember { mutableStateOf(SharedImage()) }
@@ -211,14 +211,14 @@ fun ReportStatus(
 @Composable
 fun ReportScreenPreview() {
     RamenNoteTheme {
-        ReportScreen(
+        AddReportScreen(
             shopId = 1,
             shopName = "〇〇家",
             menuName = "味玉らーめん",
             scheduledDate = null,
             onBackClick = { },
             goToHistory = { },
-            viewModel = MockReportViewModel()
+            viewModel = MockAddReportViewModel()
         )
     }
 }

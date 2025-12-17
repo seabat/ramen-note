@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.history.report
+package dev.seabat.ramennote.ui.screens.history.addreport
 
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.gallery.SharedImage
@@ -11,7 +11,7 @@ import kotlinx.datetime.LocalDate
  * Preview用のモックReportViewModel
  * 実際のデータベースアクセスを行わず、固定のデータを返す
  */
-class MockReportViewModel : ReportViewModelContract {
+class MockAddReportViewModel : AddReportViewModelContract {
     private val _reportedStatus: MutableStateFlow<RunStatus<Int>> =
         MutableStateFlow(RunStatus.Idle())
     override val reportedStatus: StateFlow<RunStatus<Int>> = _reportedStatus.asStateFlow()
