@@ -31,8 +31,8 @@ import androidx.navigation.toRoute
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.screens.history.HistoryScreen
-import dev.seabat.ramennote.ui.screens.history.editreport.EditReportScreen
 import dev.seabat.ramennote.ui.screens.history.addreport.AddReportScreen
+import dev.seabat.ramennote.ui.screens.history.editreport.EditReportScreen
 import dev.seabat.ramennote.ui.screens.home.HomeScreen
 import dev.seabat.ramennote.ui.screens.note.NoteScreen
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaScreen

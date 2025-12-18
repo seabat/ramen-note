@@ -1,8 +1,8 @@
 package dev.seabat.ramennote.ui.di
 
 import dev.seabat.ramennote.ui.screens.history.HistoryViewModel
-import dev.seabat.ramennote.ui.screens.history.editreport.EditReportViewModel
 import dev.seabat.ramennote.ui.screens.history.addreport.AddReportViewModel
+import dev.seabat.ramennote.ui.screens.history.editreport.EditReportViewModel
 import dev.seabat.ramennote.ui.screens.home.HomeViewModel
 import dev.seabat.ramennote.ui.screens.note.NoteViewModel
 import dev.seabat.ramennote.ui.screens.note.addarea.AddAreaViewModel

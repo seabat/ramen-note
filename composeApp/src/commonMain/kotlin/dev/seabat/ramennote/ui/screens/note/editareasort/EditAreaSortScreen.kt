@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,7 +53,6 @@ import ramennote.composeapp.generated.resources.do_not_disturb_on_24px
 import ramennote.composeapp.generated.resources.editarea_edit_button
 import ramennote.composeapp.generated.resources.editareasort_description
 import ramennote.composeapp.generated.resources.editareasort_title
-import ramennote.composeapp.generated.resources.ramen_dining_24px
 
 @Composable
 fun EditAreaSortScreen(
@@ -156,15 +154,16 @@ private fun AreaItem(
             Icon(
                 imageVector = vectorResource(Res.drawable.do_not_disturb_on_24px),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clickable {
-                        val newSort = (area.sort - 1).coerceAtLeast(0)
-                        onValueChange(newSort.toString())
-                    },
+                modifier =
+                    Modifier
+                        .size(30.dp)
+                        .clickable {
+                            val newSort = (area.sort - 1).coerceAtLeast(0)
+                            onValueChange(newSort.toString())
+                        },
                 tint = MaterialTheme.colorScheme.tertiaryContainer
             )
-            Spacer(modifier= Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Box(
                 modifier =
                     Modifier
@@ -205,15 +204,16 @@ private fun AreaItem(
                     )
                 }
             }
-            Spacer(modifier= Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Icon(
                 imageVector = vectorResource(Res.drawable.add_circle_24px),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clickable {
-                        onValueChange((area.sort + 1).toString())
-                    },
+                modifier =
+                    Modifier
+                        .size(30.dp)
+                        .clickable {
+                            onValueChange((area.sort + 1).toString())
+                        },
                 tint = MaterialTheme.colorScheme.tertiaryContainer
             )
 

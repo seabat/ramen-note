@@ -20,34 +20,36 @@ actual class XShareLauncher {
             println("[RamenNote]: XShareLauncher: viewController is null")
             return
         }
-        
+
         val items = mutableListOf<Any>()
-        
+
         // テキストを追加
         items.add(text)
-        
+
         // 画像がある場合はUIImageを追加
         if (image != null) {
             val imageBytes = image.toByteArray()
             if (imageBytes != null) {
                 // ByteArrayからUIImageを作成
-                val nsData = imageBytes.usePinned { pinned ->
-                    NSData.dataWithBytes(pinned.addressOf(0), imageBytes.size.toULong())
-                }
+                val nsData =
+                    imageBytes.usePinned { pinned ->
+                        NSData.dataWithBytes(pinned.addressOf(0), imageBytes.size.toULong())
+                    }
                 val uiImage = UIImage.imageWithData(nsData)
                 if (uiImage != null) {
                     items.add(uiImage)
                 }
             }
         }
-        
+
         // UIActivityViewControllerを作成して表示
-        val activityViewController = UIActivityViewController(
-            activityItems = items.toList(),
-            applicationActivities = null
-        )
+        val activityViewController =
+            UIActivityViewController(
+                activityItems = items.toList(),
+                applicationActivities = null
+            )
         // TODO: iPad対応（popoverPresentationControllerの設定）
-        
+
         viewController.presentViewController(
             viewControllerToPresent = activityViewController,
             animated = true,
@@ -57,7 +59,4 @@ actual class XShareLauncher {
 }
 
 @Composable
-actual fun createRememberedXShareLauncher(): XShareLauncher {
-    return remember { XShareLauncher() }
-}
-
+actual fun createRememberedXShareLauncher(): XShareLauncher = remember { XShareLauncher() }

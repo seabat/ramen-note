@@ -31,8 +31,6 @@ import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCase
-import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCase
-import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCaseContract
@@ -42,6 +40,8 @@ import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCase
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadScheduledShopsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadScheduledShopsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCase
+import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCase
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCase

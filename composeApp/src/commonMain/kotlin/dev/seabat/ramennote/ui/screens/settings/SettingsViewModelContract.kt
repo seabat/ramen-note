@@ -9,4 +9,3 @@ interface SettingsViewModelContract {
 
     fun inquiryAppVersion()
 }
-

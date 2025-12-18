@@ -28,10 +28,8 @@ class MockAddReportViewModel : AddReportViewModelContract {
     }
 
     override fun shareToX(
-        shopName: String,
-        menuName: String,
-        impression: String,
-        image: SharedImage,
+        postText: String,
+        image: SharedImage?,
         xShareLauncher: XShareLauncher
     ) {
         // Preview用なので何もしない
@@ -41,4 +39,3 @@ class MockAddReportViewModel : AddReportViewModelContract {
         _reportedStatus.value = RunStatus.Idle()
     }
 }
-

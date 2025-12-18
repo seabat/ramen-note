@@ -12,10 +12,8 @@ interface AddReportViewModelContract {
     fun report(menuName: String, reportedDate: LocalDate, impression: String, shopId: Int, image: SharedImage?)
 
     fun shareToX(
-        shopName: String,
-        menuName: String,
-        impression: String,
-        image: SharedImage,
+        postText: String,
+        image: SharedImage?,
         xShareLauncher: XShareLauncher
     )
 

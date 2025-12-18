@@ -10,6 +10,8 @@ import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
+import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +35,12 @@ class HomeViewModel(
 
     private val _threeMonthsReports = MutableStateFlow<List<FullReport>>(emptyList())
     override val threeMonthsReports: StateFlow<List<FullReport>> = _threeMonthsReports.asStateFlow()
+
+    override fun shareToX(postText: String, image: SharedImage?, xShareLauncher: XShareLauncher) {
+        viewModelScope.launch {
+            xShareLauncher.shareToX(postText, image)
+        }
+    }
 
     /** 最新の予定読み込み状態 */
     private val _loadedScheduleState = MutableStateFlow<RunStatus<Schedule?>>(RunStatus.Idle())

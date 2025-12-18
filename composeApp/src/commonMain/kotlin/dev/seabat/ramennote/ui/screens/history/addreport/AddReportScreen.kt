@@ -37,8 +37,9 @@ import dev.seabat.ramennote.ui.screens.note.shop.DateSelectItem
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
-import dev.seabat.ramennote.ui.share.XShareLauncher
+import dev.seabat.ramennote.ui.share.createPostText
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -49,10 +50,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
+import ramennote.composeapp.generated.resources.report_post_x
 import ramennote.composeapp.generated.resources.report_run
 import ramennote.composeapp.generated.resources.report_shop_name
-import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import ramennote.composeapp.generated.resources.report_post_x
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +79,7 @@ fun AddReportScreen(
     val reportedStatus by viewModel.reportedStatus.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
-    
+
     val xShareLauncher = createRememberedXShareLauncher()
 
     PhotoSelectionHandler(
@@ -191,7 +191,7 @@ fun AddReportScreen(
             onCompleted = {
                 viewModel.setReportedStatusToIdle()
                 if (postToX) {
-                    viewModel.shareToX(shopName, menuName, impression, image, xShareLauncher)
+                    viewModel.shareToX(createPostText(shopName, menuName, impression), image, xShareLauncher)
                 }
                 onBackClick()
                 // FIXME: History に遷移した後に Schedule タブをタップすると Report が表示されてしまう
@@ -233,9 +233,8 @@ fun ReportStatus(
 ) {
     // RunStatus.Successの場合にXへの投稿処理を実行
     LaunchedEffect(status) {
-
     }
-    
+
     when (status) {
         is RunStatus.Success -> {
             onCompleted()

@@ -55,22 +55,11 @@ class AddReportViewModel(
     }
 
     override fun shareToX(
-        shopName: String,
-        menuName: String,
-        impression: String,
-        image: SharedImage,
+        postText: String,
+        image: SharedImage?,
         xShareLauncher: XShareLauncher
     ) {
         viewModelScope.launch {
-            val postText = buildString {
-                append("${shopName}")
-                if (menuName.isNotBlank()) {
-                    append("\n${menuName}")
-                }
-                if (impression.isNotBlank()) {
-                    append("\n${impression}")
-                }
-            }
             xShareLauncher.shareToX(postText, image)
         }
     }

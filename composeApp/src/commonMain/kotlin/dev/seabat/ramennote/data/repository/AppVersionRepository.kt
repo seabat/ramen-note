@@ -18,4 +18,3 @@ class AppVersionRepository : AppVersionRepositoryContract {
             appVersionDataSource.getVersionCode()
         }
 }
-
