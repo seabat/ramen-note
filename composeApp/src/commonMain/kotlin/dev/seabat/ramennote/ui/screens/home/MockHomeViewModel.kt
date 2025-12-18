@@ -4,6 +4,8 @@ import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -183,6 +185,14 @@ class MockHomeViewModel : HomeViewModelContract {
         )
 
     override val favoriteShops: StateFlow<List<ShopWithImage>> = _favoriteShops.asStateFlow()
+
+    override fun shareToX(
+        postText: String,
+        image: SharedImage?,
+        xShareLauncher: XShareLauncher
+    ) {
+        // Preview用なので何もしない
+    }
 
     override fun loadRecentSchedule() {
         // Preview用なので何もしない

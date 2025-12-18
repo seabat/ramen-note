@@ -68,7 +68,9 @@ import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.rememberLifecycleState
+import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.history.ReportCard
+import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
 import kotlinx.coroutines.delay
@@ -138,6 +140,7 @@ fun HomeScreen(
     val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
     val urlHandler = LocalUriHandler.current
+    val xShareLauncher = createRememberedXShareLauncher()
 
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
@@ -173,7 +176,16 @@ fun HomeScreen(
             // 過去3ヶ月分のレポートを水平ページャーで表示
             RecentReports(
                 reports = threeMonthsReports,
-                goToHistory = goToHistory
+                goToHistory = goToHistory,
+                shareToX = { postText, imageBytes ->
+                    viewModel.shareToX(
+                        postText,
+                        imageBytes?.let {
+                            SharedImage(it)
+                        },
+                        xShareLauncher
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -613,7 +625,8 @@ private fun AddScheduleState(
 @Composable
 private fun RecentReports(
     reports: List<FullReport>,
-    goToHistory: (reportId: Int) -> Unit
+    goToHistory: (reportId: Int) -> Unit,
+    shareToX: (String, ByteArray?) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -659,6 +672,9 @@ private fun RecentReports(
                                 report = report,
                                 onTap = {
                                     goToHistory(report.id)
+                                },
+                                onShareTap = { postText, imageBytes ->
+                                    shareToX(postText, imageBytes)
                                 }
                             )
                         }
@@ -863,8 +879,10 @@ fun RecentReportsPreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             RecentReports(
-                reports = MockHomeViewModel().threeMonthsReports.value
-            ) {}
+                reports = MockHomeViewModel().threeMonthsReports.value,
+                {},
+                { _, _ -> }
+            )
         }
     }
 }

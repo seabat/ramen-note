@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -49,6 +51,7 @@ fun HistoryScreen(
     val reports by viewModel.reports.collectAsState()
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+    val xShareLauncher = createRememberedXShareLauncher()
 
     LaunchedEffect(Unit) {
         viewModel.loadReports(shop?.id)
@@ -78,7 +81,17 @@ fun HistoryScreen(
                     reports = reports,
                     listState = listState,
                     goToEditReport = goToEditReport,
-                    onImageTap = { imageBytes -> selectedImageBytes = imageBytes }
+                    onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
+                    onShareTap = { postText, imageBytes ->
+                        viewModel.shareToX(
+                            postText = postText,
+                            image =
+                                imageBytes?.let {
+                                    SharedImage(it)
+                                },
+                            xShareLauncher = xShareLauncher
+                        )
+                    }
                 )
 
                 // 起動時に右上へ5秒間表示しフェードアウトするヒント
@@ -165,7 +178,8 @@ private fun ReportsList(
     reports: List<FullReport>,
     listState: LazyListState,
     goToEditReport: (Int) -> Unit,
-    onImageTap: (ByteArray?) -> Unit
+    onImageTap: (ByteArray?) -> Unit,
+    onShareTap: (String, ByteArray?) -> Unit
 ) {
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped = groupReports(reports)
@@ -189,7 +203,8 @@ private fun ReportsList(
                     report = report,
                     onLongPress = { goToEditReport(report.id) },
                     onImageTap = { onImageTap(report.imageBytes) },
-                    onTap = {}
+                    onTap = {},
+                    onShareTap = onShareTap
                 )
             }
         }

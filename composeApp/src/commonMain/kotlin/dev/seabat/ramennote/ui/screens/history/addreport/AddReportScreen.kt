@@ -1,12 +1,14 @@
-package dev.seabat.ramennote.ui.screens.history.report
+package dev.seabat.ramennote.ui.screens.history.addreport
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,11 +16,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
@@ -33,28 +37,33 @@ import dev.seabat.ramennote.ui.screens.note.shop.DateSelectItem
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
+import dev.seabat.ramennote.ui.share.createPostText
+import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
+import ramennote.composeapp.generated.resources.report_post_x
 import ramennote.composeapp.generated.resources.report_run
 import ramennote.composeapp.generated.resources.report_shop_name
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportScreen(
+fun AddReportScreen(
     shopId: Int,
     shopName: String,
     menuName: String,
     scheduledDate: LocalDate? = null,
     onBackClick: () -> Unit,
     goToHistory: () -> Unit,
-    viewModel: ReportViewModelContract = koinViewModel<ReportViewModel>()
+    viewModel: AddReportViewModelContract = koinViewModel<AddReportViewModel>()
 ) {
     var menuName by remember { mutableStateOf(menuName) }
     var image by remember { mutableStateOf(SharedImage()) }
@@ -62,6 +71,7 @@ fun ReportScreen(
         mutableStateOf(scheduledDate ?: createTodayLocalDate())
     }
     var impression by remember { mutableStateOf("") }
+    var postToX by remember { mutableStateOf(false) }
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -69,6 +79,8 @@ fun ReportScreen(
     val reportedStatus by viewModel.reportedStatus.collectAsState()
 
     var permissionEnabled by remember { mutableStateOf(false) }
+
+    val xShareLauncher = createRememberedXShareLauncher()
 
     PhotoSelectionHandler(
         onImageSelected = { image = it },
@@ -126,6 +138,13 @@ fun ReportScreen(
                     onValueChange = { impression = it }
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PostX(
+                    checked = postToX,
+                    onCheckedChange = { postToX = it }
+                )
+
                 Spacer(modifier = Modifier.weight(1f))
 
                 MaxWidthButton(
@@ -171,6 +190,9 @@ fun ReportScreen(
             status = reportedStatus,
             onCompleted = {
                 viewModel.setReportedStatusToIdle()
+                if (postToX) {
+                    viewModel.shareToX(createPostText(shopName, menuName, impression), image, xShareLauncher)
+                }
                 onBackClick()
                 // FIXME: History に遷移した後に Schedule タブをタップすると Report が表示されてしまう
 //                goToHistory()
@@ -183,11 +205,36 @@ fun ReportScreen(
 }
 
 @Composable
+fun PostX(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+        Text(
+            text = stringResource(Res.string.report_post_x),
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
+}
+
+@Composable
 fun ReportStatus(
     status: RunStatus<Int>,
     onCompleted: () -> Unit,
     onErrorClosed: () -> Unit
 ) {
+    // RunStatus.Successの場合にXへの投稿処理を実行
+    LaunchedEffect(status) {
+    }
+
     when (status) {
         is RunStatus.Success -> {
             onCompleted()
@@ -202,5 +249,21 @@ fun ReportStatus(
             AppProgressBar()
         }
         is RunStatus.Idle -> { /* Do nothing */ }
+    }
+}
+
+@Preview
+@Composable
+fun ReportScreenPreview() {
+    RamenNoteTheme {
+        AddReportScreen(
+            shopId = 1,
+            shopName = "〇〇家",
+            menuName = "味玉らーめん",
+            scheduledDate = null,
+            onBackClick = { },
+            goToHistory = { },
+            viewModel = MockAddReportViewModel()
+        )
     }
 }
