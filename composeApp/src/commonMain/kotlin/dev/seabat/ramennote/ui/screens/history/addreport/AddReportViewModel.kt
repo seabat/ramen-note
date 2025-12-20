@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.history.report
+package dev.seabat.ramennote.ui.screens.history.addreport
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,17 +7,18 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateReportPhotoNameUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 
-class ReportViewModel(
+class AddReportViewModel(
     private val createReportPhotoNameUseCase: CreateReportPhotoNameUseCaseContract,
     private val addReportUseCase: AddReportUseCaseContract
 ) : ViewModel(),
-    ReportViewModelContract {
+    AddReportViewModelContract {
     private val _reportedStatus = MutableStateFlow<RunStatus<Int>>(RunStatus.Idle())
     override val reportedStatus: StateFlow<RunStatus<Int>> = _reportedStatus.asStateFlow()
 
@@ -50,6 +51,16 @@ class ReportViewModel(
             } catch (e: Exception) {
                 _reportedStatus.value = RunStatus.Error(e.message ?: "レポートの保存に失敗しました")
             }
+        }
+    }
+
+    override fun shareToX(
+        postText: String,
+        image: SharedImage?,
+        xShareLauncher: XShareLauncher
+    ) {
+        viewModelScope.launch {
+            xShareLauncher.shareToX(postText, image)
         }
     }
 

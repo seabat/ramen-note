@@ -20,16 +20,17 @@ class SettingsViewModel(
     override val versionNameState: StateFlow<RunStatus<String>> = _versionNameState.asStateFlow()
 
     override val versionName: StateFlow<String> =
-        _versionNameState.map { status ->
-            when (status) {
-                is RunStatus.Success -> status.data ?: ""
-                else -> ""
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ""
-        )
+        _versionNameState
+            .map { status ->
+                when (status) {
+                    is RunStatus.Success -> status.data ?: ""
+                    else -> ""
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = ""
+            )
 
     override fun inquiryAppVersion() {
         viewModelScope.launch {
@@ -39,4 +40,3 @@ class SettingsViewModel(
         }
     }
 }
-

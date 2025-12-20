@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCaseContract
+import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +21,16 @@ class HistoryViewModel(
     override fun loadReports(shopId: Int?) {
         viewModelScope.launch {
             _reports.value = loadReportsUseCase.invoke(shopId)
+        }
+    }
+
+    override fun shareToX(
+        postText: String,
+        image: SharedImage?,
+        xShareLauncher: XShareLauncher
+    ) {
+        viewModelScope.launch {
+            xShareLauncher.shareToX(postText, image)
         }
     }
 }

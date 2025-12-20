@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,19 +30,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.ui.share.createPostText
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.ios_share_24px
 
 @Composable
 fun ReportCard(
     report: FullReport,
     onTap: () -> Unit = {},
     onLongPress: () -> Unit = {},
-    onImageTap: () -> Unit = {}
+    onImageTap: () -> Unit = {},
+    onShareTap: (postText: String, imageBytes: ByteArray?) -> Unit = { _, _ -> }
 ) {
-    val date: LocalDate? = report.date
+    val date: LocalDate = report.date
     val dayText =
         if (date != null) {
             "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
@@ -84,11 +91,35 @@ fun ReportCard(
                         .fillMaxHeight()
                         .weight(1.0f)
             ) {
-                Text(
-                    text = report.shopName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = report.shopName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Icon(
+                        imageVector = vectorResource(Res.drawable.ios_share_24px),
+                        contentDescription = null,
+                        modifier =
+                            Modifier
+                                .size(16.dp)
+                                .clickable {
+                                    onShareTap(
+                                        createPostText(
+                                            report.shopName,
+                                            report.menuName,
+                                            report.impression
+                                        ),
+                                        report.imageBytes
+                                    )
+                                },
+                        tint = LocalContentColor.current
+                    )
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
