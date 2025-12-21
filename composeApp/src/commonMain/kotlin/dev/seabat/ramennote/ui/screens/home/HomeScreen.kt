@@ -67,6 +67,7 @@ import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.components.alert.AppAlert
+import dev.seabat.ramennote.ui.components.chart.StackedBarChart
 import dev.seabat.ramennote.ui.components.rememberLifecycleState
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.history.ReportCard
@@ -138,6 +139,7 @@ fun HomeScreen(
     val addedScheduleState by viewModel.addedScheduleState.collectAsStateWithLifecycle()
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
     val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
+    val yearlyReportStats by viewModel.yearlyReportStats.collectAsStateWithLifecycle()
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
     val urlHandler = LocalUriHandler.current
     val xShareLauncher = createRememberedXShareLauncher()
@@ -146,6 +148,7 @@ fun HomeScreen(
         viewModel.loadRecentSchedule()
         viewModel.loadFavoriteShops()
         viewModel.loadThreeMonthsReports()
+        viewModel.loadYearlyReportStats()
     }
 
     BoxWithConstraints(
@@ -170,6 +173,11 @@ fun HomeScreen(
                     dialogState = DialogState.ScheduleMenu(it)
                 }
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 過去1年間の積み上げグラフ
+            YearlyReportChart(yearlyReportStats)
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -623,6 +631,13 @@ private fun AddScheduleState(
 }
 
 @Composable
+private fun YearlyReportChart(
+    monthlyData: List<dev.seabat.ramennote.domain.model.MonthlyReportCount>
+) {
+    StackedBarChart(monthlyData = monthlyData)
+}
+
+@Composable
 private fun RecentReports(
     reports: List<FullReport>,
     goToHistory: (reportId: Int) -> Unit,
@@ -967,6 +982,57 @@ fun FavoritePreview() {
                 MockHomeViewModel().favoriteShops.value,
                 {}
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun YearlyReportChartPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // 過去12ヶ月分のモックデータ
+            val mockData = listOf(
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-01", 3),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-02", 5),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-03", 0),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-04", 8),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-05", 4),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-06", 6),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-07", 10),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-08", 7),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-09", 5),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-10", 9),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-11", 6),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-12", 4)
+            )
+            YearlyReportChart(mockData)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun YearlyReportChartEmptyPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // データがない場合のプレビュー
+            YearlyReportChart(emptyList())
+        }
+    }
+}
+
+@Preview
+@Composable
+fun YearlyReportChartSmallDataPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // データが少ない場合のプレビュー
+            val mockData = listOf(
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-11", 1),
+                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-12", 3)
+            )
+            YearlyReportChart(mockData)
         }
     }
 }
