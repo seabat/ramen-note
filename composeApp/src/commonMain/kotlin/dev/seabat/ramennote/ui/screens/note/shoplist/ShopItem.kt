@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.StarIcon
@@ -37,18 +38,19 @@ fun ShopItem(
                 Modifier
                     .fillMaxWidth()
                     .clickable { onShopClick() }
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
+                modifier = Modifier.weight(1.0f),
                 text = shop.name,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(3) { index ->
@@ -88,7 +90,6 @@ fun ShopItemPreview() {
     RamenNoteTheme {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // お気に入りあり、評価3つ星
             ShopItem(
@@ -131,7 +132,7 @@ fun ShopItemPreview() {
                 shop =
                     Shop(
                         id = 3,
-                        name = "つけ麺専門店 大勝軒",
+                        name = "つけ麺専門店 大勝軒 池袋店",
                         area = "東京都",
                         shopUrl = "",
                         mapUrl = "",

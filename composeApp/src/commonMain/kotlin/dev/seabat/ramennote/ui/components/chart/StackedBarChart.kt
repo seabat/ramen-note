@@ -30,6 +30,8 @@ import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
+const val CHART_HEIGHT = 120
+
 /**
  * 過去1年間の月別訪問回数を積み上げグラフで表示するコンポーネント
  *
@@ -46,7 +48,7 @@ fun StackedBarChart(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(CHART_HEIGHT.dp)
                     .background(
                         MaterialTheme.colorScheme.surface,
                         RoundedCornerShape(10.dp)
@@ -67,10 +69,10 @@ fun StackedBarChart(
     }
 
     val maxCount = monthlyData.maxOfOrNull { it.count }?.coerceAtLeast(1) ?: 1
-    val chartHeight = 200.dp
+    val chartHeight = CHART_HEIGHT.dp
     val barWidth = 20.dp
     val barSpacing = 8.dp
-    val padding = 16.dp
+    val padding = 8.dp
 
     // MaterialThemeの色を取得（Canvas内で使用するため）
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -87,7 +89,7 @@ fun StackedBarChart(
                     2.dp,
                     MaterialTheme.colorScheme.outline,
                     RoundedCornerShape(10.dp)
-                ).padding(padding)
+                ).padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -129,24 +131,39 @@ fun StackedBarChart(
 
                     // 各月の棒グラフを描画
                     monthlyData.forEachIndexed { index, data ->
-                        // 0件の時は棒グラフを表示しない
-                        if (data.count == 0) return@forEachIndexed
-
                         val x = (barWidthPx + barSpacing.toPx()) * index
-                        val barHeight = (canvasHeightPx * data.count / maxCount).coerceAtLeast(4.dp.toPx())
+                        // 0件の時も最小の高さ（4.dp）で表示
+
+                        val barHeight = if (data.count == 0) {
+                            4.dp.toPx()
+                        } else {
+                            (canvasHeightPx * data.count / maxCount).coerceAtLeast(4.dp.toPx())
+                        }
                         val y = canvasHeightPx - barHeight
+
+                        // 0件の時は透明、それ以外は通常の色
+                        val barColor = if (data.count == 0) {
+                            primaryColor.copy(alpha = 0f)
+                        } else {
+                            primaryColor
+                        }
 
                         // 棒グラフを描画
                         drawRect(
-                            color = primaryColor,
+                            color = barColor,
                             topLeft = Offset(x, y),
                             size = Size(barWidthPx, barHeight),
                             style = Fill
                         )
 
-                        // 棒グラフの枠線
+                        // 棒グラフの枠線（0件の時は透明）
+                        val borderColor = if (data.count == 0) {
+                            primaryColor.copy(alpha = 0f)
+                        } else {
+                            primaryColor.copy(alpha = 0.8f)
+                        }
                         drawRect(
-                            color = primaryColor.copy(alpha = 0.8f),
+                            color = borderColor,
                             topLeft = Offset(x, y),
                             size = Size(barWidthPx, barHeight),
                             style = Stroke(width = 1.dp.toPx())
@@ -206,15 +223,18 @@ fun StackedBarChart(
                 val availableWidth = canvasWidth - (barSpacing * (monthlyData.size - 1))
                 val barWidthCalculated = (availableWidth / monthlyData.size).coerceAtMost(barWidth)
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    monthlyData.forEach { data ->
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    monthlyData.forEachIndexed { index, data ->
                         val monthLabel = data.yearMonth.substring(5, 7) // "MM" 部分を取得
                         val monthNumber = monthLabel.toIntOrNull() ?: 0 // 先頭の0を削除するために数値に変換
+                        val barX = (barWidthCalculated + barSpacing) * index
+                        val textX = barX + (barWidthCalculated / 2) // 棒グラフの中央
+
                         Box(
-                            modifier = Modifier.width(barWidthCalculated + barSpacing),
+                            modifier =
+                                Modifier
+                                    .offset(x = textX - 8.dp, y = 0.dp) // テキストの幅を考慮して中央揃え
+                                    .width(barWidthCalculated),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(

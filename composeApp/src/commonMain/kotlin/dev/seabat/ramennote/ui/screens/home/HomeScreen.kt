@@ -88,7 +88,7 @@ import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
 import ramennote.composeapp.generated.resources.schedule_picker_label
 
-private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
+private const val FAVORITE_SHOP_ITEM_HEIGHT = 66
 
 private sealed interface DialogState {
     object Hidden : DialogState
@@ -150,7 +150,7 @@ fun HomeScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                    .padding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -161,12 +161,12 @@ fun HomeScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // 過去1年間の積み上げグラフ
             YearlyReportChart(yearlyReportStats)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // 過去3ヶ月分のレポートを水平ページャーで表示
             RecentReports(
@@ -183,7 +183,7 @@ fun HomeScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             Favorite(
                 favoriteShops,
