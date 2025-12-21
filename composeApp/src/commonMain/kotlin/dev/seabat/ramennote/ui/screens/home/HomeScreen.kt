@@ -1,7 +1,6 @@
 package dev.seabat.ramennote.ui.screens.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,18 +36,13 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
@@ -59,25 +53,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
-import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.components.AppProgressBar
-import dev.seabat.ramennote.ui.components.PlatformWebView
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.chart.StackedBarChart
-import dev.seabat.ramennote.ui.components.rememberLifecycleState
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.history.ReportCard
+import dev.seabat.ramennote.ui.screens.note.shoplist.ShopItem
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -98,7 +87,6 @@ import ramennote.composeapp.generated.resources.home_no_reports
 import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
 import ramennote.composeapp.generated.resources.schedule_picker_label
-import kotlin.collections.filter
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 70
 
@@ -168,7 +156,6 @@ fun HomeScreen(
         ) {
             ScheduleContent(
                 schedule,
-                favoriteShops,
                 showScheduleMenu = {
                     dialogState = DialogState.ScheduleMenu(it)
                 }
@@ -280,7 +267,6 @@ private fun HomeBackground(imageHeight: Dp) {
 @Composable
 private fun ScheduleContent(
     schedule: Schedule?,
-    favoriteShops: List<ShopWithImage>,
     showScheduleMenu: (schedule: Schedule) -> Unit
 ) {
     Column(
@@ -290,7 +276,7 @@ private fun ScheduleContent(
             text =
                 schedule?.scheduledDate?.let {
                     "${createFormattedDateString(it)}の予定"
-                } ?: "お気に入り店のWebサイト",
+                } ?: "訪店予定なし",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary
         )
@@ -299,157 +285,51 @@ private fun ScheduleContent(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(216.dp)
+                    // .height(216.dp)
+                    .fillMaxWidth()
                     .border(
                         width = 2.dp,
-                        color = MaterialTheme.colorScheme.background,
-                        shape = RoundedCornerShape(10.dp)
-                    )
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(6.dp)
+                    ).padding(horizontal = 8.dp)
         ) {
-            // コンテンツ
-            if (schedule == null) {
-                FavoriteShopsWeb(Modifier.align(Alignment.BottomCenter), favoriteShops)
-            } else {
-                ScheduledShopWeb(Modifier.align(Alignment.BottomCenter), schedule)
-            }
-
-            // オーバーレイ（半透明の黒い背景）
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors =
-                                    listOf(
-                                        Color.Transparent,
-                                        Color.Black.copy(alpha = 0.70f)
-                                    ),
-                                startY = 0f,
-                                endY = 500f
-                            ),
-                            // オーバーレイの角が外側のコンポーネントからはみ出さないようにする
-                            shape = RoundedCornerShape(10.dp)
-                        ).clickable {
-                            schedule?.let {
-                                showScheduleMenu(it)
-                            }
-                        }
-            )
-
             // メニュー
             if (schedule != null) {
-                ScheduleMenu(
-                    Modifier.align(Alignment.BottomStart),
-                    schedule
+                ShopItem(
+                    shop =
+                        Shop(
+                            id = schedule.shopId,
+                            name = schedule.shopName,
+                            shopUrl = schedule.shopUrl,
+                            mapUrl = schedule.mapUrl,
+                            star = schedule.star,
+                            category = schedule.category,
+                            scheduledDate = schedule.scheduledDate,
+                            menuName1 = schedule.menuName,
+                            photoName1 = schedule.photoName
+                        ),
+                    hasDivider = false,
+                    onShopClick = {
+                        showScheduleMenu(schedule)
+                    },
+                    onDelete = {}
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ScheduledShopWeb(
-    modifier: Modifier,
-    schedule: Schedule
-) {
-    // WebView
-    if (schedule.shopUrl.isNotBlank()) {
-        PlatformWebView(
-            url = schedule.shopUrl,
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    // コンテンツの角が外側のコンポーネントからはみ出さないようにする
-                    .clip(RoundedCornerShape(10.dp))
-        )
-    } else {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = stringResource(Res.string.home_no_web))
-        }
-    }
-}
-
-@Composable
-private fun FavoriteShopsWeb(
-    modifier: Modifier,
-    favoriteShops: List<ShopWithImage>
-) {
-    // favoriteShopsのshopUrlを10秒ごとに切り替えながら表示
-    val validUrls =
-        favoriteShops
-            .map { it.shop.shopUrl }
-            .filter { it.isNotBlank() }
-
-    if (validUrls.isNotEmpty()) {
-        var currentIndex by remember(validUrls) { mutableIntStateOf(0) }
-        val currentUrl = validUrls[currentIndex]
-        val lifecycleState = rememberLifecycleState()
-
-        // 10秒ごとにインデックスを更新
-        // フォアグラウンドの時のみ更新処理が動作する
-        LaunchedEffect(validUrls.size) {
-            snapshotFlow {
-                lifecycleState.value.isResumed
-            }.distinctUntilChanged()
-                .collect { isResumed ->
-                    logd(message = "collect isResumed($isResumed)")
-                    if (isResumed) {
-                        // フォアグラウンドになったら定期的なFlowを開始
-                        // takeWhileでlifecycleState.isResumedがfalseになったら自動的に停止
-                        flow {
-                            while (true) {
-                                logd(message = "Home Timer emit")
-                                emit(Unit)
-                                delay(30000) // 30秒待機
-                            }
-                        }.takeWhile { lifecycleState.value.isResumed }
-                            .collect {
-                                logd(message = "Home Timer collect after takeWhile")
-                                currentIndex = (currentIndex + 1) % validUrls.size
-                            }
+            } else {
+                // ShopItemと同じ高さを維持するための空のColumn
+                Column {
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                                .height(24.dp)
+                        // titleMediumの高さに合わせる
+                    ) {
+                        // 空のスペース
                     }
                 }
+            }
         }
-
-        // keyを使ってURLが変更されたときにWebViewを再作成
-        key(currentUrl) {
-            PlatformWebView(
-                url = currentUrl,
-                modifier =
-                    modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(10.dp))
-            )
-        }
-    }
-}
-
-@Composable
-private fun ScheduleMenu(
-    modifier: Modifier,
-    schedule: Schedule
-) {
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = schedule.shopName,
-            style =
-                MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-            color = Color.White
-        )
     }
 }
 
@@ -632,9 +512,18 @@ private fun AddScheduleState(
 
 @Composable
 private fun YearlyReportChart(
-    monthlyData: List<dev.seabat.ramennote.domain.model.MonthlyReportCount>
+    monthlyData: List<MonthlyReportCount>
 ) {
-    StackedBarChart(monthlyData = monthlyData)
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "過去1年間の月別訪店回数",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        StackedBarChart(monthlyData = monthlyData)
+    }
 }
 
 @Composable
@@ -868,23 +757,8 @@ private fun HomeDialog(
 fun ScheduleContentPreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            ScheduleContent(Schedule(), emptyList(), {})
+            ScheduleContent(Schedule(), {})
         }
-    }
-}
-
-@Preview
-@Composable
-fun ScheduleMenuPreview() {
-    RamenNoteTheme {
-        ScheduleMenu(
-            Modifier.background(Color.Gray),
-            Schedule(
-                shopId = 1,
-                shopName = "一風堂 博多本店",
-                isReported = false
-            )
-        )
     }
 }
 
@@ -992,20 +866,21 @@ fun YearlyReportChartPreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.padding(16.dp)) {
             // 過去12ヶ月分のモックデータ
-            val mockData = listOf(
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-01", 3),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-02", 5),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-03", 0),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-04", 8),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-05", 4),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-06", 6),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-07", 10),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-08", 7),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-09", 5),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-10", 9),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-11", 6),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-12", 4)
-            )
+            val mockData =
+                listOf(
+                    MonthlyReportCount("2024-01", 3),
+                    MonthlyReportCount("2024-02", 5),
+                    MonthlyReportCount("2024-03", 0),
+                    MonthlyReportCount("2024-04", 8),
+                    MonthlyReportCount("2024-05", 4),
+                    MonthlyReportCount("2024-06", 6),
+                    MonthlyReportCount("2024-07", 10),
+                    MonthlyReportCount("2024-08", 7),
+                    MonthlyReportCount("2024-09", 5),
+                    MonthlyReportCount("2024-10", 9),
+                    MonthlyReportCount("2024-11", 6),
+                    MonthlyReportCount("2024-12", 4)
+                )
             YearlyReportChart(mockData)
         }
     }
@@ -1018,21 +893,6 @@ fun YearlyReportChartEmptyPreview() {
         Column(modifier = Modifier.padding(16.dp)) {
             // データがない場合のプレビュー
             YearlyReportChart(emptyList())
-        }
-    }
-}
-
-@Preview
-@Composable
-fun YearlyReportChartSmallDataPreview() {
-    RamenNoteTheme {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // データが少ない場合のプレビュー
-            val mockData = listOf(
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-11", 1),
-                dev.seabat.ramennote.domain.model.MonthlyReportCount("2024-12", 3)
-            )
-            YearlyReportChart(mockData)
         }
     }
 }

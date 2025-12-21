@@ -10,4 +10,3 @@ data class MonthlyReportCount(
     val yearMonth: String, // "YYYY-MM" 形式
     val count: Int
 )
-

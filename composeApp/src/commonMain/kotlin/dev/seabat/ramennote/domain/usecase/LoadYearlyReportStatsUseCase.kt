@@ -56,4 +56,3 @@ class LoadYearlyReportStatsUseCase(
         return result
     }
 }
-

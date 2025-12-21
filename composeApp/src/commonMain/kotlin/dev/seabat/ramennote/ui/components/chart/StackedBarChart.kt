@@ -5,31 +5,30 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 過去1年間の月別訪問回数を積み上げグラフで表示するコンポーネント
@@ -44,18 +43,18 @@ fun StackedBarChart(
 ) {
     if (monthlyData.isEmpty()) {
         Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(
-                    MaterialTheme.colorScheme.surface,
-                    RoundedCornerShape(10.dp)
-                )
-                .border(
-                    2.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(10.dp)
-                ),
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surface,
+                        RoundedCornerShape(10.dp)
+                    ).border(
+                        2.dp,
+                        MaterialTheme.colorScheme.outline,
+                        RoundedCornerShape(10.dp)
+                    ),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -78,18 +77,17 @@ fun StackedBarChart(
     val outlineColor = MaterialTheme.colorScheme.outline
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.surface,
-                RoundedCornerShape(10.dp)
-            )
-            .border(
-                2.dp,
-                MaterialTheme.colorScheme.outline,
-                RoundedCornerShape(10.dp)
-            )
-            .padding(padding)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(
+                    MaterialTheme.colorScheme.surface,
+                    RoundedCornerShape(10.dp)
+                ).border(
+                    2.dp,
+                    MaterialTheme.colorScheme.outline,
+                    RoundedCornerShape(10.dp)
+                ).padding(padding)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -97,9 +95,10 @@ fun StackedBarChart(
         ) {
             // グラフエリア
             BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(chartHeight)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(chartHeight)
             ) {
                 val canvasWidth = maxWidth
                 val canvasHeight = chartHeight
@@ -132,7 +131,7 @@ fun StackedBarChart(
                     monthlyData.forEachIndexed { index, data ->
                         // 0件の時は棒グラフを表示しない
                         if (data.count == 0) return@forEachIndexed
-                        
+
                         val x = (barWidthPx + barSpacing.toPx()) * index
                         val barHeight = (canvasHeightPx * data.count / maxCount).coerceAtLeast(4.dp.toPx())
                         val y = canvasHeightPx - barHeight
@@ -152,7 +151,6 @@ fun StackedBarChart(
                             size = Size(barWidthPx, barHeight),
                             style = Stroke(width = 1.dp.toPx())
                         )
-
                     }
                 }
 
@@ -162,30 +160,33 @@ fun StackedBarChart(
                         val barHeight = (canvasHeight * data.count / maxCount).coerceAtLeast(4.dp)
                         val barX = (barWidthCalculated + barSpacing) * index
                         val barTop = canvasHeight - barHeight
-                        
+
                         // 棒グラフの上20dpに表示。ただし、棒グラフが高すぎる場合は棒グラフの内部（上部）に表示
-                        val textY = if (barTop >= 20.dp) {
-                            barTop - 20.dp // 棒グラフの上20dp
-                        } else {
-                            // 棒グラフが高い場合は、棒グラフの内部（上から10dpの位置）に表示
-                            barTop + 10.dp
-                        }.coerceAtLeast(0.dp)
-                        
+                        val textY =
+                            if (barTop >= 20.dp) {
+                                barTop - 20.dp // 棒グラフの上20dp
+                            } else {
+                                // 棒グラフが高い場合は、棒グラフの内部（上から10dpの位置）に表示
+                                barTop + 10.dp
+                            }.coerceAtLeast(0.dp)
+
                         val textX = barX + (barWidthCalculated / 2) - 8.dp // 棒グラフの中央（テキストの幅を考慮）
 
                         Box(
-                            modifier = Modifier
-                                .offset(x = textX, y = textY)
-                                .width(barWidthCalculated),
+                            modifier =
+                                Modifier
+                                    .offset(x = textX, y = textY)
+                                    .width(barWidthCalculated),
                             contentAlignment = Alignment.Center
                         ) {
                             // 棒グラフの内部に表示する場合は、テキストの色を白にして視認性を確保
-                            val textColor = if (barTop < 20.dp && data.count > 0) {
-                                MaterialTheme.colorScheme.onPrimary // 棒グラフの内部の場合は白
-                            } else {
-                                MaterialTheme.colorScheme.primary // 通常はプライマリカラー
-                            }
-                            
+                            val textColor =
+                                if (barTop < 20.dp && data.count > 0) {
+                                    MaterialTheme.colorScheme.onPrimary // 棒グラフの内部の場合は白
+                                } else {
+                                    MaterialTheme.colorScheme.primary // 通常はプライマリカラー
+                                }
+
                             Text(
                                 text = data.count.toString(),
                                 style = MaterialTheme.typography.bodySmall,
@@ -229,3 +230,55 @@ fun StackedBarChart(
     }
 }
 
+@Preview
+@Composable
+fun StackedBarChartPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // 過去12ヶ月分のモックデータ
+            val mockData =
+                listOf(
+                    MonthlyReportCount("2024-01", 3),
+                    MonthlyReportCount("2024-02", 5),
+                    MonthlyReportCount("2024-03", 0),
+                    MonthlyReportCount("2024-04", 8),
+                    MonthlyReportCount("2024-05", 4),
+                    MonthlyReportCount("2024-06", 6),
+                    MonthlyReportCount("2024-07", 10),
+                    MonthlyReportCount("2024-08", 7),
+                    MonthlyReportCount("2024-09", 5),
+                    MonthlyReportCount("2024-10", 9),
+                    MonthlyReportCount("2024-11", 6),
+                    MonthlyReportCount("2024-12", 4)
+                )
+            StackedBarChart(mockData)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun StackedBarChartEmptyPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // データがない場合のプレビュー
+            StackedBarChart(emptyList())
+        }
+    }
+}
+
+@Preview
+@Composable
+fun StackedBarChartSmallDataPreview() {
+    RamenNoteTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // データが少ない場合のプレビュー
+            val mockData =
+                listOf(
+                    MonthlyReportCount("2024-11", 1),
+                    MonthlyReportCount("2024-12", 3)
+                )
+            StackedBarChart(mockData)
+        }
+    }
+}

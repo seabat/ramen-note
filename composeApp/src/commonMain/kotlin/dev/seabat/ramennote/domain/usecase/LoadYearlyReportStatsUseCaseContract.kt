@@ -8,4 +8,3 @@ import dev.seabat.ramennote.domain.model.MonthlyReportCount
 interface LoadYearlyReportStatsUseCaseContract {
     suspend operator fun invoke(): List<MonthlyReportCount>
 }
-
