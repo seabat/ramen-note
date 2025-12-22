@@ -75,6 +75,7 @@
     <string name="add_no_data_label">未設定</string>
     <string name="add_schedule_label">予定</string>
     <string name="add_schedule_error_past_date_message">過去の日付を指定できません</string>
+    <string name="add_schedule_complete_message">スケジュールを作成しました</string>
 
     <!-- Add Shop Screen -->
     <string name="add_shop_area_input">エリア名を入力してください。</string>
