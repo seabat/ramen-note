@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -89,7 +88,7 @@ fun StackedBarChart(
                     2.dp,
                     MaterialTheme.colorScheme.outline,
                     RoundedCornerShape(10.dp)
-                ).padding(horizontal = 16.dp, vertical = 8.dp),
+                ).padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -134,19 +133,21 @@ fun StackedBarChart(
                         val x = (barWidthPx + barSpacing.toPx()) * index
                         // 0件の時も最小の高さ（4.dp）で表示
 
-                        val barHeight = if (data.count == 0) {
-                            4.dp.toPx()
-                        } else {
-                            (canvasHeightPx * data.count / maxCount).coerceAtLeast(4.dp.toPx())
-                        }
+                        val barHeight =
+                            if (data.count == 0) {
+                                4.dp.toPx()
+                            } else {
+                                (canvasHeightPx * data.count / maxCount).coerceAtLeast(4.dp.toPx())
+                            }
                         val y = canvasHeightPx - barHeight
 
                         // 0件の時は透明、それ以外は通常の色
-                        val barColor = if (data.count == 0) {
-                            primaryColor.copy(alpha = 0f)
-                        } else {
-                            primaryColor
-                        }
+                        val barColor =
+                            if (data.count == 0) {
+                                primaryColor.copy(alpha = 0f)
+                            } else {
+                                primaryColor
+                            }
 
                         // 棒グラフを描画
                         drawRect(
@@ -157,11 +158,12 @@ fun StackedBarChart(
                         )
 
                         // 棒グラフの枠線（0件の時は透明）
-                        val borderColor = if (data.count == 0) {
-                            primaryColor.copy(alpha = 0f)
-                        } else {
-                            primaryColor.copy(alpha = 0.8f)
-                        }
+                        val borderColor =
+                            if (data.count == 0) {
+                                primaryColor.copy(alpha = 0f)
+                            } else {
+                                primaryColor.copy(alpha = 0.8f)
+                            }
                         drawRect(
                             color = borderColor,
                             topLeft = Offset(x, y),

@@ -63,6 +63,7 @@ import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.chart.StackedBarChart
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.history.ReportCard
+import dev.seabat.ramennote.ui.screens.history.ReportImageDialog
 import dev.seabat.ramennote.ui.screens.note.shoplist.ShopItem
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -129,6 +130,7 @@ fun HomeScreen(
     val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
     val yearlyReportStats by viewModel.yearlyReportStats.collectAsStateWithLifecycle()
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
+    var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     val urlHandler = LocalUriHandler.current
     val xShareLauncher = createRememberedXShareLauncher()
 
@@ -172,6 +174,7 @@ fun HomeScreen(
             RecentReports(
                 reports = threeMonthsReports,
                 goToHistory = goToHistory,
+                onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
                 shareToX = { postText, imageBytes ->
                     viewModel.shareToX(
                         postText,
@@ -238,6 +241,14 @@ fun HomeScreen(
                 dialogState = DialogState.Hidden
             }
         )
+
+        // 画像ダイアログ
+        selectedImageBytes?.let { imageBytes ->
+            ReportImageDialog(
+                imageBytes = imageBytes,
+                onDismiss = { selectedImageBytes = null }
+            )
+        }
     }
 }
 
@@ -530,6 +541,7 @@ private fun YearlyReportChart(
 private fun RecentReports(
     reports: List<FullReport>,
     goToHistory: (reportId: Int) -> Unit,
+    onImageTap: (ByteArray?) -> Unit,
     shareToX: (String, ByteArray?) -> Unit
 ) {
     Column(
@@ -577,6 +589,7 @@ private fun RecentReports(
                                 onTap = {
                                     goToHistory(report.id)
                                 },
+                                onImageTap = { onImageTap(report.imageBytes) },
                                 onShareTap = { postText, imageBytes ->
                                     shareToX(postText, imageBytes)
                                 }
@@ -770,6 +783,7 @@ fun RecentReportsPreview() {
             RecentReports(
                 reports = MockHomeViewModel().threeMonthsReports.value,
                 {},
+                { _ -> },
                 { _, _ -> }
             )
         }

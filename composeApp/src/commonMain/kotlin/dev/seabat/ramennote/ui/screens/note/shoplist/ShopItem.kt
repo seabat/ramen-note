@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.StarIcon
@@ -45,7 +44,7 @@ fun ShopItem(
             Text(
                 modifier = Modifier.weight(1.0f),
                 text = shop.name,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium
             )
 
             Row(
@@ -89,7 +88,7 @@ fun ShopItem(
 fun ShopItemPreview() {
     RamenNoteTheme {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp)
         ) {
             // お気に入りあり、評価3つ星
             ShopItem(
