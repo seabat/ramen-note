@@ -29,7 +29,7 @@ import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-const val CHART_HEIGHT = 120
+const val CHART_HEIGHT = 160
 
 /**
  * 過去1年間の月別訪問回数を積み上げグラフで表示するコンポーネント

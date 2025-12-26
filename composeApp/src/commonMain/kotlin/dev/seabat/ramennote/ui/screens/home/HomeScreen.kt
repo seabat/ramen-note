@@ -18,12 +18,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -152,6 +154,7 @@ fun HomeScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
@@ -396,13 +399,17 @@ private fun Favorite(
                     Text(text = stringResource(Res.string.home_no_favorite))
                 }
             } else {
+                // FavoriteShopItem を縦に3個分表示できる高さ
+                val gridHeight =
+                    FAVORITE_SHOP_ITEM_HEIGHT.dp * 3 +
+                        8.dp * 4 // contentPadding(上下) + item間スペース(2つ) 分
+
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier =
                         Modifier
                             .padding(4.dp)
-                            .fillMaxHeight(),
-                    // 画面いっぱいまで使用
+                            .height(gridHeight),
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
