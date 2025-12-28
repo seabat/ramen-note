@@ -27,7 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.home_no_recent_report
 
 const val CHART_HEIGHT = 160
 
@@ -59,7 +62,7 @@ fun StackedBarChart(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "データがありません",
+                text = stringResource(Res.string.home_no_recent_report),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

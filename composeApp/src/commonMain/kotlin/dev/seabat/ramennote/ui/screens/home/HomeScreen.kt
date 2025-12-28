@@ -84,6 +84,7 @@ import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.home_background
 import ramennote.composeapp.generated.resources.home_complete_add_schedule
 import ramennote.composeapp.generated.resources.home_favorite_subheading
+import ramennote.composeapp.generated.resources.home_monthly_report_count
 import ramennote.composeapp.generated.resources.home_no_favorite
 import ramennote.composeapp.generated.resources.home_no_map
 import ramennote.composeapp.generated.resources.home_no_reports
@@ -536,7 +537,7 @@ private fun YearlyReportChart(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "過去1年間の月別訪店回数",
+            text = stringResource(Res.string.home_monthly_report_count),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary
         )
