@@ -28,7 +28,7 @@ actual class PermissionsLauncher actual constructor(
     private val callback: PermissionCallback
 ) : PermissionHandler {
     @Composable
-    override fun askPermission(permission: PermissionType) {
+    actual override fun askPermission(permission: PermissionType) {
         when (permission) {
             PermissionType.CAMERA -> {
                 val status: AVAuthorizationStatus =
@@ -100,7 +100,7 @@ actual class PermissionsLauncher actual constructor(
     }
 
     @Composable
-    override fun isPermissionGranted(permission: PermissionType): Boolean =
+    actual override fun isPermissionGranted(permission: PermissionType): Boolean =
         when (permission) {
             PermissionType.CAMERA -> {
                 val status: AVAuthorizationStatus =
