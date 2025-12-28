@@ -69,8 +69,8 @@ fun StackedBarChart(
 
     val maxCount = monthlyData.maxOfOrNull { it.count }?.coerceAtLeast(1) ?: 1
     val chartHeight = CHART_HEIGHT.dp
-    val barWidth = 20.dp
-    val barSpacing = 8.dp
+    val minBarWidth = 16.dp // 最小棒グラフ幅
+    val minBarSpacing = 4.dp // 最小スペース
     val padding = 8.dp
 
     // MaterialThemeの色を取得（Canvas内で使用するため）
@@ -103,21 +103,41 @@ fun StackedBarChart(
             ) {
                 val canvasWidth = maxWidth
                 val canvasHeight = chartHeight
-                val availableWidth = canvasWidth - (barSpacing * (monthlyData.size - 1))
-                val barWidthCalculated = (availableWidth / monthlyData.size).coerceAtMost(barWidth)
+                
+                // 利用可能な幅を最大限活用するように、棒グラフの幅とスペースを動的に計算
+                val spacingCount = (monthlyData.size - 1).coerceAtLeast(1)
+                
+                // 棒グラフとスペースの比率を設定（棒グラフ:スペース = 2:1）
+                val barRatio = 2.0f
+                val spacingRatio = 1.0f
+                val totalRatio = barRatio * monthlyData.size + spacingRatio * spacingCount
+                
+                // 利用可能な幅を比率に基づいて分配
+                val barWidthCalculated = (canvasWidth * barRatio / totalRatio).coerceAtLeast(minBarWidth)
+                val barSpacingCalculated = (canvasWidth * spacingRatio / totalRatio).coerceAtLeast(minBarSpacing)
 
                 Canvas(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     val canvasWidthPx = size.width
                     val canvasHeightPx = size.height
-                    val availableWidthPx = canvasWidthPx - (barSpacing.toPx() * (monthlyData.size - 1))
-                    val barWidthPx = (availableWidthPx / monthlyData.size).coerceAtMost(barWidth.toPx())
+                    
+                    // 利用可能な幅を最大限活用するように、棒グラフの幅とスペースを動的に計算
+                    // 棒グラフとスペースの比率を設定（棒グラフ:スペース = 2:1）
+                    val barRatio = 2.0f
+                    val spacingRatio = 1.0f
+                    val totalRatio = barRatio * monthlyData.size + spacingRatio * spacingCount
+                    
+                    // 利用可能な幅を比率に基づいて分配
+                    val barWidthPx = (canvasWidthPx * barRatio / totalRatio).coerceAtLeast(minBarWidth.toPx())
+                    val barSpacingPx = (canvasWidthPx * spacingRatio / totalRatio).coerceAtLeast(minBarSpacing.toPx())
 
-                    // グラフ全体の幅を計算
-                    val totalGraphWidth = barWidthPx * monthlyData.size + barSpacing.toPx() * (monthlyData.size - 1)
-                    // 中央寄せのための左端オフセット
-                    val startOffset = (canvasWidthPx - totalGraphWidth) / 2
+                    // 実際に使用した棒グラフの総幅
+                    val totalBarWidthPx = barWidthPx * monthlyData.size
+                    // グラフ全体の幅を計算（利用可能な幅いっぱいまで使用）
+                    val totalGraphWidth = totalBarWidthPx + barSpacingPx * spacingCount
+                    // 左端から配置（余白を最小化）
+                    val startOffset = 0f
 
                     // Y軸の目盛り線を描画
                     val yAxisLineCount = 5
@@ -135,7 +155,7 @@ fun StackedBarChart(
 
                     // 各月の棒グラフを描画
                     monthlyData.forEachIndexed { index, data ->
-                        val x = startOffset + (barWidthPx + barSpacing.toPx()) * index
+                        val x = startOffset + (barWidthPx + barSpacingPx) * index
                         // 0件の時も最小の高さ（4.dp）で表示
 
                         val barHeight =
@@ -180,14 +200,14 @@ fun StackedBarChart(
 
                 // 各棒グラフの上にカウント数を表示
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // グラフ全体の幅を計算
-                    val totalGraphWidth = barWidthCalculated * monthlyData.size + barSpacing * (monthlyData.size - 1)
-                    // 中央寄せのための左端オフセット
-                    val startOffset = (canvasWidth - totalGraphWidth) / 2
+                    // グラフ全体の幅を計算（利用可能な幅いっぱいまで使用）
+                    val totalGraphWidth = barWidthCalculated * monthlyData.size + barSpacingCalculated * spacingCount
+                    // 左端から配置（余白を最小化）
+                    val startOffset = 0.dp
 
                     monthlyData.forEachIndexed { index, data ->
                         val barHeight = (canvasHeight * data.count / maxCount).coerceAtLeast(4.dp)
-                        val barX = startOffset + (barWidthCalculated + barSpacing) * index
+                        val barX = startOffset + (barWidthCalculated + barSpacingCalculated) * index
                         val barTop = canvasHeight - barHeight
 
                         // 棒グラフの上20dpに表示。ただし、棒グラフが高すぎる場合は棒グラフの内部（上部）に表示
@@ -232,19 +252,29 @@ fun StackedBarChart(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val canvasWidth = maxWidth
-                val availableWidth = canvasWidth - (barSpacing * (monthlyData.size - 1))
-                val barWidthCalculated = (availableWidth / monthlyData.size).coerceAtMost(barWidth)
+                
+                // 利用可能な幅を最大限活用するように、棒グラフの幅とスペースを動的に計算
+                val spacingCount = (monthlyData.size - 1).coerceAtLeast(1)
+                
+                // 棒グラフとスペースの比率を設定（棒グラフ:スペース = 2:1）
+                val barRatio = 2.0f
+                val spacingRatio = 1.0f
+                val totalRatio = barRatio * monthlyData.size + spacingRatio * spacingCount
+                
+                // 利用可能な幅を比率に基づいて分配
+                val barWidthCalculated = (canvasWidth * barRatio / totalRatio).coerceAtLeast(minBarWidth)
+                val barSpacingCalculated = (canvasWidth * spacingRatio / totalRatio).coerceAtLeast(minBarSpacing)
 
-                // グラフ全体の幅を計算
-                val totalGraphWidth = barWidthCalculated * monthlyData.size + barSpacing * (monthlyData.size - 1)
-                // 中央寄せのための左端オフセット
-                val startOffset = (canvasWidth - totalGraphWidth) / 2
+                // グラフ全体の幅を計算（利用可能な幅いっぱいまで使用）
+                val totalGraphWidth = barWidthCalculated * monthlyData.size + barSpacingCalculated * spacingCount
+                // 左端から配置（余白を最小化）
+                val startOffset = 0.dp
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     monthlyData.forEachIndexed { index, data ->
                         val monthLabel = data.yearMonth.substring(5, 7) // "MM" 部分を取得
                         val monthNumber = monthLabel.toIntOrNull() ?: 0 // 先頭の0を削除するために数値に変換
-                        val barX = startOffset + (barWidthCalculated + barSpacing) * index
+                        val barX = startOffset + (barWidthCalculated + barSpacingCalculated) * index
                         val textX = barX + (barWidthCalculated / 2) // 棒グラフの中央
 
                         Box(
