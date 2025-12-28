@@ -169,3 +169,4 @@ Jetpack Compose を使用した UI コンポーネントの層。
     * `actual` 実装を含むファイルで `androidMain` に配置するものは `Xxxx.android.kt` とする
     * `actual` 実装を含むファイルで `iosMain` に配置するものは `Xxxx.ios.kt` とする
     * 同じ機能の expect/actual は同じベース名（`Xxxx`）を使用する
+
