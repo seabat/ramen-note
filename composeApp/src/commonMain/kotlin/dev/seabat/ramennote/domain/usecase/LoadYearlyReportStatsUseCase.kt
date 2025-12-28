@@ -4,6 +4,7 @@ import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
@@ -22,8 +23,9 @@ class LoadYearlyReportStatsUseCase(
                 .toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
 
-        // 1年前の日付を計算
-        val oneYearAgo = today.minus(DatePeriod(months = 11))
+        // 1年前の日付を計算（月初に設定。 今日が2025/09/15の場合は2024/10/01）
+        val oneYearAgoDate = today.minus(DatePeriod(months = 11))
+        val oneYearAgo = LocalDate(oneYearAgoDate.year, oneYearAgoDate.month, 1)
 
         // 過去1年間のデータをフィルタリング
         val filteredReports =
