@@ -161,3 +161,11 @@ Jetpack Compose を使用した UI コンポーネントの層。
 * `useCaseModule` は `domain/di/` に配置する。
 * `repositoryModule`、`dataSourceModule`、`databaseModule`、`factoryModule` は `data/di/` に配置する。
 * `uiModule` は `ui/di/` に配置し、`expect/actual` で実装する。
+
+## ファイル名
+
+* Kotlin Multiplatform の expect/actual 実装
+    * `expect` 宣言を含むファイルは `commonMain` に配置し、`Xxxx.common.kt` とする
+    * `actual` 実装を含むファイルで `androidMain` に配置するものは `Xxxx.android.kt` とする
+    * `actual` 実装を含むファイルで `iosMain` に配置するものは `Xxxx.ios.kt` とする
+    * 同じ機能の expect/actual は同じベース名（`Xxxx`）を使用する

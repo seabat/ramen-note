@@ -4,7 +4,13 @@ import androidx.compose.runtime.Composable
 
 expect class PermissionsLauncher(
     callback: PermissionCallback
-) : PermissionHandler
+) : PermissionHandler {
+    @Composable
+    override fun askPermission(permission: PermissionType)
+
+    @Composable
+    override fun isPermissionGranted(permission: PermissionType): Boolean
+}
 
 interface PermissionCallback {
     fun onPermissionStatus(permissionType: PermissionType, status: PermissionStatus)
