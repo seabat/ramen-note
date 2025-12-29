@@ -3,12 +3,14 @@ package dev.seabat.ramennote.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadYearlyReportStatsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
@@ -24,6 +26,7 @@ class HomeViewModel(
     private val loadFavoriteShopsUseCase: LoadFavoriteShopsUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
     private val loadThreeMonthsFullReportsUseCase: LoadThreeMonthsFullReportsUseCaseContract,
+    private val loadYearlyReportStatsUseCase: LoadYearlyReportStatsUseCaseContract,
     private val updateScheduleInShopUseCase: UpdateScheduleInShopUseCaseContract
 ) : ViewModel(),
     HomeViewModelContract {
@@ -35,6 +38,9 @@ class HomeViewModel(
 
     private val _threeMonthsReports = MutableStateFlow<List<FullReport>>(emptyList())
     override val threeMonthsReports: StateFlow<List<FullReport>> = _threeMonthsReports.asStateFlow()
+
+    private val _yearlyReportStats = MutableStateFlow<List<MonthlyReportCount>>(emptyList())
+    override val yearlyReportStats: StateFlow<List<MonthlyReportCount>> = _yearlyReportStats.asStateFlow()
 
     override fun shareToX(postText: String, image: SharedImage?, xShareLauncher: XShareLauncher) {
         viewModelScope.launch {
@@ -100,6 +106,12 @@ class HomeViewModel(
     override fun loadThreeMonthsReports() {
         viewModelScope.launch {
             _threeMonthsReports.value = loadThreeMonthsFullReportsUseCase()
+        }
+    }
+
+    override fun loadYearlyReportStats() {
+        viewModelScope.launch {
+            _yearlyReportStats.value = loadYearlyReportStatsUseCase()
         }
     }
 

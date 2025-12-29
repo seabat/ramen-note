@@ -24,7 +24,7 @@ fun StarIcon(
             Modifier
                 .then(
                     if (onClick != null) {
-                        Modifier.padding(end = 4.dp).clickable { onClick.invoke() }
+                        Modifier.padding(end = 0.dp).clickable { onClick.invoke() }
                     } else {
                         Modifier
                     }

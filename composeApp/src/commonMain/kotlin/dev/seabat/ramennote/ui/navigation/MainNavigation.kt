@@ -458,7 +458,7 @@ fun MainNavigation() {
                                 shop.id,
                                 shop.name,
                                 shop.menuName1,
-                                iso8601Date = shop.scheduledDate?.toString() ?: createTodayLocalDate().toString()
+                                iso8601Date = createTodayLocalDate().toString()
                             )
                         )
                     },
