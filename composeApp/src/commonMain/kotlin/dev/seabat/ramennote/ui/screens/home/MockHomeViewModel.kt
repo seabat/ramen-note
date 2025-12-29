@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.ui.screens.home
 
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
@@ -20,6 +21,10 @@ class MockHomeViewModel : HomeViewModelContract {
 
     private val _addedScheduleState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
     override val addedScheduleState: StateFlow<RunStatus<String>> = _addedScheduleState.asStateFlow()
+
+    private val _yearlyReportStats = MutableStateFlow<List<MonthlyReportCount>>(emptyList())
+    override val yearlyReportStats: StateFlow<List<MonthlyReportCount>> = _yearlyReportStats.asStateFlow()
+
     private val _threeMonthsReports =
         MutableStateFlow<List<FullReport>>(
             listOf(
@@ -211,6 +216,10 @@ class MockHomeViewModel : HomeViewModelContract {
     }
 
     override fun loadThreeMonthsReports() {
+        // Preview用なので何もしない
+    }
+
+    override fun loadYearlyReportStats() {
         // Preview用なので何もしない
     }
 

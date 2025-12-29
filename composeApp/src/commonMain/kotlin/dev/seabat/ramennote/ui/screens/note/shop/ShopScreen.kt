@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotApplyResult
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -61,6 +62,7 @@ import ramennote.composeapp.generated.resources.add_category_label
 import ramennote.composeapp.generated.resources.add_evaluation_label
 import ramennote.composeapp.generated.resources.add_no_data_label
 import ramennote.composeapp.generated.resources.add_note_label
+import ramennote.composeapp.generated.resources.add_schedule_complete_message
 import ramennote.composeapp.generated.resources.add_schedule_error_past_date_message
 import ramennote.composeapp.generated.resources.add_schedule_label
 import ramennote.composeapp.generated.resources.add_station_label
@@ -100,6 +102,7 @@ fun ShopScreen(
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
+    var showScheduledDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
 
     Box(
@@ -166,9 +169,11 @@ fun ShopScreen(
                     onClick = {
                         datePickerOnClickHandler(
                             datePickerState,
-                            showErrorDialog = { showErrorDialog = true },
-                            goToSchedule = { goToSchedule() },
-                            addSchedule = { date -> viewModel.addSchedule(shopId, date) },
+                            onFailure = { showErrorDialog = true },
+                            onSuccess = { date ->
+                                viewModel.addSchedule(shopId, date)
+                                showScheduledDialog = true
+                            },
                             dismissDatePicker = { showDatePicker = false }
                         )
                     }
@@ -194,6 +199,13 @@ fun ShopScreen(
         AppAlert(
             message = stringResource(Res.string.add_schedule_error_past_date_message),
             onConfirm = { showErrorDialog = false }
+        )
+    }
+
+    if (showScheduledDialog) {
+        AppAlert(
+            message = stringResource(Res.string.add_schedule_complete_message),
+            onConfirm = { showScheduledDialog = false }
         )
     }
 }
@@ -480,9 +492,8 @@ fun StarItem(star: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 private fun datePickerOnClickHandler(
     datePickerState: DatePickerState,
-    showErrorDialog: () -> Unit,
-    goToSchedule: () -> Unit,
-    addSchedule: (LocalDate) -> Unit = { _ -> },
+    onFailure: () -> Unit,
+    onSuccess: (LocalDate) -> Unit,
     dismissDatePicker: () -> Unit
 ) {
     try {
@@ -496,10 +507,9 @@ private fun datePickerOnClickHandler(
 
             // 今日を含めた未来日かどうかをチェック
             if (!selectedDate.isTodayOrFuture()) {
-                showErrorDialog()
+                onFailure()
             } else {
-                addSchedule(selectedDate)
-                goToSchedule()
+                onSuccess(selectedDate)
             }
         }
     } finally {

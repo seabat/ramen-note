@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.model.FullReport
@@ -50,7 +51,7 @@ fun ReportCard(
     val date: LocalDate = report.date
     val dayText =
         if (date != null) {
-            "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
+            "${date.dayOfMonth.toString().padStart(2, '0')}日(${dayOfWeekJp(date)})"
         } else {
             ""
         }
@@ -59,7 +60,7 @@ fun ReportCard(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(125.dp)
+                .height(106.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = { onLongPress() },
@@ -69,7 +70,7 @@ fun ReportCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp).fillMaxSize(),
+            modifier = Modifier.padding(8.dp).fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
@@ -77,7 +78,7 @@ fun ReportCard(
                 contentDescription = null,
                 modifier =
                     Modifier
-                        .size(100.dp)
+                        .size(90.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .clickable { onImageTap() },
                 contentScale = ContentScale.Crop
@@ -97,9 +98,11 @@ fun ReportCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
+                        modifier = Modifier.weight(1.0f),
                         text = report.shopName,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
                     )
                     Icon(
                         imageVector = vectorResource(Res.drawable.ios_share_24px),
@@ -126,21 +129,24 @@ fun ReportCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
+                        modifier = Modifier.weight(0.75f),
                         text = report.menuName,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
+                        modifier = Modifier.weight(0.25f),
                         text = dayText,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.End
                     )
                 }
 
                 if (report.impression.isNotBlank()) {
                     Text(
                         text = report.impression,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -178,7 +184,7 @@ fun ReportCardPreview() {
                         id = 2,
                         shopId = 2,
                         shopName = "一風堂 山口店",
-                        menuName = "赤丸新味",
+                        menuName = "赤丸新味 大盛り ライス のり増し",
                         photoName = "hakata_ramen_2.jpg",
                         imageBytes = null,
                         impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。",

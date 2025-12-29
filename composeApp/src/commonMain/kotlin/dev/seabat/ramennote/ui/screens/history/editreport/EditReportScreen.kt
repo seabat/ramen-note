@@ -71,13 +71,7 @@ fun EditReportScreen(
     val fullReport by viewModel.fullReport.collectAsState()
 
     var menuName by remember(fullReport.menuName) { mutableStateOf(fullReport.menuName) }
-    var image by remember(fullReport.imageBytes) {
-        mutableStateOf(
-            fullReport.imageBytes?.let { imageBytes ->
-                SharedImage(imageBytes)
-            } ?: SharedImage()
-        )
-    }
+    var image by remember { mutableStateOf<SharedImage?>(null) }
     var reportedDate by remember(fullReport.date) { mutableStateOf(fullReport.date) }
     var impression by remember(fullReport.impression) { mutableStateOf(fullReport.impression) }
 
@@ -98,6 +92,17 @@ fun EditReportScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadReport(reportId)
+    }
+
+    // fullReportが読み込まれたときにのみimageを初期化（ユーザーが選択した画像を上書きしない）
+    var lastInitializedReportId by remember { mutableStateOf(0) }
+    LaunchedEffect(fullReport.id) {
+        if (fullReport.id != 0 && fullReport.id != lastInitializedReportId) {
+            image = fullReport.imageBytes?.let { imageBytes ->
+                SharedImage(imageBytes)
+            } ?: SharedImage()
+            lastInitializedReportId = fullReport.id
+        }
     }
 
     Box(

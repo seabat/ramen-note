@@ -1,16 +1,11 @@
 package dev.seabat.ramennote.ui.screens.note.shoplist
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
@@ -25,16 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.StarIcon
 import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.favorite_disabled
-import ramennote.composeapp.generated.resources.favorite_enabled
 import ramennote.composeapp.generated.resources.shoplist_no_data
 
 @Composable
@@ -95,7 +86,6 @@ private fun AreaShopListMainContent(
         if (shops.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
             ) {
                 item {
@@ -126,61 +116,6 @@ private fun AreaShopListMainContent(
             onAddClick = {
                 onAddShopClick(areaName)
             }
-        )
-    }
-}
-
-@Composable
-private fun ShopItem(
-    shop: Shop,
-    onShopClick: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Column {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable { onShopClick() }
-                    .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = shop.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    repeat(3) { index ->
-                        StarIcon(
-                            onOff = index < shop.star
-                        )
-                    }
-                }
-
-                // お気に入りアイコン
-                Image(
-                    painter =
-                        painterResource(
-                            if (shop.favorite) {
-                                Res.drawable.favorite_enabled
-                            } else {
-                                Res.drawable.favorite_disabled
-                            }
-                        ),
-                    contentDescription = if (shop.favorite) "お気に入り済み" else "お気に入り未設定",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
         )
     }
 }

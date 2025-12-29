@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.ui.screens.home
 
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.ui.gallery.SharedImage
@@ -14,6 +15,7 @@ interface HomeViewModelContract {
     val addedScheduleState: StateFlow<RunStatus<String>>
     val favoriteShops: StateFlow<List<ShopWithImage>>
     val threeMonthsReports: StateFlow<List<FullReport>>
+    val yearlyReportStats: StateFlow<List<MonthlyReportCount>>
 
     fun shareToX(postText: String, image: SharedImage?, xShareLauncher: XShareLauncher)
 
@@ -26,6 +28,8 @@ interface HomeViewModelContract {
     fun loadFavoriteShops()
 
     fun loadThreeMonthsReports()
+
+    fun loadYearlyReportStats()
 
     fun addSchedule(shopId: Int, date: LocalDate)
 }
