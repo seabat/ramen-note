@@ -12,7 +12,8 @@ data class Schedule(
     val menuName: String = "",
     val photoName: String = "",
     val scheduledDate: LocalDate? = null,
-    val isReported: Boolean = false
+    val favorite: Boolean = false,
+    val isReported: Boolean = false,
 ) {
     companion object {
         fun fromShop(shop: Shop): Schedule =
@@ -26,7 +27,8 @@ data class Schedule(
                 menuName = shop.menuName1,
                 photoName = shop.photoName1,
                 scheduledDate = shop.scheduledDate,
-                isReported = false
+                favorite = shop.favorite,
+                isReported = false,
             )
     }
 }

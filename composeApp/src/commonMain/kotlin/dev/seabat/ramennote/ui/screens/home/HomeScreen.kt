@@ -321,7 +321,9 @@ private fun ScheduleContent(
                             category = schedule.category,
                             scheduledDate = schedule.scheduledDate,
                             menuName1 = schedule.menuName,
-                            photoName1 = schedule.photoName
+                            photoName1 = schedule.photoName,
+                            favorite = schedule.favorite,
+
                         ),
                     hasDivider = false,
                     onShopClick = {
