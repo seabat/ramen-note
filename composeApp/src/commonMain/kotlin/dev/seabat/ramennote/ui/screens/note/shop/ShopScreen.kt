@@ -89,7 +89,7 @@ fun ShopScreen(
     goToEditShop: (Shop) -> Unit = {},
     goToReport: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
-    goToHistory: (shop: Shop) -> Unit = {},
+    goToHistory: (shopId: Int) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
@@ -141,7 +141,7 @@ fun ShopScreen(
                         shop?.let { goToReport(it) }
                     },
                     onHistoryClick = {
-                        shop?.let { goToHistory(it) }
+                        shop?.let { goToHistory(it.id) }
                     },
                     onEditClick = {
                         shop?.let { goToEditShop(it) }

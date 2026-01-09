@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,7 +57,7 @@ fun MenuItem(
 fun MenuItemPreview() {
     RamenNoteTheme {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).background(MaterialTheme.colorScheme.surface),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             MenuItem(

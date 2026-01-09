@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
-import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
@@ -41,22 +40,20 @@ import ramennote.composeapp.generated.resources.screen_history_title
 @Composable
 fun HistoryScreen(
     reportId: Int? = null,
-    shop: Shop? = null,
+    shopId: Int? = null,
     goToEditReport: (reportId: Int) -> Unit = {},
     clearReportIdParam: () -> Unit = {},
     clearShopParam: () -> Unit = {},
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
-    var shopName by remember { mutableStateOf("") }
-    val reports by viewModel.reports.collectAsState()
+    val shopNameState by viewModel.shopName.collectAsState()
+    val reportsState by viewModel.reports.collectAsState()
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
 
     LaunchedEffect(Unit) {
-        viewModel.loadReports(shop?.id)
-        // NOTE: clearShopParam による再コンポーズで shopName がクリアされないよう LaunchedEffect(Unit) で shopName を設定
-        shopName = shop?.name ?: ""
+        viewModel.loadReports(shopId)
         clearShopParam()
     }
 
@@ -68,17 +65,17 @@ fun HistoryScreen(
     ) {
         AppBar(
             title =
-                if (shopName.isNotEmpty()) {
-                    "${stringResource(Res.string.screen_history_title)}($shopName)"
+                if (shopNameState.isNotEmpty()) {
+                    "${stringResource(Res.string.screen_history_title)}($shopNameState)"
                 } else {
                     stringResource(Res.string.screen_history_title)
                 }
         )
-        if (reports.isNotEmpty()) {
+        if (reportsState.isNotEmpty()) {
             Box {
                 // レポート一覧
                 ReportsList(
-                    reports = reports,
+                    reports = reportsState,
                     listState = listState,
                     goToEditReport = goToEditReport,
                     onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
@@ -117,10 +114,10 @@ fun HistoryScreen(
             }
 
             // reportIdが指定されている場合、該当アイテムまで自動スクロール
-            LaunchedEffect(reportId, reports) {
-                if (reportId != null && reports.isNotEmpty()) {
+            LaunchedEffect(reportId, reportsState) {
+                if (reportId != null && reportsState.isNotEmpty()) {
                     // レポートを年月でグループ化し、ソート
-                    val grouped = groupReports(reports)
+                    val grouped = groupReports(reportsState)
 
                     // 該当のreportIdのインデックスを探す
                     var targetIndex = -1
@@ -143,7 +140,6 @@ fun HistoryScreen(
                         listState.animateScrollToItem(targetIndex)
                     }
 
-                    // reportIdを処理した後、Stateをクリア
                     clearReportIdParam()
                 }
             }

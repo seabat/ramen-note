@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -124,6 +123,7 @@ fun HomeScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
     goToHistory: (reportId: Int) -> Unit = { _ -> },
+    goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
@@ -218,6 +218,10 @@ fun HomeScreen(
             },
             goToReport = { shopId, shopName, menuName, iso8601Date ->
                 goToReport(shopId, shopName, menuName, iso8601Date)
+                dialogState = DialogState.Hidden
+            },
+            goToHistoryWithFiltering = { shopId ->
+                goToHistoryWithFiltering(shopId)
                 dialogState = DialogState.Hidden
             },
             showDatePicker = { shop ->
@@ -636,6 +640,7 @@ private fun HomeDialog(
     onDismiss: () -> Unit,
     goToShop: (shopId: Int, shopName: String) -> Unit,
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit,
+    goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
     showDatePicker: (shop: Shop) -> Unit,
     launchMap: (mapUrl: String) -> Unit,
     addSchedule: (shopId: Int, date: LocalDate) -> Unit,
@@ -671,6 +676,9 @@ private fun HomeDialog(
                 },
                 onAddSchedule = {
                     showDatePicker(dialogState.shop)
+                },
+                onShowReport = {
+                    goToHistoryWithFiltering(dialogState.shop.id)
                 }
             )
         }

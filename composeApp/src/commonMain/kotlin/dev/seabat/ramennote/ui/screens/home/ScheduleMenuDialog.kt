@@ -19,7 +19,7 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.globe_24px
 import ramennote.composeapp.generated.resources.home_menu_map
-import ramennote.composeapp.generated.resources.home_menu_report
+import ramennote.composeapp.generated.resources.home_menu_write_report
 import ramennote.composeapp.generated.resources.home_menu_shop_detail
 import ramennote.composeapp.generated.resources.home_menu_web
 import ramennote.composeapp.generated.resources.location_on_24px
@@ -68,7 +68,7 @@ fun ScheduleMenuDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 MenuItem(
                     icon = vectorResource(Res.drawable.ramen_dining_24px),
-                    text = stringResource(Res.string.home_menu_report),
+                    text = stringResource(Res.string.home_menu_write_report),
                     onClick = onAddReport
                 )
             }

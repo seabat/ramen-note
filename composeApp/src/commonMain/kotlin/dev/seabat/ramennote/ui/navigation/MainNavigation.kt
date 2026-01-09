@@ -263,7 +263,7 @@ fun MainNavigation() {
     var reportIdParam by remember { mutableStateOf<Int?>(null) }
 
     // HistoryScreenに遷移する際のshopIdを管理するState
-    var shopParam by remember { mutableStateOf<ShopInfo?>(null) }
+    var shopIdParam by remember { mutableStateOf<Int?>(null) }
 
     val tabScreens =
         listOf(
@@ -361,6 +361,18 @@ fun MainNavigation() {
                                 saveState = true
                             }
                         }
+                    },
+                    goToHistoryWithFiltering = { shopId ->
+                        // NavigationBar は restoreState = true を設定しているので、一度 Screen クラスのプロパティを使ってタブ画面に遷移すると 画面遷移する度にそのプロパティが復元されてしまう。
+                        // タブ画面への遷移時に使用するパラメータは Screen クラスのプロパティを使用せず、生存期間が長い変数を使用する。
+                        shopIdParam = shopId
+                        navController.navigate(Screen.History) {
+                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                            launchSingleTop = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                        }
                     }
                 )
             }
@@ -393,7 +405,7 @@ fun MainNavigation() {
             composable<Screen.History> {
                 HistoryScreen(
                     reportId = reportIdParam,
-                    shop = shopParam,
+                    shopId = shopIdParam,
                     goToEditReport = { reportId ->
                         navController.navigate(Screen.EditReport(reportId))
                     },
@@ -401,7 +413,7 @@ fun MainNavigation() {
                         reportIdParam = null
                     },
                     clearShopParam = {
-                        shopParam = null
+                        shopIdParam = null
                     }
                 )
             }
@@ -462,8 +474,8 @@ fun MainNavigation() {
                             )
                         )
                     },
-                    goToHistory = { shop ->
-                        shopParam = shop
+                    goToHistory = { shopId ->
+                        shopIdParam = shopId
                         navController.navigate(Screen.History) {
                             // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
                             launchSingleTop = true
