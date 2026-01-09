@@ -121,6 +121,7 @@ fun ShopScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
             ) {
                 // ヘッダー画像エリア
                 Header(
@@ -368,7 +369,6 @@ fun Detail(
         modifier =
             Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
     ) {
         // 予定（YYYY年mm月DD日 表記）
