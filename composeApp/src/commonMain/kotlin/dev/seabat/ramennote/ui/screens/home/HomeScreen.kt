@@ -17,12 +17,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -326,8 +326,7 @@ private fun ScheduleContent(
                             scheduledDate = schedule.scheduledDate,
                             menuName1 = schedule.menuName,
                             photoName1 = schedule.photoName,
-                            favorite = schedule.favorite,
-
+                            favorite = schedule.favorite
                         ),
                     hasDivider = false,
                     onShopClick = {

@@ -112,19 +112,20 @@ class HomeViewModel(
     override fun loadYearlyReportStats() {
         viewModelScope.launch {
             val reports = loadYearlyReportStatsUseCase()
-            
+
             // まず、すべてのcountを0にして更新
             _yearlyReportStats.value = reports.map { it.copy(count = 0) }
-            
+
             // reportsから1件ずつ取り出し、yearMonthが一致する要素のcountを更新
             reports.forEach { report ->
-                _yearlyReportStats.value = _yearlyReportStats.value.map { item ->
-                    if (item.yearMonth == report.yearMonth) {
-                        item.copy(count = report.count)
-                    } else {
-                        item
+                _yearlyReportStats.value =
+                    _yearlyReportStats.value.map { item ->
+                        if (item.yearMonth == report.yearMonth) {
+                            item.copy(count = report.count)
+                        } else {
+                            item
+                        }
                     }
-                }
                 delay(50) // 50ms遅延
             }
         }
