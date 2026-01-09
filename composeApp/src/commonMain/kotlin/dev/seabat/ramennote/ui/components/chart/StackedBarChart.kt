@@ -106,15 +106,15 @@ fun StackedBarChart(
             ) {
                 val canvasWidth = maxWidth
                 val canvasHeight = chartHeight
-                
+
                 // 利用可能な幅を最大限活用するように、棒グラフの幅とスペースを動的に計算
                 val spacingCount = (monthlyData.size - 1).coerceAtLeast(1)
-                
+
                 // 棒グラフとスペースの比率を設定（棒グラフ:スペース = 2:1）
                 val barRatio = 2.0f
                 val spacingRatio = 1.0f
                 val totalRatio = barRatio * monthlyData.size + spacingRatio * spacingCount
-                
+
                 // 利用可能な幅を比率に基づいて分配
                 val barWidthCalculated = (canvasWidth * barRatio / totalRatio).coerceAtLeast(minBarWidth)
                 val barSpacingCalculated = (canvasWidth * spacingRatio / totalRatio).coerceAtLeast(minBarSpacing)
@@ -124,13 +124,13 @@ fun StackedBarChart(
                 ) {
                     val canvasWidthPx = size.width
                     val canvasHeightPx = size.height
-                    
+
                     // 利用可能な幅を最大限活用するように、棒グラフの幅とスペースを動的に計算
                     // 棒グラフとスペースの比率を設定（棒グラフ:スペース = 2:1）
                     val barRatio = 2.0f
                     val spacingRatio = 1.0f
                     val totalRatio = barRatio * monthlyData.size + spacingRatio * spacingCount
-                    
+
                     // 利用可能な幅を比率に基づいて分配
                     val barWidthPx = (canvasWidthPx * barRatio / totalRatio).coerceAtLeast(minBarWidth.toPx())
                     val barSpacingPx = (canvasWidthPx * spacingRatio / totalRatio).coerceAtLeast(minBarSpacing.toPx())
@@ -255,15 +255,15 @@ fun StackedBarChart(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val canvasWidth = maxWidth
-                
+
                 // 利用可能な幅を最大限活用するように、棒グラフの幅とスペースを動的に計算
                 val spacingCount = (monthlyData.size - 1).coerceAtLeast(1)
-                
+
                 // 棒グラフとスペースの比率を設定（棒グラフ:スペース = 2:1）
                 val barRatio = 2.0f
                 val spacingRatio = 1.0f
                 val totalRatio = barRatio * monthlyData.size + spacingRatio * spacingCount
-                
+
                 // 利用可能な幅を比率に基づいて分配
                 val barWidthCalculated = (canvasWidth * barRatio / totalRatio).coerceAtLeast(minBarWidth)
                 val barSpacingCalculated = (canvasWidth * spacingRatio / totalRatio).coerceAtLeast(minBarSpacing)

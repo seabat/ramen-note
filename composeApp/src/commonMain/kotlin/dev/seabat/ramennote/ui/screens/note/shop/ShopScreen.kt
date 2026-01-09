@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotApplyResult
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -89,7 +88,7 @@ fun ShopScreen(
     goToEditShop: (Shop) -> Unit = {},
     goToReport: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
-    goToHistory: (shop: Shop) -> Unit = {},
+    goToHistory: (shopId: Int) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
@@ -121,6 +120,7 @@ fun ShopScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
             ) {
                 // ヘッダー画像エリア
                 Header(
@@ -141,7 +141,7 @@ fun ShopScreen(
                         shop?.let { goToReport(it) }
                     },
                     onHistoryClick = {
-                        shop?.let { goToHistory(it) }
+                        shop?.let { goToHistory(it.id) }
                     },
                     onEditClick = {
                         shop?.let { goToEditShop(it) }
@@ -368,7 +368,6 @@ fun Detail(
         modifier =
             Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
     ) {
         // 予定（YYYY年mm月DD日 表記）

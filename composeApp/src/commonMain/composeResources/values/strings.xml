@@ -36,7 +36,8 @@
     <string name="home_menu_map">マップを表示する</string>
     <string name="home_menu_web">Webサイトを表示する</string>
     <string name="home_menu_schedule">予定を追加する</string>
-    <string name="home_menu_report">食レポを書く</string>
+    <string name="home_menu_report">食レポを表示する</string>
+    <string name="home_menu_write_report">食レポを書く</string>
     <string name="home_monthly_report_count">年間月別食レポ回数</string>
     <string name="home_no_recent_report">過去12ヶ月に食レポがありません</string>
 

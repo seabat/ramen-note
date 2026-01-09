@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface HistoryViewModelContract {
     val reports: StateFlow<List<FullReport>>
+    val shopName: StateFlow<String>
 
     fun loadReports(shopId: Int? = null)
 

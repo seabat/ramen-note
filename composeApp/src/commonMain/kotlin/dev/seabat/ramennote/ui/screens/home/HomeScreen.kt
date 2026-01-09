@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,12 +17,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -124,6 +123,7 @@ fun HomeScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
     goToHistory: (reportId: Int) -> Unit = { _ -> },
+    goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
@@ -218,6 +218,10 @@ fun HomeScreen(
             },
             goToReport = { shopId, shopName, menuName, iso8601Date ->
                 goToReport(shopId, shopName, menuName, iso8601Date)
+                dialogState = DialogState.Hidden
+            },
+            goToHistoryWithFiltering = { shopId ->
+                goToHistoryWithFiltering(shopId)
                 dialogState = DialogState.Hidden
             },
             showDatePicker = { shop ->
@@ -321,7 +325,8 @@ private fun ScheduleContent(
                             category = schedule.category,
                             scheduledDate = schedule.scheduledDate,
                             menuName1 = schedule.menuName,
-                            photoName1 = schedule.photoName
+                            photoName1 = schedule.photoName,
+                            favorite = schedule.favorite
                         ),
                     hasDivider = false,
                     onShopClick = {
@@ -634,6 +639,7 @@ private fun HomeDialog(
     onDismiss: () -> Unit,
     goToShop: (shopId: Int, shopName: String) -> Unit,
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit,
+    goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
     showDatePicker: (shop: Shop) -> Unit,
     launchMap: (mapUrl: String) -> Unit,
     addSchedule: (shopId: Int, date: LocalDate) -> Unit,
@@ -669,6 +675,9 @@ private fun HomeDialog(
                 },
                 onAddSchedule = {
                     showDatePicker(dialogState.shop)
+                },
+                onShowReport = {
+                    goToHistoryWithFiltering(dialogState.shop.id)
                 }
             )
         }

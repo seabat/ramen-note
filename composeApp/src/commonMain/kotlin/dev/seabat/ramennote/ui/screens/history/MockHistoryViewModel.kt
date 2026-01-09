@@ -12,6 +12,9 @@ class MockHistoryViewModel : HistoryViewModelContract {
     private val _reports = MutableStateFlow<List<FullReport>>(emptyList())
     override val reports: StateFlow<List<FullReport>> = _reports.asStateFlow()
 
+    private val _shopName = MutableStateFlow<String>("")
+    override val shopName: StateFlow<String> = _shopName.asStateFlow()
+
     init {
         // プレビューで LaunchedEffect が動かない場合でも表示されるよう初期化
         loadReports()
