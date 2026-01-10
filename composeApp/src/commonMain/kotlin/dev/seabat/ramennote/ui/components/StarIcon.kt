@@ -2,6 +2,7 @@ package dev.seabat.ramennote.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,13 +16,38 @@ import ramennote.composeapp.generated.resources.kid_star_24px_empty
 import ramennote.composeapp.generated.resources.kid_star_24px_fill
 
 @Composable
-fun StarIcon(
+fun ReportStarIcon(
+    onOff: Boolean,
+    onClick: (() -> Unit)? = null
+) {
+    StarIcon(
+        modifier = Modifier.size(14.dp),
+        onOff = onOff,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun ShopStarIcon(
+    onOff: Boolean,
+    onClick: (() -> Unit)? = null
+) {
+    StarIcon(
+        modifier = Modifier.size(24.dp),
+        onOff = onOff,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun StarIcon(
+    modifier: Modifier = Modifier,
     onOff: Boolean,
     onClick: (() -> Unit)? = null
 ) {
     Icon(
         modifier =
-            Modifier
+            modifier
                 .then(
                     if (onClick != null) {
                         Modifier.padding(end = 0.dp).clickable { onClick.invoke() }

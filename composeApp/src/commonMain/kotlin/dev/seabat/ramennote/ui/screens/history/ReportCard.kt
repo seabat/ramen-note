@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.ui.components.ReportStarIcon
 import dev.seabat.ramennote.ui.share.createPostText
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
@@ -109,7 +110,7 @@ fun ReportCard(
                         contentDescription = null,
                         modifier =
                             Modifier
-                                .size(16.dp)
+                                .size(20.dp)
                                 .clickable {
                                     onShareTap(
                                         createPostText(
@@ -128,18 +129,33 @@ fun ReportCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        modifier = Modifier.weight(0.75f),
-                        text = report.menuName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    // 日付
                     Text(
                         modifier = Modifier.weight(0.25f),
                         text = dayText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.Start
+                    )
+                    // 評価
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        repeat(5) { index ->
+                            ReportStarIcon(
+                                onOff = index < report.star
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = Modifier.weight(0.75f),
+                        text = report.menuName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -174,7 +190,7 @@ fun ReportCardPreview() {
                         imageBytes = null,
                         impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
                         date = LocalDate.parse("2024-12-15"),
-                        star = 1
+                        star = 0
                     )
             )
 
@@ -187,7 +203,7 @@ fun ReportCardPreview() {
                         menuName = "赤丸新味 大盛り ライス のり増し",
                         photoName = "hakata_ramen_2.jpg",
                         imageBytes = null,
-                        impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。",
+                        impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。麺は極細で腰がある。",
                         date = LocalDate.parse("2024-12-10"),
                         star = 2
                     )

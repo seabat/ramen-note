@@ -22,7 +22,8 @@ class MockAddReportViewModel : AddReportViewModelContract {
         reportedDate: LocalDate,
         impression: String,
         shopId: Int,
-        image: SharedImage?
+        image: SharedImage?,
+        star: Int
     ) {
         // Preview用なので何もしない
     }

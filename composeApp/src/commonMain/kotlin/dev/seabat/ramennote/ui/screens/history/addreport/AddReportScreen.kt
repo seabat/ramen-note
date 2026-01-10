@@ -35,6 +35,7 @@ import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.note.shop.DateSelectItem
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
+import dev.seabat.ramennote.ui.screens.note.shop.ReportStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
 import dev.seabat.ramennote.ui.share.createPostText
@@ -70,6 +71,7 @@ fun AddReportScreen(
     var reportedDate by remember {
         mutableStateOf(scheduledDate ?: createTodayLocalDate())
     }
+    var star by remember { mutableStateOf(1) }
     var impression by remember { mutableStateOf("") }
     var postToX by remember { mutableStateOf(false) }
 
@@ -119,6 +121,12 @@ fun AddReportScreen(
                     showDatePicker = true
                 }
 
+                // 評価
+                ReportStarRatingItem(
+                    star = star,
+                    onValueChange = { star = it }
+                )
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 RamenField(
@@ -155,7 +163,8 @@ fun AddReportScreen(
                         reportedDate = reportedDate,
                         impression = impression,
                         shopId = shopId,
-                        image = image
+                        image = image,
+                        star = star
                     )
                 }
             }

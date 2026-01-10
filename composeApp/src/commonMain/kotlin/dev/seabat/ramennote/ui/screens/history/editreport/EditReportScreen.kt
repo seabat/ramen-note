@@ -1,19 +1,15 @@
 package dev.seabat.ramennote.ui.screens.history.editreport
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -25,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.components.AppBar
@@ -35,14 +30,17 @@ import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.screens.note.shop.DateSelectItem
 import dev.seabat.ramennote.ui.screens.note.shop.RamenField
+import dev.seabat.ramennote.ui.screens.note.shop.ReportStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
-import dev.seabat.ramennote.ui.util.createFormattedDateString
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.editreport_delete_button
@@ -50,7 +48,6 @@ import ramennote.composeapp.generated.resources.editreport_edit_button
 import ramennote.composeapp.generated.resources.report_delete_confirm
 import ramennote.composeapp.generated.resources.report_header
 import ramennote.composeapp.generated.resources.report_impressions
-import ramennote.composeapp.generated.resources.report_select_date
 import ramennote.composeapp.generated.resources.report_shop_name
 
 private sealed interface ErrorDialogType {
@@ -73,6 +70,7 @@ fun EditReportScreen(
     var menuName by remember(fullReport.menuName) { mutableStateOf(fullReport.menuName) }
     var image by remember { mutableStateOf<SharedImage?>(null) }
     var reportedDate by remember(fullReport.date) { mutableStateOf(fullReport.date) }
+    var star by remember { mutableStateOf(1) }
     var impression by remember(fullReport.impression) { mutableStateOf(fullReport.impression) }
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -129,21 +127,16 @@ fun EditReportScreen(
                     value = fullReport.shopName
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 // 日付選択
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(Res.string.report_select_date),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.Blue,
-                        modifier = Modifier.clickable { showDatePicker = true }
-                    )
-                    Text(text = createFormattedDateString(reportedDate))
+                DateSelectItem(reportedDate) {
+                    showDatePicker = true
                 }
+
+                // 評価
+                ReportStarRatingItem(
+                    star = star,
+                    onValueChange = { star = it }
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -173,7 +166,8 @@ fun EditReportScreen(
                             reportedDate = reportedDate,
                             impression = impression,
                             shopId = fullReport.shopId,
-                            image = image
+                            image = image,
+                            star = star
                         )
                     },
                     onDeleteButtonClick = {
@@ -308,5 +302,17 @@ fun BottomButtons(
         MaxWidthButton(text = stringResource(Res.string.editreport_delete_button)) {
             onDeleteButtonClick()
         }
+    }
+}
+
+@Preview
+@Composable
+fun EditReportScreenPreview() {
+    RamenNoteTheme {
+        EditReportScreen(
+            reportId = 1,
+            onBackClick = { },
+            viewModel = MockEditReportViewModel()
+        )
     }
 }

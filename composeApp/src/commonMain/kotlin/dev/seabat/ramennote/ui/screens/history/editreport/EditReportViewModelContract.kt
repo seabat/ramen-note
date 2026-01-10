@@ -13,7 +13,14 @@ interface EditReportViewModelContract {
 
     fun loadReport(reportId: Int)
 
-    fun editReport(menuName: String, reportedDate: LocalDate, impression: String, shopId: Int, image: SharedImage?)
+    fun editReport(
+        menuName: String,
+        reportedDate: LocalDate,
+        impression: String,
+        shopId: Int,
+        image: SharedImage?,
+        star: Int
+    )
 
     fun deleteReport(reportId: Int)
 

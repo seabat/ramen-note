@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.components.StarIcon
+import dev.seabat.ramennote.ui.components.ShopStarIcon
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -53,7 +53,7 @@ fun ShopItem(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(3) { index ->
-                        StarIcon(
+                        ShopStarIcon(
                             onOff = index < shop.star
                         )
                     }

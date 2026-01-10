@@ -13,14 +13,48 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import dev.seabat.ramennote.ui.components.StarIcon
+import dev.seabat.ramennote.ui.components.ReportStarIcon
+import dev.seabat.ramennote.ui.components.ShopStarIcon
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_evaluation_label
 
+private enum class StarType {
+    SHOP,
+    REPORT;
+}
+
 @Composable
-fun StarRating(
+fun ShopStarRating(
+    star: Int,
+    onValueChange: (Int) -> Unit
+) {
+    StarRating(
+        starType = StarType.SHOP,
+        repeatTimes = 3,
+        star = star,
+        onValueChange = onValueChange
+    )
+}
+
+@Composable
+fun ReportStarRating(
+    star: Int,
+    onValueChange: (Int) -> Unit
+) {
+    StarRating(
+        starType = StarType.REPORT,
+        repeatTimes = 5,
+        star = star,
+        onValueChange = onValueChange
+    )
+}
+
+@Composable
+private fun StarRating(
+    starType: StarType,
+    repeatTimes: Int,
     star: Int,
     onValueChange: (Int) -> Unit
 ) {
@@ -34,18 +68,65 @@ fun StarRating(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row {
-            repeat(3) { index ->
-                StarIcon(
-                    onOff = index < star,
-                    onClick = { onValueChange(index + 1) }
-                )
+            repeat(repeatTimes) { index ->
+                when (starType) {
+                    StarType.SHOP -> ShopStarIcon(
+                        onOff = index < star,
+                        onClick = { onValueChange(index + 1) }
+                    )
+                    StarType.REPORT -> ReportStarIcon(
+                        onOff = index < star,
+                        onClick = { onValueChange(index + 1) }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun StarRatingRow(
+fun ShopStarRatingRow(
+    star: Int,
+    onValueChange: (Int) -> Unit
+) {
+    StarRatingRow(
+        starType = StarType.SHOP,
+        repeatTimes = 3,
+        star = star,
+        onValueChange = onValueChange
+    )
+}
+
+@Composable
+fun ReportStarRatingRow(
+    star: Int,
+    onValueChange: (Int) -> Unit
+) {
+    StarRatingRow(
+        starType = StarType.REPORT,
+        repeatTimes = 5,
+        star = star,
+        onValueChange = onValueChange
+    )
+}
+
+@Composable
+fun ReportStarEditableRatingRow(
+    star: Int,
+    onValueChange: (Int) -> Unit
+) {
+    StarRatingRow(
+        starType = StarType.SHOP, // アイコンサイズを SHOP と同じにする
+        repeatTimes = 5,
+        star = star,
+        onValueChange = onValueChange
+    )
+}
+
+@Composable
+private fun StarRatingRow(
+    starType: StarType,
+    repeatTimes: Int,
     star: Int,
     onValueChange: (Int) -> Unit
 ) {
@@ -62,11 +143,18 @@ fun StarRatingRow(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row {
-            repeat(3) { index ->
-                StarIcon(
-                    onOff = index < star,
-                    onClick = { onValueChange(index + 1) }
-                )
+            repeat(repeatTimes) { index ->
+                when (starType) {
+                    StarType.SHOP -> ShopStarIcon(
+                        onOff = index < star,
+                        onClick = { onValueChange(index + 1) }
+                    )
+                    StarType.REPORT -> ReportStarIcon(
+                        onOff = index < star,
+                        onClick = { onValueChange(index + 1) }
+                    )
+                }
+
             }
         }
     }
@@ -74,16 +162,41 @@ fun StarRatingRow(
 
 @Preview
 @Composable
-fun StarRatingPreview() {
+fun ShopStarRatingPreview() {
     Row(modifier = Modifier.width(200.dp)) {
-        StarRating(star = 3) {}
+        ShopStarRating(star = 3) {}
     }
 }
 
 @Preview
 @Composable
-fun StarRatingRowPreview() {
+fun ShopStarRatingRowPreview() {
     Row(modifier = Modifier.width(200.dp)) {
-        StarRatingRow(star = 3) {}
+        ShopStarRatingRow(star = 3) {}
     }
 }
+
+@Preview
+@Composable
+fun ReportStarRatingPreview() {
+    Row(modifier = Modifier.width(200.dp)) {
+        ReportStarRating(star = 0) {}
+    }
+}
+
+@Preview
+@Composable
+fun ReportStarRatingRowPreview() {
+    Row(modifier = Modifier.width(200.dp)) {
+        ReportStarRatingRow(star = 0) {}
+    }
+}
+
+@Preview
+@Composable
+fun ReportStarEditableRatingPreview() {
+    Row(modifier = Modifier.width(200.dp)) {
+        ReportStarEditableRatingRow(star = 0) {}
+    }
+}
+
