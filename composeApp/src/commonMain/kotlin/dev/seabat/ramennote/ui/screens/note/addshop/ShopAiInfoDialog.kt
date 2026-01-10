@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
+import dev.seabat.ramennote.ui.screens.componens.ShopInputField
 import org.jetbrains.compose.resources.stringResource
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.add_shop_alert_button

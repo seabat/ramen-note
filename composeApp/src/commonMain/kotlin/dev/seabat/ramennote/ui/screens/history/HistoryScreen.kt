@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
@@ -197,6 +198,7 @@ private fun ReportsList(
             items(monthReports) { report ->
                 ReportCard(
                     report = report,
+                    isSimpleDisplay = false,
                     onLongPress = { goToEditReport(report.id) },
                     onImageTap = { onImageTap(report.imageBytes) },
                     onTap = {},

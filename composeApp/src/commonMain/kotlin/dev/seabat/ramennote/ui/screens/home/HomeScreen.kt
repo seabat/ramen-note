@@ -63,9 +63,9 @@ import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.chart.StackedBarChart
 import dev.seabat.ramennote.ui.gallery.SharedImage
-import dev.seabat.ramennote.ui.screens.history.ReportCard
+import dev.seabat.ramennote.ui.screens.componens.ReportCard
+import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.history.ReportImageDialog
-import dev.seabat.ramennote.ui.screens.note.shoplist.ShopItem
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
@@ -822,7 +822,7 @@ fun ReportCardPreview() {
                         photoName = "hakata_ramen_1.jpg",
                         imageBytes = null,
                         impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
-                        date = kotlinx.datetime.LocalDate.parse("2024-12-15"),
+                        date = LocalDate.parse("2024-12-15"),
                         star = 1
                     ),
                 onLongPress = { }

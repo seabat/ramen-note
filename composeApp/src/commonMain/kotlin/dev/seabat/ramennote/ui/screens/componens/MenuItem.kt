@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.home
+package dev.seabat.ramennote.ui.screens.componens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

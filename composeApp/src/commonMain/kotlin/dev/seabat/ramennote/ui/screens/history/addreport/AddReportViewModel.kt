@@ -27,7 +27,8 @@ class AddReportViewModel(
         reportedDate: LocalDate,
         impression: String,
         shopId: Int,
-        image: SharedImage?
+        image: SharedImage?,
+        star: Int
     ) {
         viewModelScope.launch {
             try {
@@ -43,7 +44,8 @@ class AddReportViewModel(
                                 menuName = menuName,
                                 photoName = createReportPhotoNameUseCase(),
                                 impression = impression,
-                                date = reportedDate
+                                date = reportedDate,
+                                star = star
                             ),
                         imageBytes = image?.toByteArray()
                     )

@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.note.shop
+package dev.seabat.ramennote.ui.screens.componens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
