@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.note.shop
+package dev.seabat.ramennote.ui.screens.componens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +22,7 @@ import ramennote.composeapp.generated.resources.add_evaluation_label
 
 private enum class StarType {
     SHOP,
-    REPORT;
+    REPORT
 }
 
 @Composable
@@ -70,14 +70,16 @@ private fun StarRating(
         Row {
             repeat(repeatTimes) { index ->
                 when (starType) {
-                    StarType.SHOP -> ShopStarIcon(
-                        onOff = index < star,
-                        onClick = { onValueChange(index + 1) }
-                    )
-                    StarType.REPORT -> ReportStarIcon(
-                        onOff = index < star,
-                        onClick = { onValueChange(index + 1) }
-                    )
+                    StarType.SHOP ->
+                        ShopStarIcon(
+                            onOff = index < star,
+                            onClick = { onValueChange(index + 1) }
+                        )
+                    StarType.REPORT ->
+                        ReportStarIcon(
+                            onOff = index < star,
+                            onClick = { onValueChange(index + 1) }
+                        )
                 }
             }
         }
@@ -145,16 +147,17 @@ private fun StarRatingRow(
         Row {
             repeat(repeatTimes) { index ->
                 when (starType) {
-                    StarType.SHOP -> ShopStarIcon(
-                        onOff = index < star,
-                        onClick = { onValueChange(index + 1) }
-                    )
-                    StarType.REPORT -> ReportStarIcon(
-                        onOff = index < star,
-                        onClick = { onValueChange(index + 1) }
-                    )
+                    StarType.SHOP ->
+                        ShopStarIcon(
+                            onOff = index < star,
+                            onClick = { onValueChange(index + 1) }
+                        )
+                    StarType.REPORT ->
+                        ReportStarIcon(
+                            onOff = index < star,
+                            onClick = { onValueChange(index + 1) }
+                        )
                 }
-
             }
         }
     }
@@ -199,4 +202,3 @@ fun ReportStarEditableRatingPreview() {
         ReportStarEditableRatingRow(star = 0) {}
     }
 }
-

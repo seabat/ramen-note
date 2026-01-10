@@ -30,11 +30,11 @@ import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
-import dev.seabat.ramennote.ui.screens.note.shop.DateSelectItem
-import dev.seabat.ramennote.ui.screens.note.shop.RamenField
-import dev.seabat.ramennote.ui.screens.note.shop.ReportStarRatingItem
-import dev.seabat.ramennote.ui.screens.note.shop.ShopDetailItem
-import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
+import dev.seabat.ramennote.ui.screens.componens.DateSelectItem
+import dev.seabat.ramennote.ui.screens.componens.RamenField
+import dev.seabat.ramennote.ui.screens.componens.ReportStarRatingItem
+import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
+import dev.seabat.ramennote.ui.screens.componens.ShopInputField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone

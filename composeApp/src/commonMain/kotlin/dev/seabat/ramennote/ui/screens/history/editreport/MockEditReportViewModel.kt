@@ -14,19 +14,20 @@ import kotlinx.datetime.LocalDate
  * 実際のデータベースアクセスを行わず、固定のデータを返す
  */
 class MockEditReportViewModel : EditReportViewModelContract {
-    private val _fullReport = MutableStateFlow<FullReport>(
-        FullReport(
-            id = 1,
-            shopId = 1,
-            shopName = "サンプルラーメン店",
-            menuName = "醤油ラーメン",
-            photoName = "sample_photo.jpg",
-            impression = "とても美味しかったです。スープが濃厚で、麺もコシがありました。",
-            date = createTodayLocalDate(),
-            imageBytes = null,
-            star = 4
+    private val _fullReport =
+        MutableStateFlow<FullReport>(
+            FullReport(
+                id = 1,
+                shopId = 1,
+                shopName = "サンプルラーメン店",
+                menuName = "醤油ラーメン",
+                photoName = "sample_photo.jpg",
+                impression = "とても美味しかったです。スープが濃厚で、麺もコシがありました。",
+                date = createTodayLocalDate(),
+                imageBytes = null,
+                star = 4
+            )
         )
-    )
     override val fullReport: StateFlow<FullReport> = _fullReport.asStateFlow()
 
     private val _editedStatus = MutableStateFlow<RunStatus<Int>>(RunStatus.Idle())
