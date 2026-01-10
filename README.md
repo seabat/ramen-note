@@ -9,10 +9,10 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 ## スクリーンショット
 
 <div align="center">
-  <img src="docs/400x800bb.png" width="200" alt="スクリーンショット1">
-  <img src="docs/400x800bb-1.png" width="200" alt="スクリーンショット2">
-  <img src="docs/400x800bb-2.png" width="200" alt="スクリーンショット3">
-  <img src="docs/400x800bb-4.png" width="200" alt="スクリーンショット4">
+  <img src="docs/AppMockUpStudio/home.png" width="200" alt="スクリーンショット1">
+  <img src="docs/AppMockUpStudio/schedule.png" width="200" alt="スクリーンショット2">
+  <img src="docs/AppMockUpStudio/shop.png" width="200" alt="スクリーンショット3">
+  <img src="docs/AppMockUpStudio/history.png" width="200" alt="スクリーンショット4">
 </div>
 
 ## ダウンロード

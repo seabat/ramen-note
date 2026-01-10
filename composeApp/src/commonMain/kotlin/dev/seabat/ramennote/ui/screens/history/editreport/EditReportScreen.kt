@@ -70,7 +70,7 @@ fun EditReportScreen(
     var menuName by remember(fullReport.menuName) { mutableStateOf(fullReport.menuName) }
     var image by remember { mutableStateOf<SharedImage?>(null) }
     var reportedDate by remember(fullReport.date) { mutableStateOf(fullReport.date) }
-    var star by remember { mutableStateOf(1) }
+    var star by remember { mutableStateOf(fullReport.star) }
     var impression by remember(fullReport.impression) { mutableStateOf(fullReport.impression) }
 
     var showDatePicker by remember { mutableStateOf(false) }
