@@ -198,6 +198,7 @@ private fun ReportsList(
             items(monthReports) { report ->
                 ReportCard(
                     report = report,
+                    isSimpleDisplay = false,
                     onLongPress = { goToEditReport(report.id) },
                     onImageTap = { onImageTap(report.imageBytes) },
                     onTap = {},
