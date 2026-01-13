@@ -31,7 +31,7 @@ import dev.seabat.ramennote.domain.model.ShopAiInfo
 import dev.seabat.ramennote.domain.util.logd
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
-import dev.seabat.ramennote.ui.components.StarIcon
+import dev.seabat.ramennote.ui.components.ShopStarIcon
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
@@ -42,12 +42,12 @@ import dev.seabat.ramennote.ui.permission.PermissionStatus
 import dev.seabat.ramennote.ui.permission.PermissionType
 import dev.seabat.ramennote.ui.permission.createRememberedPermissionsLauncher
 import dev.seabat.ramennote.ui.permission.launchSettings
-import dev.seabat.ramennote.ui.screens.note.addshop.ShopAiInfoDialog
+import dev.seabat.ramennote.ui.screens.componens.RamenField
+import dev.seabat.ramennote.ui.screens.componens.ShopDropdownField
+import dev.seabat.ramennote.ui.screens.componens.ShopInputField
+import dev.seabat.ramennote.ui.screens.componens.ShopMultilineInputField
+import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.categoryList
-import dev.seabat.ramennote.ui.screens.note.shop.RamenField
-import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
-import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
-import dev.seabat.ramennote.ui.screens.note.shop.ShopMultilineInputField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toLocalDateTime
@@ -167,11 +167,29 @@ fun AddShopScreen(
                             )
                         }
             ) {
-                // 名前
+                // 店舗名
                 ShopInputField(
                     label = stringResource(Res.string.add_shop_name_label),
                     value = name,
                     onValueChange = { name = it }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 評価
+                ShopStarRatingItem(
+                    star = star,
+                    onValueChange = { star = it }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 系統
+                ShopDropdownField(
+                    label = stringResource(Res.string.add_category_label),
+                    options = categoryList,
+                    value = category,
+                    onValueChange = { category = "$it" }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -194,29 +212,11 @@ fun AddShopScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 評価
-                StarRating(
-                    star = star,
-                    onValueChange = { star = it }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
                 // 最寄り駅
                 ShopInputField(
                     label = stringResource(Res.string.add_station_label),
                     value = stationName,
                     onValueChange = { stationName = it }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // 系統
-                ShopDropdownField(
-                    label = stringResource(Res.string.add_category_label),
-                    options = categoryList,
-                    value = category,
-                    onValueChange = { category = "$it" }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -354,7 +354,7 @@ private fun StarRating(
 
         Row {
             repeat(3) { index ->
-                StarIcon(
+                ShopStarIcon(
                     onOff = index < star,
                     onClick = { onValueChange(index + 1) }
                 )

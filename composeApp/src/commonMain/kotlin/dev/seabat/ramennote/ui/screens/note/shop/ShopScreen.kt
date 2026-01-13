@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotApplyResult
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -43,9 +42,11 @@ import coil3.compose.AsyncImage
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.StarIcon
+import dev.seabat.ramennote.ui.components.ShopStarIcon
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.button.ActionButton
+import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
+import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingRow
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
 import kotlinx.datetime.Instant
@@ -89,7 +90,7 @@ fun ShopScreen(
     goToEditShop: (Shop) -> Unit = {},
     goToReport: (Shop) -> Unit = {},
     goToSchedule: () -> Unit = {},
-    goToHistory: (shop: Shop) -> Unit = {},
+    goToHistory: (shopId: Int) -> Unit = {},
     viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
 ) {
     // Shopデータと画像を読み込み
@@ -121,6 +122,7 @@ fun ShopScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
             ) {
                 // ヘッダー画像エリア
                 Header(
@@ -141,7 +143,7 @@ fun ShopScreen(
                         shop?.let { goToReport(it) }
                     },
                     onHistoryClick = {
-                        shop?.let { goToHistory(it) }
+                        shop?.let { goToHistory(it.id) }
                     },
                     onEditClick = {
                         shop?.let { goToEditShop(it) }
@@ -368,7 +370,6 @@ fun Detail(
         modifier =
             Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
     ) {
         // 予定（YYYY年mm月DD日 表記）
@@ -398,7 +399,7 @@ fun Detail(
         Spacer(modifier = Modifier.height(5.dp))
 
         // 評価（星）
-        StarRatingRow(
+        ShopStarRatingRow(
             star = shop.star,
             onValueChange = { newStar -> updateStar(newStar) }
         )
@@ -481,7 +482,7 @@ fun StarItem(star: Int) {
         // 星の表示（最大3つ）
         Row {
             repeat(3) { index ->
-                StarIcon(
+                ShopStarIcon(
                     onOff = index < star
                 )
             }

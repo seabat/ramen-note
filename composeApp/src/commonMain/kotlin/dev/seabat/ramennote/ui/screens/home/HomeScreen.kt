@@ -1,5 +1,11 @@
 package dev.seabat.ramennote.ui.screens.home
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,7 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,12 +23,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -45,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
@@ -64,15 +70,17 @@ import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.chart.StackedBarChart
 import dev.seabat.ramennote.ui.gallery.SharedImage
-import dev.seabat.ramennote.ui.screens.history.ReportCard
+import dev.seabat.ramennote.ui.screens.componens.ReportCard
+import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.history.ReportImageDialog
-import dev.seabat.ramennote.ui.screens.note.shoplist.ShopItem
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -88,8 +96,12 @@ import ramennote.composeapp.generated.resources.home_monthly_report_count
 import ramennote.composeapp.generated.resources.home_no_favorite
 import ramennote.composeapp.generated.resources.home_no_map
 import ramennote.composeapp.generated.resources.home_no_reports
+import ramennote.composeapp.generated.resources.home_no_schedule
 import ramennote.composeapp.generated.resources.home_no_web
 import ramennote.composeapp.generated.resources.home_report_subheading
+import ramennote.composeapp.generated.resources.home_schedule_date
+import ramennote.composeapp.generated.resources.home_today_schedule
+import ramennote.composeapp.generated.resources.home_tomorrow_schedule
 import ramennote.composeapp.generated.resources.schedule_picker_label
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 66
@@ -124,6 +136,7 @@ fun HomeScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
     goToHistory: (reportId: Int) -> Unit = { _ -> },
+    goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
     viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
@@ -220,6 +233,10 @@ fun HomeScreen(
                 goToReport(shopId, shopName, menuName, iso8601Date)
                 dialogState = DialogState.Hidden
             },
+            goToHistoryWithFiltering = { shopId ->
+                goToHistoryWithFiltering(shopId)
+                dialogState = DialogState.Hidden
+            },
             showDatePicker = { shop ->
                 dialogState = DialogState.DatePicker(shop)
             },
@@ -284,63 +301,141 @@ private fun ScheduleContent(
     schedule: Schedule?,
     showScheduleMenu: (schedule: Schedule) -> Unit
 ) {
+    // 今日の予定かどうかを判定
+    val isToday = schedule?.scheduledDate == createTodayLocalDate()
+
+    // アニメーション開始フラグ（HomeScreen表示時に一度だけアニメーションを実行）
+    var animationTrigger by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isToday) {
+        if (isToday) {
+            animationTrigger = true
+            // アニメーション時間を計算（最も長いアニメーションに合わせる）
+            // グロー: 5回 × 1000ms = 5000ms
+            // シャイン: 3回 × 2500ms = 7500ms
+            // 最大7500ms + 少し余裕を持たせて8000ms
+            kotlinx.coroutines.delay(8000)
+            animationTrigger = false
+            // アニメーション終了後に初期値に戻るための少しの遅延
+            kotlinx.coroutines.delay(300)
+        } else {
+            animationTrigger = false
+        }
+    }
+
+    // アニメーション用のTransition（常に作成）
+    val infiniteTransition = rememberInfiniteTransition(label = "schedule_animation")
+
+    // グローアニメーション（ボーダーの明るさ）- より目立つように範囲を拡大
+    // アニメーション中は0.4fから1.0fの間で変化、終了後は1.0f（通常のボーダー色）に戻る
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = if (isToday && animationTrigger) 1.0f else 0.4f,
+        animationSpec =
+            infiniteRepeatable(
+                animation =
+                    if (isToday && animationTrigger) {
+                        tween(1000, easing = LinearEasing)
+                    } else {
+                        tween(1) // アニメーションしない（最小時間）
+                    },
+                repeatMode = RepeatMode.Reverse
+            ),
+        label = "glow_alpha"
+    )
+
+    // グローアニメーション用の実際のalpha値（0.4fから1.0fの間で変化）
+    val actualGlowAlpha =
+        if (isToday && animationTrigger) {
+            glowAlpha // 0.4fから1.0fの間で変化
+        } else {
+            1.0f // 通常時は通常のボーダー色
+        }
+
+    // 今日の予定用の目立つグローカラー（濃いシアン）
+    val glowColor = Color(0xFF008B8D) // 濃いシアン（DarkCyan）
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text =
-                schedule?.scheduledDate?.let {
-                    "${createFormattedDateString(it)}の予定"
-                } ?: "訪店予定なし",
+                schedule?.scheduledDate?.let { scheduledDate ->
+                    val today = createTodayLocalDate()
+                    val tomorrow = today.plus(DatePeriod(days = 1))
+                    when (scheduledDate) {
+                        today -> stringResource(Res.string.home_today_schedule)
+                        tomorrow -> stringResource(Res.string.home_tomorrow_schedule)
+                        else -> stringResource(Res.string.home_schedule_date, createFormattedDateString(scheduledDate))
+                    }
+                } ?: stringResource(Res.string.home_no_schedule),
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.secondary
+            color =
+                if (isToday) {
+                    // グローアニメーションを適用
+                    glowColor.copy(alpha = actualGlowAlpha)
+                } else {
+                    MaterialTheme.colorScheme.secondary
+                }
         )
 
         Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    // .height(216.dp)
-                    .fillMaxWidth()
                     .border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.outline,
+                        width = if (isToday) 3.dp else 2.dp,
+                        color =
+                            if (isToday) {
+                                // グローアニメーション用の目立つ色を使用
+                                glowColor.copy(alpha = actualGlowAlpha)
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            },
                         shape = RoundedCornerShape(6.dp)
-                    ).padding(horizontal = 8.dp)
+                    ).clip(RoundedCornerShape(6.dp))
         ) {
-            // メニュー
-            if (schedule != null) {
-                ShopItem(
-                    shop =
-                        Shop(
-                            id = schedule.shopId,
-                            name = schedule.shopName,
-                            shopUrl = schedule.shopUrl,
-                            mapUrl = schedule.mapUrl,
-                            star = schedule.star,
-                            category = schedule.category,
-                            scheduledDate = schedule.scheduledDate,
-                            menuName1 = schedule.menuName,
-                            photoName1 = schedule.photoName
-                        ),
-                    hasDivider = false,
-                    onShopClick = {
-                        showScheduleMenu(schedule)
-                    },
-                    onDelete = {}
-                )
-            } else {
-                // ShopItemと同じ高さを維持するための空のColumn
-                Column {
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                                .height(24.dp)
-                        // titleMediumの高さに合わせる
-                    ) {
-                        // 空のスペース
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+            ) {
+                // メニュー
+                if (schedule != null) {
+                    ShopItem(
+                        shop =
+                            Shop(
+                                id = schedule.shopId,
+                                name = schedule.shopName,
+                                shopUrl = schedule.shopUrl,
+                                mapUrl = schedule.mapUrl,
+                                star = schedule.star,
+                                category = schedule.category,
+                                scheduledDate = schedule.scheduledDate,
+                                menuName1 = schedule.menuName,
+                                photoName1 = schedule.photoName,
+                                favorite = schedule.favorite
+                            ),
+                        hasDivider = false,
+                        onShopClick = {
+                            showScheduleMenu(schedule)
+                        },
+                        onDelete = {}
+                    )
+                } else {
+                    // ShopItemと同じ高さを維持するための空のColumn
+                    Column {
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                                    .height(24.dp)
+                            // titleMediumの高さに合わせる
+                        ) {
+                            // 空のスペース
+                        }
                     }
                 }
             }
@@ -634,6 +729,7 @@ private fun HomeDialog(
     onDismiss: () -> Unit,
     goToShop: (shopId: Int, shopName: String) -> Unit,
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit,
+    goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
     showDatePicker: (shop: Shop) -> Unit,
     launchMap: (mapUrl: String) -> Unit,
     addSchedule: (shopId: Int, date: LocalDate) -> Unit,
@@ -669,6 +765,9 @@ private fun HomeDialog(
                 },
                 onAddSchedule = {
                     showDatePicker(dialogState.shop)
+                },
+                onShowReport = {
+                    goToHistoryWithFiltering(dialogState.shop.id)
                 }
             )
         }
@@ -813,7 +912,7 @@ fun ReportCardPreview() {
                         photoName = "hakata_ramen_1.jpg",
                         imageBytes = null,
                         impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
-                        date = kotlinx.datetime.LocalDate.parse("2024-12-15"),
+                        date = LocalDate.parse("2024-12-15"),
                         star = 1
                     ),
                 onLongPress = { }

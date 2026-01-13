@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.components.dialog.WideDialog
+import dev.seabat.ramennote.ui.screens.componens.MenuItem
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
@@ -21,6 +22,7 @@ import ramennote.composeapp.generated.resources.home_menu_map
 import ramennote.composeapp.generated.resources.home_menu_report
 import ramennote.composeapp.generated.resources.home_menu_schedule
 import ramennote.composeapp.generated.resources.home_menu_shop_detail
+import ramennote.composeapp.generated.resources.home_menu_write_report
 import ramennote.composeapp.generated.resources.location_on_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 
@@ -30,7 +32,8 @@ fun FavoriteShopMenuDialog(
     onShowDetails: () -> Unit,
     onShowMap: () -> Unit,
     onAddReport: () -> Unit,
-    onAddSchedule: () -> Unit
+    onAddSchedule: () -> Unit,
+    onShowReport: () -> Unit
 ) {
     WideDialog(onDismiss = onDismiss) {
         Column(
@@ -61,6 +64,12 @@ fun FavoriteShopMenuDialog(
             MenuItem(
                 icon = vectorResource(Res.drawable.ramen_dining_24px),
                 text = stringResource(Res.string.home_menu_report),
+                onClick = onShowReport
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            MenuItem(
+                icon = vectorResource(Res.drawable.ramen_dining_24px),
+                text = stringResource(Res.string.home_menu_write_report),
                 onClick = onAddReport
             )
         }
@@ -76,7 +85,8 @@ private fun FavoriteShopMenuDialogPreview() {
             onShowMap = {},
             onShowDetails = {},
             onAddReport = {},
-            onAddSchedule = {}
+            onAddSchedule = {},
+            onShowReport = {}
         )
     }
 }

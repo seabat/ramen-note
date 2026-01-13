@@ -26,6 +26,7 @@
     <string name="home_detail_button">ノート</string>
     <string name="home_report_subheading">最近の食レポ</string>
     <string name="home_favorite_subheading">お気に入り店</string>
+    <string name="home_no_schedule">訪店予定なし</string>
     <string name="home_no_reports">過去3ヶ月に食レポがありません</string>
     <string name="home_no_favorite">お気に入り店が登録されていません</string>
     <string name="home_no_web">WebサイトのURLが設定されていません</string>
@@ -36,9 +37,13 @@
     <string name="home_menu_map">マップを表示する</string>
     <string name="home_menu_web">Webサイトを表示する</string>
     <string name="home_menu_schedule">予定を追加する</string>
-    <string name="home_menu_report">食レポを書く</string>
+    <string name="home_menu_report">食レポを表示する</string>
+    <string name="home_menu_write_report">食レポを書く</string>
     <string name="home_monthly_report_count">年間月別食レポ回数</string>
     <string name="home_no_recent_report">過去12ヶ月に食レポがありません</string>
+    <string name="home_today_schedule">今日の予定</string>
+    <string name="home_tomorrow_schedule">明日の予定</string>
+    <string name="home_schedule_date">%1$sの予定</string>
 
 
     <!-- Note Screen -->

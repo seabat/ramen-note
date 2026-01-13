@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.ui.components.dialog.WideDialog
+import dev.seabat.ramennote.ui.screens.componens.MenuItem
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
@@ -19,9 +20,9 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.book_5_24px
 import ramennote.composeapp.generated.resources.globe_24px
 import ramennote.composeapp.generated.resources.home_menu_map
-import ramennote.composeapp.generated.resources.home_menu_report
 import ramennote.composeapp.generated.resources.home_menu_shop_detail
 import ramennote.composeapp.generated.resources.home_menu_web
+import ramennote.composeapp.generated.resources.home_menu_write_report
 import ramennote.composeapp.generated.resources.location_on_24px
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 
@@ -68,7 +69,7 @@ fun ScheduleMenuDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 MenuItem(
                     icon = vectorResource(Res.drawable.ramen_dining_24px),
-                    text = stringResource(Res.string.home_menu_report),
+                    text = stringResource(Res.string.home_menu_write_report),
                     onClick = onAddReport
                 )
             }

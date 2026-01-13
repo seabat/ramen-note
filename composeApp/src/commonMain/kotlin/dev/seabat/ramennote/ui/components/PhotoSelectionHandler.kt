@@ -18,9 +18,10 @@ fun PhotoSelectionHandler(
 ) {
     var shouldShowPermissionRationalDialog by remember { mutableStateOf(false) }
     var shouldLaunchSetting by remember { mutableStateOf(false) }
-    val galleryManager = createRememberedGalleryLauncher { image ->
-        onImageSelected(image!!)
-    }
+    val galleryManager =
+        createRememberedGalleryLauncher { image ->
+            onImageSelected(image!!)
+        }
 
     if (permissionEnabled) {
         Permission(

@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.note.shop
+package dev.seabat.ramennote.ui.screens.componens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

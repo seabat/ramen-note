@@ -30,12 +30,12 @@ import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
+import dev.seabat.ramennote.ui.screens.componens.RamenField
+import dev.seabat.ramennote.ui.screens.componens.ShopDropdownField
+import dev.seabat.ramennote.ui.screens.componens.ShopInputField
+import dev.seabat.ramennote.ui.screens.componens.ShopMultilineInputField
+import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.categoryList
-import dev.seabat.ramennote.ui.screens.note.shop.RamenField
-import dev.seabat.ramennote.ui.screens.note.shop.ShopDropdownField
-import dev.seabat.ramennote.ui.screens.note.shop.ShopInputField
-import dev.seabat.ramennote.ui.screens.note.shop.ShopMultilineInputField
-import dev.seabat.ramennote.ui.screens.note.shop.StarRating
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -140,12 +140,32 @@ fun EditShopScreen(
                     onValueChange = { name = it }
                 )
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 評価
+                ShopStarRatingItem(
+                    star = star,
+                    onValueChange = { star = it }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 // エリア
                 ShopDropdownField(
                     label = stringResource(Res.string.edit_area_label),
                     options = areasState,
                     value = area,
                     onValueChange = { area = it }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 系統
+                ShopDropdownField(
+                    label = stringResource(Res.string.edit_category_label),
+                    options = categoryList,
+                    value = category,
+                    onValueChange = { category = "$it" }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -168,29 +188,11 @@ fun EditShopScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 評価
-                StarRating(
-                    star = star,
-                    onValueChange = { star = it }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
                 // 最寄り駅
                 ShopInputField(
                     label = stringResource(Res.string.add_station_label),
                     value = stationName,
                     onValueChange = { stationName = it }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // 系統
-                ShopDropdownField(
-                    label = stringResource(Res.string.edit_category_label),
-                    options = categoryList,
-                    value = category,
-                    onValueChange = { category = "$it" }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))

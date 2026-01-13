@@ -1,5 +1,7 @@
 package dev.seabat.ramennote.ui.navigation
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -12,6 +14,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -263,7 +267,7 @@ fun MainNavigation() {
     var reportIdParam by remember { mutableStateOf<Int?>(null) }
 
     // HistoryScreenに遷移する際のshopIdを管理するState
-    var shopParam by remember { mutableStateOf<ShopInfo?>(null) }
+    var shopIdParam by remember { mutableStateOf<Int?>(null) }
 
     val tabScreens =
         listOf(
@@ -283,260 +287,308 @@ fun MainNavigation() {
             } == true // null と比較する場合もあるので == true を使用する
         } == true // null と比較する場合もあるので == true を使用する
 
-    Scaffold(
-        bottomBar = {
-            if (withBottomNavigation) {
-                NavigationBar {
-                    tabScreens.forEach { screen ->
-                        val isSelected = currentDestination.route?.endsWith(screen.route) == true
-                        // デバッグ用: コンソールに出力
-                        logd(message = "Screen(${screen.route}), Current(${currentDestination.route}), Selected($isSelected)")
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    imageVector = screen.getIcon(),
-                                    contentDescription = screen.getTitle(),
-                                    tint =
-                                        if (isSelected) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
+    // ナビゲーションアイテムを生成する共通関数
+    @Composable
+    fun NavigationItemContent(screen: Screen, isSelected: Boolean) {
+        Icon(
+            imageVector = screen.getIcon(),
+            contentDescription = screen.getTitle(),
+            tint =
+                if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+        )
+    }
+
+    @Composable
+    fun NavigationItemLabel(screen: Screen, isSelected: Boolean) {
+        Text(
+            text = screen.getTitle(),
+            color =
+                if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+        )
+    }
+
+    BoxWithConstraints {
+        val isLandscape = maxWidth > maxHeight
+
+        Scaffold(
+            bottomBar = {
+                // 端末が縦向きの場合は下側に NavigationBar を表示
+                if (withBottomNavigation && !isLandscape) {
+                    NavigationBar {
+                        tabScreens.forEach { screen ->
+                            val isSelected = currentDestination.route?.endsWith(screen.route) == true
+                            // デバッグ用: コンソールに出力
+                            logd(message = "Screen(${screen.route}), Current(${currentDestination.route}), Selected($isSelected)")
+                            NavigationBarItem(
+                                icon = { NavigationItemContent(screen, isSelected) },
+                                label = { NavigationItemLabel(screen, isSelected) },
+                                selected = isSelected,
+                                onClick = {
+                                    navController.navigate(screen) {
+                                        // Pop up to the start destination of the graph to
+                                        // avoid building up a large stack of destinations
+                                        // on the back stack as users select items
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
                                         }
-                                )
-                            },
-                            label = {
-                                Text(
-                                    text = screen.getTitle(),
-                                    color =
-                                        if (isSelected) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        // Restore state when reselecting a previously selected item
+                                        restoreState = true
+                                        // Avoid multiple copies of the same destination when
+                                        // reselecting the same item
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        ) { paddingValues ->
+            Row {
+                // 端末が横向きの場合は左側にNavigationRailを表示
+                if (withBottomNavigation && isLandscape) {
+                    NavigationRail {
+                        tabScreens.forEach { screen ->
+                            val isSelected = currentDestination.route?.endsWith(screen.route) == true
+                            NavigationRailItem(
+                                icon = { NavigationItemContent(screen, isSelected) },
+                                label = { NavigationItemLabel(screen, isSelected) },
+                                selected = isSelected,
+                                onClick = {
+                                    navController.navigate(screen) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
                                         }
-                                )
+                                        restoreState = true
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+                NavHost(
+                    navController = navController,
+                    startDestination = Screen.Home,
+                    modifier = Modifier.padding(paddingValues)
+                ) {
+                    composable<Screen.Home> {
+                        HomeScreen(
+                            goToShop = { shopId, shopName ->
+                                navController.navigate(Screen.Shop(shopId, shopName))
                             },
-                            selected = isSelected,
-                            onClick = {
-                                navController.navigate(screen) {
-                                    // Pop up to the start destination of the graph to
-                                    // avoid building up a large stack of destinations
-                                    // on the back stack as users select items
+                            goToReport = { shopId, shopName, menuName, iso8601Date ->
+                                navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
+                            },
+                            goToHistory = { reportId ->
+                                // NavigationBar は restoreState = true を設定しているので、一度 Screen クラスのプロパティを使ってタブ画面に遷移すると 画面遷移する度にそのプロパティが復元されてしまう。
+                                // タブ画面への遷移時に使用するパラメータは Screen クラスのプロパティを使用せず、生存期間が長い変数を使用する。
+                                reportIdParam = reportId
+                                navController.navigate(Screen.History) {
+                                    // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                                    launchSingleTop = true
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
-                                    // Restore state when reselecting a previously selected item
-                                    restoreState = true
-                                    // Avoid multiple copies of the same destination when
-                                    // reselecting the same item
+                                }
+                            },
+                            goToHistoryWithFiltering = { shopId ->
+                                // NavigationBar は restoreState = true を設定しているので、一度 Screen クラスのプロパティを使ってタブ画面に遷移すると 画面遷移する度にそのプロパティが復元されてしまう。
+                                // タブ画面への遷移時に使用するパラメータは Screen クラスのプロパティを使用せず、生存期間が長い変数を使用する。
+                                shopIdParam = shopId
+                                navController.navigate(Screen.History) {
+                                    // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
                                     launchSingleTop = true
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
                                 }
                             }
                         )
                     }
+                    composable<Screen.Schedule> {
+                        ScheduleScreen(
+                            goToReport = { shopId, shopName, menuName, iso8601Date ->
+                                navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
+                            },
+                            goToShop = { shopId, shopName ->
+                                navController.navigate(Screen.Shop(shopId, shopName))
+                            }
+                        )
+                    }
+                    composable<Screen.Note> {
+                        NoteScreen(
+                            onAreaClick = { areaName ->
+                                navController.navigate(Screen.AreaShopList(areaName))
+                            },
+                            onAddAreaClick = {
+                                navController.navigate(Screen.AddArea)
+                            },
+                            onAreaLongClick = { areaName ->
+                                navController.navigate(Screen.EditArea(areaName))
+                            },
+                            onSortClick = {
+                                navController.navigate(Screen.EditAreaSort)
+                            }
+                        )
+                    }
+                    composable<Screen.History> {
+                        HistoryScreen(
+                            reportId = reportIdParam,
+                            shopId = shopIdParam,
+                            goToEditReport = { reportId ->
+                                navController.navigate(Screen.EditReport(reportId))
+                            },
+                            clearReportIdParam = {
+                                reportIdParam = null
+                            },
+                            clearShopParam = {
+                                shopIdParam = null
+                            }
+                        )
+                    }
+                    composable<Screen.Settings> {
+                        SettingsScreen()
+                    }
+                    composable<Screen.AreaShopList> { backStackEntry ->
+                        val screen: Screen.AreaShopList = backStackEntry.toRoute()
+                        AreaShopListScreen(
+                            areaName = screen.areaName,
+                            onBackClick = {
+                                navController.popBackStack()
+                            },
+                            onShopClick = { shop ->
+                                navController.navigate(Screen.Shop(shop.id, shop.name))
+                            },
+                            onAddShopClick = { areaName ->
+                                navController.navigate(Screen.AddShop(areaName))
+                            }
+                        )
+                    }
+                    composable<Screen.AddArea> {
+                        AddAreaScreen(
+                            onBackClick = { navController.popBackStack() },
+                            onCompleted = { navController.popBackStack() }
+                        )
+                    }
+                    composable<Screen.EditArea> { backStackEntry ->
+                        val screen: Screen.EditArea = backStackEntry.toRoute()
+                        EditAreaScreen(
+                            areaName = screen.areaName,
+                            onBackClick = { navController.popBackStack() },
+                            onCompleted = { navController.popBackStack() }
+                        )
+                    }
+                    composable<Screen.EditAreaSort> {
+                        EditAreaSortScreen(
+                            onBackClick = { navController.popBackStack() },
+                            onCompleted = { navController.popBackStack() }
+                        )
+                    }
+                    composable<Screen.Shop> { backStackEntry ->
+                        val screen: Screen.Shop = backStackEntry.toRoute()
+                        ShopScreen(
+                            shopId = screen.shopId,
+                            shopName = screen.shopName,
+                            goBack = { navController.popBackStack() },
+                            goToEditShop = { editShop ->
+                                navController.navigate(Screen.EditShop(editShop.toJsonString()))
+                            },
+                            goToReport = { shop ->
+                                navController.navigate(
+                                    Screen.Report(
+                                        shop.id,
+                                        shop.name,
+                                        shop.menuName1,
+                                        iso8601Date = createTodayLocalDate().toString()
+                                    )
+                                )
+                            },
+                            goToHistory = { shopId ->
+                                shopIdParam = shopId
+                                navController.navigate(Screen.History) {
+                                    // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                                    launchSingleTop = true
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    composable<Screen.AddShop> { backStackEntry ->
+                        val screen: Screen.AddShop = backStackEntry.toRoute()
+                        AddShopScreen(
+                            areaName = screen.areaName,
+                            onBackClick = { navController.popBackStack() },
+                            onCompleted = { navController.popBackStack() }
+                        )
+                    }
+                    composable<Screen.EditShop> { backStackEntry ->
+                        val screen: Screen.EditShop = backStackEntry.toRoute()
+                        val shop =
+                            try {
+                                ShopInfo.fromJsonString(screen.shopJson)
+                            } catch (_: Exception) {
+                                // エラーの場合はデフォルトのShopオブジェクトを作成
+                                ShopInfo(
+                                    name = "エラー",
+                                    area = "",
+                                    shopUrl = "",
+                                    mapUrl = "",
+                                    star = 0,
+                                    stationName = "",
+                                    category = ""
+                                )
+                            }
+                        EditShopScreen(
+                            shop = shop,
+                            onBackClick = { navController.popBackStack() },
+                            onCompleted = { navController.popBackStack() },
+                            goToShopList = { areaName ->
+                                navController.navigate(Screen.AreaShopList(areaName)) {
+                                    popUpTo(Screen.AreaShopList(areaName)) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    composable<Screen.Report> { backStackEntry ->
+                        val screen: Screen.Report = backStackEntry.toRoute()
+                        AddReportScreen(
+                            shopId = screen.shopId,
+                            shopName = screen.shopName,
+                            menuName = screen.menuName,
+                            scheduledDate = LocalDate.parse(screen.iso8601Date),
+                            onBackClick = { navController.popBackStack() },
+                            goToHistory = {
+                                navController.navigate(Screen.History) {
+                                    // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
+                                    launchSingleTop = true
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    composable<Screen.EditReport> { backStackEntry ->
+                        val screen: Screen.EditReport = backStackEntry.toRoute()
+                        EditReportScreen(
+                            reportId = screen.reportId,
+                            onBackClick = { navController.popBackStack() }
+                        )
+                    }
                 }
-            }
-        }
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            composable<Screen.Home> {
-                HomeScreen(
-                    goToShop = { shopId, shopName ->
-                        navController.navigate(Screen.Shop(shopId, shopName))
-                    },
-                    goToReport = { shopId, shopName, menuName, iso8601Date ->
-                        navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
-                    },
-                    goToHistory = { reportId ->
-                        // NavigationBar は restoreState = true を設定しているので、一度 Screen クラスのプロパティを使ってタブ画面に遷移すると 画面遷移する度にそのプロパティが復元されてしまう。
-                        // タブ画面への遷移時に使用するパラメータは Screen クラスのプロパティを使用せず、生存期間が長い変数を使用する。
-                        reportIdParam = reportId
-                        navController.navigate(Screen.History) {
-                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                        }
-                    }
-                )
-            }
-            composable<Screen.Schedule> {
-                ScheduleScreen(
-                    goToReport = { shopId, shopName, menuName, iso8601Date ->
-                        navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
-                    },
-                    goToShop = { shopId, shopName ->
-                        navController.navigate(Screen.Shop(shopId, shopName))
-                    }
-                )
-            }
-            composable<Screen.Note> {
-                NoteScreen(
-                    onAreaClick = { areaName ->
-                        navController.navigate(Screen.AreaShopList(areaName))
-                    },
-                    onAddAreaClick = {
-                        navController.navigate(Screen.AddArea)
-                    },
-                    onAreaLongClick = { areaName ->
-                        navController.navigate(Screen.EditArea(areaName))
-                    },
-                    onSortClick = {
-                        navController.navigate(Screen.EditAreaSort)
-                    }
-                )
-            }
-            composable<Screen.History> {
-                HistoryScreen(
-                    reportId = reportIdParam,
-                    shop = shopParam,
-                    goToEditReport = { reportId ->
-                        navController.navigate(Screen.EditReport(reportId))
-                    },
-                    clearReportIdParam = {
-                        reportIdParam = null
-                    },
-                    clearShopParam = {
-                        shopParam = null
-                    }
-                )
-            }
-            composable<Screen.Settings> {
-                SettingsScreen()
-            }
-            composable<Screen.AreaShopList> { backStackEntry ->
-                val screen: Screen.AreaShopList = backStackEntry.toRoute()
-                AreaShopListScreen(
-                    areaName = screen.areaName,
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    onShopClick = { shop ->
-                        navController.navigate(Screen.Shop(shop.id, shop.name))
-                    },
-                    onAddShopClick = { areaName ->
-                        navController.navigate(Screen.AddShop(areaName))
-                    }
-                )
-            }
-            composable<Screen.AddArea> {
-                AddAreaScreen(
-                    onBackClick = { navController.popBackStack() },
-                    onCompleted = { navController.popBackStack() }
-                )
-            }
-            composable<Screen.EditArea> { backStackEntry ->
-                val screen: Screen.EditArea = backStackEntry.toRoute()
-                EditAreaScreen(
-                    areaName = screen.areaName,
-                    onBackClick = { navController.popBackStack() },
-                    onCompleted = { navController.popBackStack() }
-                )
-            }
-            composable<Screen.EditAreaSort> {
-                EditAreaSortScreen(
-                    onBackClick = { navController.popBackStack() },
-                    onCompleted = { navController.popBackStack() }
-                )
-            }
-            composable<Screen.Shop> { backStackEntry ->
-                val screen: Screen.Shop = backStackEntry.toRoute()
-                ShopScreen(
-                    shopId = screen.shopId,
-                    shopName = screen.shopName,
-                    goBack = { navController.popBackStack() },
-                    goToEditShop = { editShop ->
-                        navController.navigate(Screen.EditShop(editShop.toJsonString()))
-                    },
-                    goToReport = { shop ->
-                        navController.navigate(
-                            Screen.Report(
-                                shop.id,
-                                shop.name,
-                                shop.menuName1,
-                                iso8601Date = createTodayLocalDate().toString()
-                            )
-                        )
-                    },
-                    goToHistory = { shop ->
-                        shopParam = shop
-                        navController.navigate(Screen.History) {
-                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                        }
-                    }
-                )
-            }
-            composable<Screen.AddShop> { backStackEntry ->
-                val screen: Screen.AddShop = backStackEntry.toRoute()
-                AddShopScreen(
-                    areaName = screen.areaName,
-                    onBackClick = { navController.popBackStack() },
-                    onCompleted = { navController.popBackStack() }
-                )
-            }
-            composable<Screen.EditShop> { backStackEntry ->
-                val screen: Screen.EditShop = backStackEntry.toRoute()
-                val shop =
-                    try {
-                        ShopInfo.fromJsonString(screen.shopJson)
-                    } catch (_: Exception) {
-                        // エラーの場合はデフォルトのShopオブジェクトを作成
-                        ShopInfo(
-                            name = "エラー",
-                            area = "",
-                            shopUrl = "",
-                            mapUrl = "",
-                            star = 0,
-                            stationName = "",
-                            category = ""
-                        )
-                    }
-                EditShopScreen(
-                    shop = shop,
-                    onBackClick = { navController.popBackStack() },
-                    onCompleted = { navController.popBackStack() },
-                    goToShopList = { areaName ->
-                        navController.navigate(Screen.AreaShopList(areaName)) {
-                            popUpTo(Screen.AreaShopList(areaName)) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                )
-            }
-            composable<Screen.Report> { backStackEntry ->
-                val screen: Screen.Report = backStackEntry.toRoute()
-                AddReportScreen(
-                    shopId = screen.shopId,
-                    shopName = screen.shopName,
-                    menuName = screen.menuName,
-                    scheduledDate = LocalDate.parse(screen.iso8601Date),
-                    onBackClick = { navController.popBackStack() },
-                    goToHistory = {
-                        navController.navigate(Screen.History) {
-                            // タブクリック時と同じ処理で画面遷移させないと遷移後の状態保持がおかしくなる
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                        }
-                    }
-                )
-            }
-            composable<Screen.EditReport> { backStackEntry ->
-                val screen: Screen.EditReport = backStackEntry.toRoute()
-                EditReportScreen(
-                    reportId = screen.reportId,
-                    onBackClick = { navController.popBackStack() }
-                )
             }
         }
     }
