@@ -1,7 +1,5 @@
 package dev.seabat.ramennote.ui.screens.note
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -30,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -53,6 +53,7 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.note_background
 import ramennote.composeapp.generated.resources.note_item_count
 import ramennote.composeapp.generated.resources.note_no_data
+import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.note_sort
 import ramennote.composeapp.generated.resources.screen_note_title
 import ramennote.composeapp.generated.resources.sort_24px
@@ -130,8 +131,12 @@ private fun MainContent(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
         ) {
+            var isBannerVisible by remember { mutableStateOf(true) }
+
             LaunchedEffect(Unit) {
                 viewModel.fetchAreas()
+                delay(3000)
+                isBannerVisible = false
             }
 
             val areas by viewModel.areas.collectAsState()
@@ -144,6 +149,13 @@ private fun MainContent(
                 ) {
                     item {
                         Menu(onSortClick = onSortClick)
+                    }
+
+                    item {
+                        HintBanner(
+                            isVisible = isBannerVisible,
+                            text = stringResource(Res.string.note_notification)
+                        )
                     }
 
                     items(areas) { area ->
@@ -185,25 +197,6 @@ private fun Menu(onSortClick: () -> Unit = {}) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         SortButton(onClick = onSortClick)
-
-        // 起動時に右上へ5秒間表示しフェードアウトするヒント
-        val showHint = remember { mutableStateOf(true) }
-        LaunchedEffect(Unit) {
-            delay(5000)
-            showHint.value = false
-        }
-        androidx.compose.animation.AnimatedVisibility(
-            visible = showHint.value,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text = "カードを長押しすると編集できます",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
     }
 }
 
