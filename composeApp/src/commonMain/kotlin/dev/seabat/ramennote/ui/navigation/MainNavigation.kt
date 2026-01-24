@@ -426,17 +426,20 @@ fun MainNavigation() {
                     }
                     composable<Screen.Note> {
                         NoteScreen(
-                            onAreaClick = { areaName ->
+                            goToAreaShopList = { areaName ->
                                 navController.navigate(Screen.AreaShopList(areaName))
                             },
-                            onAddAreaClick = {
+                            goToAddArea = {
                                 navController.navigate(Screen.AddArea)
                             },
-                            onAreaLongClick = { areaName ->
+                            goToEditArea = { areaName ->
                                 navController.navigate(Screen.EditArea(areaName))
                             },
-                            onSortClick = {
+                            goToEditAreaSort = {
                                 navController.navigate(Screen.EditAreaSort)
+                            },
+                            goToShop = { shop ->
+                                navController.navigate(Screen.Shop(shop.id, shop.name))
                             }
                         )
                     }

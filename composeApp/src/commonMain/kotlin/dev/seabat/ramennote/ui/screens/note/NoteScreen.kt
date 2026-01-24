@@ -9,17 +9,20 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,10 +41,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.components.button.AddFab
+import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
+import dev.seabat.ramennote.ui.screens.note.shoplist.ShopItem
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
@@ -54,16 +60,19 @@ import ramennote.composeapp.generated.resources.note_background
 import ramennote.composeapp.generated.resources.note_item_count
 import ramennote.composeapp.generated.resources.note_no_data
 import ramennote.composeapp.generated.resources.note_notification
+import ramennote.composeapp.generated.resources.note_search_hint
 import ramennote.composeapp.generated.resources.note_sort
 import ramennote.composeapp.generated.resources.screen_note_title
 import ramennote.composeapp.generated.resources.sort_24px
 
 @Composable
 fun NoteScreen(
-    onAreaClick: (String) -> Unit = {},
-    onAddAreaClick: () -> Unit = {},
-    onAreaLongClick: (String) -> Unit = {},
-    onSortClick: () -> Unit = {},
+    initialSearchText: String = "",
+    goToAreaShopList: (String) -> Unit = {},
+    goToAddArea: () -> Unit = {},
+    goToEditArea: (String) -> Unit = {},
+    goToEditAreaSort: () -> Unit = {},
+    goToShop: (Shop) -> Unit = {},
     viewModel: NoteViewModelContract = koinViewModel<NoteViewModel>()
 ) {
     Column(
@@ -75,10 +84,12 @@ fun NoteScreen(
         ScreenBar()
         MainContent(
             viewModel = viewModel,
-            onAreaClick = onAreaClick,
-            onAddAreaClick = onAddAreaClick,
-            onAreaLongClick = onAreaLongClick,
-            onSortClick = onSortClick
+            onAreaClick = goToAreaShopList,
+            onAddAreaClick = goToAddArea,
+            onAreaLongClick = goToEditArea,
+            onSortClick = goToEditAreaSort,
+            onShopClick = goToShop,
+            initialSearchText = initialSearchText
         )
     }
 }
@@ -95,7 +106,9 @@ private fun MainContent(
     onAreaClick: (String) -> Unit = {},
     onAddAreaClick: () -> Unit = {},
     onAreaLongClick: (String) -> Unit = {},
-    onSortClick: () -> Unit = {}
+    onSortClick: () -> Unit = {},
+    onShopClick: (Shop) -> Unit = {},
+    initialSearchText: String = ""
 ) {
     BoxWithConstraints(
         modifier =
@@ -132,14 +145,20 @@ private fun MainContent(
                     .padding(horizontal = 16.dp)
         ) {
             var isBannerVisible by remember { mutableStateOf(true) }
+            var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
+            var searchText by remember { mutableStateOf(initialSearchText) }
 
             LaunchedEffect(Unit) {
                 viewModel.fetchAreas()
+                if (searchText.isNotEmpty()) {
+                    viewModel.searchShops(searchText)
+                }
                 delay(3000)
                 isBannerVisible = false
             }
 
             val areas by viewModel.areas.collectAsState()
+            val shops by viewModel.shops.collectAsState()
 
             if (areas.isNotEmpty()) {
                 LazyColumn(
@@ -148,24 +167,50 @@ private fun MainContent(
                     contentPadding = PaddingValues(bottom = 88.dp) // FAB と重ならない余白
                 ) {
                     item {
-                        Menu(onSortClick = onSortClick)
-                    }
-
-                    item {
-                        HintBanner(
-                            isVisible = isBannerVisible,
-                            text = stringResource(Res.string.note_notification)
+                        Menu(
+                            searchText = searchText,
+                            onSortClick = onSortClick,
+                            onSearchTextChange = { text ->
+                                searchText = text
+                                isSearchResultVisible = text.isNotEmpty()
+                                if (text.isNotEmpty()) {
+                                    viewModel.searchShops(text)
+                                }
+                            }
                         )
                     }
+                    if (isSearchResultVisible) {
+                        item {
+                            HorizontalDivider(
+                                Modifier,
+                                1.dp,
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                            )
+                        }
+                        items(shops) { shop ->
+                            ShopItem(
+                                shop = shop,
+                                onShopClick = { onShopClick(shop) },
+                                onDelete = { /* 削除処理 */ }
+                            )
+                        }
+                    } else {
+                        item {
+                            HintBanner(
+                                isVisible = isBannerVisible,
+                                text = stringResource(Res.string.note_notification)
+                            )
+                        }
 
-                    items(areas) { area ->
-                        AreaItem(
-                            areaName = area.name,
-                            imageBytes = area.imageBytes,
-                            itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
-                            onClick = { onAreaClick(area.name) },
-                            onLongClick = { onAreaLongClick(area.name) }
-                        )
+                        items(areas) { area ->
+                            AreaItem(
+                                areaName = area.name,
+                                imageBytes = area.imageBytes,
+                                itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
+                                onClick = { onAreaClick(area.name) },
+                                onLongClick = { onAreaLongClick(area.name) }
+                            )
+                        }
                     }
                 }
             } else {
@@ -187,16 +232,27 @@ private fun MainContent(
 }
 
 @Composable
-private fun Menu(onSortClick: () -> Unit = {}) {
+private fun Menu(
+    searchText: String,
+    onSortClick: () -> Unit = {},
+    onSearchTextChange: (String) -> Unit
+) {
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 0.dp, vertical = 4.dp),
 //        horizontalArrangement = Arrangement.spacedBy(8.dp)
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         SortButton(onClick = onSortClick)
+        Spacer(modifier = Modifier.width(16.dp))
+        SearchInputField(
+            placeholder = stringResource(Res.string.note_search_hint),
+            value = searchText,
+            onValueChange = onSearchTextChange
+        )
     }
 }
 
@@ -312,11 +368,24 @@ fun AreaItemPreview() {
 
 @Preview
 @Composable
-fun NoteScreenPreview() {
+fun NoteScreenForAreaPreview() {
     RamenNoteTheme {
         NoteScreen(
-            onAreaClick = { /* プレビュー用 */ },
-            viewModel = MockNoteViewModel()
+            goToAreaShopList = { /* プレビュー用 */ },
+            viewModel = MockNoteViewModel(),
+            initialSearchText = ""
+        )
+    }
+}
+
+@Preview
+@Composable
+fun NoteScreenForSearchPreview() {
+    RamenNoteTheme {
+        NoteScreen(
+            goToAreaShopList = { /* プレビュー用 */ },
+            viewModel = MockNoteViewModel(),
+            initialSearchText = "一風堂"
         )
     }
 }

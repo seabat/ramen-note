@@ -44,6 +44,8 @@ class ShopsRepository(
     override suspend fun deleteShopById(id: Int) {
         shopDao.deleteShopById(id)
     }
+
+    override suspend fun getShopsByName(query: String): List<Shop> = shopDao.searchShopsByName(query).map { it.toDomainModel() }
 }
 
 private fun ShopEntity.toDomainModel(): Shop =
