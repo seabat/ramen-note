@@ -46,8 +46,8 @@ import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.components.button.AddFab
+import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
-import dev.seabat.ramennote.ui.screens.note.shoplist.ShopItem
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
