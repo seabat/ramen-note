@@ -1,7 +1,5 @@
 package dev.seabat.ramennote.ui.screens.history
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +18,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
@@ -36,6 +34,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.history_no_data
+import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.screen_history_title
 
 @Composable
@@ -91,27 +90,6 @@ fun HistoryScreen(
                         )
                     }
                 )
-
-                // 起動時に右上へ5秒間表示しフェードアウトするヒント
-                val showHint = remember { mutableStateOf(true) }
-                LaunchedEffect(Unit) {
-                    delay(5000)
-                    showHint.value = false
-                }
-
-                androidx.compose.animation.AnimatedVisibility(
-                    modifier = Modifier.align(Alignment.TopEnd),
-                    visible = showHint.value,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = "カードを長押しすると編集できます",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
             }
 
             // reportIdが指定されている場合、該当アイテムまで自動スクロール
@@ -178,13 +156,28 @@ private fun ReportsList(
     onImageTap: (ByteArray?) -> Unit,
     onShareTap: (String, ByteArray?) -> Unit
 ) {
+    var isBannerVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(3000)
+        isBannerVisible = false
+    }
+
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped = groupReports(reports)
+
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            HintBanner(
+                isVisible = isBannerVisible,
+                text = stringResource(Res.string.note_notification)
+            )
+        }
+
         grouped.forEach { (yearMonth, monthReports) ->
             item {
                 Text(

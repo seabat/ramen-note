@@ -34,4 +34,7 @@ interface ShopDao {
 
     @Query("DELETE FROM shops WHERE id = :id")
     suspend fun deleteShopById(id: Int)
+
+    @Query("SELECT * FROM shops WHERE name LIKE '%' || :query || '%'")
+    suspend fun searchShopsByName(query: String): List<ShopEntity>
 }

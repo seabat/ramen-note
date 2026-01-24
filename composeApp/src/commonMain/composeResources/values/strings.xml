@@ -51,6 +51,8 @@
     <string name="note_item_count">件</string>
     <string name="note_no_data">エリアが登録されていません。\nお店を登録する前にお店が存在するエリアを画面下のプラスボタンで登録してください。</string>
     <string name="note_sort">並び替え</string>
+    <string name="note_notification">カードを長押しすると編集できます</string>
+    <string name="note_search_hint">店舗名を入力して下さい</string>
 
 
     <!-- Edit Area Screen -->
