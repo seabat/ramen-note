@@ -1,5 +1,10 @@
 package dev.seabat.ramennote.ui.screens.note
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -18,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,6 +63,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.note_background
+import ramennote.composeapp.generated.resources.note_hit_count
 import ramennote.composeapp.generated.resources.note_item_count
 import ramennote.composeapp.generated.resources.note_no_data
 import ramennote.composeapp.generated.resources.note_notification
@@ -181,11 +188,20 @@ private fun MainContent(
                     }
                     if (isSearchResultVisible) {
                         item {
-                            HorizontalDivider(
-                                Modifier,
-                                1.dp,
-                                MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                            )
+                            Column {
+                                Text(
+                                    text = stringResource(Res.string.note_hit_count, shops.size),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                                if (shops.isNotEmpty()) {
+                                    HorizontalDivider(
+                                        Modifier,
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                                    )
+                                }
+                            }
                         }
                         items(shops) { shop ->
                             ShopItem(
@@ -202,14 +218,37 @@ private fun MainContent(
                             )
                         }
 
-                        items(areas) { area ->
-                            AreaItem(
-                                areaName = area.name,
-                                imageBytes = area.imageBytes,
-                                itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
-                                onClick = { onAreaClick(area.name) },
-                                onLongClick = { onAreaLongClick(area.name) }
-                            )
+                        itemsIndexed(areas) { index, area ->
+                            AnimatedVisibility(
+                                visibleState =
+                                    remember {
+                                        MutableTransitionState(false).apply { targetState = true }
+                                    },
+                                enter =
+                                    slideInHorizontally(
+                                        animationSpec =
+                                            tween(
+                                                durationMillis = 500,
+                                                delayMillis = if (index < 10) index * 100 else 0
+                                            ),
+                                        initialOffsetX = { it }
+                                    ) +
+                                        fadeIn(
+                                            animationSpec =
+                                                tween(
+                                                    durationMillis = 500,
+                                                    delayMillis = if (index < 10) index * 100 else 0
+                                                )
+                                        )
+                            ) {
+                                AreaItem(
+                                    areaName = area.name,
+                                    imageBytes = area.imageBytes,
+                                    itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
+                                    onClick = { onAreaClick(area.name) },
+                                    onLongClick = { onAreaLongClick(area.name) }
+                                )
+                            }
                         }
                     }
                 }
