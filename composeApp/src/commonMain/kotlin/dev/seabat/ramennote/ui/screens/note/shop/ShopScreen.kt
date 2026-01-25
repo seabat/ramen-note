@@ -223,7 +223,7 @@ fun Header(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .height(300.dp)
                 .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         if (imageBytes != null) {
