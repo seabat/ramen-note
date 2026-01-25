@@ -63,6 +63,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.note_background
+import ramennote.composeapp.generated.resources.note_hit_count
 import ramennote.composeapp.generated.resources.note_item_count
 import ramennote.composeapp.generated.resources.note_no_data
 import ramennote.composeapp.generated.resources.note_notification
@@ -187,11 +188,20 @@ private fun MainContent(
                     }
                     if (isSearchResultVisible) {
                         item {
-                            HorizontalDivider(
-                                Modifier,
-                                1.dp,
-                                MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                            )
+                            Column {
+                                Text(
+                                    text = stringResource(Res.string.note_hit_count, shops.size),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                                if (shops.isNotEmpty()) {
+                                    HorizontalDivider(
+                                        Modifier,
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                                    )
+                                }
+                            }
                         }
                         items(shops) { shop ->
                             ShopItem(
