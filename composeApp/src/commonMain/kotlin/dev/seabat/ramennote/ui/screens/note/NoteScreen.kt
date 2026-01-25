@@ -220,21 +220,26 @@ private fun MainContent(
 
                         itemsIndexed(areas) { index, area ->
                             AnimatedVisibility(
-                                visibleState = remember {
-                                    MutableTransitionState(false).apply { targetState = true }
-                                },
-                                enter = slideInHorizontally(
-                                    animationSpec = tween(
-                                        durationMillis = 500,
-                                        delayMillis = if (index < 10) index * 100 else 0
-                                    ),
-                                    initialOffsetX = { it }
-                                ) + fadeIn(
-                                    animationSpec = tween(
-                                        durationMillis = 500,
-                                        delayMillis = if (index < 10) index * 100 else 0
-                                    )
-                                )
+                                visibleState =
+                                    remember {
+                                        MutableTransitionState(false).apply { targetState = true }
+                                    },
+                                enter =
+                                    slideInHorizontally(
+                                        animationSpec =
+                                            tween(
+                                                durationMillis = 500,
+                                                delayMillis = if (index < 10) index * 100 else 0
+                                            ),
+                                        initialOffsetX = { it }
+                                    ) +
+                                        fadeIn(
+                                            animationSpec =
+                                                tween(
+                                                    durationMillis = 500,
+                                                    delayMillis = if (index < 10) index * 100 else 0
+                                                )
+                                        )
                             ) {
                                 AreaItem(
                                     areaName = area.name,
