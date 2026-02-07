@@ -8,23 +8,28 @@ class FetchUnsplashImageUseCase(
     private val unsplashImageRepository: UnsplashImageRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
 ) : FetchUnsplashImageUseCaseContract {
-    override suspend operator fun invoke(query: String): RunStatus<ByteArray?> =
-        try {
-            // Fetch image from remote repository
-            val imageBytes = unsplashImageRepository.fetch(query)
 
-            // Save to local storage with query as filename
-            localAreaImageRepository.save(imageBytes, query)
-
-            // Load from local storage with query as filename
-            val localImageBytes = localAreaImageRepository.load(query)
-
-            if (localImageBytes != null) {
-                RunStatus.Success(localImageBytes)
-            } else {
-                RunStatus.Error("Failed to load image from local storage")
+    override suspend operator fun invoke(query: String): RunStatus<ByteArray> {
+        // Fetch image from remote repository
+        return when(val fetchResult = unsplashImageRepository.fetch(query)) {
+            is RunStatus.Error -> {
+                return fetchResult
             }
-        } catch (e: Exception) {
-            RunStatus.Error("画像の生成に失敗しました")
+            is RunStatus.Success -> {
+                val imageBytes = requireNotNull(fetchResult.data) { "Success の data は null でない想定" }
+                // Save to local storage with query as filename
+                localAreaImageRepository.save(imageBytes, query)
+
+                // Load from local storage with query as filename
+                when(val localImageBytes = localAreaImageRepository.load(query)) {
+                    is RunStatus.Success -> localImageBytes
+                    is RunStatus.Error -> RunStatus.Error("Failed to load image from local storage")
+                    else -> error("unexpected state")
+                }
+            }
+            else -> {
+               error("ここは通らない")
+            }
         }
+    }
 }

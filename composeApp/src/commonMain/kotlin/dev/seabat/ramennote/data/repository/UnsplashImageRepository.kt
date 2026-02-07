@@ -1,7 +1,9 @@
 package dev.seabat.ramennote.data.repository
 
 import dev.seabat.ramennote.config.UnsplashConfig
+import dev.seabat.ramennote.domain.model.RunStatus
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -16,9 +18,9 @@ const val BASE_URL = "https://api.unsplash.com"
 class UnsplashImageRepository(
     private val httpClient: HttpClient
 ) : UnsplashImageRepositoryContract {
-    override suspend fun fetch(query: String): ByteArray =
+    override suspend fun fetch(query: String): RunStatus<ByteArray> =
         withContext(Dispatchers.IO) {
-            val response: UnsplashSearchResponse =
+            runCatching {
                 httpClient
                     .get("$BASE_URL/search/photos") {
                         headers {
@@ -28,17 +30,27 @@ class UnsplashImageRepository(
                         parameter("page", 1)
                         parameter("per_page", 1)
                         parameter("orientation", "landscape")
-                    }.body()
-
-            // 画像URLから画像データを取得
-            val imageResponse =
-                httpClient.get(
-                    response.results
-                        .get(0)
-                        .urls.regular
-                )
-            imageResponse.body<ByteArray>()
+                    }.body<UnsplashSearchResponse>()
+            }.fold(
+                onSuccess = { response: UnsplashSearchResponse ->
+                    val firstPhoto = response.results.firstOrNull()
+                    if (firstPhoto == null) {
+                        RunStatus.Error("$query の画像が見つかりませんでした。")
+                    } else {
+                        val imageResponse = httpClient.get(firstPhoto.urls.regular)
+                        RunStatus.Success(imageResponse.body<ByteArray>())
+                    }
+                },
+                onFailure = { e -> RunStatus.Error(toErrorMessage(e)) }
+            )
         }
+}
+
+private fun toErrorMessage(e: Throwable): String = when {
+    e is HttpRequestTimeoutException -> "通信がタイムアウトしました"
+    e.message?.contains("timeout", ignoreCase = true) == true -> "通信がタイムアウトしました"
+    e.cause?.message?.contains("timeout", ignoreCase = true) == true -> "通信がタイムアウトしました"
+    else -> e.message ?: "画像の取得に失敗しました"
 }
 
 @Serializable

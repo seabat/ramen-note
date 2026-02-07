@@ -11,14 +11,11 @@ class UpdateAreaImageUseCase(
     private val localAreaImageRepository: LocalImageRepositoryContract,
     private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
 ) : UpdateAreaImageUseCaseContract {
-    override suspend operator fun invoke(area: String): RunStatus<ByteArray?> {
-        // まずローカルから読み込む。nullなら必ずUnsplashから取得
-        val local = localAreaImageRepository.load(area)
-        if (local == null) {
-            return fetchUnsplashImageUseCase(area)
-        }
+    override suspend operator fun invoke(area: String): RunStatus<ByteArray> {
+        // まずローカルから画像を読み込む。null なら必ず Unsplash から取得
+        localAreaImageRepository.load(area) ?: return fetchUnsplashImageUseCase(area)
 
-        val areaData = areasRepository.fetch(area)
+        val areaData = areasRepository.load(area)
         val today = createTodayLocalDate()
         val needUpdate = areaData == null || areaData.updatedDate < today.minus(1, kotlinx.datetime.DateTimeUnit.DAY)
         return if (needUpdate) {
