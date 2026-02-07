@@ -1,13 +1,11 @@
-package dev.seabat.ramennote.ui.screens.componens
+package dev.seabat.ramennote.ui.screens.note.shop
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -32,8 +29,8 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.delete_24px
 
 @Composable
-fun ShopInputField(
-    label: String,
+fun SearchInputField(
+    placeholder: String,
     value: String,
     singleLine: Boolean = true,
     onValueChange: (String) -> Unit
@@ -41,14 +38,6 @@ fun ShopInputField(
     val focusManager = LocalFocusManager.current
 
     Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
         // OutlinedTextField は内部パディングが大きいので BasicTextField で代用
         Box(
             modifier =
@@ -82,7 +71,21 @@ fun ShopInputField(
                     keyboardActions =
                         KeyboardActions(
                             onDone = { focusManager.clearFocus() }
-                        )
+                        ),
+                    decorationBox = { innerTextField ->
+                        Box(contentAlignment = Alignment.CenterStart) {
+                            if (value.isEmpty()) {
+                                Text(
+                                    text = placeholder,
+                                    style =
+                                        MaterialTheme.typography.bodyLarge.copy(
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                        )
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
                 )
 
                 // 右側にdeleteアイコンを表示
@@ -105,7 +108,7 @@ fun ShopInputField(
 
 @Preview
 @Composable
-fun ShopInputFieldPreview() {
+fun SearchInputFieldPreview() {
     RamenNoteTheme {
         Column(
             modifier =
@@ -113,8 +116,8 @@ fun ShopInputFieldPreview() {
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
-            ShopInputField(
-                label = "店舗名",
+            SearchInputField(
+                placeholder = "店舗名",
                 value = "ラーメン太郎",
                 onValueChange = {}
             )

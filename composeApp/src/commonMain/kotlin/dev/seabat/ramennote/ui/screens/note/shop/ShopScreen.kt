@@ -69,6 +69,7 @@ import ramennote.composeapp.generated.resources.add_schedule_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
 import ramennote.composeapp.generated.resources.edit_24px
+import ramennote.composeapp.generated.resources.edit_area_label
 import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
@@ -222,7 +223,7 @@ fun Header(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .height(300.dp)
                 .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         if (imageBytes != null) {
@@ -383,6 +384,12 @@ fun Detail(
                 )
             }
         }
+
+        // エリア
+        ShopDetailItem(
+            label = stringResource(Res.string.edit_area_label),
+            value = shop.area.ifEmpty { stringResource(Res.string.add_no_data_label) }
+        )
 
         // Webサイト
         UrlItem(

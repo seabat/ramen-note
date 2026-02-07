@@ -19,4 +19,6 @@ interface ShopsRepositoryContract {
     suspend fun deleteShop(shop: Shop)
 
     suspend fun deleteShopById(id: Int)
+
+    suspend fun getShopsByName(query: String): List<Shop>
 }

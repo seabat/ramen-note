@@ -3,8 +3,10 @@ package dev.seabat.ramennote.ui.screens.note
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.SearchShopsByNameUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,11 +14,15 @@ import kotlinx.coroutines.launch
 
 class NoteViewModel(
     private val loadAreasUseCase: LoadAreasUseCaseContract,
-    private val loadImageListUseCase: LoadImageUseCaseContract
+    private val loadImageListUseCase: LoadImageUseCaseContract,
+    private val searchShopsByNameUseCase: SearchShopsByNameUseCaseContract
 ) : ViewModel(),
     NoteViewModelContract {
     private val _areas: MutableStateFlow<List<AreaWithImage>> = MutableStateFlow(emptyList())
     override val areas: StateFlow<List<AreaWithImage>> = _areas.asStateFlow()
+
+    private val _shops = MutableStateFlow<List<Shop>>(emptyList())
+    override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
 
     private val _imagesState: MutableStateFlow<RunStatus<List<ByteArray>>> =
         MutableStateFlow(RunStatus.Idle())
@@ -41,6 +47,12 @@ class NoteViewModel(
                 }.also {
                     _areas.value = it
                 }
+        }
+    }
+
+    override fun searchShops(query: String) {
+        viewModelScope.launch {
+            _shops.value = searchShopsByNameUseCase(query)
         }
     }
 }
