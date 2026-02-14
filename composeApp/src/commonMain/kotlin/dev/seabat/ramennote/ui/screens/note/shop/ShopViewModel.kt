@@ -30,27 +30,16 @@ class ShopViewModel(
 
     override fun loadShopAndImage(id: Int) {
         viewModelScope.launch {
-            // Shopデータを読み込み
             val shop = loadShopUseCase.invoke(id)
             _shop.value = shop
-
-            if (shop != null) {
-                // 画像を読み込み
-                val name = shop.photoName1
-                if (name.isNotEmpty()) {
-                    when (val result = loadImageUseCase(name)) {
-                        is RunStatus.Success -> _shopImage.value = result.data
-                        is RunStatus.Error -> _shopImage.value = null
-                        is RunStatus.Loading -> { /* no-op */ }
-                        is RunStatus.Idle -> { /* no-op */ }
-                    }
-                } else {
-                    _shopImage.value = null
-                }
-            } else {
-                _shopImage.value = null
-            }
+            _shopImage.value = shop?.let { loadShopImage(it.photoName1) }
         }
+    }
+
+    private suspend fun loadShopImage(photoName: String): ByteArray? {
+        if (photoName.isEmpty()) return null
+        val result = loadImageUseCase(photoName)
+        return (result as? RunStatus.Success)?.data
     }
 
     override fun addSchedule(shopId: Int, date: kotlinx.datetime.LocalDate) {
