@@ -185,6 +185,15 @@ class LoadImageUseCase(
 - テスト方法と確認事項
 ```
 
+## Hooks 設定（.claude/settings.json）
+
+| Hook | イベント | 動作 |
+|------|---------|------|
+| 機密ファイル保護 | PreToolUse (Edit/Write) | secrets/、local.properties 等への書き込みをブロック |
+| 危険コマンドブロック | PreToolUse (Bash) | force push、hard reset 等をブロック |
+| ktlint 自動整形 | PreToolUse (Bash) | git commit 前に ktlintFormat → git add -u を実行 |
+| macOS 通知 | Stop | 処理完了時にネイティブ通知を表示 |
+
 ## 注意事項
 - `composeApp/secrets/` 配下に API キー（UnsplashConfig 等）があるため、**絶対にコミットしない**
 - Room の KSP 生成タスクと Compose Resource 生成タスクに依存関係がある（build.gradle.kts 参照）
