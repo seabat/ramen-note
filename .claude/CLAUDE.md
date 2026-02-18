@@ -187,12 +187,30 @@ class LoadImageUseCase(
 
 ## Hooks 設定（.claude/settings.json）
 
-| Hook | イベント | 動作 |
-|------|---------|------|
-| 機密ファイル保護 | PreToolUse (Edit/Write) | secrets/、local.properties 等への書き込みをブロック |
-| 危険コマンドブロック | PreToolUse (Bash) | force push、hard reset 等をブロック |
-| ktlint 自動整形 | PreToolUse (Bash) | git commit 前に ktlintFormat → git add -u を実行 |
-| macOS 通知 | Stop | 処理完了時にネイティブ通知を表示 |
+settings.json 内の hooks 配列は上から順に以下の役割を持つ:
+
+### 1. 機密ファイル保護（PreToolUse: Edit|Write）
+- **目的**: API キーや認証情報を含むファイルの誤編集を防止
+- **対象パス**: `composeApp/secrets/`、`local.properties`、`google-services.json`、`.env`
+- **動作**: 対象ファイルへの Edit/Write を検出すると **exit 2 でブロック**（ツール実行を拒否）
+
+### 2. 危険コマンドブロック（PreToolUse: Bash）― 1つ目の Bash matcher
+- **目的**: 取り返しのつかない Git 操作を防止
+- **検出パターン**: `push --force`、`push -f`、`reset --hard`、`clean -fd`、`rm -rf /`
+- **動作**: 危険なコマンドを検出すると **exit 2 でブロック**
+
+### 3. ktlint 自動整形（PreToolUse: Bash）― 2つ目の Bash matcher
+- **目的**: コミット前に Kotlin コードを自動フォーマットし、スタイル違反の混入を防止
+- **トリガー**: `git commit` を含むコマンドを検出したとき
+- **処理フロー**:
+  1. `./gradlew ktlintFormat --rerun-tasks` でプロジェクト全体をフォーマット
+  2. `git add -u` で修正されたファイルを再ステージング
+  3. その後 Claude Code が git commit を実行（修正済みコードがコミットされる）
+- **備考**: `--rerun-tasks` は Gradle キャッシュによるスキップを防止するために必要
+
+### 4. macOS 通知（Stop）
+- **目的**: Claude Code の応答完了をユーザーに通知
+- **動作**: `osascript` でネイティブ通知（タイトル「Claude Code」+ Glass 効果音）を表示
 
 ## 注意事項
 - `composeApp/secrets/` 配下に API キー（UnsplashConfig 等）があるため、**絶対にコミットしない**
