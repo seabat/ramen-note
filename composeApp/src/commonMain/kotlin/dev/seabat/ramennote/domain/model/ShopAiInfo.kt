@@ -8,5 +8,6 @@ data class ShopAiInfo(
     val shopUrl: String = "",
     val mapUrl: String = "",
     val stationName: String = "",
-    val category: String = ""
+    val category: String = "",
+    val description: String = ""
 )
