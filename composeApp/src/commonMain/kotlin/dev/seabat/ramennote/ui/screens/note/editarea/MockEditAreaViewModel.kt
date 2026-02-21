@@ -33,4 +33,8 @@ class MockEditAreaViewModel :
     override fun loadImage(name: String) {
         // Preview用なので何もしない
     }
+
+    override fun resetImageState() {
+        // Preview用なので何もしない
+    }
 }
