@@ -17,7 +17,8 @@ class ShopAiDataSource : ShopAiDataSourceContract {
                     "shopUrl" to Schema.string(),
                     "mapUrl" to Schema.string(),
                     "stationName" to Schema.string(),
-                    "category" to Schema.enumeration(listOf("醤油", "味噌", "塩", "豚骨", "豚骨醤油", "家系", "二郎系", "つけ麺", "その他"))
+                    "category" to Schema.enumeration(listOf("醤油", "味噌", "塩", "豚骨", "豚骨醤油", "家系", "二郎系", "つけ麺", "その他")),
+                    "description" to Schema.string()
                 )
             )
 
