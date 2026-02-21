@@ -14,7 +14,7 @@ KMP（Kotlin Multiplatform）のラーメン店管理アプリ。Android / iOS �
 - **Firebase AI / Gemini AI**: 0.7.0（Android のみ）
 - **Android SDK**: compileSdk 36, minSdk 24, targetSdk 36
 
-## ビルド・テスト・lint コマンド
+## 実行コマンド
 ```bash
 # ビルド
 ./gradlew :composeApp:assembleDebug
@@ -36,6 +36,44 @@ UI (Screen / ViewModel) → Domain (UseCase) → Data (Repository / DataSource /
 
 - 各層は **Contract（インターフェース）** を介して依存する
 - 上位層は下位層の Contract のみに依存し、実装を直接参照しない
+
+## プラットフォーム固有 API
+
+KMP では共通コード（commonMain）からプラットフォーム固有の API を利用する方法が2つある。
+**いずれかを変更した場合、もう一方のプラットフォームにも同等の変更が必要。**
+
+### パターン1: expect/actual（androidMain / iosMain）
+
+`expect` で共通インターフェースを宣言し、`actual` で各プラットフォームの実装を提供する。
+
+```kotlin
+// commonMain — expect 宣言（logd.common.kt）
+expect fun logd(tag: String = "[RamenNote]", message: String)
+
+// androidMain — actual 実装（logd.android.kt）
+actual fun logd(tag: String, message: String) {
+    if (BuildConfig.DEBUG) { Log.d(tag, message) }
+}
+
+// iosMain — actual 実装（logd.ios.kt）
+actual fun logd(tag: String, message: String) {
+    if (Platform.isDebugBinary) { println("$tag: $message") }
+}
+```
+
+本プロジェクトの例: `logd`、`GalleryLauncher`、`DataModule`、`LifecycleObserver` など
+
+### パターン2: Contract + Swift 実装（androidMain / iosApp Swift）
+
+commonMain で Contract（インターフェース）を定義し、Android 側は androidMain で Kotlin 実装、iOS 側は `iosApp/` 配下で Swift 実装を提供する。iOS の Swift 実装は `SwiftLibDependencyFactoryContract` 経由で Koin に登録される。
+
+```
+commonMain:    ShopAiDataSourceContract（インターフェース）
+androidMain:   ShopAiDataSource.kt（Kotlin 実装）
+iosApp/Swift:  IosShopAiDataSource.swift（Swift 実装）
+```
+
+本プロジェクトの例: `ShopAiDataSource`、`UnsplashDataSource` などの DataSource
 
 ## ディレクトリ構造
 ```
