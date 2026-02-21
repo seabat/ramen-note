@@ -16,4 +16,6 @@ interface EditAreaViewModelContract {
     fun fetchImage(areaName: String)
 
     fun loadImage(name: String)
+
+    fun resetImageState()
 }

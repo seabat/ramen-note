@@ -61,4 +61,8 @@ class EditAreaViewModel(
             _imageState.value = loadImageUseCase(areaName)
         }
     }
+
+    override fun resetImageState() {
+        _imageState.value = RunStatus.Idle()
+    }
 }

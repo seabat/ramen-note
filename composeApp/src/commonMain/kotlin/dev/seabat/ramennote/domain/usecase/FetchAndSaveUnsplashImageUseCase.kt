@@ -4,10 +4,17 @@ import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.data.repository.UnsplashImageRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
-class FetchUnsplashImageUseCase(
+/**
+ * Unsplash から画像を取得し、ローカルストレージに保存する
+ *
+ *
+ * @property unsplashImageRepository
+ * @property localAreaImageRepository
+ */
+class FetchAndSaveUnsplashImageUseCase(
     private val unsplashImageRepository: UnsplashImageRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
-) : FetchUnsplashImageUseCaseContract {
+) : FetchAndSaveUnsplashImageUseCaseContract {
 
     override suspend operator fun invoke(query: String): RunStatus<ByteArray> {
         // Fetch image from remote repository
