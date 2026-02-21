@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
     alias(libs.plugins.googleService)
+    alias(libs.plugins.firebaseCrashlytics)
     id("co.touchlab.skie") version "0.10.6"
 }
 
@@ -45,6 +46,7 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.ai)
             implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
