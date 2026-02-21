@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 class MockAddAreaViewModel :
     ViewModel(),
     AddAreaViewModelContract {
-    private val _addState: MutableStateFlow<RunStatus<ByteArray?>> =
+    private val _addState: MutableStateFlow<RunStatus<ByteArray>> =
         MutableStateFlow(RunStatus.Idle())
-    override val addState: StateFlow<RunStatus<ByteArray?>> = _addState.asStateFlow()
+    override val addState: StateFlow<RunStatus<ByteArray>> = _addState.asStateFlow()
 
     override fun addArea(area: String) {
         // Preview用なので何もしない

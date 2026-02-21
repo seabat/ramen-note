@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.data.repository
 
 import dev.seabat.ramennote.data.datasource.LocalStorageDataSourceContract
+import dev.seabat.ramennote.domain.model.RunStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
@@ -14,9 +15,12 @@ class LocalImageRepository(
         }
     }
 
-    override suspend fun load(name: String): ByteArray? =
+    override suspend fun load(name: String): RunStatus<ByteArray> =
         withContext(Dispatchers.IO) {
-            localStorageDataSource.load(name)
+            when (val image = localStorageDataSource.load(name)) {
+                null -> RunStatus.Error("画像がありません")
+                else -> RunStatus.Success(image)
+            }
         }
 
     override suspend fun rename(oldName: String, newName: String) {

@@ -13,5 +13,5 @@ import dev.seabat.ramennote.domain.model.Area
 class LoadAreasUseCase(
     private val areasRepository: AreasRepositoryContract
 ) : LoadAreasUseCaseContract {
-    override suspend operator fun invoke(): List<Area> = areasRepository.fetch().sortedByDescending { it.sort }
+    override suspend operator fun invoke(): List<Area> = areasRepository.load().sortedByDescending { it.sort }
 }

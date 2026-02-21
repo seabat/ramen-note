@@ -16,7 +16,7 @@ class MockEditAreaViewModel :
     override val deleteState: StateFlow<RunStatus<String>> = MutableStateFlow<RunStatus<String>>(RunStatus.Idle()).asStateFlow()
     override val editState: StateFlow<RunStatus<String>> = MutableStateFlow<RunStatus<String>>(RunStatus.Idle()).asStateFlow()
     override var currentAreaName: String = ""
-    override val imageState: StateFlow<RunStatus<ByteArray?>> = MutableStateFlow<RunStatus<ByteArray?>>(RunStatus.Idle()).asStateFlow()
+    override val imageState: StateFlow<RunStatus<ByteArray>> = MutableStateFlow<RunStatus<ByteArray>>(RunStatus.Idle()).asStateFlow()
 
     override fun editArea(newArea: String) {
         // Preview用なので何もしない

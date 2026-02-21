@@ -27,9 +27,9 @@ class EditAreaViewModel(
         MutableStateFlow(RunStatus.Idle())
     override val editState: StateFlow<RunStatus<String>> = _editState.asStateFlow()
 
-    private val _imageState: MutableStateFlow<RunStatus<ByteArray?>> =
+    private val _imageState: MutableStateFlow<RunStatus<ByteArray>> =
         MutableStateFlow(RunStatus.Idle())
-    override val imageState: StateFlow<RunStatus<ByteArray?>> = _imageState.asStateFlow()
+    override val imageState: StateFlow<RunStatus<ByteArray>> = _imageState.asStateFlow()
 
     override var currentAreaName = ""
 

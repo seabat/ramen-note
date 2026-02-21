@@ -17,7 +17,7 @@ class AreasRepository(
         database.areaDao()
     }
 
-    override suspend fun fetch(): List<Area> {
+    override suspend fun load(): List<Area> {
         val entities = areaDao.getAllAreas()
         return entities.map { entity ->
             Area(
@@ -29,7 +29,7 @@ class AreasRepository(
         }
     }
 
-    override suspend fun fetch(areaName: String): Area? {
+    override suspend fun load(areaName: String): Area? {
         val entity = areaDao.getAreaByName(areaName) ?: return null
         return Area(
             name = entity.name,

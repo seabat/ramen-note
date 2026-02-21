@@ -4,6 +4,7 @@ import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.RunStatus
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
@@ -36,12 +37,7 @@ class LoadThreeMonthsFullReportsUseCase(
         return filteredReports
             .map { report ->
                 val shop = shopsRepository.getShopById(report.shopId)
-                val photoData =
-                    try {
-                        localAreaImageRepository.load(report.photoName)
-                    } catch (e: Exception) {
-                        null
-                    }
+                val photoData = localAreaImageRepository.load(report.photoName)
 
                 FullReport(
                     id = report.id,
@@ -49,7 +45,11 @@ class LoadThreeMonthsFullReportsUseCase(
                     shopName = shop?.name ?: "不明な店舗",
                     menuName = report.menuName,
                     photoName = report.photoName,
-                    imageBytes = photoData,
+                    imageBytes = when (photoData) {
+                        is RunStatus.Success -> photoData.data
+                        is RunStatus.Error -> null
+                        else -> error("unexpected state")
+                    },
                     impression = report.impression,
                     date = report.date!!,
                     star = report.star
