@@ -1,5 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,7 +11,38 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
     alias(libs.plugins.googleService)
+    alias(libs.plugins.firebaseCrashlytics)
     id("co.touchlab.skie") version "0.10.6"
+}
+
+// local.properties から API キーを読み込み、commonMain 向けに BuildSecrets.kt を生成する
+val generateBuildSecrets by tasks.registering {
+    val localPropertiesFile = rootProject.file("local.properties")
+    val outputDir = layout.buildDirectory.dir("generated/secrets")
+
+    inputs.file(localPropertiesFile).optional()
+    outputs.dir(outputDir)
+
+    doLast {
+        val props = Properties()
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { props.load(it) }
+        }
+        val unsplashKey = props.getProperty("UNSPLASH_ACCESS_KEY", "")
+
+        val outputFile = outputDir.get().asFile.resolve("BuildSecrets.kt")
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText(
+            """
+            |package dev.seabat.ramennote.config
+            |
+            |// このファイルは Gradle によって自動生成されます。直接編集しないでください。
+            |object BuildSecrets {
+            |    const val UNSPLASH_ACCESS_KEY = "$unsplashKey"
+            |}
+            """.trimMargin()
+        )
+    }
 }
 
 kotlin {
@@ -31,6 +63,9 @@ kotlin {
     }
     
     sourceSets {
+        commonMain {
+            kotlin.srcDir(tasks.named("generateBuildSecrets").map { layout.buildDirectory.dir("generated/secrets") })
+        }
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -45,6 +80,7 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.ai)
             implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -88,6 +124,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
@@ -167,6 +204,7 @@ afterEvaluate {
         tasks.matching { it.name == kspTaskName }.configureEach {
             // Declare explicit dependencies to avoid implicit dependency validation errors
             dependsOn(composeGenTasks)
+            dependsOn("generateBuildSecrets")
         }
     }
 }

@@ -56,7 +56,7 @@ fun ShopDetailItem(
                         } else {
                             Modifier
                         }
-                    ).padding(start = 8.dp, top = 4.dp, bottom = 4.dp),
+                    ).padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium

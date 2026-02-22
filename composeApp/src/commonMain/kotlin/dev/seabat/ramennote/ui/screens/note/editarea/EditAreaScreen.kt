@@ -145,7 +145,9 @@ fun EditAreaScreen(
                         is RunStatus.Error -> {
                             AppAlert(
                                 message = stringResource(Res.string.editarea_image_load_error) + imageState.message,
-                                onConfirm = { onCompleted() }
+                                onConfirm = {
+                                    viewModel.resetImageState()
+                                }
                             )
                         }
                         is RunStatus.Idle -> {

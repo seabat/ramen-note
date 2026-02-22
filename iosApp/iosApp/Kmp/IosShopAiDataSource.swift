@@ -23,7 +23,8 @@ class IosShopAiDataSource: ShopAiDataSourceContract {
                         "つけ麺",
                         "その他"
                     ]
-                )
+                ),
+                "description": .string()
             ]
         )
 
@@ -43,7 +44,8 @@ class IosShopAiDataSource: ShopAiDataSourceContract {
                 shopUrl: "",
                 mapUrl: "",
                 stationName: "",
-                category: ""
+                category: "",
+                description: ""
             )
         }
 
@@ -54,6 +56,7 @@ class IosShopAiDataSource: ShopAiDataSourceContract {
             let mapUrl: String?
             let stationName: String?
             let category: String?
+            let description: String?
         }
 
         do {
@@ -64,7 +67,8 @@ class IosShopAiDataSource: ShopAiDataSourceContract {
                 shopUrl: dto.shopUrl ?? "",
                 mapUrl: dto.mapUrl ?? "",
                 stationName: dto.stationName ?? "",
-                category: dto.category ?? ""
+                category: dto.category ?? "",
+                description: dto.description ?? ""
             )
         } catch {
             // デコードに失敗した場合は空の ShopAiInfo を返す（Android 側の getOrElse と同じ）
@@ -73,7 +77,8 @@ class IosShopAiDataSource: ShopAiDataSourceContract {
                 shopUrl: "",
                 mapUrl: "",
                 stationName: "",
-                category: ""
+                category: "",
+                description: ""
             )
         }
     }

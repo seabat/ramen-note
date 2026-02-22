@@ -19,7 +19,8 @@ class MockShopViewModel : ShopViewModelContract {
                 star = 2,
                 stationName = "JR渋谷駅",
                 category = "家系",
-                scheduledDate = createTodayLocalDate()
+                scheduledDate = createTodayLocalDate(),
+                note = "徳島ラーメンの老舗で、濃厚な豚骨醤油スープが特徴です。甘辛く煮込まれた豚バラ肉と生卵をトッピングしていただくのが定番のスタイル。地元の人々はもちろん、観光客にも人気の高いお店です。"
             )
         )
     override val shop: StateFlow<Shop?> = _shop.asStateFlow()

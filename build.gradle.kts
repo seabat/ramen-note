@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.googleService) apply false
+    alias(libs.plugins.firebaseCrashlytics) apply false
 }
 
 subprojects {
