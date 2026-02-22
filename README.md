@@ -88,15 +88,13 @@ ramen-note/
 エリアの画像を表示するために Unsplash API を使用しています。ビルド前に以下の手順で Access Key を設定してください。
 
 1. [Unsplash Developers](https://unsplash.com/developers) でアプリケーションを登録し、Access Key を取得
-2. `composeApp/src/commonMain/kotlin/dev/seabat/ramennote/config/UnsplashConfig.kt` を開く
-3. `ACCESS_KEY` の値を取得した Access Key に置き換える
+2. プロジェクトルートの `local.properties` に以下を追加
 
-```kotlin
-object UnsplashConfig {
-    const val ACCESS_KEY = "YOUR_UNSPLASH_ACCESS_KEY"  // ここに実際の Access Key を設定
-    // ...
-}
+```properties
+UNSPLASH_ACCESS_KEY=取得した Access Key
 ```
+
+ビルド時に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.kt` を自動生成します。アプリコードは `BuildSecrets.UNSPLASH_ACCESS_KEY` 経由で参照します。
 
 **注意**: Access Key を設定せずにビルドすると、エリア画像の取得が正常に動作しません。
 
