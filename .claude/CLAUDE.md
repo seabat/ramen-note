@@ -37,43 +37,6 @@ UI (Screen / ViewModel) → Domain (UseCase) → Data (Repository / DataSource /
 - 各層は **Contract（インターフェース）** を介して依存する
 - 上位層は下位層の Contract のみに依存し、実装を直接参照しない
 
-## プラットフォーム固有 API
-
-KMP では共通コード（commonMain）からプラットフォーム固有の API を利用する方法が2つある。
-**いずれかを変更した場合、もう一方のプラットフォームにも同等の変更が必要。**
-
-### パターン1: expect/actual（androidMain / iosMain）
-
-`expect` で共通インターフェースを宣言し、`actual` で各プラットフォームの実装を提供する。
-
-```kotlin
-// commonMain — expect 宣言（logd.common.kt）
-expect fun logd(tag: String = "[RamenNote]", message: String)
-
-// androidMain — actual 実装（logd.android.kt）
-actual fun logd(tag: String, message: String) {
-    if (BuildConfig.DEBUG) { Log.d(tag, message) }
-}
-
-// iosMain — actual 実装（logd.ios.kt）
-actual fun logd(tag: String, message: String) {
-    if (Platform.isDebugBinary) { println("$tag: $message") }
-}
-```
-
-本プロジェクトの例: `logd`、`GalleryLauncher`、`DataModule`、`LifecycleObserver` など
-
-### パターン2: Contract + Swift 実装（androidMain / iosApp Swift）
-
-commonMain で Contract（インターフェース）を定義し、Android 側は androidMain で Kotlin 実装、iOS 側は `iosApp/` 配下で Swift 実装を提供する。iOS の Swift 実装は `SwiftLibDependencyFactoryContract` 経由で Koin に登録される。
-
-```
-commonMain:    ShopAiDataSourceContract（インターフェース）
-androidMain:   ShopAiDataSource.kt（Kotlin 実装）
-iosApp/Swift:  IosShopAiDataSource.swift（Swift 実装）
-```
-
-本プロジェクトの例: `ShopAiDataSource`、`UnsplashDataSource` などの DataSource
 
 ## ディレクトリ構造
 ```
@@ -195,6 +158,72 @@ class LoadImageUseCase(
 - **UseCase**: `XxxxUseCaseContract.kt` / `XxxxUseCase.kt`
 - **Repository**: `XxxxRepositoryContract.kt` / `XxxxRepository.kt`
 
+
+## プラットフォーム固有 API
+
+KMP では共通コード（commonMain）からプラットフォーム固有の API を利用する方法が2つある。
+**いずれかを変更した場合、もう一方のプラットフォームにも同等の変更が必要。**
+
+### パターン1: expect/actual（androidMain / iosMain）
+
+`expect` で共通インターフェースを宣言し、`actual` で各プラットフォームの実装を提供する。
+
+```kotlin
+// commonMain — expect 宣言（logd.common.kt）
+expect fun logd(tag: String = "[RamenNote]", message: String)
+
+// androidMain — actual 実装（logd.android.kt）
+actual fun logd(tag: String, message: String) {
+    if (BuildConfig.DEBUG) { Log.d(tag, message) }
+}
+
+// iosMain — actual 実装（logd.ios.kt）
+actual fun logd(tag: String, message: String) {
+    if (Platform.isDebugBinary) { println("$tag: $message") }
+}
+```
+
+本プロジェクトの例: `logd`、`GalleryLauncher`、`DataModule`、`LifecycleObserver` など
+
+### パターン2: Contract + Swift 実装（androidMain / iosApp Swift）
+
+commonMain で Contract（インターフェース）を定義し、Android 側は androidMain で Kotlin 実装、iOS 側は `iosApp/` 配下で Swift 実装を提供する。iOS の Swift 実装は `SwiftLibDependencyFactoryContract` 経由で Koin に登録される。
+
+```
+commonMain:    ShopAiDataSourceContract（インターフェース）
+androidMain:   ShopAiDataSource.kt（Kotlin 実装）
+iosApp/Swift:  IosShopAiDataSource.swift（Swift 実装）
+```
+
+本プロジェクトの例: `ShopAiDataSource`、`UnsplashDataSource` などの DataSource
+
+
+## 機密情報（API キー等）の管理
+
+API キーなどの機密情報は **ソースコードにハードコードせず**、以下の仕組みで管理する。
+
+### Gradle ソース生成方式
+- `local.properties` に機密値を定義（`.gitignore` 済みのためコミットされない）
+- `composeApp/build.gradle.kts` の `generateBuildSecrets` タスクが `local.properties` を読み込み、`build/generated/secrets/BuildSecrets.kt` を自動生成
+- 生成された `BuildSecrets` オブジェクトを commonMain のコードから参照する
+- `build/` 配下のため生成ファイルもコミットされない
+
+### 対象キー
+| プロパティ名              | 用途                       | 参照元                                                    |
+|---------------------------|----------------------------|-----------------------------------------------------------|
+| `UNSPLASH_ACCESS_KEY`     | Unsplash API アクセスキー  | `UnsplashConfig.kt` → `BuildSecrets.UNSPLASH_ACCESS_KEY`  |
+
+### 新しい機密値を追加する場合
+1. `local.properties` にプロパティを追加
+2. `composeApp/build.gradle.kts` の `generateBuildSecrets` タスク内で読み込み・生成コードに追加
+3. commonMain のコードから `BuildSecrets.XXX` で参照
+
+### 保護の仕組み
+- `local.properties` は `.gitignore` に含まれており Git 管理外
+- Hooks（`.claude/settings.json`）により `local.properties` への Claude Code からの Edit/Write はブロックされる
+- `composeApp/secrets/` 配下のファイルも同様に保護対象
+
+
 ## ktlint 設定（.editorconfig）
 以下のルールが無効化されている:
 - `trailing-comma`: 末尾カンマ不要
@@ -250,7 +279,7 @@ settings.json 内の hooks 配列は上から順に以下の役割を持つ:
 - **目的**: Claude Code の応答完了をユーザーに通知
 - **動作**: `osascript` でネイティブ通知（タイトル「Claude Code」+ Glass 効果音）を表示
 
+
 ## 注意事項
-- `composeApp/secrets/` 配下に API キー（UnsplashConfig 等）があるため、**絶対にコミットしない**
 - Room の KSP 生成タスクと Compose Resource 生成タスクに依存関係がある（build.gradle.kts 参照）
 - iOS ビルドは Xcode から実行（`iosApp/` ディレクトリ）
