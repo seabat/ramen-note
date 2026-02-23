@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
-import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchAndSaveUnsplashImageUseCaseContract
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,12 +14,12 @@ import kotlinx.coroutines.launch
 
 class AddAreaViewModel(
     private val areasRepository: AreasRepositoryContract,
-    private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
+    private val fetchUnsplashImageUseCase: FetchAndSaveUnsplashImageUseCaseContract
 ) : ViewModel(),
     AddAreaViewModelContract {
-    private val _addState: MutableStateFlow<RunStatus<ByteArray?>> =
+    private val _addState: MutableStateFlow<RunStatus<ByteArray>> =
         MutableStateFlow(RunStatus.Idle())
-    override val addState: StateFlow<RunStatus<ByteArray?>> = _addState.asStateFlow()
+    override val addState: StateFlow<RunStatus<ByteArray>> = _addState.asStateFlow()
 
     override fun addArea(area: String) {
         val today = createTodayLocalDate()

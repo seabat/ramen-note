@@ -11,7 +11,7 @@ class UpdateShopCountInAreaUseCase(
     override suspend operator fun invoke(area: String) {
         val shops = shopsRepository.getShopsByArea(area)
         val count = shops.size
-        val existing = areasRepository.fetch(area) ?: return
+        val existing = areasRepository.load(area) ?: return
         val nowDate = createTodayLocalDate()
         val updated = existing.copy(count = count, updatedDate = nowDate)
         areasRepository.edit(updated)

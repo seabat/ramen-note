@@ -4,9 +4,9 @@ import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
 
 interface AreasRepositoryContract {
-    suspend fun fetch(): List<Area>
+    suspend fun load(): List<Area>
 
-    suspend fun fetch(areaName: String): Area?
+    suspend fun load(areaName: String): Area?
 
     suspend fun add(area: Area)
 

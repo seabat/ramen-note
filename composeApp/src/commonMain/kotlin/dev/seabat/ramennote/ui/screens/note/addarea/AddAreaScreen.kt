@@ -119,7 +119,7 @@ fun AddAreaScreen(
 
 @Composable
 fun AddStatus(
-    addStatus: RunStatus<ByteArray?>,
+    addStatus: RunStatus<ByteArray>,
     onCompleted: () -> Unit
 ) {
     when (addStatus) {

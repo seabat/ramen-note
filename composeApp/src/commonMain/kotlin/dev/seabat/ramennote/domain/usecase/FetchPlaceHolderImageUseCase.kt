@@ -8,7 +8,8 @@ class FetchPlaceHolderImageUseCase(
     private val areaImageRepository: AreaImageRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
 ) : FetchPlaceHolderImageUseCaseContract {
-    override suspend operator fun invoke(): RunStatus<ByteArray?> =
+
+    override suspend operator fun invoke(): RunStatus<ByteArray> =
         try {
             // Fetch image from remote repository
             val imageBytes = areaImageRepository.fetch()
@@ -17,12 +18,10 @@ class FetchPlaceHolderImageUseCase(
             localAreaImageRepository.save(imageBytes, "area_image")
 
             // Load from local storage with default filename
-            val localImageBytes = localAreaImageRepository.load("area_image")
-
-            if (localImageBytes != null) {
-                RunStatus.Success(localImageBytes)
-            } else {
-                RunStatus.Error("Failed to load image from local storage")
+            when (val localImageBytes = localAreaImageRepository.load("area_image")) {
+                is RunStatus.Success -> localImageBytes
+                is RunStatus.Error -> RunStatus.Error("Failed to load image from local storage")
+                else -> error("Unexpected state")
             }
         } catch (e: Exception) {
             RunStatus.Error("Failed to fetch image: ${e.message}")

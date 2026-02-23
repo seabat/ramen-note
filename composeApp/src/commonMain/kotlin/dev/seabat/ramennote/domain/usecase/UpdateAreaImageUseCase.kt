@@ -9,20 +9,18 @@ import kotlinx.datetime.minus
 class UpdateAreaImageUseCase(
     private val areasRepository: AreasRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract,
-    private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract
+    private val fetchAndSaveUnsplashImageUseCaseContract: FetchAndSaveUnsplashImageUseCaseContract
 ) : UpdateAreaImageUseCaseContract {
-    override suspend operator fun invoke(area: String): RunStatus<ByteArray?> {
-        // まずローカルから読み込む。nullなら必ずUnsplashから取得
-        val local = localAreaImageRepository.load(area)
-        if (local == null) {
-            return fetchUnsplashImageUseCase(area)
-        }
 
-        val areaData = areasRepository.fetch(area)
+    override suspend operator fun invoke(area: String): RunStatus<ByteArray> {
+        // まずローカルから画像を読み込む。null なら必ず Unsplash から取得
+        localAreaImageRepository.load(area) ?: return fetchAndSaveUnsplashImageUseCaseContract(area)
+
+        val areaData = areasRepository.load(area)
         val today = createTodayLocalDate()
         val needUpdate = areaData == null || areaData.updatedDate < today.minus(1, kotlinx.datetime.DateTimeUnit.DAY)
         return if (needUpdate) {
-            fetchUnsplashImageUseCase(area)
+            fetchAndSaveUnsplashImageUseCaseContract(area)
         } else {
             RunStatus.Error("本日は画像を変更できません。明日もう一度お試しください。")
         }

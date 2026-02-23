@@ -280,6 +280,7 @@ fun AddShopScreen(
                 mapUrl = aiInfo.mapUrl
                 stationName = aiInfo.stationName
                 category = aiInfo.category
+                note = aiInfo.description
             }
         )
     }

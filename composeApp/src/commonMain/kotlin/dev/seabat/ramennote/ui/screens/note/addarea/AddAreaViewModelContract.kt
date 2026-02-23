@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.StateFlow
 interface AddAreaViewModelContract {
     fun addArea(area: String)
 
-    val addState: StateFlow<RunStatus<ByteArray?>>
+    val addState: StateFlow<RunStatus<ByteArray>>
 }

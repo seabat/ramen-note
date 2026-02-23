@@ -4,11 +4,12 @@ import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.RunStatus
 
 class LoadFullReportsUseCase(
     private val reportsRepository: ReportsRepositoryContract,
     private val shopsRepository: ShopsRepositoryContract,
-    private val localAreaImageRepository: LocalImageRepositoryContract
+    private val localImageRepository: LocalImageRepositoryContract
 ) : LoadFullReportsUseCaseContract {
     override suspend operator fun invoke(shopId: Int?): List<FullReport> {
         val reports =
@@ -18,24 +19,24 @@ class LoadFullReportsUseCase(
 
         return reports.map { report ->
             val shop = shopsRepository.getShopById(report.shopId)
-            val imageBytes =
-                try {
-                    localAreaImageRepository.load(report.photoName)
-                } catch (e: Exception) {
-                    null
-                }
-
-            FullReport(
-                id = report.id,
-                shopId = report.shopId,
-                shopName = shop?.name ?: "不明な店舗",
-                menuName = report.menuName,
-                photoName = report.photoName,
-                imageBytes = imageBytes,
-                impression = report.impression,
-                date = report.date!!,
-                star = report.star
-            )
-        }
+            val imageBytes = localImageRepository.load(report.photoName)
+                FullReport(
+                    id = report.id,
+                    shopId = report.shopId,
+                    shopName = shop?.name ?: "不明な店舗",
+                    menuName = report.menuName,
+                    photoName = report.photoName,
+                    imageBytes =  when (imageBytes) {
+                        is RunStatus.Success ->
+                            imageBytes.data
+                        is RunStatus.Error ->
+                            null
+                        else -> error("unexpected state")
+                    },
+                    impression = report.impression,
+                    date = report.date!!,
+                    star = report.star
+                )
+            }
     }
 }
