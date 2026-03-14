@@ -11,9 +11,30 @@ allowed-tools: Bash, Read, Write, Grep
 
 ---
 
-## ステップ 1: 現在のバージョン確認
+## ステップ 1: バージョン確認とユーザー確認
 
-`composeApp/build.gradle.kts` を読み込み、現在の `versionName` と `versionCode` を表示する。
+### 1-1. 現在のブランチのバージョン取得
+
+`composeApp/build.gradle.kts` を読み込み、現在の `versionName` と `versionCode` を取得する。
+
+### 1-2. main ブランチのバージョン取得
+
+以下を実行して main ブランチの `versionName` と `versionCode` を取得する：
+
+```bash
+git show main:composeApp/build.gradle.kts | grep -E 'versionName|versionCode'
+```
+
+### 1-3. ユーザーに確認
+
+以下の形式で両バージョンを提示し、「このバージョンで問題ありませんか？」と確認する：
+
+```
+現在のブランチ : versionName = X.X.X, versionCode = N
+main ブランチ  : versionName = X.X.X, versionCode = N
+```
+
+ユーザーが問題ないと回答したら、ステップ 2 に進む。
 
 ---
 
