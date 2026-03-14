@@ -26,11 +26,25 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+
 # Claude Code
+# .claude/: 基本無視。CLAUDE.md と settings.json のみ追跡
 .claude/*
 !.claude/CLAUDE.md
 !.claude/settings.json
+# skills/: 基本無視。pr-create と release-prep のみ追跡
 !.claude/skills/
 .claude/skills/*
-!.claude/skills/*/
-!.claude/skills/*/SKILL.md
+!.claude/skills/pr-create/
+!.claude/skills/pr-create/SKILL.md
+!.claude/skills/release-prep/
+!.claude/skills/release-prep/SKILL.md
+# agents/: 基本無視。ui-ux-designer.md のみ追跡
+!.claude/agents/
+.claude/agents/*
+!.claude/agents/ui-ux-designer.md
+# agent-memory/: 基本無視。ui-ux-designer/ 以下のみ追跡
+!.claude/agent-memory/
+.claude/agent-memory/*
+!.claude/agent-memory/ui-ux-designer/
+!.claude/agent-memory/ui-ux-designer/**
