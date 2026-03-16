@@ -20,10 +20,10 @@ import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCase
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchAiShopInfoUseCase
 import dev.seabat.ramennote.domain.usecase.FetchAiShopUseCaseContract
-import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
-import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchAndSaveUnsplashImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchAndSaveUnsplashImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
+import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCase
 import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCase
@@ -32,6 +32,10 @@ import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCase
 import dev.seabat.ramennote.domain.usecase.LoadFullReportUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadFullReportsByAreaUseCase
+import dev.seabat.ramennote.domain.usecase.LoadFullReportsByAreaUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadFullReportsByShopUseCase
+import dev.seabat.ramennote.domain.usecase.LoadFullReportsByShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCase
@@ -88,11 +92,13 @@ val useCaseModule =
         single<LoadAreasUseCaseContract> { LoadAreasUseCase(get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
-        single<LoadShopListByAreaUseCaseContract> { LoadShopListByAreaUseCase(get()) }
+        single<LoadShopListByAreaUseCaseContract> { LoadShopListByAreaUseCase(get(), get()) }
         single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
         single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get(), get()) }
         single<LoadFullReportUseCaseContract> { LoadFullReportUseCase(get(), get(), get()) }
         single<LoadFullReportsUseCaseContract> { LoadFullReportsUseCase(get(), get(), get()) }
+        single<LoadFullReportsByShopUseCaseContract> { LoadFullReportsByShopUseCase(get(), get(), get()) }
+        single<LoadFullReportsByAreaUseCaseContract> { LoadFullReportsByAreaUseCase(get(), get(), get()) }
         single<LoadThreeMonthsFullReportsUseCaseContract> {
             LoadThreeMonthsFullReportsUseCase(
                 get(),

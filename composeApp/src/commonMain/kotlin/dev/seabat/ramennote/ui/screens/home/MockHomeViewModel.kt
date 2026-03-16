@@ -95,7 +95,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 1,
                             name = "一風堂 博多本店",
-                            area = "福岡",
+                            areaId = 1,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,
@@ -119,7 +119,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 2,
                             name = "一風堂 山口店",
-                            area = "山口",
+                            areaId = 2,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,
@@ -143,7 +143,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 3,
                             name = "一風堂 広島店",
-                            area = "広島",
+                            areaId = 3,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,
@@ -167,7 +167,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 4,
                             name = "一風堂 倉敷店",
-                            area = "岡山",
+                            areaId = 4,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,

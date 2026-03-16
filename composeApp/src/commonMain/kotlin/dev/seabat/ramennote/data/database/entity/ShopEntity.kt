@@ -8,7 +8,7 @@ data class ShopEntity(
     @PrimaryKey
     val id: Int,
     val name: String,
-    val area: String,
+    val areaId: Int,
     val shopUrl: String,
     val mapUrl: String,
     val star: Int,

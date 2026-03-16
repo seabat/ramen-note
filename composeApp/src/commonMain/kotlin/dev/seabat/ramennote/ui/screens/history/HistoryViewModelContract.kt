@@ -8,8 +8,13 @@ import kotlinx.coroutines.flow.StateFlow
 interface HistoryViewModelContract {
     val reports: StateFlow<List<FullReport>>
     val shopName: StateFlow<String>
+    val areaName: StateFlow<String>
 
-    fun loadReports(shopId: Int? = null)
+    fun loadReports()
+
+    fun loadReportsByShop(shopId: Int)
+
+    fun loadReportsByArea(areaId: Int)
 
     fun shareToX(postText: String, image: SharedImage?, xShareLauncher: XShareLauncher)
 }

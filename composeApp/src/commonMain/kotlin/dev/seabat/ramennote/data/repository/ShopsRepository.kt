@@ -27,7 +27,7 @@ class ShopsRepository(
 
     override suspend fun getShopById(id: Int): Shop? = shopDao.getShopById(id)?.toDomainModel()
 
-    override suspend fun getShopsByArea(area: String): List<Shop> = shopDao.getShopsByArea(area).map { it.toDomainModel() }
+    override suspend fun getShopsByAreaId(areaId: Int): List<Shop> = shopDao.getShopsByAreaId(areaId).map { it.toDomainModel() }
 
     override suspend fun insertShop(shop: Shop) {
         shopDao.insertShop(shop.toEntity())
@@ -52,7 +52,7 @@ private fun ShopEntity.toDomainModel(): Shop =
     Shop(
         id = id,
         name = name,
-        area = area,
+        areaId = areaId,
         shopUrl = shopUrl,
         mapUrl = mapUrl,
         star = star,
@@ -76,7 +76,7 @@ private fun Shop.toEntity(): ShopEntity =
     ShopEntity(
         id = id,
         name = name,
-        area = area,
+        areaId = areaId,
         shopUrl = shopUrl,
         mapUrl = mapUrl,
         star = star,

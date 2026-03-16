@@ -44,7 +44,12 @@ import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.ShopStarIcon
 import dev.seabat.ramennote.ui.components.alert.AppAlert
-import dev.seabat.ramennote.ui.components.button.ActionButton
+import dev.seabat.ramennote.ui.components.button.AddReportButton
+import dev.seabat.ramennote.ui.components.button.EditShopButton
+import dev.seabat.ramennote.ui.components.button.ReportListButton
+import dev.seabat.ramennote.ui.components.button.ScheduleButton
+
+import dev.seabat.ramennote.ui.components.button.ReportListButton
 import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingRow
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -55,7 +60,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
@@ -68,19 +72,11 @@ import ramennote.composeapp.generated.resources.add_schedule_error_past_date_mes
 import ramennote.composeapp.generated.resources.add_schedule_label
 import ramennote.composeapp.generated.resources.add_station_label
 import ramennote.composeapp.generated.resources.add_web_site_label
-import ramennote.composeapp.generated.resources.edit_24px
 import ramennote.composeapp.generated.resources.edit_area_label
-import ramennote.composeapp.generated.resources.event_note_24px
 import ramennote.composeapp.generated.resources.favorite_disabled
 import ramennote.composeapp.generated.resources.favorite_enabled
-import ramennote.composeapp.generated.resources.ramen_dining_24px
 import ramennote.composeapp.generated.resources.schedule_picker_label
 import ramennote.composeapp.generated.resources.shop_map_label
-import ramennote.composeapp.generated.resources.shop_menu_edit_button
-import ramennote.composeapp.generated.resources.shop_menu_history_button
-import ramennote.composeapp.generated.resources.shop_menu_report_button
-import ramennote.composeapp.generated.resources.shop_menu_schedule_add_button
-import ramennote.composeapp.generated.resources.shop_menu_schedule_edit_button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,6 +97,7 @@ fun ShopScreen(
 
     val shop by viewModel.shop.collectAsState()
     val imageBytes by viewModel.shopImage.collectAsState()
+    val areaName by viewModel.areaName.collectAsState()
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
@@ -155,6 +152,7 @@ fun ShopScreen(
                 shop?.let { shopData ->
                     Detail(
                         shopData,
+                        areaName = areaName,
                         updateStar = { newStar ->
                             viewModel.updateStar(newStar, shopId)
                         }
@@ -345,17 +343,17 @@ fun Menu(
             modifier = Modifier.weight(1f)
         )
 
-        ReportButton(
+        AddReportButton(
             onClick = onReportClick,
             modifier = Modifier.weight(1f)
         )
 
-        HistoryButton(
+        ReportListButton(
             onClick = onHistoryClick,
             modifier = Modifier.weight(1f)
         )
 
-        EditButton(
+        EditShopButton(
             onClick = onEditClick,
             modifier = Modifier.weight(1f)
         )
@@ -365,6 +363,7 @@ fun Menu(
 @Composable
 fun Detail(
     shop: Shop,
+    areaName: String = "",
     updateStar: (Int) -> Unit = { }
 ) {
     Column(
@@ -388,7 +387,7 @@ fun Detail(
         // エリア
         ShopDetailItem(
             label = stringResource(Res.string.edit_area_label),
-            value = shop.area.ifEmpty { stringResource(Res.string.add_no_data_label) }
+            value = areaName.ifEmpty { stringResource(Res.string.add_no_data_label) }
         )
 
         // Webサイト
@@ -525,90 +524,6 @@ private fun datePickerOnClickHandler(
     }
 }
 
-@Composable
-private fun ScheduleButton(
-    hasScheduledDate: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val buttonText =
-        if (hasScheduledDate) {
-            stringResource(Res.string.shop_menu_schedule_edit_button)
-        } else {
-            stringResource(Res.string.shop_menu_schedule_add_button)
-        }
-    ActionButton(
-        icon = vectorResource(Res.drawable.event_note_24px),
-        text = buttonText,
-        onClick = onClick,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun ReportButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ActionButton(
-        icon = vectorResource(Res.drawable.ramen_dining_24px),
-        text = stringResource(Res.string.shop_menu_report_button),
-        onClick = onClick,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun HistoryButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ActionButton(
-        icon = vectorResource(Res.drawable.ramen_dining_24px),
-        text = stringResource(Res.string.shop_menu_history_button),
-        onClick = onClick,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun EditButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ActionButton(
-        icon = vectorResource(Res.drawable.edit_24px),
-        text = stringResource(Res.string.shop_menu_edit_button),
-        onClick = onClick,
-        modifier = modifier
-    )
-}
-
-@Preview
-@Composable
-private fun ActionButtonPreview() {
-    RamenNoteTheme {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // 予定追加
-            ScheduleButton(
-                hasScheduledDate = false,
-                onClick = {}
-            )
-            // 予定変更
-            ScheduleButton(
-                hasScheduledDate = true,
-                onClick = {}
-            )
-            // 食レポ
-            ReportButton(onClick = {})
-            // 編集
-            EditButton(onClick = {})
-        }
-    }
-}
 
 @Preview
 @Composable

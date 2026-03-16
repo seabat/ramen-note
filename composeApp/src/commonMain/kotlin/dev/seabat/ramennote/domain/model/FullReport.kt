@@ -12,5 +12,6 @@ data class FullReport(
     val impression: String = "",
     val date: LocalDate = createTodayLocalDate(),
     val imageBytes: ByteArray? = null,
-    val star: Int = 0
+    val star: Int = 0,
+    val areaId: Int = 0
 )

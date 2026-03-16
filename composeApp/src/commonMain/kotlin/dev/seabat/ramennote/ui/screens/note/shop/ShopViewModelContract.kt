@@ -7,6 +7,7 @@ import kotlinx.datetime.LocalDate
 interface ShopViewModelContract {
     val shop: StateFlow<Shop?>
     val shopImage: StateFlow<ByteArray?>
+    val areaName: StateFlow<String>
 
     fun loadShopAndImage(id: Int)
 

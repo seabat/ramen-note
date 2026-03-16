@@ -8,6 +8,7 @@ import dev.seabat.ramennote.domain.model.ShopAiInfo
 import dev.seabat.ramennote.domain.usecase.AddShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateNoImageByteArrayUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchAiShopUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 class AddShopViewModel(
     private val addShopUseCase: AddShopUseCaseContract,
     private val createNoImageUseCase: CreateNoImageByteArrayUseCaseContract,
-    private val fetchAiShopInfoUseCase: FetchAiShopUseCaseContract
+    private val fetchAiShopInfoUseCase: FetchAiShopUseCaseContract,
+    private val loadAreasUseCase: LoadAreasUseCaseContract
 ) : ViewModel(),
     AddShopViewModelContract {
     private val _saveState = MutableStateFlow<RunStatus<String>>(RunStatus.Idle())
@@ -25,6 +27,9 @@ class AddShopViewModel(
 
     private val _shopAiInfoState = MutableStateFlow<RunStatus<ShopAiInfo>>(RunStatus.Idle())
     override val shopAiInfoState: StateFlow<RunStatus<ShopAiInfo>> = _shopAiInfoState.asStateFlow()
+
+    private val _areaIdState = MutableStateFlow<Int>(0)
+    override val areaIdState: StateFlow<Int> = _areaIdState.asStateFlow()
 
     override fun saveShop(shop: Shop, sharedImage: SharedImage?) {
         viewModelScope.launch {
@@ -59,5 +64,12 @@ class AddShopViewModel(
 
     override fun setShopAiInfoStateToIdle() {
         _shopAiInfoState.value = RunStatus.Idle()
+    }
+
+    override fun loadAreaId(areaName: String) {
+        viewModelScope.launch {
+            val areas = loadAreasUseCase()
+            _areaIdState.value = areas.find { it.name == areaName }?.areaId ?: 0
+        }
     }
 }

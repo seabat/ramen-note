@@ -13,7 +13,7 @@ class MockAreaShopListViewModel : AreaShopListViewModelContract {
                 Shop(
                     id = 1,
                     name = "一風堂 博多本店",
-                    area = "福岡",
+                    areaId = 1,
                     shopUrl = "https://www.ippudo.com/",
                     mapUrl = "https://maps.google.com/",
                     star = 3,

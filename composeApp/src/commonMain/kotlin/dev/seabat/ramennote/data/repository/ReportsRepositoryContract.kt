@@ -12,4 +12,6 @@ interface ReportsRepositoryContract {
     suspend fun update(report: Report)
 
     suspend fun delete(id: Int)
+
+    suspend fun loadByAreaId(areaId: Int): List<Report>
 }

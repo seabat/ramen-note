@@ -35,6 +35,7 @@ class NoteViewModel(
                 .map { area ->
                     val image = loadImageListUseCase(area.name)
                     AreaWithImage(
+                        areaId = area.areaId,
                         name = area.name,
                         count = area.count,
                         updatedDate = area.updatedDate,

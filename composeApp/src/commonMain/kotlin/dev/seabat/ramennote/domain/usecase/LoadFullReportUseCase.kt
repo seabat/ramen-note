@@ -30,7 +30,8 @@ class LoadFullReportUseCase(
             },
             impression = report.impression,
             date = report.date!!,
-            star = report.star
+            star = report.star,
+            areaId = report.areaId
         )
     }
 }

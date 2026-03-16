@@ -11,32 +11,23 @@ import kotlinx.datetime.LocalDate
 import kotlin.lazy
 
 class AreasRepository(
+    private val areaDao: AreaDao,
     private val database: RamenNoteDatabase
 ) : AreasRepositoryContract {
-    private val areaDao: AreaDao by lazy {
-        database.areaDao()
-    }
 
     override suspend fun load(): List<Area> {
         val entities = areaDao.getAllAreas()
-        return entities.map { entity ->
-            Area(
-                name = entity.name,
-                updatedDate = LocalDate.parse(entity.date),
-                count = entity.count,
-                sort = entity.sort
-            )
-        }
+        return entities.map { entity -> entity.toDomain() }
     }
 
     override suspend fun load(areaName: String): Area? {
         val entity = areaDao.getAreaByName(areaName) ?: return null
-        return Area(
-            name = entity.name,
-            updatedDate = LocalDate.parse(entity.date),
-            count = entity.count,
-            sort = entity.sort
-        )
+        return entity.toDomain()
+    }
+
+    override suspend fun loadByAreaId(areaId: Int): Area? {
+        val entity = areaDao.getAreaById(areaId) ?: return null
+        return entity.toDomain()
     }
 
     override suspend fun add(area: Area) {
@@ -54,14 +45,9 @@ class AreasRepository(
     override suspend fun edit(oldName: String, newName: String): RunStatus<String> {
         val existingEntity = areaDao.getAreaByName(oldName)
         if (existingEntity != null) {
-            // 主キー（name）を変更する場合は、トランザクション内で削除と挿入を実行
-            database.useWriterConnection { transactor ->
-                transactor.immediateTransaction {
-                    val updatedEntity = existingEntity.copy(name = newName)
-                    areaDao.deleteArea(existingEntity)
-                    areaDao.insertArea(updatedEntity)
-                }
-            }
+            // areaId が PK になったため、name のみ UPDATE すればよい
+            val updatedEntity = existingEntity.copy(name = newName)
+            areaDao.updateArea(updatedEntity)
             return RunStatus.Success(data = "")
         }
         return RunStatus.Error(errorMessage = "${oldName}は登録されていません。編集に失敗しました")
@@ -115,3 +101,12 @@ class AreasRepository(
         return RunStatus.Error(errorMessage = "${areaName}は登録されていません。削除に失敗しました")
     }
 }
+
+private fun AreaEntity.toDomain(): Area =
+    Area(
+        areaId = areaId,
+        name = name,
+        updatedDate = LocalDate.parse(date),
+        count = count,
+        sort = sort
+    )

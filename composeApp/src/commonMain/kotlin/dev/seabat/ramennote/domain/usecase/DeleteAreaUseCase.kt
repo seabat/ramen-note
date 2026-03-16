@@ -18,7 +18,9 @@ class DeleteAreaUseCase(
                 localAreaImageRepository.delete(name)
 
                 // 該当エリアのShopを削除
-                val shops = shopsRepository.getShopsByArea(name)
+                val area = areasRepository.load(name)
+                val areaId = area?.areaId ?: 0
+                val shops = shopsRepository.getShopsByAreaId(areaId)
                 shops.forEach { shop ->
                     shopsRepository.deleteShopById(shop.id)
                 }

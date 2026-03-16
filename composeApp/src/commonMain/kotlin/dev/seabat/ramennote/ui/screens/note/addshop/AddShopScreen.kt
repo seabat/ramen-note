@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,6 +85,11 @@ fun AddShopScreen(
 
     val saveState by viewModel.saveState.collectAsState()
     val shopAiInfoState by viewModel.shopAiInfoState.collectAsState()
+    val areaId by viewModel.areaIdState.collectAsState()
+
+    LaunchedEffect(areaName) {
+        viewModel.loadAreaId(areaName)
+    }
 
     var showShopAiInfoDialog by remember { mutableStateOf(true) }
 
@@ -250,7 +256,7 @@ fun AddShopScreen(
                     val shop =
                         Shop(
                             name = name,
-                            area = areaName,
+                            areaId = areaId,
                             shopUrl = shopUrl,
                             mapUrl = mapUrl,
                             star = star,

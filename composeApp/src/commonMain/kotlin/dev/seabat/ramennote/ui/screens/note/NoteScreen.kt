@@ -29,6 +29,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import dev.seabat.ramennote.ui.components.button.ReportListButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,6 +81,7 @@ fun NoteScreen(
     goToEditArea: (String) -> Unit = {},
     goToEditAreaSort: () -> Unit = {},
     goToShop: (Shop) -> Unit = {},
+    goToHistoryWithAreaFiltering: (areaId: Int) -> Unit = {},
     viewModel: NoteViewModelContract = koinViewModel<NoteViewModel>()
 ) {
     Column(
@@ -96,6 +98,7 @@ fun NoteScreen(
             onAreaLongClick = goToEditArea,
             onSortClick = goToEditAreaSort,
             onShopClick = goToShop,
+            onAreaReportClick = goToHistoryWithAreaFiltering,
             initialSearchText = initialSearchText
         )
     }
@@ -115,6 +118,7 @@ private fun MainContent(
     onAreaLongClick: (String) -> Unit = {},
     onSortClick: () -> Unit = {},
     onShopClick: (Shop) -> Unit = {},
+    onAreaReportClick: (areaId: Int) -> Unit = {},
     initialSearchText: String = ""
 ) {
     BoxWithConstraints(
@@ -246,7 +250,8 @@ private fun MainContent(
                                     imageBytes = area.imageBytes,
                                     itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                                     onClick = { onAreaClick(area.name) },
-                                    onLongClick = { onAreaLongClick(area.name) }
+                                    onLongClick = { onAreaLongClick(area.name) },
+                                    onReportClick = { onAreaReportClick(area.areaId) }
                                 )
                             }
                         }
@@ -314,7 +319,8 @@ private fun AreaItem(
     imageBytes: ByteArray? = null,
     itemCount: String,
     onClick: () -> Unit,
-    onLongClick: () -> Unit = {}
+    onLongClick: () -> Unit = {},
+    onReportClick: () -> Unit = {}
 ) {
     Card(
         modifier =
@@ -381,7 +387,7 @@ private fun AreaItem(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = itemCount,
@@ -391,6 +397,7 @@ private fun AreaItem(
                             ),
                         color = Color.White.copy(alpha = 0.8f)
                     )
+                    ReportListButton(onClick = onReportClick)
                 }
             }
         }
@@ -401,7 +408,7 @@ private fun AreaItem(
 @Composable
 fun AreaItemPreview() {
     RamenNoteTheme {
-        AreaItem(areaName = "東京", imageBytes = null, itemCount = "12", onClick = {}, onLongClick = {})
+        AreaItem(areaName = "東京", imageBytes = null, itemCount = "12件", onClick = {}, onLongClick = {})
     }
 }
 

@@ -269,6 +269,9 @@ fun MainNavigation() {
     // HistoryScreenに遷移する際のshopIdを管理するState
     var shopIdParam by remember { mutableStateOf<Int?>(null) }
 
+    // HistoryScreenに遷移する際のareaIdを管理するState
+    var areaIdParam by remember { mutableStateOf<Int?>(null) }
+
     val tabScreens =
         listOf(
             Screen.Home,
@@ -440,6 +443,15 @@ fun MainNavigation() {
                             },
                             goToShop = { shop ->
                                 navController.navigate(Screen.Shop(shop.id, shop.name))
+                            },
+                            goToHistoryWithAreaFiltering = { areaId ->
+                                areaIdParam = areaId
+                                navController.navigate(Screen.History) {
+                                    launchSingleTop = true
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                }
                             }
                         )
                     }
@@ -447,6 +459,7 @@ fun MainNavigation() {
                         HistoryScreen(
                             reportId = reportIdParam,
                             shopId = shopIdParam,
+                            areaId = areaIdParam,
                             goToEditReport = { reportId ->
                                 navController.navigate(Screen.EditReport(reportId))
                             },
@@ -455,6 +468,9 @@ fun MainNavigation() {
                             },
                             clearShopParam = {
                                 shopIdParam = null
+                            },
+                            clearAreaParam = {
+                                areaIdParam = null
                             }
                         )
                     }
@@ -544,7 +560,7 @@ fun MainNavigation() {
                                 // エラーの場合はデフォルトのShopオブジェクトを作成
                                 ShopInfo(
                                     name = "エラー",
-                                    area = "",
+                                    areaId = 0,
                                     shopUrl = "",
                                     mapUrl = "",
                                     star = 0,

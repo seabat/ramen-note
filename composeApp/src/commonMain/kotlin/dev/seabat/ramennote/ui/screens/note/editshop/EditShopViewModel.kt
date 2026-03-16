@@ -2,6 +2,7 @@ package dev.seabat.ramennote.ui.screens.note.editshop
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.DeleteShopAndImageUseCaseContract
@@ -30,8 +31,8 @@ class EditShopViewModel(
     private val _shopImage = MutableStateFlow<SharedImage?>(null)
     override val shopImage: StateFlow<SharedImage?> = _shopImage.asStateFlow()
 
-    private val _areasState = MutableStateFlow<List<String>>(emptyList())
-    override val areasState: StateFlow<List<String>> = _areasState.asStateFlow()
+    private val _areasState = MutableStateFlow<List<Area>>(emptyList())
+    override val areasState: StateFlow<List<Area>> = _areasState.asStateFlow()
 
     override fun loadImage(shop: Shop) {
         viewModelScope.launch {
@@ -57,12 +58,12 @@ class EditShopViewModel(
         _shopImage.value = sharedImage
     }
 
-    override fun updateShop(shop: Shop, sharedImage: SharedImage?, oldArea: String) {
+    override fun updateShop(shop: Shop, sharedImage: SharedImage?, oldAreaId: Int) {
         viewModelScope.launch {
             _saveState.value = RunStatus.Loading()
             try {
                 // 店舗情報と画像を更新
-                updateShopUseCase(shop, sharedImage?.toByteArray(), oldArea)
+                updateShopUseCase(shop, sharedImage?.toByteArray(), oldAreaId)
                 _saveState.value = RunStatus.Success("")
             } catch (e: Exception) {
                 _saveState.value = RunStatus.Error("店舗の更新に失敗しました: ${e.message}")
@@ -88,8 +89,7 @@ class EditShopViewModel(
 
     override fun loadAreas() {
         viewModelScope.launch {
-            val areasList = loadAreasUseCase()
-            _areasState.value = areasList.map { it.name }
+            _areasState.value = loadAreasUseCase()
         }
     }
 }

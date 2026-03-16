@@ -35,13 +35,13 @@ class DeleteShopAndImageUseCase(
         }
 
     private suspend fun updateShopCount(shopId: Int) {
-        // 削除前にエリア名を取得
+        // 削除前にエリア ID を取得
         val shop = shopsRepository.getShopById(shopId)
-        val areaName = shop?.area
+        val areaId = shop?.areaId
 
         // 削除成功時にエリア件数を更新する
-        if (!areaName.isNullOrEmpty()) {
-            updateShopCountInAreaUseCase(areaName)
+        if (areaId != null && areaId != 0) {
+            updateShopCountInAreaUseCase(areaId)
         }
     }
 }

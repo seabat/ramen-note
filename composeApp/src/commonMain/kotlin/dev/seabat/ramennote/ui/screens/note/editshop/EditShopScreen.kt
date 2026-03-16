@@ -72,7 +72,7 @@ fun EditShopScreen(
     viewModel: EditShopViewModelContract = koinViewModel<EditShopViewModel>()
 ) {
     var name by remember { mutableStateOf(shop.name) }
-    var area by remember { mutableStateOf(shop.area) }
+    var selectedAreaName by remember { mutableStateOf("") }
     var shopUrl by remember { mutableStateOf(shop.shopUrl) }
     var mapUrl by remember { mutableStateOf(shop.mapUrl) }
     var star by remember { mutableStateOf(shop.star) }
@@ -98,6 +98,13 @@ fun EditShopScreen(
     // エリアリスト読み込み
     LaunchedEffect(Unit) {
         viewModel.loadAreas()
+    }
+
+    // エリアリストが読み込まれたら初期選択値を設定
+    LaunchedEffect(areasState) {
+        if (selectedAreaName.isEmpty() && areasState.isNotEmpty()) {
+            selectedAreaName = areasState.find { it.areaId == shop.areaId }?.name ?: ""
+        }
     }
 
     PhotoSelectionHandler(
@@ -153,9 +160,9 @@ fun EditShopScreen(
                 // エリア
                 ShopDropdownField(
                     label = stringResource(Res.string.edit_area_label),
-                    options = areasState,
-                    value = area,
-                    onValueChange = { area = it }
+                    options = areasState.map { it.name },
+                    value = selectedAreaName,
+                    onValueChange = { selectedAreaName = it }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -221,10 +228,11 @@ fun EditShopScreen(
                     text = stringResource(Res.string.edit_shop_edit_button),
                     enabled = name.isNotBlank(),
                     onClick = {
+                        val newAreaId = areasState.find { it.name == selectedAreaName }?.areaId ?: shop.areaId
                         val updatedShop =
                             shop.copy(
                                 name = name,
-                                area = area,
+                                areaId = newAreaId,
                                 shopUrl = shopUrl,
                                 mapUrl = mapUrl,
                                 star = star,
@@ -233,7 +241,7 @@ fun EditShopScreen(
                                 menuName1 = menuName,
                                 note = note
                             )
-                        viewModel.updateShop(updatedShop, shopImage, shop.area)
+                        viewModel.updateShop(updatedShop, shopImage, shop.areaId)
                     }
                 )
 
@@ -267,7 +275,7 @@ fun EditShopScreen(
         when (deleteState) {
             is RunStatus.Success -> {
                 LaunchedEffect(deleteState) {
-                    goToShopList(shop.area)
+                    goToShopList(areasState.find { it.areaId == shop.areaId }?.name ?: "")
                 }
             }
             is RunStatus.Error -> {
@@ -306,7 +314,7 @@ fun EditShopScreenPreview() {
     val shop =
         Shop(
             name = "XXXX家",
-            area = "東京",
+            areaId = 1,
             shopUrl = "https://example.com",
             mapUrl = "https://maps.google.com",
             star = 2,

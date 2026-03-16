@@ -26,6 +26,9 @@ class ReportsRepository(
     override suspend fun delete(id: Int) {
         reportDao.deleteById(id)
     }
+
+    override suspend fun loadByAreaId(areaId: Int): List<Report> =
+        reportDao.getReportsByAreaId(areaId).map { it.toDomain() }
 }
 
 private fun ReportEntity.toDomain(): Report =
@@ -36,7 +39,8 @@ private fun ReportEntity.toDomain(): Report =
         photoName = photoName,
         impression = impression,
         date = if (date.isEmpty()) null else LocalDate.parse(date),
-        star = star
+        star = star,
+        areaId = areaId
     )
 
 private fun Report.toEntity(): ReportEntity =
@@ -47,5 +51,6 @@ private fun Report.toEntity(): ReportEntity =
         photoName = photoName,
         impression = impression,
         date = date?.toString() ?: "",
-        star = star
+        star = star,
+        areaId = areaId
     )

@@ -41,20 +41,32 @@ import ramennote.composeapp.generated.resources.screen_history_title
 fun HistoryScreen(
     reportId: Int? = null,
     shopId: Int? = null,
+    areaId: Int? = null,
     goToEditReport: (reportId: Int) -> Unit = {},
     clearReportIdParam: () -> Unit = {},
     clearShopParam: () -> Unit = {},
+    clearAreaParam: () -> Unit = {},
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
     val shopNameState by viewModel.shopName.collectAsState()
+    val areaNameState by viewModel.areaName.collectAsState()
     val reportsState by viewModel.reports.collectAsState()
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
 
     LaunchedEffect(Unit) {
-        viewModel.loadReports(shopId)
-        clearShopParam()
+        when {
+            areaId != null -> {
+                viewModel.loadReportsByArea(areaId)
+                clearAreaParam()
+            }
+            shopId != null -> {
+                viewModel.loadReportsByShop(shopId)
+                clearShopParam()
+            }
+            else -> viewModel.loadReports()
+        }
     }
 
     Column(
@@ -65,10 +77,12 @@ fun HistoryScreen(
     ) {
         AppBar(
             title =
-                if (shopNameState.isNotEmpty()) {
-                    "${stringResource(Res.string.screen_history_title)}($shopNameState)"
-                } else {
-                    stringResource(Res.string.screen_history_title)
+                when {
+                    areaNameState.isNotEmpty() ->
+                        "${stringResource(Res.string.screen_history_title)}($areaNameState)"
+                    shopNameState.isNotEmpty() ->
+                        "${stringResource(Res.string.screen_history_title)}($shopNameState)"
+                    else -> stringResource(Res.string.screen_history_title)
                 }
         )
         if (reportsState.isNotEmpty()) {

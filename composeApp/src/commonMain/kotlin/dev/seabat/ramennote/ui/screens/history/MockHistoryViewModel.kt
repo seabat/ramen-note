@@ -15,12 +15,15 @@ class MockHistoryViewModel : HistoryViewModelContract {
     private val _shopName = MutableStateFlow<String>("")
     override val shopName: StateFlow<String> = _shopName.asStateFlow()
 
+    private val _areaName = MutableStateFlow<String>("")
+    override val areaName: StateFlow<String> = _areaName.asStateFlow()
+
     init {
         // プレビューで LaunchedEffect が動かない場合でも表示されるよう初期化
         loadReports()
     }
 
-    override fun loadReports(shopId: Int?) {
+    override fun loadReports() {
         _reports.value =
             listOf(
                 FullReport(
@@ -90,6 +93,14 @@ class MockHistoryViewModel : HistoryViewModelContract {
                     star = 3
                 )
             )
+    }
+
+    override fun loadReportsByShop(shopId: Int) {
+        // Preview用なので何もしない
+    }
+
+    override fun loadReportsByArea(areaId: Int) {
+        // Preview用なので何もしない
     }
 
     override fun shareToX(

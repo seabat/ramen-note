@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 data class Shop(
     val id: Int = 0,
     val name: String = "",
-    val area: String = "",
+    val areaId: Int = 0,
     val shopUrl: String = "",
     val mapUrl: String = "",
     val star: Int = 0,

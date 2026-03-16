@@ -15,10 +15,10 @@ class MockNoteViewModel : NoteViewModelContract {
     private val _areas: MutableStateFlow<List<AreaWithImage>> =
         MutableStateFlow(
             listOf(
-                AreaWithImage(name = "東京", updatedDate = LocalDate(2024, 9, 1), count = 12),
-                AreaWithImage(name = "神奈川", updatedDate = LocalDate(2024, 8, 21), count = 5),
-                AreaWithImage(name = "徳島", updatedDate = LocalDate(2024, 7, 3), count = 2),
-                AreaWithImage(name = "愛媛", updatedDate = LocalDate(2024, 6, 14), count = 7)
+                AreaWithImage(areaId = 1, name = "東京", updatedDate = LocalDate(2024, 9, 1), count = 12),
+                AreaWithImage(areaId = 2, name = "神奈川", updatedDate = LocalDate(2024, 8, 21), count = 5),
+                AreaWithImage(areaId = 3, name = "徳島", updatedDate = LocalDate(2024, 7, 3), count = 2),
+                AreaWithImage(areaId = 4, name = "愛媛", updatedDate = LocalDate(2024, 6, 14), count = 7)
             )
         )
     override val areas: StateFlow<List<AreaWithImage>> = _areas.asStateFlow()
@@ -29,7 +29,7 @@ class MockNoteViewModel : NoteViewModelContract {
                 Shop(
                     id = 1,
                     name = "一風堂 博多本店",
-                    area = "福岡",
+                    areaId = 1,
                     shopUrl = "https://www.ippudo.com/",
                     mapUrl = "https://maps.google.com/",
                     star = 3,

@@ -962,7 +962,7 @@ fun FavoriteShopItemPreview() {
                     Shop(
                         id = 1,
                         name = "一風堂",
-                        area = "福岡県",
+                        areaId = 1,
                         shopUrl = "https://www.ippudo.com/",
                         mapUrl = "",
                         star = 5,
@@ -980,7 +980,7 @@ fun FavoriteShopItemPreview() {
                     Shop(
                         id = 2,
                         name = "博多一風堂本店 天神地下街店 とんこつラーメン専門店",
-                        area = "福岡県",
+                        areaId = 1,
                         shopUrl = "https://www.ippudo.com/",
                         mapUrl = "",
                         star = 5,

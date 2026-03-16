@@ -10,7 +10,7 @@ interface ShopsRepositoryContract {
 
     suspend fun getShopById(id: Int): Shop?
 
-    suspend fun getShopsByArea(area: String): List<Shop>
+    suspend fun getShopsByAreaId(areaId: Int): List<Shop>
 
     suspend fun insertShop(shop: Shop)
 

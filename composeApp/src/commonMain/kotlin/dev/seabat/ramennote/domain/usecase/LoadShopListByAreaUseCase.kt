@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.domain.usecase
 
+import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.Shop
 
@@ -9,10 +10,14 @@ import dev.seabat.ramennote.domain.model.Shop
  * - Shop.star の降順に並べる
  *
  * @property shopsRepository
+ * @property areasRepository
  */
 class LoadShopListByAreaUseCase(
-    private val shopsRepository: ShopsRepositoryContract
+    private val shopsRepository: ShopsRepositoryContract,
+    private val areasRepository: AreasRepositoryContract
 ) : LoadShopListByAreaUseCaseContract {
-    override suspend operator fun invoke(area: String): List<Shop> =
-        shopsRepository.getShopsByArea(area).sortedByDescending { it.star }
+    override suspend operator fun invoke(area: String): List<Shop> {
+        val areaEntity = areasRepository.load(area) ?: return emptyList()
+        return shopsRepository.getShopsByAreaId(areaEntity.areaId).sortedByDescending { it.star }
+    }
 }
