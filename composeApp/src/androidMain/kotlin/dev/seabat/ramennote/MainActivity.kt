@@ -14,8 +14,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        // タスク一覧でアプリ画面の内容を非表示にする（常時有効）
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // タスク一覧でアプリ画面の内容を非表示にする（リリースビルドのみ有効）
+        if (!BuildConfig.DEBUG) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
 
         setContent {
             App()
