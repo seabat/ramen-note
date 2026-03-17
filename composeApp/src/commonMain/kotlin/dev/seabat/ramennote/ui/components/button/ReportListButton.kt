@@ -10,7 +10,6 @@ import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.ramen_dining_24px
 import ramennote.composeapp.generated.resources.shop_menu_history_button
 
-
 @Composable
 fun ReportListButton(
     onClick: () -> Unit,

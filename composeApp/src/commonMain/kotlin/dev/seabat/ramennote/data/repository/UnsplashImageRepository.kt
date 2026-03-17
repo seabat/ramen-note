@@ -3,8 +3,8 @@ package dev.seabat.ramennote.data.repository
 import dev.seabat.ramennote.config.UnsplashConfig
 import dev.seabat.ramennote.domain.model.RunStatus
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
@@ -46,12 +46,13 @@ class UnsplashImageRepository(
         }
 }
 
-private fun toErrorMessage(e: Throwable): String = when {
-    e is HttpRequestTimeoutException -> "通信がタイムアウトしました"
-    e.message?.contains("timeout", ignoreCase = true) == true -> "通信がタイムアウトしました"
-    e.cause?.message?.contains("timeout", ignoreCase = true) == true -> "通信がタイムアウトしました"
-    else -> e.message ?: "画像の取得に失敗しました"
-}
+private fun toErrorMessage(e: Throwable): String =
+    when {
+        e is HttpRequestTimeoutException -> "通信がタイムアウトしました"
+        e.message?.contains("timeout", ignoreCase = true) == true -> "通信がタイムアウトしました"
+        e.cause?.message?.contains("timeout", ignoreCase = true) == true -> "通信がタイムアウトしました"
+        else -> e.message ?: "画像の取得に失敗しました"
+    }
 
 @Serializable
 data class UnsplashSearchResponse(

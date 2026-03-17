@@ -48,8 +48,6 @@ import dev.seabat.ramennote.ui.components.button.AddReportButton
 import dev.seabat.ramennote.ui.components.button.EditShopButton
 import dev.seabat.ramennote.ui.components.button.ReportListButton
 import dev.seabat.ramennote.ui.components.button.ScheduleButton
-
-import dev.seabat.ramennote.ui.components.button.ReportListButton
 import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingRow
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -523,7 +521,6 @@ private fun datePickerOnClickHandler(
         dismissDatePicker()
     }
 }
-
 
 @Preview
 @Composable
