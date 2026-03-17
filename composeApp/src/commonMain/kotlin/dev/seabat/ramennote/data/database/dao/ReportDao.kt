@@ -27,6 +27,9 @@ interface ReportDao {
     @Query("DELETE FROM reports WHERE id = :id")
     suspend fun deleteById(id: Int)
 
+    @Query("DELETE FROM reports WHERE shopId = :shopId")
+    suspend fun deleteByShopId(shopId: Int)
+
     @Query("SELECT * FROM reports WHERE areaId = :areaId ORDER BY date DESC")
     suspend fun getReportsByAreaId(areaId: Int): List<ReportEntity>
 }

@@ -1,19 +1,24 @@
 package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
+import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class DeleteShopAndImageUseCase(
     private val shopsRepository: ShopsRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract,
-    private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract
+    private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract,
+    private val reportsRepository: ReportsRepositoryContract
 ) : DeleteShopAndImageUseCaseContract {
     override suspend operator fun invoke(shopId: Int): RunStatus<String> =
         try {
             // Shopデータを取得して画像名を確認
             val shop = shopsRepository.getShopById(shopId)
             if (shop != null) {
+                // 関連するレポートを削除
+                deleteReportsByShopId(shopId)
+
                 // Shopデータを削除
                 shopsRepository.deleteShopById(shopId)
 
@@ -33,6 +38,10 @@ class DeleteShopAndImageUseCase(
         } catch (e: Exception) {
             RunStatus.Error(errorMessage = "削除に失敗しました: ${e.message}")
         }
+
+    private suspend fun deleteReportsByShopId(shopId: Int) {
+        reportsRepository.deleteByShopId(shopId)
+    }
 
     private suspend fun updateShopCount(shopId: Int) {
         // 削除前にエリア ID を取得

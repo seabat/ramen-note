@@ -13,5 +13,7 @@ interface ReportsRepositoryContract {
 
     suspend fun delete(id: Int)
 
+    suspend fun deleteByShopId(shopId: Int)
+
     suspend fun loadByAreaId(areaId: Int): List<Report>
 }

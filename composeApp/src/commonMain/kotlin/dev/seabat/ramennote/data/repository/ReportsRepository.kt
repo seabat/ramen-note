@@ -27,6 +27,10 @@ class ReportsRepository(
         reportDao.deleteById(id)
     }
 
+    override suspend fun deleteByShopId(shopId: Int) {
+        reportDao.deleteByShopId(shopId)
+    }
+
     override suspend fun loadByAreaId(areaId: Int): List<Report> =
         reportDao.getReportsByAreaId(areaId).map { it.toDomain() }
 }

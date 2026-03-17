@@ -86,7 +86,7 @@ val useCaseModule =
         single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
         single<DeleteReportUseCaseContract> { DeleteReportUseCase(get()) }
         single<DeleteScheduleInShopUseCaseContract> { DeleteScheduleInShopUseCase(get()) }
-        single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get(), get()) }
+        single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get(), get(), get()) }
         single<FetchAiShopUseCaseContract> { FetchAiShopInfoUseCase(get(), get()) }
         single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
         single<FetchAndSaveUnsplashImageUseCaseContract> { FetchAndSaveUnsplashImageUseCase(get(), get()) }
