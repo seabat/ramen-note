@@ -30,6 +30,10 @@ class MockEditAreaViewModel :
         // Preview用なので何もしない
     }
 
+    override fun loadAreaName(areaId: Int) {
+        // Preview用なので何もしない
+    }
+
     override fun loadImage(areaId: Int) {
         // Preview用なので何もしない
     }

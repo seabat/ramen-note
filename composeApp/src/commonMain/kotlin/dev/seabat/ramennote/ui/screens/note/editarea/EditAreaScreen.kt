@@ -57,6 +57,7 @@ fun EditAreaScreen(
     viewModel: EditAreaViewModelContract = koinViewModel<EditAreaViewModel>()
 ) {
     LaunchedEffect(Unit) {
+        viewModel.loadAreaName(areaId)
         viewModel.loadImage(areaId)
     }
 

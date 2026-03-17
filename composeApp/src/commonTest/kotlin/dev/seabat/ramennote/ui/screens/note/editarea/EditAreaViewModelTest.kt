@@ -172,13 +172,23 @@ class EditAreaViewModelTest {
         assertIs<RunStatus.Error<ByteArray>>(viewModel.imageState.value)
     }
 
+    // --- loadAreaName ---
+
+    @Test
+    fun `loadAreaName - areaIdに対応するエリア名がareaNameにセットされる`() = runTest {
+        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
+
+        viewModel.loadAreaName(1)
+
+        assertEquals("東京", viewModel.areaName.value)
+    }
+
     // --- loadImage ---
 
     @Test
     fun `loadImage - 成功時にimageStateがSuccessになる`() = runTest {
         val imageBytes = byteArrayOf(4, 5, 6)
         fakeLoadAreaImageUseCase.result = RunStatus.Success(imageBytes)
-        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
 
         viewModel.loadImage(1)
 
@@ -190,7 +200,6 @@ class EditAreaViewModelTest {
     @Test
     fun `loadImage - areaIdがUseCaseに渡される`() = runTest {
         fakeLoadAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
-        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 2, name = "大阪"))
 
         viewModel.loadImage(2)
 
@@ -198,19 +207,8 @@ class EditAreaViewModelTest {
     }
 
     @Test
-    fun `loadImage - areaIdに対応するエリア名がareaNameにセットされる`() = runTest {
-        fakeLoadAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
-        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
-
-        viewModel.loadImage(1)
-
-        assertEquals("東京", viewModel.areaName.value)
-    }
-
-    @Test
     fun `loadImage - Errorの場合にimageStateがErrorになる`() = runTest {
         fakeLoadAreaImageUseCase.result = RunStatus.Error("読み込み失敗")
-        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
 
         viewModel.loadImage(1)
 
@@ -222,7 +220,6 @@ class EditAreaViewModelTest {
     @Test
     fun `resetImageState - imageStateがIdleに戻る`() = runTest {
         fakeLoadAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
-        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
         viewModel.loadImage(1)
         assertIs<RunStatus.Success<ByteArray>>(viewModel.imageState.value)
 

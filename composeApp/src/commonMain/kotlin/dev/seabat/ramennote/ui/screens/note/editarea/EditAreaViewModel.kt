@@ -60,12 +60,16 @@ class EditAreaViewModel(
         }
     }
 
-    override fun loadImage(areaId: Int) {
+    override fun loadAreaName(areaId: Int) {
         viewModelScope.launch {
             // areaId からエリア名を取得して _areaName を設定
             val areas = loadAreasUseCase()
             _areaName.value = areas.find { it.areaId == areaId }?.name ?: ""
+        }
+    }
 
+    override fun loadImage(areaId: Int) {
+        viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
             _imageState.value = loadAreaImageUseCase(areaId)
         }
