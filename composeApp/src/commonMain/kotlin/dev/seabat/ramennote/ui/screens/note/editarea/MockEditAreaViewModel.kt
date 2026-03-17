@@ -15,22 +15,22 @@ class MockEditAreaViewModel :
     EditAreaViewModelContract {
     override val deleteState: StateFlow<RunStatus<String>> = MutableStateFlow<RunStatus<String>>(RunStatus.Idle()).asStateFlow()
     override val editState: StateFlow<RunStatus<String>> = MutableStateFlow<RunStatus<String>>(RunStatus.Idle()).asStateFlow()
-    override var currentAreaName: String = ""
     override val imageState: StateFlow<RunStatus<ByteArray>> = MutableStateFlow<RunStatus<ByteArray>>(RunStatus.Idle()).asStateFlow()
+    override val areaName: StateFlow<String> = MutableStateFlow("エリア名").asStateFlow()
 
-    override fun editArea(newArea: String) {
+    override fun editArea(areaId: Int, newAreaName: String) {
         // Preview用なので何もしない
     }
 
-    override fun deleteArea(area: String) {
+    override fun deleteArea(areaId: Int) {
         // Preview用なので何もしない
     }
 
-    override fun fetchImage(areaName: String) {
+    override fun fetchNewImage(areaId: Int) {
         // Preview用なので何もしない
     }
 
-    override fun loadImage(name: String) {
+    override fun loadImage(areaId: Int) {
         // Preview用なので何もしない
     }
 

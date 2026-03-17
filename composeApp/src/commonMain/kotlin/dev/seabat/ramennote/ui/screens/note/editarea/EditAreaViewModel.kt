@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
-import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreaImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ class EditAreaViewModel(
     private val deleteAreaUseCase: DeleteAreaUseCaseContract,
     private val updateAreaUseCase: UpdateAreaUseCaseContract,
     private val updateAreaImageUseCase: UpdateAreaImageUseCaseContract,
-    private val loadImageUseCase: LoadImageUseCaseContract
+    private val loadAreaImageUseCase: LoadAreaImageUseCaseContract,
+    private val loadAreasUseCase: LoadAreasUseCaseContract
 ) : ViewModel(),
     EditAreaViewModelContract {
     private val _deleteState: MutableStateFlow<RunStatus<String>> =
@@ -31,34 +33,41 @@ class EditAreaViewModel(
         MutableStateFlow(RunStatus.Idle())
     override val imageState: StateFlow<RunStatus<ByteArray>> = _imageState.asStateFlow()
 
-    override var currentAreaName = ""
+    private val _areaName: MutableStateFlow<String> = MutableStateFlow("")
+    override val areaName: StateFlow<String> = _areaName.asStateFlow()
 
-    override fun editArea(newAreaName: String) {
+    override fun editArea(areaId: Int, newAreaName: String) {
         viewModelScope.launch {
             _editState.value = RunStatus.Loading()
-            _editState.value = updateAreaUseCase(currentAreaName, newAreaName)
-            currentAreaName = newAreaName
+            _editState.value = updateAreaUseCase(areaId, newAreaName)
+            if (_editState.value is RunStatus.Success) {
+                _areaName.value = newAreaName
+            }
         }
     }
 
-    override fun deleteArea(areaName: String) {
+    override fun deleteArea(areaId: Int) {
         viewModelScope.launch {
             _deleteState.value = RunStatus.Loading()
-            _editState.value = deleteAreaUseCase(areaName)
+            _editState.value = deleteAreaUseCase(areaId)
         }
     }
 
-    override fun fetchImage(areaName: String) {
+    override fun fetchNewImage(areaId: Int) {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = updateAreaImageUseCase(areaName)
+            _imageState.value = updateAreaImageUseCase(areaId)
         }
     }
 
-    override fun loadImage(areaName: String) {
+    override fun loadImage(areaId: Int) {
         viewModelScope.launch {
+            // areaId からエリア名を取得して _areaName を設定
+            val areas = loadAreasUseCase()
+            _areaName.value = areas.find { it.areaId == areaId }?.name ?: ""
+
             _imageState.value = RunStatus.Loading()
-            _imageState.value = loadImageUseCase(areaName)
+            _imageState.value = loadAreaImageUseCase(areaId)
         }
     }
 

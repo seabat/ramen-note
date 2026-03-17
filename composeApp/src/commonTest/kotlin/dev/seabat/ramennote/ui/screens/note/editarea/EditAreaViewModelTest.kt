@@ -1,8 +1,10 @@
 package dev.seabat.ramennote.ui.screens.note.editarea
 
+import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
-import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreaImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +27,8 @@ class EditAreaViewModelTest {
     private val fakeDeleteAreaUseCase = FakeDeleteAreaUseCase()
     private val fakeUpdateAreaUseCase = FakeUpdateAreaUseCase()
     private val fakeUpdateAreaImageUseCase = FakeUpdateAreaImageUseCase()
-    private val fakeLoadImageUseCase = FakeLoadImageUseCase()
+    private val fakeLoadAreaImageUseCase = FakeLoadAreaImageUseCase()
+    private val fakeLoadAreasUseCase = FakeLoadAreasUseCase()
 
     private lateinit var viewModel: EditAreaViewModel
 
@@ -37,7 +40,8 @@ class EditAreaViewModelTest {
                 deleteAreaUseCase = fakeDeleteAreaUseCase,
                 updateAreaUseCase = fakeUpdateAreaUseCase,
                 updateAreaImageUseCase = fakeUpdateAreaImageUseCase,
-                loadImageUseCase = fakeLoadImageUseCase
+                loadAreaImageUseCase = fakeLoadAreaImageUseCase,
+                loadAreasUseCase = fakeLoadAreasUseCase
             )
     }
 
@@ -63,45 +67,46 @@ class EditAreaViewModelTest {
         assertIs<RunStatus.Idle<ByteArray>>(viewModel.imageState.value)
     }
 
+    @Test
+    fun `areaName - 初期状態は空文字`() {
+        assertEquals("", viewModel.areaName.value)
+    }
+
     // --- editArea ---
 
     @Test
     fun `editArea - 成功時にeditStateがSuccessになる`() = runTest {
-        viewModel.currentAreaName = "旧名称"
-        fakeUpdateAreaUseCase.result = RunStatus.Success("新名称")
+        fakeUpdateAreaUseCase.result = RunStatus.Success("")
 
-        viewModel.editArea("新名称")
+        viewModel.editArea(1, "新名称")
 
         assertIs<RunStatus.Success<String>>(viewModel.editState.value)
     }
 
     @Test
-    fun `editArea - currentAreaNameとnewAreaNameがUseCaseに渡される`() = runTest {
-        viewModel.currentAreaName = "旧名称"
+    fun `editArea - areaIdとnewAreaNameがUseCaseに渡される`() = runTest {
         fakeUpdateAreaUseCase.result = RunStatus.Success("")
 
-        viewModel.editArea("新名称")
+        viewModel.editArea(1, "新名称")
 
-        assertEquals("旧名称", fakeUpdateAreaUseCase.invokedOldName)
+        assertEquals(1, fakeUpdateAreaUseCase.invokedAreaId)
         assertEquals("新名称", fakeUpdateAreaUseCase.invokedNewName)
     }
 
     @Test
-    fun `editArea - 成功後にcurrentAreaNameが更新される`() = runTest {
-        viewModel.currentAreaName = "旧名称"
+    fun `editArea - 成功後にareaNameが更新される`() = runTest {
         fakeUpdateAreaUseCase.result = RunStatus.Success("")
 
-        viewModel.editArea("新名称")
+        viewModel.editArea(1, "新名称")
 
-        assertEquals("新名称", viewModel.currentAreaName)
+        assertEquals("新名称", viewModel.areaName.value)
     }
 
     @Test
     fun `editArea - Errorの場合にeditStateがErrorになる`() = runTest {
-        viewModel.currentAreaName = "存在しない"
         fakeUpdateAreaUseCase.result = RunStatus.Error("更新失敗")
 
-        viewModel.editArea("新名称")
+        viewModel.editArea(1, "新名称")
 
         assertIs<RunStatus.Error<String>>(viewModel.editState.value)
     }
@@ -112,37 +117,37 @@ class EditAreaViewModelTest {
     fun `deleteArea - 成功時にeditStateがSuccessになる`() = runTest {
         fakeDeleteAreaUseCase.result = RunStatus.Success("")
 
-        viewModel.deleteArea("東京")
+        viewModel.deleteArea(1)
 
         assertIs<RunStatus.Success<String>>(viewModel.editState.value)
     }
 
     @Test
-    fun `deleteArea - areaNameがUseCaseに渡される`() = runTest {
+    fun `deleteArea - areaIdがUseCaseに渡される`() = runTest {
         fakeDeleteAreaUseCase.result = RunStatus.Success("")
 
-        viewModel.deleteArea("大阪")
+        viewModel.deleteArea(2)
 
-        assertEquals("大阪", fakeDeleteAreaUseCase.invokedName)
+        assertEquals(2, fakeDeleteAreaUseCase.invokedAreaId)
     }
 
     @Test
     fun `deleteArea - Errorの場合にeditStateがErrorになる`() = runTest {
         fakeDeleteAreaUseCase.result = RunStatus.Error("削除失敗")
 
-        viewModel.deleteArea("存在しない")
+        viewModel.deleteArea(1)
 
         assertIs<RunStatus.Error<String>>(viewModel.editState.value)
     }
 
-    // --- fetchImage ---
+    // --- fetchNewImage ---
 
     @Test
-    fun `fetchImage - 成功時にimageStateがSuccessになる`() = runTest {
+    fun `fetchNewImage - 成功時にimageStateがSuccessになる`() = runTest {
         val imageBytes = byteArrayOf(1, 2, 3)
         fakeUpdateAreaImageUseCase.result = RunStatus.Success(imageBytes)
 
-        viewModel.fetchImage("東京")
+        viewModel.fetchNewImage(1)
 
         val state = viewModel.imageState.value
         assertIs<RunStatus.Success<ByteArray>>(state)
@@ -150,19 +155,19 @@ class EditAreaViewModelTest {
     }
 
     @Test
-    fun `fetchImage - areaNameがUseCaseに渡される`() = runTest {
+    fun `fetchNewImage - areaIdがUseCaseに渡される`() = runTest {
         fakeUpdateAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
 
-        viewModel.fetchImage("福岡")
+        viewModel.fetchNewImage(3)
 
-        assertEquals("福岡", fakeUpdateAreaImageUseCase.invokedArea)
+        assertEquals(3, fakeUpdateAreaImageUseCase.invokedAreaId)
     }
 
     @Test
-    fun `fetchImage - Errorの場合にimageStateがErrorになる`() = runTest {
+    fun `fetchNewImage - Errorの場合にimageStateがErrorになる`() = runTest {
         fakeUpdateAreaImageUseCase.result = RunStatus.Error("画像取得失敗")
 
-        viewModel.fetchImage("東京")
+        viewModel.fetchNewImage(1)
 
         assertIs<RunStatus.Error<ByteArray>>(viewModel.imageState.value)
     }
@@ -172,9 +177,10 @@ class EditAreaViewModelTest {
     @Test
     fun `loadImage - 成功時にimageStateがSuccessになる`() = runTest {
         val imageBytes = byteArrayOf(4, 5, 6)
-        fakeLoadImageUseCase.result = RunStatus.Success(imageBytes)
+        fakeLoadAreaImageUseCase.result = RunStatus.Success(imageBytes)
+        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
 
-        viewModel.loadImage("東京")
+        viewModel.loadImage(1)
 
         val state = viewModel.imageState.value
         assertIs<RunStatus.Success<ByteArray>>(state)
@@ -182,19 +188,31 @@ class EditAreaViewModelTest {
     }
 
     @Test
-    fun `loadImage - nameがUseCaseに渡される`() = runTest {
-        fakeLoadImageUseCase.result = RunStatus.Success(byteArrayOf())
+    fun `loadImage - areaIdがUseCaseに渡される`() = runTest {
+        fakeLoadAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
+        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 2, name = "大阪"))
 
-        viewModel.loadImage("大阪")
+        viewModel.loadImage(2)
 
-        assertEquals("大阪", fakeLoadImageUseCase.invokedName)
+        assertEquals(2, fakeLoadAreaImageUseCase.invokedAreaId)
+    }
+
+    @Test
+    fun `loadImage - areaIdに対応するエリア名がareaNameにセットされる`() = runTest {
+        fakeLoadAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
+        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
+
+        viewModel.loadImage(1)
+
+        assertEquals("東京", viewModel.areaName.value)
     }
 
     @Test
     fun `loadImage - Errorの場合にimageStateがErrorになる`() = runTest {
-        fakeLoadImageUseCase.result = RunStatus.Error("読み込み失敗")
+        fakeLoadAreaImageUseCase.result = RunStatus.Error("読み込み失敗")
+        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
 
-        viewModel.loadImage("東京")
+        viewModel.loadImage(1)
 
         assertIs<RunStatus.Error<ByteArray>>(viewModel.imageState.value)
     }
@@ -203,8 +221,9 @@ class EditAreaViewModelTest {
 
     @Test
     fun `resetImageState - imageStateがIdleに戻る`() = runTest {
-        fakeLoadImageUseCase.result = RunStatus.Success(byteArrayOf())
-        viewModel.loadImage("東京")
+        fakeLoadAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
+        fakeLoadAreasUseCase.areas = listOf(createTestArea(areaId = 1, name = "東京"))
+        viewModel.loadImage(1)
         assertIs<RunStatus.Success<ByteArray>>(viewModel.imageState.value)
 
         viewModel.resetImageState()
@@ -212,47 +231,63 @@ class EditAreaViewModelTest {
         assertIs<RunStatus.Idle<ByteArray>>(viewModel.imageState.value)
     }
 
+    // --- ヘルパー ---
+
+    private fun createTestArea(areaId: Int, name: String) = Area(
+        areaId = areaId,
+        name = name,
+        count = 0,
+        updatedDate = kotlinx.datetime.LocalDate(2026, 1, 1),
+        sort = 1
+    )
+
     // --- フェイク UseCase 実装 ---
 
     private class FakeDeleteAreaUseCase : DeleteAreaUseCaseContract {
-        var invokedName: String? = null
+        var invokedAreaId: Int? = null
         var result: RunStatus<String> = RunStatus.Success("")
 
-        override suspend fun invoke(name: String): RunStatus<String> {
-            invokedName = name
+        override suspend fun invoke(areaId: Int): RunStatus<String> {
+            invokedAreaId = areaId
             return result
         }
     }
 
     private class FakeUpdateAreaUseCase : UpdateAreaUseCaseContract {
-        var invokedOldName: String? = null
+        var invokedAreaId: Int? = null
         var invokedNewName: String? = null
         var result: RunStatus<String> = RunStatus.Success("")
 
-        override suspend fun invoke(oldName: String, newName: String): RunStatus<String> {
-            invokedOldName = oldName
+        override suspend fun invoke(areaId: Int, newName: String): RunStatus<String> {
+            invokedAreaId = areaId
             invokedNewName = newName
             return result
         }
     }
 
     private class FakeUpdateAreaImageUseCase : UpdateAreaImageUseCaseContract {
-        var invokedArea: String? = null
+        var invokedAreaId: Int? = null
         var result: RunStatus<ByteArray> = RunStatus.Success(byteArrayOf())
 
-        override suspend fun invoke(area: String): RunStatus<ByteArray> {
-            invokedArea = area
+        override suspend fun invoke(areaId: Int): RunStatus<ByteArray> {
+            invokedAreaId = areaId
             return result
         }
     }
 
-    private class FakeLoadImageUseCase : LoadImageUseCaseContract {
-        var invokedName: String? = null
+    private class FakeLoadAreaImageUseCase : LoadAreaImageUseCaseContract {
+        var invokedAreaId: Int? = null
         var result: RunStatus<ByteArray> = RunStatus.Success(byteArrayOf())
 
-        override suspend fun invoke(name: String): RunStatus<ByteArray> {
-            invokedName = name
+        override suspend fun invoke(areaId: Int): RunStatus<ByteArray> {
+            invokedAreaId = areaId
             return result
         }
+    }
+
+    private class FakeLoadAreasUseCase : LoadAreasUseCaseContract {
+        var areas: List<Area> = emptyList()
+
+        override suspend fun invoke(): List<Area> = areas
     }
 }

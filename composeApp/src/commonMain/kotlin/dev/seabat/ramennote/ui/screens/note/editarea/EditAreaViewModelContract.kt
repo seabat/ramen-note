@@ -7,15 +7,15 @@ interface EditAreaViewModelContract {
     val deleteState: StateFlow<RunStatus<String>>
     val editState: StateFlow<RunStatus<String>>
     val imageState: StateFlow<RunStatus<ByteArray>>
-    var currentAreaName: String
+    val areaName: StateFlow<String>
 
-    fun editArea(newArea: String)
+    fun editArea(areaId: Int, newAreaName: String)
 
-    fun deleteArea(area: String)
+    fun deleteArea(areaId: Int)
 
-    fun fetchImage(areaName: String)
+    fun fetchNewImage(areaId: Int)
 
-    fun loadImage(name: String)
+    fun loadImage(areaId: Int)
 
     fun resetImageState()
 }
