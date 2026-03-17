@@ -11,6 +11,9 @@ class DeleteAreaUseCase(
     private val shopsRepository: ShopsRepositoryContract
 ) : DeleteAreaUseCaseContract {
     override suspend operator fun invoke(name: String): RunStatus<String> {
+        // 削除前に areaId を取得（削除後は load() が null を返すため）
+        val areaId = areasRepository.load(name)?.areaId ?: 0
+
         val result = areasRepository.delete(name)
         return if (result is RunStatus.Success) {
             try {
@@ -18,8 +21,6 @@ class DeleteAreaUseCase(
                 localAreaImageRepository.delete(name)
 
                 // 該当エリアのShopを削除
-                val area = areasRepository.load(name)
-                val areaId = area?.areaId ?: 0
                 val shops = shopsRepository.getShopsByAreaId(areaId)
                 shops.forEach { shop ->
                     shopsRepository.deleteShopById(shop.id)
