@@ -271,5 +271,6 @@ class AreasRepositoryTest {
         override fun reportDao() = throw UnsupportedOperationException("テスト対象外")
         override fun createInvalidationTracker(): InvalidationTracker =
             InvalidationTracker(this, emptyMap(), emptyMap())
+        override fun clearAllTables() = Unit
     }
 }
