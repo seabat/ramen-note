@@ -2,15 +2,16 @@ package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
 import dev.seabat.ramennote.data.repository.LocalImageRepositoryContract
-import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 
 class UpdateAreaUseCase(
     private val areasRepository: AreasRepositoryContract,
-    private val localAreaImageRepository: LocalImageRepositoryContract,
-    private val shopsRepository: ShopsRepositoryContract
+    private val localAreaImageRepository: LocalImageRepositoryContract
 ) : UpdateAreaUseCaseContract {
-    override suspend fun invoke(oldName: String, newName: String): RunStatus<String> {
+    override suspend fun invoke(areaId: Int, newName: String): RunStatus<String> {
+        val oldName =
+            areasRepository.loadByAreaId(areaId)?.name
+                ?: return RunStatus.Error("エリアが見つかりません")
         val result = areasRepository.edit(oldName, newName)
         return if (result is RunStatus.Success) {
             try {

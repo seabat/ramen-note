@@ -29,7 +29,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import dev.seabat.ramennote.ui.components.button.ReportListButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +52,7 @@ import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.components.button.AddFab
+import dev.seabat.ramennote.ui.components.button.ReportListButton
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -78,7 +78,7 @@ fun NoteScreen(
     initialSearchText: String = "",
     goToAreaShopList: (String) -> Unit = {},
     goToAddArea: () -> Unit = {},
-    goToEditArea: (String) -> Unit = {},
+    goToEditArea: (Int) -> Unit = {},
     goToEditAreaSort: () -> Unit = {},
     goToShop: (Shop) -> Unit = {},
     goToHistoryWithAreaFiltering: (areaId: Int) -> Unit = {},
@@ -115,7 +115,7 @@ private fun MainContent(
     viewModel: NoteViewModelContract,
     onAreaClick: (String) -> Unit = {},
     onAddAreaClick: () -> Unit = {},
-    onAreaLongClick: (String) -> Unit = {},
+    onAreaLongClick: (Int) -> Unit = {},
     onSortClick: () -> Unit = {},
     onShopClick: (Shop) -> Unit = {},
     onAreaReportClick: (areaId: Int) -> Unit = {},
@@ -250,7 +250,7 @@ private fun MainContent(
                                     imageBytes = area.imageBytes,
                                     itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                                     onClick = { onAreaClick(area.name) },
-                                    onLongClick = { onAreaLongClick(area.name) },
+                                    onLongClick = { onAreaLongClick(area.areaId) },
                                     onReportClick = { onAreaReportClick(area.areaId) }
                                 )
                             }

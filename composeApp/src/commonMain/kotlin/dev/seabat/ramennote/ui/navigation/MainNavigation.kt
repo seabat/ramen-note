@@ -141,7 +141,7 @@ sealed interface Screen {
 
     @Serializable
     data class EditArea(
-        val areaName: String
+        val areaId: Int
     ) : Screen {
         override val route: String = getRouteName(EditArea::class)
 
@@ -435,8 +435,8 @@ fun MainNavigation() {
                             goToAddArea = {
                                 navController.navigate(Screen.AddArea)
                             },
-                            goToEditArea = { areaName ->
-                                navController.navigate(Screen.EditArea(areaName))
+                            goToEditArea = { areaId ->
+                                navController.navigate(Screen.EditArea(areaId))
                             },
                             goToEditAreaSort = {
                                 navController.navigate(Screen.EditAreaSort)
@@ -501,7 +501,7 @@ fun MainNavigation() {
                     composable<Screen.EditArea> { backStackEntry ->
                         val screen: Screen.EditArea = backStackEntry.toRoute()
                         EditAreaScreen(
-                            areaName = screen.areaName,
+                            areaId = screen.areaId,
                             onBackClick = { navController.popBackStack() },
                             onCompleted = { navController.popBackStack() }
                         )

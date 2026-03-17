@@ -10,9 +10,11 @@ class DeleteAreaUseCase(
     private val localAreaImageRepository: LocalImageRepositoryContract,
     private val shopsRepository: ShopsRepositoryContract
 ) : DeleteAreaUseCaseContract {
-    override suspend operator fun invoke(name: String): RunStatus<String> {
-        // 削除前に areaId を取得（削除後は load() が null を返すため）
-        val areaId = areasRepository.load(name)?.areaId ?: 0
+    override suspend operator fun invoke(areaId: Int): RunStatus<String> {
+        // 削除前に エリア名を取得（削除後は loadByAreaId() が null を返すため）
+        val name =
+            areasRepository.loadByAreaId(areaId)?.name
+                ?: return RunStatus.Error("エリアが見つかりません")
 
         val result = areasRepository.delete(name)
         return if (result is RunStatus.Success) {

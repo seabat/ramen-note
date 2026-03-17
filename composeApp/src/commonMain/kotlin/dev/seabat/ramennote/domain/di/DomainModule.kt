@@ -26,6 +26,8 @@ import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCase
 import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadAreaImageUseCase
+import dev.seabat.ramennote.domain.usecase.LoadAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCase
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCase
@@ -90,7 +92,7 @@ val useCaseModule =
         single<FetchAndSaveUnsplashImageUseCaseContract> { FetchAndSaveUnsplashImageUseCase(get(), get()) }
         single<InquiryAppVersionUseCaseContract> { InquiryAppVersionUseCase(get()) }
         single<LoadAreasUseCaseContract> { LoadAreasUseCase(get()) }
-        single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
+        single<LoadAreaImageUseCaseContract> { LoadAreaImageUseCase(get(), get()) }
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
         single<LoadShopListByAreaUseCaseContract> { LoadShopListByAreaUseCase(get(), get()) }
         single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
@@ -113,7 +115,7 @@ val useCaseModule =
         single<SearchShopsByNameUseCaseContract> { SearchShopsByNameUseCase(get()) }
         single<SwitchFavoriteUseCaseContract> { SwitchFavoriteUseCase(get()) }
         single<UpdateAreaImageUseCaseContract> { UpdateAreaImageUseCase(get(), get(), get()) }
-        single<UpdateAreaUseCaseContract> { UpdateAreaUseCase(get(), get(), get()) }
+        single<UpdateAreaUseCaseContract> { UpdateAreaUseCase(get(), get()) }
         single<UpdateShopCountInAreaUseCaseContract> { UpdateShopCountInAreaUseCase(get(), get()) }
         single<UpdateShopUseCaseContract> { UpdateShopUseCase(get(), get(), get()) }
         single<UpdateAllAreasUseCaseContract> { UpdateAllAreasUseCase(get()) }
