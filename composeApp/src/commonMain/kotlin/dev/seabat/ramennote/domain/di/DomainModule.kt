@@ -83,7 +83,7 @@ val useCaseModule =
         single<CreateNoImageByteArrayUseCaseContract> { CreateNoImageByteArrayUseCase(get()) }
         single<CreateNoImageIfNeededUseCaseContract> { CreateNoImageIfNeededUseCase(get(), get()) }
         single<CreateReportPhotoNameUseCaseContract> { CreateReportPhotoNameUseCase() }
-        single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get(), get()) }
+        single<DeleteAreaUseCaseContract> { DeleteAreaUseCase(get(), get()) }
         single<DeleteReportUseCaseContract> { DeleteReportUseCase(get()) }
         single<DeleteScheduleInShopUseCaseContract> { DeleteScheduleInShopUseCase(get()) }
         single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get(), get(), get()) }
