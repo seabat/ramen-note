@@ -6,6 +6,7 @@ import dev.seabat.ramennote.domain.model.Report
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.CreateReportPhotoNameUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ import kotlinx.datetime.LocalDate
 
 class AddReportViewModel(
     private val createReportPhotoNameUseCase: CreateReportPhotoNameUseCaseContract,
-    private val addReportUseCase: AddReportUseCaseContract
+    private val addReportUseCase: AddReportUseCaseContract,
+    private val loadShopUseCase: LoadShopUseCaseContract
 ) : ViewModel(),
     AddReportViewModelContract {
     private val _reportedStatus = MutableStateFlow<RunStatus<Int>>(RunStatus.Idle())
@@ -34,6 +36,9 @@ class AddReportViewModel(
             try {
                 _reportedStatus.value = RunStatus.Loading()
 
+                // shopId から areaId を取得
+                val areaId = loadShopUseCase.invoke(shopId)?.areaId ?: 0
+
                 // AddReportUseCaseで画像保存とSQLite保存
                 val result =
                     addReportUseCase.invoke(
@@ -45,7 +50,8 @@ class AddReportViewModel(
                                 photoName = createReportPhotoNameUseCase(),
                                 impression = impression,
                                 date = reportedDate,
-                                star = star
+                                star = star,
+                                areaId = areaId
                             ),
                         imageBytes = image?.toByteArray()
                     )

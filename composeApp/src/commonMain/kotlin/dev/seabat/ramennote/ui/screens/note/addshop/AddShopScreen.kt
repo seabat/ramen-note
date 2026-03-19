@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,6 +85,11 @@ fun AddShopScreen(
 
     val saveState by viewModel.saveState.collectAsState()
     val shopAiInfoState by viewModel.shopAiInfoState.collectAsState()
+    val areaId by viewModel.areaIdState.collectAsState()
+
+    LaunchedEffect(areaName) {
+        viewModel.loadAreaId(areaName)
+    }
 
     var showShopAiInfoDialog by remember { mutableStateOf(true) }
 
@@ -250,7 +256,7 @@ fun AddShopScreen(
                     val shop =
                         Shop(
                             name = name,
-                            area = areaName,
+                            areaId = areaId,
                             shopUrl = shopUrl,
                             mapUrl = mapUrl,
                             star = star,
@@ -270,7 +276,8 @@ fun AddShopScreen(
         // 保存状態の処理
         SaveShopState(
             saveState = saveState,
-            onCompleted = onCompleted
+            onCompleted = onCompleted,
+            onErrorConfirm = { viewModel.setSaveStateToIdle() }
         )
         ShopAiInfoState(
             shopAiInfoState = shopAiInfoState,
@@ -281,7 +288,8 @@ fun AddShopScreen(
                 stationName = aiInfo.stationName
                 category = aiInfo.category
                 note = aiInfo.description
-            }
+            },
+            onErrorConfirm = { viewModel.setShopAiInfoStateToIdle() }
         )
     }
 }
@@ -367,7 +375,8 @@ private fun StarRating(
 @Composable
 private fun SaveShopState(
     saveState: RunStatus<String>,
-    onCompleted: () -> Unit
+    onCompleted: () -> Unit,
+    onErrorConfirm: () -> Unit
 ) {
     when (saveState) {
         is RunStatus.Success -> {
@@ -379,21 +388,22 @@ private fun SaveShopState(
         is RunStatus.Error -> {
             AppAlert(
                 message = saveState.message ?: "不明なエラーが発生しました",
-                onConfirm = { /* エラー処理 */ }
+                onConfirm = onErrorConfirm
             )
         }
-        else -> { /* その他の状態は何もしない */ }
+        is RunStatus.Idle -> { /* その他の状態は何もしない */ }
     }
 }
 
 @Composable
 private fun ShopAiInfoState(
     shopAiInfoState: RunStatus<ShopAiInfo>,
-    onShopUpdate: (ShopAiInfo) -> Unit
+    onShopUpdate: (ShopAiInfo) -> Unit,
+    onErrorConfirm: () -> Unit
 ) {
-    when (val state = shopAiInfoState) {
+    when (shopAiInfoState) {
         is RunStatus.Success -> {
-            state.data?.let { aiInfo ->
+            shopAiInfoState.data?.let { aiInfo ->
                 onShopUpdate(aiInfo)
             }
         }
@@ -402,11 +412,11 @@ private fun ShopAiInfoState(
         }
         is RunStatus.Error -> {
             AppAlert(
-                message = state.message ?: "店舗情報の取得に失敗しました",
-                onConfirm = { /* エラー処理 */ }
+                message = shopAiInfoState.message ?: "店舗情報の取得に失敗しました",
+                onConfirm = onErrorConfirm
             )
         }
-        else -> { /* その他の状態は何もしない */ }
+        is RunStatus.Idle -> { /* その他の状態は何もしない */ }
     }
 }
 

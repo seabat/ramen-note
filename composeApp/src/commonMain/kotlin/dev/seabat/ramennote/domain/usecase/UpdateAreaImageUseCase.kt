@@ -11,16 +11,19 @@ class UpdateAreaImageUseCase(
     private val localAreaImageRepository: LocalImageRepositoryContract,
     private val fetchAndSaveUnsplashImageUseCaseContract: FetchAndSaveUnsplashImageUseCaseContract
 ) : UpdateAreaImageUseCaseContract {
+    override suspend operator fun invoke(areaId: Int): RunStatus<ByteArray> {
+        val areaData =
+            areasRepository.loadByAreaId(areaId)
+                ?: return RunStatus.Error("エリアが見つかりません")
+        val areaName = areaData.name
 
-    override suspend operator fun invoke(area: String): RunStatus<ByteArray> {
         // まずローカルから画像を読み込む。null なら必ず Unsplash から取得
-        localAreaImageRepository.load(area) ?: return fetchAndSaveUnsplashImageUseCaseContract(area)
+        localAreaImageRepository.load(areaName) ?: return fetchAndSaveUnsplashImageUseCaseContract(areaName)
 
-        val areaData = areasRepository.load(area)
         val today = createTodayLocalDate()
-        val needUpdate = areaData == null || areaData.updatedDate < today.minus(1, kotlinx.datetime.DateTimeUnit.DAY)
+        val needUpdate = areaData.updatedDate < today.minus(1, kotlinx.datetime.DateTimeUnit.DAY)
         return if (needUpdate) {
-            fetchAndSaveUnsplashImageUseCaseContract(area)
+            fetchAndSaveUnsplashImageUseCaseContract(areaName)
         } else {
             RunStatus.Error("本日は画像を変更できません。明日もう一度お試しください。")
         }

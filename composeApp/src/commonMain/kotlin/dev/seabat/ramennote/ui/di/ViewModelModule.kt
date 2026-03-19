@@ -20,17 +20,17 @@ import org.koin.dsl.module
 val viewModelModule =
     module {
         viewModel { AddAreaViewModel(get(), get()) }
-        viewModel { AddShopViewModel(get(), get(), get()) }
+        viewModel { AddShopViewModel(get(), get(), get(), get()) }
         viewModel { AreaShopListViewModel(get()) }
-        viewModel { EditAreaViewModel(get(), get(), get(), get()) }
+        viewModel { EditAreaViewModel(get(), get(), get(), get(), get()) }
         viewModel { EditAreaSortViewModel(get(), get()) }
         viewModel { EditReportViewModel(get(), get(), get(), get()) }
         viewModel { EditShopViewModel(get(), get(), get(), get()) }
-        viewModel { HistoryViewModel(get(), get()) }
+        viewModel { HistoryViewModel(get(), get(), get(), get()) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { NoteViewModel(get(), get(), get()) }
-        viewModel { AddReportViewModel(get(), get()) }
-        viewModel { ShopViewModel(get(), get(), get(), get(), get()) }
+        viewModel { AddReportViewModel(get(), get(), get()) }
+        viewModel { ShopViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { ScheduleViewModel(get(), get(), get()) }
         viewModel { SettingsViewModel(get()) }
     }

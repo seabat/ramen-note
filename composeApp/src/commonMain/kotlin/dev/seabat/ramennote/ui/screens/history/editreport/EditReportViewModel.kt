@@ -66,7 +66,8 @@ class EditReportViewModel(
                                 },
                             impression = impression,
                             date = reportedDate,
-                            star = star
+                            star = star,
+                            areaId = currentReport.areaId
                         ),
                     imageBytes = image?.toByteArray()
                 )

@@ -15,10 +15,9 @@ class FetchAndSaveUnsplashImageUseCase(
     private val unsplashImageRepository: UnsplashImageRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
 ) : FetchAndSaveUnsplashImageUseCaseContract {
-
     override suspend operator fun invoke(query: String): RunStatus<ByteArray> {
         // Fetch image from remote repository
-        return when(val fetchResult = unsplashImageRepository.fetch(query)) {
+        return when (val fetchResult = unsplashImageRepository.fetch(query)) {
             is RunStatus.Error -> {
                 return fetchResult
             }
@@ -28,14 +27,14 @@ class FetchAndSaveUnsplashImageUseCase(
                 localAreaImageRepository.save(imageBytes, query)
 
                 // Load from local storage with query as filename
-                when(val localImageBytes = localAreaImageRepository.load(query)) {
+                when (val localImageBytes = localAreaImageRepository.load(query)) {
                     is RunStatus.Success -> localImageBytes
                     is RunStatus.Error -> RunStatus.Error("Failed to load image from local storage")
                     else -> error("unexpected state")
                 }
             }
             else -> {
-               error("ここは通らない")
+                error("ここは通らない")
             }
         }
     }

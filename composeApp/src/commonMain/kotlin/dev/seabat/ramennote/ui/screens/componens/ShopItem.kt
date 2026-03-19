@@ -96,7 +96,7 @@ fun ShopItemPreview() {
                     Shop(
                         id = 1,
                         name = "一風堂 博多本店",
-                        area = "福岡県",
+                        areaId = 1,
                         shopUrl = "https://www.ippudo.com/",
                         mapUrl = "",
                         star = 3,
@@ -114,7 +114,7 @@ fun ShopItemPreview() {
                     Shop(
                         id = 2,
                         name = "ラーメン横綱",
-                        area = "東京都",
+                        areaId = 2,
                         shopUrl = "",
                         mapUrl = "",
                         star = 2,
@@ -132,7 +132,7 @@ fun ShopItemPreview() {
                     Shop(
                         id = 3,
                         name = "つけ麺専門店 大勝軒 池袋店",
-                        area = "東京都",
+                        areaId = 2,
                         shopUrl = "",
                         mapUrl = "",
                         star = 1,

@@ -8,7 +8,6 @@ class FetchPlaceHolderImageUseCase(
     private val areaImageRepository: AreaImageRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
 ) : FetchPlaceHolderImageUseCaseContract {
-
     override suspend operator fun invoke(): RunStatus<ByteArray> =
         try {
             // Fetch image from remote repository

@@ -9,7 +9,6 @@ import kotlinx.coroutines.withContext
 class LocalImageRepository(
     private val localStorageDataSource: LocalStorageDataSourceContract
 ) : LocalImageRepositoryContract {
-
     override suspend fun save(imageBytes: ByteArray, name: String) {
         withContext(Dispatchers.IO) {
             localStorageDataSource.save(imageBytes, name)

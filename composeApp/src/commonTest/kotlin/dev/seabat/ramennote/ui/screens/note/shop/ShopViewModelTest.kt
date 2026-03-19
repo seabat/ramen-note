@@ -1,7 +1,9 @@
 package dev.seabat.ramennote.ui.screens.note.shop
 
+import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCaseContract
@@ -25,25 +27,27 @@ class ShopViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
-    // フェイク UseCase
     private val fakeLoadShopUseCase = FakeLoadShopUseCase()
     private val fakeLoadImageUseCase = FakeLoadImageUseCase()
     private val fakeUpdateScheduleUseCase = FakeUpdateScheduleInShopUseCase()
     private val fakeSwitchFavoriteUseCase = FakeSwitchFavoriteUseCase()
     private val fakeUpdateStarUseCase = FakeUpdateStarUseCase()
+    private val fakeLoadAreasUseCase = FakeLoadAreasUseCase()
 
     private lateinit var viewModel: ShopViewModel
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = ShopViewModel(
-            loadShopUseCase = fakeLoadShopUseCase,
-            loadImageUseCase = fakeLoadImageUseCase,
-            addScheduleUseCase = fakeUpdateScheduleUseCase,
-            switchFavoriteUseCase = fakeSwitchFavoriteUseCase,
-            updateStarUseCase = fakeUpdateStarUseCase
-        )
+        viewModel =
+            ShopViewModel(
+                loadShopUseCase = fakeLoadShopUseCase,
+                loadImageUseCase = fakeLoadImageUseCase,
+                addScheduleUseCase = fakeUpdateScheduleUseCase,
+                switchFavoriteUseCase = fakeSwitchFavoriteUseCase,
+                updateStarUseCase = fakeUpdateStarUseCase,
+                loadAreasUseCase = fakeLoadAreasUseCase
+            )
     }
 
     @AfterTest
@@ -111,13 +115,49 @@ class ShopViewModelTest {
         assertNull(viewModel.shopImage.value)
     }
 
+    @Test
+    fun `loadShopAndImage - ShopのareaIdに対応するエリア名がareaNameにセットされる`() = runTest {
+        val shop = createTestShop(areaId = 2)
+        fakeLoadShopUseCase.result = shop
+        fakeLoadImageUseCase.result = RunStatus.Success(byteArrayOf())
+        fakeLoadAreasUseCase.result =
+            listOf(
+                Area(areaId = 1, name = "東京", count = 0, updatedDate = LocalDate(2024, 1, 1), sort = 1),
+                Area(areaId = 2, name = "大阪", count = 0, updatedDate = LocalDate(2024, 1, 1), sort = 2)
+            )
+
+        viewModel.loadShopAndImage(1)
+
+        assertEquals("大阪", viewModel.areaName.value)
+    }
+
+    @Test
+    fun `loadShopAndImage - areaIdに一致するエリアがない場合はareaNameが空文字になる`() = runTest {
+        val shop = createTestShop(areaId = 99)
+        fakeLoadShopUseCase.result = shop
+        fakeLoadImageUseCase.result = RunStatus.Success(byteArrayOf())
+
+        viewModel.loadShopAndImage(1)
+
+        assertEquals("", viewModel.areaName.value)
+    }
+
+    @Test
+    fun `loadShopAndImage - Shopがnullの場合はareaNameが更新されない`() = runTest {
+        fakeLoadShopUseCase.result = null
+
+        viewModel.loadShopAndImage(1)
+
+        assertEquals("", viewModel.areaName.value)
+    }
+
     // --- addSchedule ---
 
     @Test
     fun `addSchedule - スケジュール追加後にShopデータを再読み込みする`() = runTest {
         val shop = createTestShop()
         fakeLoadShopUseCase.result = shop
-        fakeLoadImageUseCase.result = RunStatus.Success(null)
+        fakeLoadImageUseCase.result = RunStatus.Success(byteArrayOf())
         val date = LocalDate(2026, 2, 14)
 
         viewModel.addSchedule(1, date)
@@ -134,7 +174,7 @@ class ShopViewModelTest {
     fun `switchFavorite - お気に入り切り替え後にShopデータを再読み込みする`() = runTest {
         val shop = createTestShop()
         fakeLoadShopUseCase.result = shop
-        fakeLoadImageUseCase.result = RunStatus.Success(null)
+        fakeLoadImageUseCase.result = RunStatus.Success(byteArrayOf())
 
         viewModel.switchFavorite(true, 1)
 
@@ -149,7 +189,7 @@ class ShopViewModelTest {
     fun `updateStar - 星評価更新後にShopデータを再読み込みする`() = runTest {
         val shop = createTestShop()
         fakeLoadShopUseCase.result = shop
-        fakeLoadImageUseCase.result = RunStatus.Success(null)
+        fakeLoadImageUseCase.result = RunStatus.Success(byteArrayOf())
 
         viewModel.updateStar(3, 1)
 
@@ -163,11 +203,12 @@ class ShopViewModelTest {
     private fun createTestShop(
         id: Int = 1,
         name: String = "テスト店",
+        areaId: Int = 1,
         photoName1: String = ""
     ) = Shop(
         id = id,
         name = name,
-        area = "東京",
+        areaId = areaId,
         photoName1 = photoName1
     )
 
@@ -179,8 +220,8 @@ class ShopViewModelTest {
     }
 
     private class FakeLoadImageUseCase : LoadImageUseCaseContract {
-        var result: RunStatus<ByteArray?> = RunStatus.Idle()
-        override suspend fun invoke(name: String): RunStatus<ByteArray?> = result
+        var result: RunStatus<ByteArray> = RunStatus.Idle()
+        override suspend fun invoke(name: String): RunStatus<ByteArray> = result
     }
 
     private class FakeUpdateScheduleInShopUseCase : UpdateScheduleInShopUseCaseContract {
@@ -208,5 +249,13 @@ class ShopViewModelTest {
             invokedShopId = shopId
             invokedStar = star
         }
+    }
+
+    private class FakeLoadAreasUseCase : LoadAreasUseCaseContract {
+        var result: List<Area> =
+            listOf(
+                Area(areaId = 1, name = "東京", count = 0, updatedDate = LocalDate(2024, 1, 1), sort = 1)
+            )
+        override suspend fun invoke(): List<Area> = result
     }
 }
