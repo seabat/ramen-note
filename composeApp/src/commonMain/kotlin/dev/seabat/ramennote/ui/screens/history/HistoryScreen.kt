@@ -69,6 +69,12 @@ fun HistoryScreen(
         }
     }
 
+    var isBannerVisible by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        delay(3000)
+        isBannerVisible = false
+    }
+
     Column(
         modifier =
             Modifier
@@ -86,6 +92,10 @@ fun HistoryScreen(
                 }
         )
         if (reportsState.isNotEmpty()) {
+            HintBanner(
+                isVisible = isBannerVisible,
+                text = stringResource(Res.string.note_notification)
+            )
             Box {
                 // レポート一覧
                 ReportsList(
@@ -170,12 +180,7 @@ private fun ReportsList(
     onImageTap: (ByteArray?) -> Unit,
     onShareTap: (String, ByteArray?) -> Unit
 ) {
-    var isBannerVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
-        delay(3000)
-        isBannerVisible = false
-    }
 
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped = groupReports(reports)
@@ -185,13 +190,6 @@ private fun ReportsList(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item {
-            HintBanner(
-                isVisible = isBannerVisible,
-                text = stringResource(Res.string.note_notification)
-            )
-        }
-
         grouped.forEach { (yearMonth, monthReports) ->
             item {
                 Text(
