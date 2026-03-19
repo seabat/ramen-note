@@ -3,8 +3,13 @@ package dev.seabat.ramennote.ui.screens.history
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -18,22 +23,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
+import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
+import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.filter_list_24px
 import ramennote.composeapp.generated.resources.history_no_data
+import ramennote.composeapp.generated.resources.history_search_hint
+import ramennote.composeapp.generated.resources.history_year
 import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.screen_history_title
 
@@ -46,6 +58,7 @@ fun HistoryScreen(
     clearReportIdParam: () -> Unit = {},
     clearShopParam: () -> Unit = {},
     clearAreaParam: () -> Unit = {},
+    initialSearchText: String = "",
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
     val shopNameState by viewModel.shopName.collectAsState()
@@ -54,6 +67,9 @@ fun HistoryScreen(
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
+    var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
+
+    var searchText by remember { mutableStateOf(initialSearchText) }
 
     LaunchedEffect(Unit) {
         when {
@@ -92,6 +108,18 @@ fun HistoryScreen(
                 }
         )
         if (reportsState.isNotEmpty()) {
+            Menu(
+                searchText = searchText,
+                onFilterClick = {},
+                onSearchTextChange = { text ->
+                    searchText = text
+                    isSearchResultVisible = text.isNotEmpty()
+                    if (text.isNotEmpty()) {
+                        // TODO:
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(4.dp))
             HintBanner(
                 isVisible = isBannerVisible,
                 text = stringResource(Res.string.note_notification)
@@ -170,6 +198,44 @@ fun HistoryScreenPreview() {
     RamenNoteTheme {
         HistoryScreen(viewModel = MockHistoryViewModel())
     }
+}
+
+@Composable
+private fun Menu(
+    searchText: String,
+    onFilterClick: () -> Unit = {},
+    onSearchTextChange: (String) -> Unit
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp, vertical = 4.dp),
+//        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        YearButton(onClick = onFilterClick)
+        Spacer(modifier = Modifier.width(16.dp))
+        SearchInputField(
+            placeholder = stringResource(Res.string.history_search_hint),
+            value = searchText,
+            onValueChange = onSearchTextChange
+        )
+    }
+}
+
+@Composable
+private fun YearButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ActionButton(
+        icon = vectorResource(Res.drawable.filter_list_24px),
+        text = stringResource(Res.string.history_year),
+        onClick = onClick,
+        modifier = modifier
+    )
 }
 
 @Composable
