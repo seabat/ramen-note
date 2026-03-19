@@ -13,7 +13,7 @@ class DeleteShopAndImageUseCase(
 ) : DeleteShopAndImageUseCaseContract {
     override suspend operator fun invoke(shopId: Int): RunStatus<String> =
         try {
-            // Shopデータを取得して画像名を確認
+            // Shopデータを取得して画像名とエリアIDを確認（削除前に取得する）
             val shop = shopsRepository.getShopById(shopId)
             if (shop != null) {
                 // 関連するレポートを削除
@@ -32,8 +32,12 @@ class DeleteShopAndImageUseCase(
                 if (shop.photoName3.isNotEmpty()) {
                     localAreaImageRepository.delete(shop.photoName3)
                 }
+
+                // 削除したshopのエリアIDでエリア件数を更新する
+                if (shop.areaId != 0) {
+                    updateShopCountInAreaUseCase(shop.areaId)
+                }
             }
-            updateShopCount(shopId)
             RunStatus.Success(data = "削除が完了しました")
         } catch (e: Exception) {
             RunStatus.Error(errorMessage = "削除に失敗しました: ${e.message}")
@@ -41,16 +45,5 @@ class DeleteShopAndImageUseCase(
 
     private suspend fun deleteReportsByShopId(shopId: Int) {
         reportsRepository.deleteByShopId(shopId)
-    }
-
-    private suspend fun updateShopCount(shopId: Int) {
-        // 削除前にエリア ID を取得
-        val shop = shopsRepository.getShopById(shopId)
-        val areaId = shop?.areaId
-
-        // 削除成功時にエリア件数を更新する
-        if (areaId != null && areaId != 0) {
-            updateShopCountInAreaUseCase(areaId)
-        }
     }
 }
