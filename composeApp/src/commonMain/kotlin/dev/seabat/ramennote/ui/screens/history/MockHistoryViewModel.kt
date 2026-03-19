@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.ui.screens.history
 
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,9 @@ class MockHistoryViewModel : HistoryViewModelContract {
 
     private val _areaName = MutableStateFlow<String>("")
     override val areaName: StateFlow<String> = _areaName.asStateFlow()
+
+    private val _shops = MutableStateFlow<List<Shop>>(emptyList())
+    override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
 
     init {
         // プレビューで LaunchedEffect が動かない場合でも表示されるよう初期化
@@ -108,6 +112,10 @@ class MockHistoryViewModel : HistoryViewModelContract {
         image: SharedImage?,
         xShareLauncher: XShareLauncher
     ) {
+        // Preview用なので何もしない
+    }
+
+    override fun searchShops(query: String) {
         // Preview用なので何もしない
     }
 }

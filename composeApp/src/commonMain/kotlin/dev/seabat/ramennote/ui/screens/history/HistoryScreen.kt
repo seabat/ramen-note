@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,11 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
+import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -46,6 +48,7 @@ import ramennote.composeapp.generated.resources.filter_list_24px
 import ramennote.composeapp.generated.resources.history_no_data
 import ramennote.composeapp.generated.resources.history_search_hint
 import ramennote.composeapp.generated.resources.history_year
+import ramennote.composeapp.generated.resources.note_hit_count
 import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.screen_history_title
 
@@ -64,12 +67,11 @@ fun HistoryScreen(
     val shopNameState by viewModel.shopName.collectAsState()
     val areaNameState by viewModel.areaName.collectAsState()
     val reportsState by viewModel.reports.collectAsState()
+    val shops by viewModel.shops.collectAsState()
+
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
-    var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
-
-    var searchText by remember { mutableStateOf(initialSearchText) }
 
     LaunchedEffect(Unit) {
         when {
@@ -83,12 +85,6 @@ fun HistoryScreen(
             }
             else -> viewModel.loadReports()
         }
-    }
-
-    var isBannerVisible by remember { mutableStateOf(true) }
-    LaunchedEffect(Unit) {
-        delay(3000)
-        isBannerVisible = false
     }
 
     Column(
@@ -108,29 +104,18 @@ fun HistoryScreen(
                 }
         )
         if (reportsState.isNotEmpty()) {
-            Menu(
-                searchText = searchText,
-                onFilterClick = {},
-                onSearchTextChange = { text ->
-                    searchText = text
-                    isSearchResultVisible = text.isNotEmpty()
-                    if (text.isNotEmpty()) {
-                        // TODO:
-                    }
-                }
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            HintBanner(
-                isVisible = isBannerVisible,
-                text = stringResource(Res.string.note_notification)
-            )
             Box {
                 // レポート一覧
                 ReportsList(
                     reports = reportsState,
                     listState = listState,
+                    initialSearchText = initialSearchText,
+                    shops = shops,
                     goToEditReport = goToEditReport,
                     onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
+                    onShopClick = { shop ->
+                        viewModel.loadReportsByShop(shop.id)
+                    },
                     onShareTap = { postText, imageBytes ->
                         viewModel.shareToX(
                             postText = postText,
@@ -140,6 +125,9 @@ fun HistoryScreen(
                                 },
                             xShareLauncher = xShareLauncher
                         )
+                    },
+                    onSearchShop = { text ->
+                        viewModel.searchShops(text)
                     }
                 )
             }
@@ -192,14 +180,6 @@ fun HistoryScreen(
     }
 }
 
-@Preview
-@Composable
-fun HistoryScreenPreview() {
-    RamenNoteTheme {
-        HistoryScreen(viewModel = MockHistoryViewModel())
-    }
-}
-
 @Composable
 private fun Menu(
     searchText: String,
@@ -242,11 +222,22 @@ private fun YearButton(
 private fun ReportsList(
     reports: List<FullReport>,
     listState: LazyListState,
+    initialSearchText: String,
+    shops: List<Shop>,
     goToEditReport: (Int) -> Unit,
     onImageTap: (ByteArray?) -> Unit,
-    onShareTap: (String, ByteArray?) -> Unit
+    onShopClick: (Shop) -> Unit = {},
+    onShareTap: (String, ByteArray?) -> Unit,
+    onSearchShop: (String) -> Unit = {}
 ) {
+    var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
+    var searchText by remember { mutableStateOf(initialSearchText) }
+    var isBannerVisible by remember { mutableStateOf(true) }
 
+    LaunchedEffect(Unit) {
+        delay(3000)
+        isBannerVisible = false
+    }
 
     // グルーピング: 年月ごと (YYYY-MM)
     val grouped = groupReports(reports)
@@ -256,25 +247,73 @@ private fun ReportsList(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        grouped.forEach { (yearMonth, monthReports) ->
+        item {
+            Menu(
+                searchText = searchText,
+                onFilterClick = {},
+                onSearchTextChange = { text ->
+                    searchText = text
+                    isSearchResultVisible = text.isNotEmpty()
+                    if (text.isNotEmpty()) {
+                        onSearchShop(text)
+                    }
+                }
+            )
+        }
+        if (isSearchResultVisible) {
             item {
-                Text(
-                    text = yearMonth,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
+                Column {
+                    Text(
+                        text = stringResource(Res.string.note_hit_count, shops.size),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    if (shops.isNotEmpty()) {
+                        HorizontalDivider(
+                            Modifier,
+                            1.dp,
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        )
+                    }
+                }
+            }
+            items(shops) { shop ->
+                ShopItem(
+                    shop = shop,
+                    onShopClick = {
+                        onShopClick(shop)
+                        isSearchResultVisible = false
+                    },
+                    onDelete = { /* 削除処理 */ }
                 )
             }
-
-            items(monthReports) { report ->
-                ReportCard(
-                    report = report,
-                    isSimpleDisplay = false,
-                    onLongPress = { goToEditReport(report.id) },
-                    onImageTap = { onImageTap(report.imageBytes) },
-                    onTap = {},
-                    onShareTap = onShareTap
+        } else {
+            item {
+                HintBanner(
+                    isVisible = isBannerVisible,
+                    text = stringResource(Res.string.note_notification)
                 )
+            }
+            grouped.forEach { (yearMonth, monthReports) ->
+                item {
+                    Text(
+                        text = yearMonth,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                items(monthReports) { report ->
+                    ReportCard(
+                        report = report,
+                        isSimpleDisplay = false,
+                        onLongPress = { goToEditReport(report.id) },
+                        onImageTap = { onImageTap(report.imageBytes) },
+                        onTap = {},
+                        onShareTap = onShareTap
+                    )
+                }
             }
         }
     }
@@ -287,3 +326,22 @@ private fun groupReports(reports: List<FullReport>): Map<String, List<FullReport
             val date = report.date
             "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
         }.filterKeys { it.isNotEmpty() }
+
+@Preview
+@Composable
+fun HistoryScreenPreview() {
+    RamenNoteTheme {
+        HistoryScreen(viewModel = MockHistoryViewModel())
+    }
+}
+
+@Preview
+@Composable
+fun HistoryScreenForSearchPreview() {
+    RamenNoteTheme {
+        HistoryScreen(
+            initialSearchText = "一風堂",
+            viewModel = MockHistoryViewModel()
+        )
+    }
+}
