@@ -78,4 +78,8 @@ class EditAreaViewModel(
     override fun resetImageState() {
         _imageState.value = RunStatus.Idle()
     }
+
+    override fun resetEditState() {
+        _editState.value = RunStatus.Idle()
+    }
 }

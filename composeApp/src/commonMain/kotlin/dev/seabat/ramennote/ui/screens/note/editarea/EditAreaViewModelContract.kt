@@ -20,4 +20,5 @@ interface EditAreaViewModelContract {
     fun loadImage(areaId: Int)
 
     fun resetImageState()
+    fun resetEditState()
 }

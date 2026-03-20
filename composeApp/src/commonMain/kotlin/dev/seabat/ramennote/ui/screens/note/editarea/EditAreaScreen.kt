@@ -183,7 +183,11 @@ fun EditAreaScreen(
                 }
             )
         }
-        EditStatus(editStatus) { onCompleted() }
+        EditStatus(
+            editStatus,
+            onCompleted = { onCompleted() },
+            onClearCancel = { viewModel.resetEditState() }
+        )
         DeleteStatus(deleteStatus) { onCompleted() }
     }
 }
@@ -212,17 +216,18 @@ fun BottomButtons(
 
 @Composable
 fun EditStatus(
-    deleteStatus: RunStatus<String>,
-    onCompleted: () -> Unit
+    editStatus: RunStatus<String>,
+    onCompleted: () -> Unit,
+    onClearCancel: () -> Unit
 ) {
-    when (deleteStatus) {
+    when (editStatus) {
         is RunStatus.Success -> {
             onCompleted()
         }
         is RunStatus.Error -> {
             AppAlert(
-                message = "${deleteStatus.message}",
-                onConfirm = { onCompleted() }
+                message = "${editStatus.message}",
+                onConfirm = { onClearCancel() }
             )
         }
         is RunStatus.Loading -> {

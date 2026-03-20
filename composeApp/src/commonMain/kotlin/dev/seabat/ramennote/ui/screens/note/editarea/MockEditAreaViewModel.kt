@@ -41,4 +41,8 @@ class MockEditAreaViewModel :
     override fun resetImageState() {
         // Preview用なので何もしない
     }
+
+    override fun resetEditState() {
+        // Preview用なので何もしない
+    }
 }
