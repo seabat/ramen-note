@@ -11,12 +11,16 @@ interface HistoryViewModelContract {
     val shopName: StateFlow<String>
     val areaName: StateFlow<String>
     val shops: StateFlow<List<Shop>>
+    val year: StateFlow<String>
+    val selectableYears: StateFlow<List<Int>>
 
     fun loadReports()
 
     fun loadReportsByShop(shopId: Int)
 
     fun loadReportsByArea(areaId: Int)
+
+    fun loadReportsByYear(year: Int)
 
     fun shareToX(postText: String, image: SharedImage?, xShareLauncher: XShareLauncher)
 
