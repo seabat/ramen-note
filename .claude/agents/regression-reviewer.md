@@ -124,9 +124,19 @@ if (targetIndex >= 0) { ... }
 
 #### 1-F: `isSearchResultVisible == false` 時のみスクロールを試みること
 
-`reportId` によるスクロールは検索モード（`isSearchResultVisible == true`）では
-LazyColumn の構造が全く異なるため、スクロールインデックスが無意味になる。
-コードが検索モードを考慮しているか確認する。
+**仕様上の確認済み事項**: `reportId` と `initialSearchText` は同時に指定されない。
+したがって `reportId` が指定されている場合、`listIsSearchResultVisible` は常に `false` となる。
+この仕様が変わらない限り、明示的なガード節がなくても **✅ PASS** とする。
+
+もし将来 `reportId` と `initialSearchText` を同時に指定するケースが追加された場合は、
+以下のガード節の追加を検討すること：
+
+```kotlin
+if (listIsSearchResultVisible) {
+    clearReportIdParam()
+    return@LaunchedEffect
+}
+```
 
 ---
 
