@@ -17,19 +17,18 @@ class UpdateAreaImageUseCase(
     private val localAreaImageRepository: LocalImageRepositoryContract,
     private val fetchAndSaveUnsplashImageUseCase: FetchAndSaveUnsplashImageUseCaseContract
 ) : UpdateAreaImageUseCaseContract {
-    override suspend operator fun invoke(areaId: Int): RunStatus<ByteArray> {
-        val areaData =
-            areasRepository.loadByAreaId(areaId)
-                ?: return RunStatus.Error("エリアが見つかりません")
-        val areaName = areaData.name
+    override suspend operator fun invoke(areaName: String): RunStatus<ByteArray> {
 
         // まずローカルから画像を読み込む。画像がない場合は必ず Unsplash から取得
-        when (val runStatus = localAreaImageRepository.load(areaName)){
+        when (val runStatus = localAreaImageRepository.load(areaName)) {
             is RunStatus.Error if (runStatus.data == null) -> {
                 return fetchAndSaveUnsplashImageUseCase(areaName)
             }
             else -> {}
         }
+        val areaData =
+            areasRepository.load(areaName)
+                ?: return RunStatus.Error("エリアが登録されていません")
 
         val today = createTodayLocalDate()
         val needUpdate = areaData.updatedDate < today

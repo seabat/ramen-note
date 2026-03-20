@@ -91,7 +91,7 @@ val useCaseModule =
         single<DeleteShopAndImageUseCaseContract> { DeleteShopAndImageUseCase(get(), get(), get(), get()) }
         single<FetchAiShopUseCaseContract> { FetchAiShopInfoUseCase(get(), get()) }
         single<FetchPlaceHolderImageUseCaseContract> { FetchPlaceHolderImageUseCase(get(), get()) }
-        single<FetchAndSaveUnsplashImageUseCaseContract> { FetchAndSaveUnsplashImageUseCase(get(), get()) }
+        single<FetchAndSaveUnsplashImageUseCaseContract> { FetchAndSaveUnsplashImageUseCase(get(), get(), get()) }
         single<InquiryAppVersionUseCaseContract> { InquiryAppVersionUseCase(get()) }
         single<LoadAreasUseCaseContract> { LoadAreasUseCase(get()) }
         single<LoadAreaImageUseCaseContract> { LoadAreaImageUseCase(get(), get()) }
