@@ -1,5 +1,7 @@
 package dev.seabat.ramennote.domain.di
 
+import dev.seabat.ramennote.domain.usecase.AddAreaUseCase
+import dev.seabat.ramennote.domain.usecase.AddAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.AddReportUseCase
 import dev.seabat.ramennote.domain.usecase.AddReportUseCaseContract
 import dev.seabat.ramennote.domain.usecase.AddShopUseCase
@@ -81,6 +83,7 @@ import org.koin.dsl.module
 val useCaseModule =
     module {
         single<UpdateScheduleInShopUseCaseContract> { UpdateScheduleInShopUseCase(get()) }
+        single<AddAreaUseCaseContract> { AddAreaUseCase(get()) }
         single<AddShopUseCaseContract> { AddShopUseCase(get(), get(), get()) }
         single<CreateNoImageByteArrayUseCaseContract> { CreateNoImageByteArrayUseCase(get()) }
         single<CreateNoImageIfNeededUseCaseContract> { CreateNoImageIfNeededUseCase(get(), get()) }

@@ -12,6 +12,12 @@ class UpdateAreaUseCase(
         val oldName =
             areasRepository.loadByAreaId(areaId)?.name
                 ?: return RunStatus.Error("エリアが見つかりません")
+
+        // 同じ名前のエリアがすでに登録されていないかチェック（自分自身は除く）
+        if (oldName != newName && areasRepository.load(newName) != null) {
+            return RunStatus.Error("すでに同じエリア名が登録されています")
+        }
+
         val result = areasRepository.edit(oldName, newName)
         return if (result is RunStatus.Success) {
             try {
