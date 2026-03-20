@@ -2,18 +2,16 @@ package dev.seabat.ramennote.ui.screens.note.addarea
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.seabat.ramennote.data.repository.AreasRepositoryContract
-import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.RunStatus
+import dev.seabat.ramennote.domain.usecase.AddAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchAndSaveUnsplashImageUseCaseContract
-import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AddAreaViewModel(
-    private val areasRepository: AreasRepositoryContract,
+    private val addAreaUseCase: AddAreaUseCaseContract,
     private val fetchUnsplashImageUseCase: FetchAndSaveUnsplashImageUseCaseContract
 ) : ViewModel(),
     AddAreaViewModelContract {
@@ -22,18 +20,18 @@ class AddAreaViewModel(
     override val addState: StateFlow<RunStatus<ByteArray>> = _addState.asStateFlow()
 
     override fun addArea(area: String) {
-        val today = createTodayLocalDate()
         viewModelScope.launch {
             _addState.value = RunStatus.Loading()
-            areasRepository.add(
-                Area(
-                    name = area.trim(),
-                    updatedDate = today,
-                    count = 0,
-                    sort = 0
-                )
-            )
-            _addState.value = fetchUnsplashImageUseCase(area)
+            when (val result = addAreaUseCase(area)) {
+                is RunStatus.Success -> {
+                    // エリア登録成功後に Unsplash から画像を取得する
+                    _addState.value = fetchUnsplashImageUseCase(area)
+                }
+                is RunStatus.Error -> {
+                    _addState.value = RunStatus.Error(result.message ?: "エリアの登録に失敗しました")
+                }
+                else -> Unit
+            }
         }
     }
 }

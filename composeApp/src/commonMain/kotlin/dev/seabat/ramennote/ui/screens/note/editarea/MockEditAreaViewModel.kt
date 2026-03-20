@@ -26,7 +26,7 @@ class MockEditAreaViewModel :
         // Preview用なので何もしない
     }
 
-    override fun fetchNewImage(areaId: Int) {
+    override fun fetchNewImage(areaName: String) {
         // Preview用なので何もしない
     }
 
@@ -39,6 +39,10 @@ class MockEditAreaViewModel :
     }
 
     override fun resetImageState() {
+        // Preview用なので何もしない
+    }
+
+    override fun resetEditState() {
         // Preview用なので何もしない
     }
 }

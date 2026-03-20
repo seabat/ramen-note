@@ -25,8 +25,8 @@ class MockHistoryViewModel : HistoryViewModelContract {
     private val _year = MutableStateFlow<String>("")
     override val year: StateFlow<String> = _year.asStateFlow()
 
-    private val _years = MutableStateFlow<List<Int>>(emptyList())
-    override val selectableYears: StateFlow<List<Int>> = _years.asStateFlow()
+    private val _selectableYears = MutableStateFlow<List<Int>>(emptyList())
+    override val selectableYears: StateFlow<List<Int>> = _selectableYears.asStateFlow()
 
     init {
         // プレビューで LaunchedEffect が動かない場合でも表示されるよう初期化
@@ -103,7 +103,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
                     star = 3
                 )
             )
-        _years.value =
+        _selectableYears.value =
             _reports.value
                 .map { it.date.year }
                 .distinct()

@@ -78,6 +78,9 @@ fun HistoryScreen(
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
+    // ReportList 再生成時に渡す初期値（店舗フィルター適用後も検索テキストを保持するため）
+    var listSearchText by remember { mutableStateOf(initialSearchText) }
+    var listIsSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
 
     LaunchedEffect(Unit) {
         when {
@@ -117,13 +120,17 @@ fun HistoryScreen(
                 ReportList(
                     reports = reportsState,
                     listState = listState,
-                    initialSearchText = initialSearchText,
+                    searchText = listSearchText,
+                    isSearchResultVisible = listIsSearchResultVisible,
                     shops = shops,
                     years = yearsState,
                     selectedYear = yearState,
                     goToEditReport = goToEditReport,
                     onDisplayImage = { imageBytes -> selectedImageBytes = imageBytes },
                     onFilter = { shop ->
+                        // フィルター適用後も検索フィールドに店舗名を表示し、検索結果は非表示にする
+                        listSearchText = shop.name
+                        listIsSearchResultVisible = false
                         viewModel.loadReportsByShop(shop.id)
                     },
                     onShare = { postText, imageBytes ->
@@ -136,11 +143,21 @@ fun HistoryScreen(
                             xShareLauncher = xShareLauncher
                         )
                     },
-                    onSearchShop = { text ->
-                        viewModel.searchShops(text)
+                    onSearchTextChange = { text ->
+                        listSearchText = text
+                        if (text.isNotEmpty()) {
+                            listIsSearchResultVisible = true
+                            viewModel.searchShops(text)
+                        } else {
+                            listIsSearchResultVisible = false
+                            viewModel.loadReports()
+                        }
                     },
-                    onCancelShopFilter = { viewModel.loadReports() },
-                    onYearSelect = { year -> viewModel.loadReportsByYear(year) },
+                    onYearSelect = { year ->
+                        listSearchText = ""
+                        listIsSearchResultVisible = false
+                        viewModel.loadReportsByYear(year)
+                    },
                     onClearYearFilter = { viewModel.loadReports() }
                 )
             }
@@ -188,41 +205,6 @@ fun HistoryScreen(
                 text = stringResource(Res.string.history_no_data),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.secondary
-            )
-        }
-    }
-}
-
-@Composable
-private fun Menu(
-    searchText: String,
-    years: List<Int>,
-    selectedYear: String,
-    onYearSelect: (Int) -> Unit,
-    onClearYearFilter: () -> Unit,
-    onSearchTextChange: (String) -> Unit
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        YearDropdownField(
-            years = years,
-            selectedYear = selectedYear,
-            onYearSelect = onYearSelect,
-            onClearYearFilter = onClearYearFilter,
-            modifier = Modifier.width(100.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Box(modifier = Modifier.weight(1f)) {
-            SearchInputField(
-                placeholder = stringResource(Res.string.history_search_hint),
-                value = searchText,
-                onValueChange = onSearchTextChange
             )
         }
     }
@@ -286,20 +268,20 @@ private fun YearDropdownField(
  *
  * @param reports 表示する食レポのリスト
  * @param listState LazyColumnのスクロール状態
- * @param initialSearchText 初期表示時の検索テキスト
+ * @param searchText 初期表示時の検索テキスト
  * @param shops 検索結果として表示する店舗のリスト
  * @param goToEditReport 食レポ編集画面へ遷移するコールバック（reportIdを渡す）
  * @param onDisplayImage 画像を拡大表示させるコールバック（画像バイト列を渡す）
  * @param onFilter 食レポ一覧を店舗でフィルタリングするコールバック（Shop を渡す）
  * @param onShare シェアボタンタップ時のコールバック（テキストと画像バイト列を渡す）
- * @param onSearchShop 検索テキスト変更時に店舗検索を行うコールバック
- * @param onCancelShopFilter 食レポ一覧のフィルタリングを解除するコールバック
+ * @param onSearchTextChange 検索テキスト変更時のコールバック（空文字でフィルター解除）
  */
 @Composable
 private fun ReportList(
     reports: List<FullReport>,
     listState: LazyListState,
-    initialSearchText: String,
+    searchText: String,
+    isSearchResultVisible: Boolean,
     shops: List<Shop>,
     years: List<Int>,
     selectedYear: String,
@@ -307,13 +289,10 @@ private fun ReportList(
     onDisplayImage: (ByteArray?) -> Unit,
     onFilter: (Shop) -> Unit = {},
     onShare: (String, ByteArray?) -> Unit,
-    onSearchShop: (String) -> Unit = {},
-    onCancelShopFilter: () -> Unit = {},
+    onSearchTextChange: (String) -> Unit = {},
     onYearSelect: (Int) -> Unit = {},
     onClearYearFilter: () -> Unit = {}
 ) {
-    var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
-    var searchText by remember { mutableStateOf(initialSearchText) }
     var isBannerVisible by remember { mutableStateOf(true) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -335,27 +314,9 @@ private fun ReportList(
                 searchText = searchText,
                 years = years,
                 selectedYear = selectedYear,
-                onYearSelect = { year ->
-                    // 年フィルター選択時は検索テキストをクリア
-                    searchText = ""
-                    isSearchResultVisible = false
-                    onYearSelect(year)
-                },
+                onYearSelect = onYearSelect,
                 onClearYearFilter = onClearYearFilter,
-                onSearchTextChange = { text ->
-                    searchText = text
-                    if (text.isNotEmpty()) {
-                        // 店舗検索時は年フィルターを解除
-                        if (selectedYear.isNotEmpty()) {
-                            onClearYearFilter()
-                        }
-                        isSearchResultVisible = true
-                        onSearchShop(text)
-                    } else {
-                        isSearchResultVisible = false
-                        onCancelShopFilter()
-                    }
-                }
+                onSearchTextChange = onSearchTextChange
             )
         }
         if (isSearchResultVisible) {
@@ -381,7 +342,6 @@ private fun ReportList(
                     onShopClick = {
                         keyboardController?.hide()
                         onFilter(shop)
-                        isSearchResultVisible = false
                     },
                     onDelete = { /* 削除処理 */ }
                 )
@@ -414,6 +374,41 @@ private fun ReportList(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun Menu(
+    searchText: String,
+    years: List<Int>,
+    selectedYear: String,
+    onYearSelect: (Int) -> Unit,
+    onClearYearFilter: () -> Unit,
+    onSearchTextChange: (String) -> Unit
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        YearDropdownField(
+            years = years,
+            selectedYear = selectedYear,
+            onYearSelect = onYearSelect,
+            onClearYearFilter = onClearYearFilter,
+            modifier = Modifier.width(100.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Box(modifier = Modifier.weight(1f)) {
+            SearchInputField(
+                placeholder = stringResource(Res.string.history_search_hint),
+                value = searchText,
+                onValueChange = onSearchTextChange
+            )
         }
     }
 }

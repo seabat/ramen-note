@@ -53,10 +53,10 @@ class EditAreaViewModel(
         }
     }
 
-    override fun fetchNewImage(areaId: Int) {
+    override fun fetchNewImage(areaName: String) {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = updateAreaImageUseCase(areaId)
+            _imageState.value = updateAreaImageUseCase(areaName)
         }
     }
 
@@ -77,5 +77,9 @@ class EditAreaViewModel(
 
     override fun resetImageState() {
         _imageState.value = RunStatus.Idle()
+    }
+
+    override fun resetEditState() {
+        _editState.value = RunStatus.Idle()
     }
 }

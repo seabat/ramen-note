@@ -13,11 +13,12 @@ interface EditAreaViewModelContract {
 
     fun deleteArea(areaId: Int)
 
-    fun fetchNewImage(areaId: Int)
+    fun fetchNewImage(areaName: String)
 
     fun loadAreaName(areaId: Int)
 
     fun loadImage(areaId: Int)
 
     fun resetImageState()
+    fun resetEditState()
 }

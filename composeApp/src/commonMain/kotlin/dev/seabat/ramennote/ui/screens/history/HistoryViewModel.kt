@@ -15,6 +15,8 @@ import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class HistoryViewModel(
@@ -49,12 +51,17 @@ class HistoryViewModel(
             _shopName.value = ""
             _areaName.value = ""
             _year.value = ""
-            _reports.value = loadReportsUseCase.invoke()
-            _selectableYears.value =
-                _reports.value
-                    .map { it.date.year }
-                    .distinct()
-                    .sortedDescending()
+            _reports.value = emptyList()
+            loadReportsUseCase
+                .invoke()
+                .onEach { report ->
+                    _reports.value = _reports.value + report
+                    // 年フィルターリストを段階的に更新
+                    val newYear = report.date.year
+                    if (!_selectableYears.value.contains(newYear)) {
+                        _selectableYears.value = (_selectableYears.value + newYear).sortedDescending()
+                    }
+                }.collect()
         }
     }
 
@@ -63,10 +70,17 @@ class HistoryViewModel(
             // 店舗でフィルタリングする場合は他のフィルタリングを解除
             _areaName.value = ""
             _year.value = ""
-
-            _reports.value = loadReportsByShopUseCase.invoke(shopId)
-            // 店舗名は FullReport.shopName から取得
-            _shopName.value = _reports.value.firstOrNull()?.shopName ?: ""
+            _shopName.value = ""
+            _reports.value = emptyList()
+            loadReportsByShopUseCase
+                .invoke(shopId)
+                .onEach { report ->
+                    _reports.value = _reports.value + report
+                    // 店舗名は FullReport.shopName から取得（最初の1件で設定）
+                    if (_shopName.value.isEmpty()) {
+                        _shopName.value = report.shopName
+                    }
+                }.collect()
         }
     }
 
@@ -75,9 +89,14 @@ class HistoryViewModel(
             // エリアでフィルタリングする場合は他のフィルタリングを解除
             _shopName.value = ""
             _year.value = ""
-
-            _reports.value = loadReportsByAreaUseCase.invoke(areaId)
-            // エリア名を areas テーブルから取得
+            _areaName.value = ""
+            _reports.value = emptyList()
+            loadReportsByAreaUseCase
+                .invoke(areaId)
+                .onEach { report ->
+                    _reports.value = _reports.value + report
+                }.collect()
+            // エリア名を areas テーブルから取得（collect 完了後に設定）
             _areaName.value = loadAreasUseCase().find { it.areaId == areaId }?.name ?: ""
         }
     }
@@ -87,9 +106,13 @@ class HistoryViewModel(
             // 年でフィルタリングする場合は他のフィルタリングを解除
             _shopName.value = ""
             _areaName.value = ""
-
-            _reports.value = loadReportsByYearUseCase.invoke(year)
             _year.value = year.toString()
+            _reports.value = emptyList()
+            loadReportsByYearUseCase
+                .invoke(year)
+                .onEach { report ->
+                    _reports.value = _reports.value + report
+                }.collect()
         }
     }
 
