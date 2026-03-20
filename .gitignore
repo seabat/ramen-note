@@ -44,6 +44,7 @@ node_modules/
 .claude/agents/*
 !.claude/agents/ui-ux-designer.md
 !.claude/agents/regression-reviewer.md
+!.claude/agents/readme-updater.md
 # agent-memory/: 基本無視。各エージェントのメモリディレクトリのみ追跡
 !.claude/agent-memory/
 .claude/agent-memory/*
@@ -51,3 +52,5 @@ node_modules/
 !.claude/agent-memory/ui-ux-designer/**
 !.claude/agent-memory/regression-reviewer/
 !.claude/agent-memory/regression-reviewer/**
+!.claude/agent-memory/readme-updater/
+!.claude/agent-memory/readme-updater/**

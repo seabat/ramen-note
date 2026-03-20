@@ -153,6 +153,7 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ui-ux-designer`    | Compose Multiplatform 画面の UI/UX レビュー・改善提案・実装を行う専門エージェント。Material Design 3 準拠・アクセシビリティ・ユーザビリティの観点で分析し、`.claude/agent-memory/ui-ux-designer/` に知識を蓄積する |
 | `regression-reviewer` | 過去に発生したデグレの再発防止チェックリストに基づきコード変更を静的レビューするエージェント。`HistoryScreen.kt` や LazyColumn 構造を変更した際に自動的に起動を促す。確認済みデグレパターンは `.claude/agent-memory/regression-reviewer/` に蓄積する |
+| `readme-updater`      | `README.md` をプロジェクトの実態と常に同期させるエージェント。スキル・エージェント・Hooks・技術スタックの変更時に該当セクションを更新する。更新パターンは `.claude/agent-memory/readme-updater/` に蓄積する |
 
 #### regression-reviewer のチェック項目
 
