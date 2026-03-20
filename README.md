@@ -47,6 +47,9 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 - **Ktor**: HTTP クライアント
 - **Coil**: 画像読み込み
 - **Navigation Compose**: 画面遷移
+- **SKIE**: Kotlin/Swift 連携（iOS）
+- **Firebase**: Analytics・Crashlytics・AI（Android）
+- **Gemini AI**: AI 機能（Android）
 
 ### 開発環境
 
