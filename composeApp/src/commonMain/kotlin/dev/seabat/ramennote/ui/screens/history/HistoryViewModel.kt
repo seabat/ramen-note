@@ -3,10 +3,12 @@ package dev.seabat.ramennote.ui.screens.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsByAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsByShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.SearchShopsByNameUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +20,8 @@ class HistoryViewModel(
     private val loadReportsUseCase: LoadFullReportsUseCaseContract,
     private val loadReportsByShopUseCase: LoadFullReportsByShopUseCaseContract,
     private val loadReportsByAreaUseCase: LoadFullReportsByAreaUseCaseContract,
-    private val loadAreasUseCase: LoadAreasUseCaseContract
+    private val loadAreasUseCase: LoadAreasUseCaseContract,
+    private val searchShopsByNameUseCase: SearchShopsByNameUseCaseContract
 ) : ViewModel(),
     HistoryViewModelContract {
     private val _reports = MutableStateFlow<List<FullReport>>(emptyList())
@@ -26,6 +29,9 @@ class HistoryViewModel(
 
     private val _shopName = MutableStateFlow<String>("")
     override val shopName: StateFlow<String> = _shopName.asStateFlow()
+
+    private val _shops = MutableStateFlow<List<Shop>>(emptyList())
+    override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
 
     private val _areaName = MutableStateFlow<String>("")
     override val areaName: StateFlow<String> = _areaName.asStateFlow()
@@ -63,6 +69,12 @@ class HistoryViewModel(
     ) {
         viewModelScope.launch {
             xShareLauncher.shareToX(postText, image)
+        }
+    }
+
+    override fun searchShops(query: String) {
+        viewModelScope.launch {
+            _shops.value = searchShopsByNameUseCase(query)
         }
     }
 }

@@ -3,12 +3,17 @@ package dev.seabat.ramennote.ui.screens.history
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,22 +23,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
+import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
+import dev.seabat.ramennote.ui.screens.componens.ShopItem
+import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.filter_list_24px
 import ramennote.composeapp.generated.resources.history_no_data
+import ramennote.composeapp.generated.resources.history_search_hint
+import ramennote.composeapp.generated.resources.history_year
+import ramennote.composeapp.generated.resources.note_hit_count
 import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.screen_history_title
 
@@ -46,11 +62,14 @@ fun HistoryScreen(
     clearReportIdParam: () -> Unit = {},
     clearShopParam: () -> Unit = {},
     clearAreaParam: () -> Unit = {},
+    initialSearchText: String = "",
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
     val shopNameState by viewModel.shopName.collectAsState()
     val areaNameState by viewModel.areaName.collectAsState()
     val reportsState by viewModel.reports.collectAsState()
+    val shops by viewModel.shops.collectAsState()
+
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
@@ -88,12 +107,17 @@ fun HistoryScreen(
         if (reportsState.isNotEmpty()) {
             Box {
                 // レポート一覧
-                ReportsList(
+                ReportList(
                     reports = reportsState,
                     listState = listState,
+                    initialSearchText = initialSearchText,
+                    shops = shops,
                     goToEditReport = goToEditReport,
-                    onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
-                    onShareTap = { postText, imageBytes ->
+                    onDisplayImage = { imageBytes -> selectedImageBytes = imageBytes },
+                    onFilter = { shop ->
+                        viewModel.loadReportsByShop(shop.id)
+                    },
+                    onShare = { postText, imageBytes ->
                         viewModel.shareToX(
                             postText = postText,
                             image =
@@ -102,7 +126,11 @@ fun HistoryScreen(
                                 },
                             xShareLauncher = xShareLauncher
                         )
-                    }
+                    },
+                    onSearchShop = { text ->
+                        viewModel.searchShops(text)
+                    },
+                    onCancelShopFilter = { viewModel.loadReports() }
                 )
             }
 
@@ -154,23 +182,79 @@ fun HistoryScreen(
     }
 }
 
-@Preview
 @Composable
-fun HistoryScreenPreview() {
-    RamenNoteTheme {
-        HistoryScreen(viewModel = MockHistoryViewModel())
+private fun Menu(
+    searchText: String,
+    onFilterClick: () -> Unit = {},
+    onSearchTextChange: (String) -> Unit
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp, vertical = 4.dp),
+//        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        YearButton(onClick = onFilterClick)
+        Spacer(modifier = Modifier.width(16.dp))
+        SearchInputField(
+            placeholder = stringResource(Res.string.history_search_hint),
+            value = searchText,
+            onValueChange = onSearchTextChange
+        )
     }
 }
 
 @Composable
-private fun ReportsList(
+private fun YearButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ActionButton(
+        icon = vectorResource(Res.drawable.filter_list_24px),
+        text = stringResource(Res.string.history_year),
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+/**
+ * 食レポ一覧を表示するComposable。
+ *
+ * 検索バーと年フィルターボタンを含むMenuを上部に表示し、
+ * 検索中は店舗一覧、それ以外は年月ごとにグルーピングされた食レポ一覧を表示する。
+ * 一覧の先頭にはHintBannerを3秒間表示する。
+ *
+ * @param reports 表示する食レポのリスト
+ * @param listState LazyColumnのスクロール状態
+ * @param initialSearchText 初期表示時の検索テキスト
+ * @param shops 検索結果として表示する店舗のリスト
+ * @param goToEditReport 食レポ編集画面へ遷移するコールバック（reportIdを渡す）
+ * @param onDisplayImage 画像を拡大表示させるコールバック（画像バイト列を渡す）
+ * @param onFilter 食レポ一覧を店舗でフィルタリングするコールバック（Shop を渡す）
+ * @param onShare シェアボタンタップ時のコールバック（テキストと画像バイト列を渡す）
+ * @param onSearchShop 検索テキスト変更時に店舗検索を行うコールバック
+ * @param onCancelShopFilter 食レポ一覧のフィルタリングを解除するコールバック
+ */
+@Composable
+private fun ReportList(
     reports: List<FullReport>,
     listState: LazyListState,
+    initialSearchText: String,
+    shops: List<Shop>,
     goToEditReport: (Int) -> Unit,
-    onImageTap: (ByteArray?) -> Unit,
-    onShareTap: (String, ByteArray?) -> Unit
+    onDisplayImage: (ByteArray?) -> Unit,
+    onFilter: (Shop) -> Unit = {},
+    onShare: (String, ByteArray?) -> Unit,
+    onSearchShop: (String) -> Unit = {},
+    onCancelShopFilter: () -> Unit = {}
 ) {
+    var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
+    var searchText by remember { mutableStateOf(initialSearchText) }
     var isBannerVisible by remember { mutableStateOf(true) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         delay(3000)
@@ -186,31 +270,76 @@ private fun ReportsList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            HintBanner(
-                isVisible = isBannerVisible,
-                text = stringResource(Res.string.note_notification)
+            Menu(
+                searchText = searchText,
+                onFilterClick = {},
+                onSearchTextChange = { text ->
+                    searchText = text
+                    if (text.isNotEmpty()) {
+                        isSearchResultVisible = true
+                        onSearchShop(text)
+                    } else {
+                        isSearchResultVisible = false
+                        onCancelShopFilter()
+                    }
+                }
             )
         }
-
-        grouped.forEach { (yearMonth, monthReports) ->
+        if (isSearchResultVisible) {
             item {
-                Text(
-                    text = yearMonth,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
+                Column {
+                    Text(
+                        text = stringResource(Res.string.note_hit_count, shops.size),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    if (shops.isNotEmpty()) {
+                        HorizontalDivider(
+                            Modifier,
+                            1.dp,
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        )
+                    }
+                }
+            }
+            items(shops) { shop ->
+                ShopItem(
+                    shop = shop,
+                    onShopClick = {
+                        keyboardController?.hide()
+                        onFilter(shop)
+                        isSearchResultVisible = false
+                    },
+                    onDelete = { /* 削除処理 */ }
                 )
             }
-
-            items(monthReports) { report ->
-                ReportCard(
-                    report = report,
-                    isSimpleDisplay = false,
-                    onLongPress = { goToEditReport(report.id) },
-                    onImageTap = { onImageTap(report.imageBytes) },
-                    onTap = {},
-                    onShareTap = onShareTap
+        } else {
+            item {
+                HintBanner(
+                    isVisible = isBannerVisible,
+                    text = stringResource(Res.string.note_notification)
                 )
+            }
+            grouped.forEach { (yearMonth, monthReports) ->
+                item {
+                    Text(
+                        text = yearMonth,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                items(monthReports) { report ->
+                    ReportCard(
+                        report = report,
+                        isSimpleDisplay = false,
+                        onLongPress = { goToEditReport(report.id) },
+                        onImageTap = { onDisplayImage(report.imageBytes) },
+                        onTap = {},
+                        onShareTap = onShare
+                    )
+                }
             }
         }
     }
@@ -223,3 +352,44 @@ private fun groupReports(reports: List<FullReport>): Map<String, List<FullReport
             val date = report.date
             "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
         }.filterKeys { it.isNotEmpty() }
+
+@Preview
+@Composable
+private fun MenuPreview() {
+    RamenNoteTheme {
+        Menu(
+            searchText = "",
+            onSearchTextChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun MenuWithSearchTextPreview() {
+    RamenNoteTheme {
+        Menu(
+            searchText = "麺屋",
+            onSearchTextChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HistoryScreenPreview() {
+    RamenNoteTheme {
+        HistoryScreen(viewModel = MockHistoryViewModel())
+    }
+}
+
+@Preview
+@Composable
+fun HistoryScreenForSearchPreview() {
+    RamenNoteTheme {
+        HistoryScreen(
+            initialSearchText = "一風堂",
+            viewModel = MockHistoryViewModel()
+        )
+    }
+}
