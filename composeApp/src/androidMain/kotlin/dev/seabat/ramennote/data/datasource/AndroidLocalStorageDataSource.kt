@@ -41,6 +41,13 @@ class AndroidLocalStorageDataSource(
             }
         }
 
+    override suspend fun getFilePath(name: String): String? =
+        withContext(Dispatchers.IO) {
+            val fileName = "$name.png"
+            val file = File(context.filesDir, fileName)
+            if (file.exists()) "file://${file.absolutePath}" else null
+        }
+
     override suspend fun rename(oldName: String, newName: String) {
         withContext(Dispatchers.IO) {
             try {

@@ -168,6 +168,7 @@ class UpdateAreaImageUseCaseTest {
         override suspend fun load(name: String): RunStatus<ByteArray> = loadResult
 
         override suspend fun save(imageBytes: ByteArray, name: String) = Unit
+        override suspend fun getFilePath(name: String): String? = null
         override suspend fun rename(oldName: String, newName: String) = Unit
         override suspend fun delete(name: String) = Unit
     }

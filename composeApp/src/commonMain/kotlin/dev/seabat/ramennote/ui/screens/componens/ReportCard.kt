@@ -85,7 +85,7 @@ fun ReportCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = report.imageBytes,
+                model = report.imagePath ?: report.imageBytes,
                 contentDescription = null,
                 modifier =
                     Modifier
