@@ -107,17 +107,17 @@ fun HistoryScreen(
         if (reportsState.isNotEmpty()) {
             Box {
                 // レポート一覧
-                ReportsList(
+                ReportList(
                     reports = reportsState,
                     listState = listState,
                     initialSearchText = initialSearchText,
                     shops = shops,
                     goToEditReport = goToEditReport,
-                    onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
-                    onShopClick = { shop ->
+                    onDisplayImage = { imageBytes -> selectedImageBytes = imageBytes },
+                    onFilter = { shop ->
                         viewModel.loadReportsByShop(shop.id)
                     },
-                    onShareTap = { postText, imageBytes ->
+                    onShare = { postText, imageBytes ->
                         viewModel.shareToX(
                             postText = postText,
                             image =
@@ -129,7 +129,8 @@ fun HistoryScreen(
                     },
                     onSearchShop = { text ->
                         viewModel.searchShops(text)
-                    }
+                    },
+                    onCancelShopFilter = { viewModel.loadReports() }
                 )
             }
 
@@ -219,17 +220,36 @@ private fun YearButton(
     )
 }
 
+/**
+ * 食レポ一覧を表示するComposable。
+ *
+ * 検索バーと年フィルターボタンを含むMenuを上部に表示し、
+ * 検索中は店舗一覧、それ以外は年月ごとにグルーピングされた食レポ一覧を表示する。
+ * 一覧の先頭にはHintBannerを3秒間表示する。
+ *
+ * @param reports 表示する食レポのリスト
+ * @param listState LazyColumnのスクロール状態
+ * @param initialSearchText 初期表示時の検索テキスト
+ * @param shops 検索結果として表示する店舗のリスト
+ * @param goToEditReport 食レポ編集画面へ遷移するコールバック（reportIdを渡す）
+ * @param onDisplayImage 画像を拡大表示させるコールバック（画像バイト列を渡す）
+ * @param onFilter 食レポ一覧を店舗でフィルタリングするコールバック（Shop を渡す）
+ * @param onShare シェアボタンタップ時のコールバック（テキストと画像バイト列を渡す）
+ * @param onSearchShop 検索テキスト変更時に店舗検索を行うコールバック
+ * @param onCancelShopFilter 食レポ一覧のフィルタリングを解除するコールバック
+ */
 @Composable
-private fun ReportsList(
+private fun ReportList(
     reports: List<FullReport>,
     listState: LazyListState,
     initialSearchText: String,
     shops: List<Shop>,
     goToEditReport: (Int) -> Unit,
-    onImageTap: (ByteArray?) -> Unit,
-    onShopClick: (Shop) -> Unit = {},
-    onShareTap: (String, ByteArray?) -> Unit,
-    onSearchShop: (String) -> Unit = {}
+    onDisplayImage: (ByteArray?) -> Unit,
+    onFilter: (Shop) -> Unit = {},
+    onShare: (String, ByteArray?) -> Unit,
+    onSearchShop: (String) -> Unit = {},
+    onCancelShopFilter: () -> Unit = {}
 ) {
     var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
     var searchText by remember { mutableStateOf(initialSearchText) }
@@ -255,9 +275,12 @@ private fun ReportsList(
                 onFilterClick = {},
                 onSearchTextChange = { text ->
                     searchText = text
-                    isSearchResultVisible = text.isNotEmpty()
                     if (text.isNotEmpty()) {
+                        isSearchResultVisible = true
                         onSearchShop(text)
+                    } else {
+                        isSearchResultVisible = false
+                        onCancelShopFilter()
                     }
                 }
             )
@@ -284,7 +307,7 @@ private fun ReportsList(
                     shop = shop,
                     onShopClick = {
                         keyboardController?.hide()
-                        onShopClick(shop)
+                        onFilter(shop)
                         isSearchResultVisible = false
                     },
                     onDelete = { /* 削除処理 */ }
@@ -312,9 +335,9 @@ private fun ReportsList(
                         report = report,
                         isSimpleDisplay = false,
                         onLongPress = { goToEditReport(report.id) },
-                        onImageTap = { onImageTap(report.imageBytes) },
+                        onImageTap = { onDisplayImage(report.imageBytes) },
                         onTap = {},
-                        onShareTap = onShareTap
+                        onShareTap = onShare
                     )
                 }
             }
