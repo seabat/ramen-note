@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
@@ -233,6 +234,7 @@ private fun ReportsList(
     var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
     var searchText by remember { mutableStateOf(initialSearchText) }
     var isBannerVisible by remember { mutableStateOf(true) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         delay(3000)
@@ -281,6 +283,7 @@ private fun ReportsList(
                 ShopItem(
                     shop = shop,
                     onShopClick = {
+                        keyboardController?.hide()
                         onShopClick(shop)
                         isSearchResultVisible = false
                     },
@@ -326,6 +329,28 @@ private fun groupReports(reports: List<FullReport>): Map<String, List<FullReport
             val date = report.date
             "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
         }.filterKeys { it.isNotEmpty() }
+
+@Preview
+@Composable
+private fun MenuPreview() {
+    RamenNoteTheme {
+        Menu(
+            searchText = "",
+            onSearchTextChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun MenuWithSearchTextPreview() {
+    RamenNoteTheme {
+        Menu(
+            searchText = "麺屋",
+            onSearchTextChange = {}
+        )
+    }
+}
 
 @Preview
 @Composable
