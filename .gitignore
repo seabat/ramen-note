@@ -39,12 +39,18 @@ node_modules/
 !.claude/skills/pr-create/SKILL.md
 !.claude/skills/release-prep/
 !.claude/skills/release-prep/SKILL.md
-# agents/: 基本無視。ui-ux-designer.md のみ追跡
+# agents/: 基本無視。各エージェントファイルのみ追跡
 !.claude/agents/
 .claude/agents/*
 !.claude/agents/ui-ux-designer.md
-# agent-memory/: 基本無視。ui-ux-designer/ 以下のみ追跡
+!.claude/agents/regression-reviewer.md
+!.claude/agents/readme-updater.md
+# agent-memory/: 基本無視。各エージェントのメモリディレクトリのみ追跡
 !.claude/agent-memory/
 .claude/agent-memory/*
 !.claude/agent-memory/ui-ux-designer/
 !.claude/agent-memory/ui-ux-designer/**
+!.claude/agent-memory/regression-reviewer/
+!.claude/agent-memory/regression-reviewer/**
+!.claude/agent-memory/readme-updater/
+!.claude/agent-memory/readme-updater/**

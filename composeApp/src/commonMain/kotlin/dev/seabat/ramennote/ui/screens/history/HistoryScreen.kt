@@ -163,34 +163,49 @@ fun HistoryScreen(
             }
 
             // reportIdが指定されている場合、該当アイテムまで自動スクロール
-            LaunchedEffect(reportId, reportsState) {
-                if (reportId != null && reportsState.isNotEmpty()) {
-                    // レポートを年月でグループ化し、ソート
-                    val grouped = groupReports(reportsState)
+            // キーを reportId のみにして、レポートが1件ずつ追加されるたびに
+            // LaunchedEffect が再起動・キャンセルされる問題を防ぐ
+            LaunchedEffect(reportId) {
+                val id = reportId ?: return@LaunchedEffect
 
-                    // 該当のreportIdのインデックスを探す
-                    var targetIndex = -1
-                    var currentIndex = 0
-                    loop@ for ((_, monthReports) in grouped) {
-                        currentIndex++ // 年月ヘッダーのインデックス
-                        for (report in monthReports) {
-                            if (report.id == reportId) {
-                                targetIndex = currentIndex
-                                break@loop
-                            }
-                            currentIndex++
+                // 全件読み込み完了を待つ（reportsStateが変化しなくなるまで）
+                var lastSize = -1
+                while (reportsState.size != lastSize) {
+                    lastSize = reportsState.size
+                    delay(100)
+                }
+                if (reportsState.isEmpty()) {
+                    clearReportIdParam()
+                    return@LaunchedEffect
+                }
+
+                // レポートを年月でグループ化し、ソート
+                val grouped = groupReports(reportsState)
+
+                // 該当のreportIdのインデックスを探す
+                // LazyColumnの構造: Menu(0) + HintBanner(1) + グループヘッダー + レポートアイテム
+                var targetIndex = -1
+                var currentIndex = 2 // Menu と HintBanner の2アイテム分をオフセット
+                loop@ for ((_, monthReports) in grouped) {
+                    // currentIndex はヘッダーの位置（スキップ）
+                    for (report in monthReports) {
+                        currentIndex++ // レポートの位置へ移動してから確認
+                        if (report.id == id) {
+                            targetIndex = currentIndex
+                            break@loop
                         }
                     }
-
-                    // 見つかった場合、スクロール
-                    if (targetIndex >= 0) {
-                        // 少し遅延を入れてレイアウトが完了してからスクロール
-                        delay(500)
-                        listState.animateScrollToItem(targetIndex)
-                    }
-
-                    clearReportIdParam()
+                    currentIndex++ // 次のグループのヘッダー位置へ移動
                 }
+
+                // 見つかった場合、スクロール
+                if (targetIndex >= 0) {
+                    // 少し遅延を入れてレイアウトが完了してからスクロール
+                    delay(300)
+                    listState.animateScrollToItem(targetIndex)
+                }
+
+                clearReportIdParam()
             }
 
             // 画像ダイアログ
