@@ -13,8 +13,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,8 +36,8 @@ import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
-import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.screens.componens.DropdownAnchorField
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
@@ -41,14 +45,13 @@ import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
-import ramennote.composeapp.generated.resources.filter_list_24px
 import ramennote.composeapp.generated.resources.history_no_data
 import ramennote.composeapp.generated.resources.history_search_hint
 import ramennote.composeapp.generated.resources.history_year
+import ramennote.composeapp.generated.resources.history_year_all
 import ramennote.composeapp.generated.resources.note_hit_count
 import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.screen_history_title
@@ -69,6 +72,8 @@ fun HistoryScreen(
     val areaNameState by viewModel.areaName.collectAsState()
     val reportsState by viewModel.reports.collectAsState()
     val shops by viewModel.shops.collectAsState()
+    val yearState by viewModel.year.collectAsState()
+    val yearsState by viewModel.selectableYears.collectAsState()
 
     val listState = rememberLazyListState()
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
@@ -101,6 +106,8 @@ fun HistoryScreen(
                         "${stringResource(Res.string.screen_history_title)}($areaNameState)"
                     shopNameState.isNotEmpty() ->
                         "${stringResource(Res.string.screen_history_title)}($shopNameState)"
+                    yearState.isNotEmpty() ->
+                        "${stringResource(Res.string.screen_history_title)}($yearState)"
                     else -> stringResource(Res.string.screen_history_title)
                 }
         )
@@ -112,6 +119,8 @@ fun HistoryScreen(
                     listState = listState,
                     initialSearchText = initialSearchText,
                     shops = shops,
+                    years = yearsState,
+                    selectedYear = yearState,
                     goToEditReport = goToEditReport,
                     onDisplayImage = { imageBytes -> selectedImageBytes = imageBytes },
                     onFilter = { shop ->
@@ -130,7 +139,9 @@ fun HistoryScreen(
                     onSearchShop = { text ->
                         viewModel.searchShops(text)
                     },
-                    onCancelShopFilter = { viewModel.loadReports() }
+                    onCancelShopFilter = { viewModel.loadReports() },
+                    onYearSelect = { year -> viewModel.loadReportsByYear(year) },
+                    onClearYearFilter = { viewModel.loadReports() }
                 )
             }
 
@@ -185,7 +196,10 @@ fun HistoryScreen(
 @Composable
 private fun Menu(
     searchText: String,
-    onFilterClick: () -> Unit = {},
+    years: List<Int>,
+    selectedYear: String,
+    onYearSelect: (Int) -> Unit,
+    onClearYearFilter: () -> Unit,
     onSearchTextChange: (String) -> Unit
 ) {
     Row(
@@ -193,31 +207,74 @@ private fun Menu(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 0.dp, vertical = 4.dp),
-//        horizontalArrangement = Arrangement.spacedBy(8.dp)
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        YearButton(onClick = onFilterClick)
-        Spacer(modifier = Modifier.width(16.dp))
-        SearchInputField(
-            placeholder = stringResource(Res.string.history_search_hint),
-            value = searchText,
-            onValueChange = onSearchTextChange
+        YearDropdownField(
+            years = years,
+            selectedYear = selectedYear,
+            onYearSelect = onYearSelect,
+            onClearYearFilter = onClearYearFilter,
+            modifier = Modifier.width(100.dp)
         )
+        Spacer(modifier = Modifier.width(16.dp))
+        Box(modifier = Modifier.weight(1f)) {
+            SearchInputField(
+                placeholder = stringResource(Res.string.history_search_hint),
+                value = searchText,
+                onValueChange = onSearchTextChange
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun YearButton(
-    onClick: () -> Unit,
+private fun YearDropdownField(
+    years: List<Int>,
+    selectedYear: String,
+    onYearSelect: (Int) -> Unit,
+    onClearYearFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ActionButton(
-        icon = vectorResource(Res.drawable.filter_list_24px),
-        text = stringResource(Res.string.history_year),
-        onClick = onClick,
+    var expanded by remember { mutableStateOf(false) }
+    val allLabel = stringResource(Res.string.history_year_all)
+    val yearHint = stringResource(Res.string.history_year)
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
         modifier = modifier
-    )
+    ) {
+        DropdownAnchorField(
+            text = if (selectedYear.isNotEmpty()) selectedYear else yearHint,
+            expanded = expanded,
+            onToggle = { expanded = !expanded },
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            // 「全て」選択肢
+            DropdownMenuItem(
+                text = { Text(allLabel) },
+                onClick = {
+                    onClearYearFilter()
+                    expanded = false
+                }
+            )
+            years.forEach { year ->
+                DropdownMenuItem(
+                    text = { Text(year.toString()) },
+                    onClick = {
+                        onYearSelect(year)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -244,12 +301,16 @@ private fun ReportList(
     listState: LazyListState,
     initialSearchText: String,
     shops: List<Shop>,
+    years: List<Int>,
+    selectedYear: String,
     goToEditReport: (Int) -> Unit,
     onDisplayImage: (ByteArray?) -> Unit,
     onFilter: (Shop) -> Unit = {},
     onShare: (String, ByteArray?) -> Unit,
     onSearchShop: (String) -> Unit = {},
-    onCancelShopFilter: () -> Unit = {}
+    onCancelShopFilter: () -> Unit = {},
+    onYearSelect: (Int) -> Unit = {},
+    onClearYearFilter: () -> Unit = {}
 ) {
     var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
     var searchText by remember { mutableStateOf(initialSearchText) }
@@ -272,10 +333,22 @@ private fun ReportList(
         item {
             Menu(
                 searchText = searchText,
-                onFilterClick = {},
+                years = years,
+                selectedYear = selectedYear,
+                onYearSelect = { year ->
+                    // 年フィルター選択時は検索テキストをクリア
+                    searchText = ""
+                    isSearchResultVisible = false
+                    onYearSelect(year)
+                },
+                onClearYearFilter = onClearYearFilter,
                 onSearchTextChange = { text ->
                     searchText = text
                     if (text.isNotEmpty()) {
+                        // 店舗検索時は年フィルターを解除
+                        if (selectedYear.isNotEmpty()) {
+                            onClearYearFilter()
+                        }
                         isSearchResultVisible = true
                         onSearchShop(text)
                     } else {
@@ -359,6 +432,10 @@ private fun MenuPreview() {
     RamenNoteTheme {
         Menu(
             searchText = "",
+            years = listOf(2025, 2024),
+            selectedYear = "",
+            onYearSelect = {},
+            onClearYearFilter = {},
             onSearchTextChange = {}
         )
     }
@@ -370,6 +447,10 @@ private fun MenuWithSearchTextPreview() {
     RamenNoteTheme {
         Menu(
             searchText = "麺屋",
+            years = listOf(2025, 2024),
+            selectedYear = "",
+            onYearSelect = {},
+            onClearYearFilter = {},
             onSearchTextChange = {}
         )
     }
@@ -385,11 +466,22 @@ fun HistoryScreenPreview() {
 
 @Preview
 @Composable
-fun HistoryScreenForSearchPreview() {
+fun HistoryScreenForSearchWithNoHitPreview() {
     RamenNoteTheme {
         HistoryScreen(
             initialSearchText = "一風堂",
             viewModel = MockHistoryViewModel()
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HistoryScreenForSearchWithHitsPreview() {
+    RamenNoteTheme {
+        HistoryScreen(
+            initialSearchText = "一風堂",
+            viewModel = MockHistoryViewModelWithSearchHits()
         )
     }
 }

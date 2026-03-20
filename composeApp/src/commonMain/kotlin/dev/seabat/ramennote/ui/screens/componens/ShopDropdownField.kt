@@ -87,7 +87,7 @@ fun ShopDropdownField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DropdownAnchorField(
+internal fun DropdownAnchorField(
     text: String,
     expanded: Boolean,
     onToggle: () -> Unit,

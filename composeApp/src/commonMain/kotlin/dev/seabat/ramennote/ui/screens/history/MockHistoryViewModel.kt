@@ -22,6 +22,12 @@ class MockHistoryViewModel : HistoryViewModelContract {
     private val _shops = MutableStateFlow<List<Shop>>(emptyList())
     override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
 
+    private val _year = MutableStateFlow<String>("")
+    override val year: StateFlow<String> = _year.asStateFlow()
+
+    private val _years = MutableStateFlow<List<Int>>(emptyList())
+    override val selectableYears: StateFlow<List<Int>> = _years.asStateFlow()
+
     init {
         // プレビューで LaunchedEffect が動かない場合でも表示されるよう初期化
         loadReports()
@@ -97,6 +103,11 @@ class MockHistoryViewModel : HistoryViewModelContract {
                     star = 3
                 )
             )
+        _years.value =
+            _reports.value
+                .map { it.date.year }
+                .distinct()
+                .sortedDescending()
     }
 
     override fun loadReportsByShop(shopId: Int) {
@@ -107,6 +118,10 @@ class MockHistoryViewModel : HistoryViewModelContract {
         // Preview用なので何もしない
     }
 
+    override fun loadReportsByYear(year: Int) {
+        // Preview用なので何もしない
+    }
+
     override fun shareToX(
         postText: String,
         image: SharedImage?,
@@ -114,6 +129,23 @@ class MockHistoryViewModel : HistoryViewModelContract {
     ) {
         // Preview用なので何もしない
     }
+
+    override fun searchShops(query: String) {
+        // Preview用なので何もしない
+    }
+}
+
+/** 店舗検索でヒットがある状態のプレビュー用モック */
+class MockHistoryViewModelWithSearchHits : HistoryViewModelContract by MockHistoryViewModel() {
+    private val _shops =
+        MutableStateFlow(
+            listOf(
+                Shop(id = 1, name = "一風堂 渋谷店", areaId = 1),
+                Shop(id = 2, name = "一風堂 新宿店", areaId = 1),
+                Shop(id = 3, name = "一風堂 池袋店", areaId = 2)
+            )
+        )
+    override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
 
     override fun searchShops(query: String) {
         // Preview用なので何もしない
