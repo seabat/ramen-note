@@ -23,6 +23,11 @@ class LocalImageRepository(
             }
         }
 
+    override suspend fun getFilePath(name: String): String? =
+        withContext(Dispatchers.IO) {
+            localStorageDataSource.getFilePath(name)
+        }
+
     override suspend fun rename(oldName: String, newName: String) {
         withContext(Dispatchers.IO) {
             localStorageDataSource.rename(oldName, newName)

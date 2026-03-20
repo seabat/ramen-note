@@ -204,6 +204,7 @@ class DeleteShopAndImageUseCaseTest {
 
         override suspend fun save(imageBytes: ByteArray, name: String) = Unit
         override suspend fun load(name: String): RunStatus<ByteArray> = RunStatus.Error("未実装")
+        override suspend fun getFilePath(name: String): String? = null
         override suspend fun rename(oldName: String, newName: String) = Unit
     }
 

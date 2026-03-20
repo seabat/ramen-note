@@ -268,7 +268,7 @@ fun HomeScreen(
         // 画像ダイアログ
         selectedImageBytes?.let { imageBytes ->
             ReportImageDialog(
-                imageBytes = imageBytes,
+                model = imageBytes,
                 onDismiss = { selectedImageBytes = null }
             )
         }

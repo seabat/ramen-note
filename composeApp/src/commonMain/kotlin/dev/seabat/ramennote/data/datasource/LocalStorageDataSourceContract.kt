@@ -5,6 +5,8 @@ interface LocalStorageDataSourceContract {
 
     suspend fun load(name: String): ByteArray?
 
+    suspend fun getFilePath(name: String): String?
+
     suspend fun rename(oldName: String, newName: String)
 
     suspend fun delete(name: String)

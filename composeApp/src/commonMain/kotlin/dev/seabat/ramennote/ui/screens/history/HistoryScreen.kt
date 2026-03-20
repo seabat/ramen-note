@@ -76,7 +76,7 @@ fun HistoryScreen(
     val yearsState by viewModel.selectableYears.collectAsState()
 
     val listState = rememberLazyListState()
-    var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+    var selectedImagePath by remember { mutableStateOf<String?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
     // ReportList 再生成時に渡す初期値（店舗フィルター適用後も検索テキストを保持するため）
     var listSearchText by remember { mutableStateOf(initialSearchText) }
@@ -126,7 +126,7 @@ fun HistoryScreen(
                     years = yearsState,
                     selectedYear = yearState,
                     goToEditReport = goToEditReport,
-                    onDisplayImage = { imageBytes -> selectedImageBytes = imageBytes },
+                    onDisplayImage = { imagePath -> selectedImagePath = imagePath },
                     onFilter = { shop ->
                         // フィルター適用後も検索フィールドに店舗名を表示し、検索結果は非表示にする
                         listSearchText = shop.name
@@ -194,10 +194,10 @@ fun HistoryScreen(
             }
 
             // 画像ダイアログ
-            selectedImageBytes?.let { imageBytes ->
+            selectedImagePath?.let { path ->
                 ReportImageDialog(
-                    imageBytes = imageBytes,
-                    onDismiss = { selectedImageBytes = null }
+                    model = path,
+                    onDismiss = { selectedImagePath = null }
                 )
             }
         } else {
@@ -286,7 +286,7 @@ private fun ReportList(
     years: List<Int>,
     selectedYear: String,
     goToEditReport: (Int) -> Unit,
-    onDisplayImage: (ByteArray?) -> Unit,
+    onDisplayImage: (String?) -> Unit,
     onFilter: (Shop) -> Unit = {},
     onShare: (String, ByteArray?) -> Unit,
     onSearchTextChange: (String) -> Unit = {},
@@ -368,7 +368,7 @@ private fun ReportList(
                         report = report,
                         isSimpleDisplay = false,
                         onLongPress = { goToEditReport(report.id) },
-                        onImageTap = { onDisplayImage(report.imageBytes) },
+                        onImageTap = { onDisplayImage(report.imagePath) },
                         onTap = {},
                         onShareTap = onShare
                     )
