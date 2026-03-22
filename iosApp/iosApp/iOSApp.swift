@@ -26,9 +26,9 @@ struct iOSApp: App {
                 // バックグラウンド遷移時にスプラッシュオーバーレイを表示
                 if scenePhase != .active {
                     ZStack {
-                        Color(red: 0.949, green: 0.949, blue: 0.949)
+                        Color(red: 1.000, green: 0.973, blue: 0.965)
                             .ignoresSafeArea()
-                        Image("Logo")
+                        Image("SplashIcon")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 120, height: 120)

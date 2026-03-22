@@ -20,7 +20,6 @@ class FetchAndSaveUnsplashImageUseCase(
     private val localAreaImageRepository: LocalImageRepositoryContract,
     private val areasRepository: AreasRepositoryContract
 ) : FetchAndSaveUnsplashImageUseCaseContract {
-
     override suspend operator fun invoke(query: String): RunStatus<ByteArray> {
         // Fetch image from remote repository
         return when (val fetchResult = unsplashImageRepository.fetch(query)) {
