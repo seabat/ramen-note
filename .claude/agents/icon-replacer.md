@@ -25,6 +25,8 @@ Android・iOS 両プラットフォームのアプリアイコン、スプラッ
    - Foreground Layer: 背景透過画像を指定
    - Background Layer: Color → 背景カラーコードを指定
    - Options: Legacy Icon = No、Round Icon = No、Icon Format = PNG
+   - **出力先（Res Directory）を必ず `composeApp/src/androidMain` に変更する**
+     （デフォルトは `composeApp/src/main` になっているため要注意）
    - 生成先: `composeApp/src/androidMain/res/mipmap-*/` に `ic_launcher_foreground.png` として出力される
 
 ## 入力パラメータ
@@ -51,8 +53,29 @@ bg_color: #FBF2E9
 ### ステップ 0: 入力確認
 
 1. `content_image`、`transparent_image` が実際に存在するかを `ls` コマンドで確認する
-2. `bg_color` が `#RRGGBB` 形式であることを確認する
+2. `bg_color` が `#RRGGBB` 形式であることを確認する（`#` なしで渡された場合は補完して続行する）
 3. いずれかが不正な場合は作業を中断し、ユーザーに確認する
+
+### ステップ 0.5: Android Studio Image Asset の完了確認
+
+以下をユーザーに確認する（ユーザーが「はい」と回答するまで次のステップに進まない）:
+
+> Android Studio の Image Asset で `ic_launcher_foreground.png` の生成は完了していますか？
+> （Icon type: Launcher Icons(Adaptive and Legacy)、Foreground: 背景透過画像、Background: bg_color、Legacy Icon: No、Round Icon: No、PNG形式）
+
+確認が取れたら、`mipmap-*/ic_launcher_foreground.png` が実際に更新されているかを検証する:
+
+```bash
+# 各 density の ic_launcher_foreground.png のタイムスタンプと ファイルサイズを確認
+ls -lh composeApp/src/androidMain/res/mipmap-mdpi/ic_launcher_foreground.png
+ls -lh composeApp/src/androidMain/res/mipmap-hdpi/ic_launcher_foreground.png
+ls -lh composeApp/src/androidMain/res/mipmap-xhdpi/ic_launcher_foreground.png
+ls -lh composeApp/src/androidMain/res/mipmap-xxhdpi/ic_launcher_foreground.png
+ls -lh composeApp/src/androidMain/res/mipmap-xxxhdpi/ic_launcher_foreground.png
+```
+
+- 全density のファイルが存在し、タイムスタンプが最近（本日）であることを確認する
+- 1つでも古いタイムスタンプ・欠損がある場合は作業を中断し、ユーザーに再確認を促す
 
 ### ステップ 1: 色変換（iOS 用）
 

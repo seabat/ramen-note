@@ -18,7 +18,6 @@ class UpdateAreaImageUseCase(
     private val fetchAndSaveUnsplashImageUseCase: FetchAndSaveUnsplashImageUseCaseContract
 ) : UpdateAreaImageUseCaseContract {
     override suspend operator fun invoke(areaName: String): RunStatus<ByteArray> {
-
         // まずローカルから画像を読み込む。画像がない場合は必ず Unsplash から取得
         when (val runStatus = localAreaImageRepository.load(areaName)) {
             is RunStatus.Error if (runStatus.data == null) -> {
