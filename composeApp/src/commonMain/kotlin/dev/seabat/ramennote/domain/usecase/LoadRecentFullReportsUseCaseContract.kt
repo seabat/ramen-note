@@ -2,6 +2,6 @@ package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.domain.model.FullReport
 
-interface LoadThreeMonthsFullReportsUseCaseContract {
+interface LoadRecentFullReportsUseCaseContract {
     suspend operator fun invoke(): List<FullReport>
 }
