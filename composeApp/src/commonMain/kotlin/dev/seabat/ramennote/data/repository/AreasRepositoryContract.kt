@@ -16,5 +16,7 @@ interface AreasRepositoryContract {
 
     suspend fun editAll(areas: List<Area>): RunStatus<String>
 
+    suspend fun loadByAreaId(areaId: Int): Area?
+
     suspend fun delete(areaName: String): RunStatus<String>
 }

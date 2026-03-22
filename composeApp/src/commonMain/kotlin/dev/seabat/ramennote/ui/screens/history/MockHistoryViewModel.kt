@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.ui.screens.history
 
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +16,24 @@ class MockHistoryViewModel : HistoryViewModelContract {
     private val _shopName = MutableStateFlow<String>("")
     override val shopName: StateFlow<String> = _shopName.asStateFlow()
 
+    private val _areaName = MutableStateFlow<String>("")
+    override val areaName: StateFlow<String> = _areaName.asStateFlow()
+
+    private val _shops = MutableStateFlow<List<Shop>>(emptyList())
+    override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
+
+    private val _year = MutableStateFlow<String>("")
+    override val year: StateFlow<String> = _year.asStateFlow()
+
+    private val _selectableYears = MutableStateFlow<List<Int>>(emptyList())
+    override val selectableYears: StateFlow<List<Int>> = _selectableYears.asStateFlow()
+
     init {
         // プレビューで LaunchedEffect が動かない場合でも表示されるよう初期化
         loadReports()
     }
 
-    override fun loadReports(shopId: Int?) {
+    override fun loadReports() {
         _reports.value =
             listOf(
                 FullReport(
@@ -90,6 +103,23 @@ class MockHistoryViewModel : HistoryViewModelContract {
                     star = 3
                 )
             )
+        _selectableYears.value =
+            _reports.value
+                .map { it.date.year }
+                .distinct()
+                .sortedDescending()
+    }
+
+    override fun loadReportsByShop(shopId: Int) {
+        // Preview用なので何もしない
+    }
+
+    override fun loadReportsByArea(areaId: Int) {
+        // Preview用なので何もしない
+    }
+
+    override fun loadReportsByYear(year: Int) {
+        // Preview用なので何もしない
     }
 
     override fun shareToX(
@@ -97,6 +127,27 @@ class MockHistoryViewModel : HistoryViewModelContract {
         image: SharedImage?,
         xShareLauncher: XShareLauncher
     ) {
+        // Preview用なので何もしない
+    }
+
+    override fun searchShops(query: String) {
+        // Preview用なので何もしない
+    }
+}
+
+/** 店舗検索でヒットがある状態のプレビュー用モック */
+class MockHistoryViewModelWithSearchHits : HistoryViewModelContract by MockHistoryViewModel() {
+    private val _shops =
+        MutableStateFlow(
+            listOf(
+                Shop(id = 1, name = "一風堂 渋谷店", areaId = 1),
+                Shop(id = 2, name = "一風堂 新宿店", areaId = 1),
+                Shop(id = 3, name = "一風堂 池袋店", areaId = 2)
+            )
+        )
+    override val shops: StateFlow<List<Shop>> = _shops.asStateFlow()
+
+    override fun searchShops(query: String) {
         // Preview用なので何もしない
     }
 }

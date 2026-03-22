@@ -15,6 +15,9 @@ class MockAddShopViewModel : AddShopViewModelContract {
     private val _shopAiInfoState = MutableStateFlow<RunStatus<ShopAiInfo>>(RunStatus.Idle())
     override val shopAiInfoState: StateFlow<RunStatus<ShopAiInfo>> = _shopAiInfoState.asStateFlow()
 
+    private val _areaIdState = MutableStateFlow<Int>(0)
+    override val areaIdState: StateFlow<Int> = _areaIdState.asStateFlow()
+
     override fun saveShop(shop: Shop, sharedImage: SharedImage?) {
         // Preview用なので何もしない
     }
@@ -30,6 +33,10 @@ class MockAddShopViewModel : AddShopViewModelContract {
     }
 
     override fun setShopAiInfoStateToIdle() {
+        // Preview用なので何もしない
+    }
+
+    override fun loadAreaId(areaName: String) {
         // Preview用なので何もしない
     }
 }

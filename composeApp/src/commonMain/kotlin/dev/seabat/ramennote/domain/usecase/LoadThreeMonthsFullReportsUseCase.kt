@@ -45,14 +45,16 @@ class LoadThreeMonthsFullReportsUseCase(
                     shopName = shop?.name ?: "不明な店舗",
                     menuName = report.menuName,
                     photoName = report.photoName,
-                    imageBytes = when (photoData) {
-                        is RunStatus.Success -> photoData.data
-                        is RunStatus.Error -> null
-                        else -> error("unexpected state")
-                    },
+                    imageBytes =
+                        when (photoData) {
+                            is RunStatus.Success -> photoData.data
+                            is RunStatus.Error -> null
+                            else -> error("unexpected state")
+                        },
                     impression = report.impression,
                     date = report.date!!,
-                    star = report.star
+                    star = report.star,
+                    areaId = report.areaId
                 )
             }.sortedByDescending { it.date }
     }
