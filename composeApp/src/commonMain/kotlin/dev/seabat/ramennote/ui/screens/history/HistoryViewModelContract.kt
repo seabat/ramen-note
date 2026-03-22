@@ -2,7 +2,6 @@ package dev.seabat.ramennote.ui.screens.history
 
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.StateFlow
 
@@ -22,7 +21,7 @@ interface HistoryViewModelContract {
 
     fun loadReportsByYear(year: Int)
 
-    fun shareToX(postText: String, image: SharedImage?, xShareLauncher: XShareLauncher)
+    fun shareToX(postText: String, photoName: String, xShareLauncher: XShareLauncher)
 
     fun searchShops(query: String)
 }

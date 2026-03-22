@@ -71,7 +71,6 @@ import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.chart.StackedBarChart
-import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.history.ReportImageDialog
@@ -145,7 +144,7 @@ fun HomeScreen(
     val loadedScheduleState by viewModel.loadedScheduleState.collectAsStateWithLifecycle()
     val addedScheduleState by viewModel.addedScheduleState.collectAsStateWithLifecycle()
     val favoriteShops by viewModel.favoriteShops.collectAsStateWithLifecycle()
-    val threeMonthsReports by viewModel.threeMonthsReports.collectAsStateWithLifecycle()
+    val recentReports by viewModel.recentReports.collectAsStateWithLifecycle()
     val yearlyReportStats by viewModel.yearlyReportStats.collectAsStateWithLifecycle()
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
@@ -155,7 +154,7 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         viewModel.loadRecentSchedule()
         viewModel.loadFavoriteShops()
-        viewModel.loadThreeMonthsReports()
+        viewModel.loadRecentReports()
         viewModel.loadYearlyReportStats()
     }
 
@@ -189,19 +188,13 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // 過去3ヶ月分のレポートを水平ページャーで表示
+            // 最新10件のレポートを水平ページャーで表示
             RecentReports(
-                reports = threeMonthsReports,
+                reports = recentReports,
                 goToHistory = goToHistory,
                 onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
-                shareToX = { postText, imageBytes ->
-                    viewModel.shareToX(
-                        postText,
-                        imageBytes?.let {
-                            SharedImage(it)
-                        },
-                        xShareLauncher
-                    )
+                shareToX = { postText, photoName ->
+                    viewModel.shareToX(postText, photoName, xShareLauncher)
                 }
             )
 
@@ -515,7 +508,7 @@ private fun Favorite(
                     items(favoriteShops) { shopWithImage ->
                         FavoriteShopItem(
                             shop = shopWithImage.shop,
-                            imageBytes = shopWithImage.imageBytes,
+                            imagePath = shopWithImage.imagePath,
                             onClick = { onShopClick(shopWithImage.shop) }
                         )
                     }
@@ -528,7 +521,7 @@ private fun Favorite(
 @Composable
 private fun FavoriteShopItem(
     shop: Shop,
-    imageBytes: ByteArray?,
+    imagePath: String?,
     onClick: () -> Unit
 ) {
     Card(
@@ -551,9 +544,9 @@ private fun FavoriteShopItem(
             contentAlignment = Alignment.Center
         ) {
             // 背景画像（半透明）
-            if (imageBytes != null) {
+            if (imagePath != null) {
                 AsyncImage(
-                    model = imageBytes,
+                    model = imagePath,
                     contentDescription = null,
                     modifier =
                         Modifier
@@ -672,7 +665,7 @@ private fun RecentReports(
     reports: List<FullReport>,
     goToHistory: (reportId: Int) -> Unit,
     onImageTap: (ByteArray?) -> Unit,
-    shareToX: (String, ByteArray?) -> Unit
+    shareToX: (String, String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -719,9 +712,9 @@ private fun RecentReports(
                                 onTap = {
                                     goToHistory(report.id)
                                 },
-                                onImageTap = { onImageTap(report.imageBytes) },
-                                onShareTap = { postText, imageBytes ->
-                                    shareToX(postText, imageBytes)
+                                onImageTap = { onImageTap(null) },
+                                onShareTap = { postText, photoName ->
+                                    shareToX(postText, photoName)
                                 }
                             )
                         }
@@ -915,7 +908,7 @@ fun RecentReportsPreview() {
     RamenNoteTheme {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             RecentReports(
-                reports = MockHomeViewModel().threeMonthsReports.value,
+                reports = MockHomeViewModel().recentReports.value,
                 {},
                 { _ -> },
                 { _, _ -> }
@@ -970,7 +963,7 @@ fun FavoriteShopItemPreview() {
                         category = "とんこつラーメン",
                         favorite = true
                     ),
-                imageBytes = null,
+                imagePath = null,
                 onClick = {}
             )
 
@@ -988,7 +981,7 @@ fun FavoriteShopItemPreview() {
                         category = "とんこつラーメン",
                         favorite = true
                     ),
-                imageBytes = null,
+                imagePath = null,
                 onClick = {}
             )
         }

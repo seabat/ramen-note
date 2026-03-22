@@ -36,7 +36,6 @@ import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
-import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.screens.componens.DropdownAnchorField
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
@@ -133,13 +132,10 @@ fun HistoryScreen(
                         listIsSearchResultVisible = false
                         viewModel.loadReportsByShop(shop.id)
                     },
-                    onShare = { postText, imageBytes ->
+                    onShare = { postText, photoName ->
                         viewModel.shareToX(
                             postText = postText,
-                            image =
-                                imageBytes?.let {
-                                    SharedImage(it)
-                                },
+                            photoName = photoName,
                             xShareLauncher = xShareLauncher
                         )
                     },
@@ -303,7 +299,7 @@ private fun ReportList(
     goToEditReport: (Int) -> Unit,
     onDisplayImage: (String?) -> Unit,
     onFilter: (Shop) -> Unit = {},
-    onShare: (String, ByteArray?) -> Unit,
+    onShare: (String, String) -> Unit,
     onSearchTextChange: (String) -> Unit = {},
     onYearSelect: (Int) -> Unit = {},
     onClearYearFilter: () -> Unit = {}

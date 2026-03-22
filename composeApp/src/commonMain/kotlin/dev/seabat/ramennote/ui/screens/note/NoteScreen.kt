@@ -247,7 +247,7 @@ private fun MainContent(
                             ) {
                                 AreaItem(
                                     areaName = area.name,
-                                    imageBytes = area.imageBytes,
+                                    imagePath = area.imagePath,
                                     itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                                     onClick = { onAreaClick(area.name) },
                                     onLongClick = { onAreaLongClick(area.areaId) },
@@ -316,7 +316,7 @@ private fun SortButton(
 @Composable
 private fun AreaItem(
     areaName: String,
-    imageBytes: ByteArray? = null,
+    imagePath: String? = null,
     itemCount: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit = {},
@@ -339,9 +339,9 @@ private fun AreaItem(
             modifier = Modifier.fillMaxSize()
         ) {
             // 背景画像
-            if (imageBytes != null) {
+            if (imagePath != null) {
                 AsyncImage(
-                    model = imageBytes,
+                    model = imagePath,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -408,7 +408,7 @@ private fun AreaItem(
 @Composable
 fun AreaItemPreview() {
     RamenNoteTheme {
-        AreaItem(areaName = "東京", imageBytes = null, itemCount = "12件", onClick = {}, onLongClick = {})
+        AreaItem(areaName = "東京", imagePath = null, itemCount = "12件", onClick = {}, onLongClick = {})
     }
 }
 

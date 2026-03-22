@@ -3,11 +3,13 @@ package dev.seabat.ramennote.ui.screens.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsByAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsByShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadReportsByYearUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SearchShopsByNameUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
@@ -25,7 +27,8 @@ class HistoryViewModel(
     private val loadReportsByAreaUseCase: LoadFullReportsByAreaUseCaseContract,
     private val loadAreasUseCase: LoadAreasUseCaseContract,
     private val searchShopsByNameUseCase: SearchShopsByNameUseCaseContract,
-    private val loadReportsByYearUseCase: LoadReportsByYearUseCaseContract
+    private val loadReportsByYearUseCase: LoadReportsByYearUseCaseContract,
+    private val loadImageUseCase: LoadImageUseCaseContract
 ) : ViewModel(),
     HistoryViewModelContract {
     private val _reports = MutableStateFlow<List<FullReport>>(emptyList())
@@ -118,11 +121,16 @@ class HistoryViewModel(
 
     override fun shareToX(
         postText: String,
-        image: SharedImage?,
+        photoName: String,
         xShareLauncher: XShareLauncher
     ) {
         viewModelScope.launch {
-            xShareLauncher.shareToX(postText, image)
+            val imageBytes =
+                when (val result = loadImageUseCase(photoName)) {
+                    is RunStatus.Success -> result.data
+                    else -> null
+                }
+            xShareLauncher.shareToX(postText, imageBytes?.let { SharedImage(it) })
         }
     }
 

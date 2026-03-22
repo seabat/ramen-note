@@ -2,7 +2,6 @@ package dev.seabat.ramennote.ui.screens.history
 
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -124,7 +123,7 @@ class MockHistoryViewModel : HistoryViewModelContract {
 
     override fun shareToX(
         postText: String,
-        image: SharedImage?,
+        photoName: String,
         xShareLauncher: XShareLauncher
     ) {
         // Preview用なので何もしない
