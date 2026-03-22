@@ -7,5 +7,5 @@ data class AreaWithImage(
     val updatedDate: LocalDate,
     val count: Int,
     val areaId: Int = 0,
-    val imageBytes: ByteArray? = null
+    val imagePath: String? = null
 )
