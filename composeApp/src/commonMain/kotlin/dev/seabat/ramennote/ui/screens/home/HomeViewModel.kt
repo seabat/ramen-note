@@ -7,6 +7,7 @@ import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadImagePathUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentFullReportsUseCaseContract
@@ -25,6 +26,7 @@ class HomeViewModel(
     private val loadRecentScheduleUseCase: LoadRecentScheduleUseCaseContract,
     private val loadFavoriteShopsUseCase: LoadFavoriteShopsUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
+    private val loadImagePathUseCase: LoadImagePathUseCaseContract,
     private val loadRecentFullReportsUseCase: LoadRecentFullReportsUseCaseContract,
     private val loadYearlyReportStatsUseCase: LoadYearlyReportStatsUseCaseContract,
     private val updateScheduleInShopUseCase: UpdateScheduleInShopUseCaseContract
@@ -92,16 +94,13 @@ class HomeViewModel(
             _favoriteShops.value = emptyList() // リストをクリア
 
             favoriteShops.forEach { shop ->
-                val imageBytes =
+                val imagePath =
                     if (shop.photoName1.isNotBlank()) {
-                        when (val status = loadImageUseCase(shop.photoName1)) {
-                            is RunStatus.Success -> status.data
-                            else -> null
-                        }
+                        loadImagePathUseCase(shop.photoName1)
                     } else {
                         null
                     }
-                val shopWithImage = ShopWithImage(shop = shop, imageBytes = imageBytes)
+                val shopWithImage = ShopWithImage(shop = shop, imagePath = imagePath)
                 _favoriteShops.value = _favoriteShops.value + shopWithImage
                 delay(30) // 30ms遅延
             }

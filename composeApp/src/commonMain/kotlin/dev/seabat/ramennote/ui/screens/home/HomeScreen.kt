@@ -508,7 +508,7 @@ private fun Favorite(
                     items(favoriteShops) { shopWithImage ->
                         FavoriteShopItem(
                             shop = shopWithImage.shop,
-                            imageBytes = shopWithImage.imageBytes,
+                            imagePath = shopWithImage.imagePath,
                             onClick = { onShopClick(shopWithImage.shop) }
                         )
                     }
@@ -521,7 +521,7 @@ private fun Favorite(
 @Composable
 private fun FavoriteShopItem(
     shop: Shop,
-    imageBytes: ByteArray?,
+    imagePath: String?,
     onClick: () -> Unit
 ) {
     Card(
@@ -544,9 +544,9 @@ private fun FavoriteShopItem(
             contentAlignment = Alignment.Center
         ) {
             // 背景画像（半透明）
-            if (imageBytes != null) {
+            if (imagePath != null) {
                 AsyncImage(
-                    model = imageBytes,
+                    model = imagePath,
                     contentDescription = null,
                     modifier =
                         Modifier
@@ -963,7 +963,7 @@ fun FavoriteShopItemPreview() {
                         category = "とんこつラーメン",
                         favorite = true
                     ),
-                imageBytes = null,
+                imagePath = null,
                 onClick = {}
             )
 
@@ -981,7 +981,7 @@ fun FavoriteShopItemPreview() {
                         category = "とんこつラーメン",
                         favorite = true
                     ),
-                imageBytes = null,
+                imagePath = null,
                 onClick = {}
             )
         }
