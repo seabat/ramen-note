@@ -1,6 +1,6 @@
 ---
 name: icon-replacer
-description: "Use this agent to replace app icons, splash screens, and task switcher overlays for both Android and iOS in ramen-note. Invoke when the user wants to update the app icon with new images.\n\n<example>\nContext: 新しいアイコン画像を用意した後。\nuser: \"アイコンを差し替えて。コンテンツ画像: ~/Desktop/icon.png、透過画像: ~/Desktop/icon_transparent.png、背景色: #FBF2E9\"\nassistant: \"icon-replacer エージェントでアイコン差し替え作業を実行します\"\n<commentary>\n画像パスとカラーコードが揃っているため icon-replacer を起動する。\n</commentary>\n</example>"
+description: "Use this agent to replace app icons, splash screens, and task switcher overlays for both Android and iOS in ramen-note. Invoke when the user wants to update the app icon with new images.\n\n<example>\nContext: 新しいアイコン画像を用意し、Android Studio で ic_launcher_foreground.png を生成した後。\nuser: \"アイコンを差し替えて。\\ncontent_image: /Users/ryouta/Desktop/ramen_icon.png\\ntransparent_image: /Users/ryouta/Desktop/ramen_icon_transparent.png\\nbg_color: #FBF2E9\"\nassistant: \"icon-replacer エージェントでアイコン差し替え作業を実行します\"\n<commentary>\n3つの入力パラメータが揃っているため icon-replacer を起動する。\n</commentary>\n</example>"
 model: sonnet
 ---
 
@@ -33,9 +33,18 @@ Android・iOS 両プラットフォームのアプリアイコン、スプラッ
 
 | パラメータ | 説明 | 例 |
 |---|---|---|
-| `content_image` | コンテンツ画像のパス（背景あり 1024×1024） | `/Users/dev/Desktop/icon.png` |
-| `transparent_image` | 背景透過画像のパス（1024×1024） | `/Users/dev/Desktop/icon_transparent.png` |
+| `content_image` | コンテンツ画像のパス（背景あり 1024×1024） | `/Users/ryouta/Desktop/ramen_icon.png` |
+| `transparent_image` | 背景透過画像のパス（1024×1024） | `/Users/ryouta/Desktop/ramen_icon_transparent.png` |
 | `bg_color` | 背景カラーコード（`#RRGGBB`） | `#FBF2E9` |
+
+**呼び出し例:**
+
+```
+icon-replacer エージェントでアイコンを差し替えて。
+content_image: /Users/ryouta/Desktop/ramen_icon.png
+transparent_image: /Users/ryouta/Desktop/ramen_icon_transparent.png
+bg_color: #FBF2E9
+```
 
 ## 作業手順
 
