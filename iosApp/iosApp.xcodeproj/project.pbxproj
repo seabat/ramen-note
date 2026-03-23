@@ -10,8 +10,8 @@
 		11CEFE212EE041C600156A0D /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 11CEFE202EE041C600156A0D /* FirebaseAI */; };
 		11CEFE232EE041C600156A0D /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = 11CEFE222EE041C600156A0D /* FirebaseAILogic */; };
 		11CEFE272EE043C900156A0D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 11CEFE262EE043C900156A0D /* FirebaseAnalytics */; };
-		A1B2C3D4E5F601230000AAAA /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F601230000BBBB /* FirebaseAppCheck */; };
 		11D36B5E2F495C8800BE5B60 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 11D36B5D2F495C8800BE5B60 /* FirebaseCrashlytics */; };
+		A1B2C3D4E5F601230000AAAA /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F601230000BBBB /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -205,7 +205,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
 				DEVELOPMENT_TEAM = ZH27S3CKAJ;
 				ENABLE_PREVIEWS = YES;
@@ -221,7 +221,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.seabat.ramennote;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -241,7 +241,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
 				DEVELOPMENT_TEAM = ZH27S3CKAJ;
 				ENABLE_PREVIEWS = YES;
@@ -257,7 +257,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.seabat.ramennote;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
