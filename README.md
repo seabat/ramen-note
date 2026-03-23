@@ -48,7 +48,7 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 - **Coil**: 画像読み込み
 - **Navigation Compose**: 画面遷移
 - **SKIE**: Kotlin/Swift 連携（iOS）
-- **Firebase**: Analytics・Crashlytics・AI（Android）
+- **Firebase**: Analytics・Crashlytics・AI・App Check（Android: Play Integrity / Debug、iOS: DeviceCheck / Debug）
 - **Gemini AI**: AI 機能（Android）
 
 ### 開発環境
@@ -100,6 +100,15 @@ UNSPLASH_ACCESS_KEY=取得した Access Key
 ビルド時に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.kt` を自動生成します。アプリコードは `BuildSecrets.UNSPLASH_ACCESS_KEY` 経由で参照します。
 
 **注意**: Access Key を設定せずにビルドすると、エリア画像の取得が正常に動作しません。
+
+### Firebase App Check の設定
+
+Firebase App Check によって不正クライアントからの API アクセスを防いでいます。詳細は [`docs/firebase-api-security.md`](./docs/firebase-api-security.md) を参照してください。
+
+| プラットフォーム | 本番ビルド | デバッグビルド |
+|----------------|-----------|--------------|
+| Android | Play Integrity | Debug プロバイダー |
+| iOS | DeviceCheck | Debug プロバイダー |
 
 ### ビルドと実行
 

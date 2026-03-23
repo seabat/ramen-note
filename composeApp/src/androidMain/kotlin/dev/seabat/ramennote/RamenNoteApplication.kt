@@ -1,6 +1,12 @@
 package dev.seabat.ramennote
 
 import android.app.Application
+import com.google.firebase.Firebase
+import com.google.firebase.appcheck.appCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
+import com.google.firebase.initialize
+import dev.seabat.ramennote.BuildConfig
 import dev.seabat.ramennote.data.di.dataSourceModule
 import dev.seabat.ramennote.data.di.databaseModule
 import dev.seabat.ramennote.data.di.factoryModule
@@ -14,6 +20,16 @@ import org.koin.core.context.GlobalContext.startKoin
 class RamenNoteApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        // Firebase App Check の初期化
+        Firebase.initialize(this)
+        Firebase.appCheck.installAppCheckProviderFactory(
+            if (BuildConfig.DEBUG) {
+                DebugAppCheckProviderFactory.getInstance()
+            } else {
+                PlayIntegrityAppCheckProviderFactory.getInstance()
+            }
+        )
 
         startKoin {
             androidContext(this@RamenNoteApplication)
