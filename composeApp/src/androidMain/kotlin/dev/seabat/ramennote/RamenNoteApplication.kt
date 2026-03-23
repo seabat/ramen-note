@@ -6,7 +6,6 @@ import com.google.firebase.appcheck.appCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.initialize
-import dev.seabat.ramennote.BuildConfig
 import dev.seabat.ramennote.data.di.dataSourceModule
 import dev.seabat.ramennote.data.di.databaseModule
 import dev.seabat.ramennote.data.di.factoryModule
@@ -22,6 +21,7 @@ class RamenNoteApplication : Application() {
         super.onCreate()
 
         // Firebase App Check の初期化
+        // デバッグビルド: Debug プロバイダー / リリースビルド: Play Integrity プロバイダー
         Firebase.initialize(this)
         Firebase.appCheck.installAppCheckProviderFactory(
             if (BuildConfig.DEBUG) {

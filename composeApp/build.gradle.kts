@@ -83,6 +83,7 @@ kotlin {
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
             implementation(libs.firebase.appcheck)
+            implementation(libs.firebase.appcheck.debug)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -165,7 +166,6 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
-    debugImplementation(libs.firebase.appcheck.debug)
 
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
