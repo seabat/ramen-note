@@ -20,6 +20,9 @@ interface AreaDao {
     @Query("SELECT * FROM areas WHERE name = :name")
     suspend fun getAreaByName(name: String): AreaEntity?
 
+    @Query("SELECT * FROM areas WHERE areaId = :areaId")
+    suspend fun getAreaById(areaId: Int): AreaEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArea(area: AreaEntity)
 

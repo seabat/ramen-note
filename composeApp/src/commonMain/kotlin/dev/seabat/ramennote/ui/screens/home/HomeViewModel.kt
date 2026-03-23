@@ -7,9 +7,10 @@ import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadImagePathUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
-import dev.seabat.ramennote.domain.usecase.LoadThreeMonthsFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadRecentFullReportsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadYearlyReportStatsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
@@ -25,7 +26,8 @@ class HomeViewModel(
     private val loadRecentScheduleUseCase: LoadRecentScheduleUseCaseContract,
     private val loadFavoriteShopsUseCase: LoadFavoriteShopsUseCaseContract,
     private val loadImageUseCase: LoadImageUseCaseContract,
-    private val loadThreeMonthsFullReportsUseCase: LoadThreeMonthsFullReportsUseCaseContract,
+    private val loadImagePathUseCase: LoadImagePathUseCaseContract,
+    private val loadRecentFullReportsUseCase: LoadRecentFullReportsUseCaseContract,
     private val loadYearlyReportStatsUseCase: LoadYearlyReportStatsUseCaseContract,
     private val updateScheduleInShopUseCase: UpdateScheduleInShopUseCaseContract
 ) : ViewModel(),
@@ -36,15 +38,20 @@ class HomeViewModel(
     private val _favoriteShops = MutableStateFlow<List<ShopWithImage>>(emptyList())
     override val favoriteShops: StateFlow<List<ShopWithImage>> = _favoriteShops.asStateFlow()
 
-    private val _threeMonthsReports = MutableStateFlow<List<FullReport>>(emptyList())
-    override val threeMonthsReports: StateFlow<List<FullReport>> = _threeMonthsReports.asStateFlow()
+    private val _recentReports = MutableStateFlow<List<FullReport>>(emptyList())
+    override val recentReports: StateFlow<List<FullReport>> = _recentReports.asStateFlow()
 
     private val _yearlyReportStats = MutableStateFlow<List<MonthlyReportCount>>(emptyList())
     override val yearlyReportStats: StateFlow<List<MonthlyReportCount>> = _yearlyReportStats.asStateFlow()
 
-    override fun shareToX(postText: String, image: SharedImage?, xShareLauncher: XShareLauncher) {
+    override fun shareToX(postText: String, photoName: String, xShareLauncher: XShareLauncher) {
         viewModelScope.launch {
-            xShareLauncher.shareToX(postText, image)
+            val imageBytes =
+                when (val result = loadImageUseCase(photoName)) {
+                    is RunStatus.Success -> result.data
+                    else -> null
+                }
+            xShareLauncher.shareToX(postText, imageBytes?.let { SharedImage(it) })
         }
     }
 
@@ -87,25 +94,22 @@ class HomeViewModel(
             _favoriteShops.value = emptyList() // リストをクリア
 
             favoriteShops.forEach { shop ->
-                val imageBytes =
+                val imagePath =
                     if (shop.photoName1.isNotBlank()) {
-                        when (val status = loadImageUseCase(shop.photoName1)) {
-                            is RunStatus.Success -> status.data
-                            else -> null
-                        }
+                        loadImagePathUseCase(shop.photoName1)
                     } else {
                         null
                     }
-                val shopWithImage = ShopWithImage(shop = shop, imageBytes = imageBytes)
+                val shopWithImage = ShopWithImage(shop = shop, imagePath = imagePath)
                 _favoriteShops.value = _favoriteShops.value + shopWithImage
                 delay(30) // 30ms遅延
             }
         }
     }
 
-    override fun loadThreeMonthsReports() {
+    override fun loadRecentReports() {
         viewModelScope.launch {
-            _threeMonthsReports.value = loadThreeMonthsFullReportsUseCase()
+            _recentReports.value = loadRecentFullReportsUseCase()
         }
     }
 

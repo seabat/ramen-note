@@ -141,7 +141,7 @@ sealed interface Screen {
 
     @Serializable
     data class EditArea(
-        val areaName: String
+        val areaId: Int
     ) : Screen {
         override val route: String = getRouteName(EditArea::class)
 
@@ -268,6 +268,9 @@ fun MainNavigation() {
 
     // HistoryScreenに遷移する際のshopIdを管理するState
     var shopIdParam by remember { mutableStateOf<Int?>(null) }
+
+    // HistoryScreenに遷移する際のareaIdを管理するState
+    var areaIdParam by remember { mutableStateOf<Int?>(null) }
 
     val tabScreens =
         listOf(
@@ -432,14 +435,23 @@ fun MainNavigation() {
                             goToAddArea = {
                                 navController.navigate(Screen.AddArea)
                             },
-                            goToEditArea = { areaName ->
-                                navController.navigate(Screen.EditArea(areaName))
+                            goToEditArea = { areaId ->
+                                navController.navigate(Screen.EditArea(areaId))
                             },
                             goToEditAreaSort = {
                                 navController.navigate(Screen.EditAreaSort)
                             },
                             goToShop = { shop ->
                                 navController.navigate(Screen.Shop(shop.id, shop.name))
+                            },
+                            goToHistoryWithAreaFiltering = { areaId ->
+                                areaIdParam = areaId
+                                navController.navigate(Screen.History) {
+                                    launchSingleTop = true
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                }
                             }
                         )
                     }
@@ -447,6 +459,7 @@ fun MainNavigation() {
                         HistoryScreen(
                             reportId = reportIdParam,
                             shopId = shopIdParam,
+                            areaId = areaIdParam,
                             goToEditReport = { reportId ->
                                 navController.navigate(Screen.EditReport(reportId))
                             },
@@ -455,6 +468,9 @@ fun MainNavigation() {
                             },
                             clearShopParam = {
                                 shopIdParam = null
+                            },
+                            clearAreaParam = {
+                                areaIdParam = null
                             }
                         )
                     }
@@ -485,7 +501,7 @@ fun MainNavigation() {
                     composable<Screen.EditArea> { backStackEntry ->
                         val screen: Screen.EditArea = backStackEntry.toRoute()
                         EditAreaScreen(
-                            areaName = screen.areaName,
+                            areaId = screen.areaId,
                             onBackClick = { navController.popBackStack() },
                             onCompleted = { navController.popBackStack() }
                         )
@@ -544,7 +560,7 @@ fun MainNavigation() {
                                 // エラーの場合はデフォルトのShopオブジェクトを作成
                                 ShopInfo(
                                     name = "エラー",
-                                    area = "",
+                                    areaId = 0,
                                     shopUrl = "",
                                     mapUrl = "",
                                     star = 0,

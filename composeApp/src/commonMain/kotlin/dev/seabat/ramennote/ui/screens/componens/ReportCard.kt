@@ -52,7 +52,7 @@ fun ReportCard(
     onTap: () -> Unit = {},
     onLongPress: () -> Unit = {},
     onImageTap: () -> Unit = {},
-    onShareTap: (postText: String, imageBytes: ByteArray?) -> Unit = { _, _ -> }
+    onShareTap: (postText: String, photoName: String) -> Unit = { _, _ -> }
 ) {
     val date: LocalDate = report.date
     val dayText =
@@ -85,7 +85,7 @@ fun ReportCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = report.imageBytes,
+                model = report.imagePath,
                 contentDescription = null,
                 modifier =
                     Modifier
@@ -129,7 +129,7 @@ fun ReportCard(
                                             report.menuName,
                                             report.impression
                                         ),
-                                        report.imageBytes
+                                        report.photoName
                                     )
                                 },
                         tint = LocalContentColor.current

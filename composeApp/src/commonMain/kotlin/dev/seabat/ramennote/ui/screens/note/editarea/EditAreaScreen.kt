@@ -51,20 +51,21 @@ import ramennote.composeapp.generated.resources.editarea_title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditAreaScreen(
-    areaName: String,
+    areaId: Int,
     onBackClick: () -> Unit,
     onCompleted: () -> Unit,
     viewModel: EditAreaViewModelContract = koinViewModel<EditAreaViewModel>()
 ) {
     LaunchedEffect(Unit) {
-        viewModel.currentAreaName = areaName
-        viewModel.loadImage(areaName)
+        viewModel.loadAreaName(areaId)
+        viewModel.loadImage(areaId)
     }
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        var areaName by remember { mutableStateOf(areaName) }
+        val currentAreaName by viewModel.areaName.collectAsState()
+        var areaNameInput by remember(currentAreaName) { mutableStateOf(currentAreaName) }
         var shouldShowAlert by remember { mutableStateOf(false) }
         val deleteStatus by viewModel.deleteState.collectAsState()
         val editStatus by viewModel.editState.collectAsState()
@@ -94,8 +95,8 @@ fun EditAreaScreen(
                     Text(text = "エリア", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = areaName,
-                        onValueChange = { areaName = it },
+                        value = areaNameInput,
+                        onValueChange = { areaNameInput = it },
                         modifier = Modifier.fillMaxWidth(),
                         colors =
                             OutlinedTextFieldDefaults.colors(
@@ -114,7 +115,7 @@ fun EditAreaScreen(
                     Spacer(Modifier.height(16.dp))
 
                     Button(
-                        onClick = { viewModel.fetchImage(areaName) },
+                        onClick = { viewModel.fetchNewImage(areaNameInput) },
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -159,9 +160,9 @@ fun EditAreaScreen(
                 Spacer(Modifier.weight(1.0f))
 
                 BottomButtons(
-                    areaName = areaName,
+                    areaName = areaNameInput,
                     onEditButtonClick = {
-                        viewModel.editArea(areaName)
+                        viewModel.editArea(areaId, areaNameInput)
                     },
                     onDeleteButtonClick = {
                         shouldShowAlert = true
@@ -172,9 +173,9 @@ fun EditAreaScreen(
 
         if (shouldShowAlert) {
             AppTwoButtonAlert(
-                message = stringResource(Res.string.editarea_delete_confirm, areaName),
+                message = stringResource(Res.string.editarea_delete_confirm, areaNameInput),
                 onConfirm = {
-                    viewModel.deleteArea(areaName)
+                    viewModel.deleteArea(areaId)
                     shouldShowAlert = false
                 },
                 onNegative = {
@@ -182,7 +183,11 @@ fun EditAreaScreen(
                 }
             )
         }
-        EditStatus(editStatus) { onCompleted() }
+        EditStatus(
+            editStatus,
+            onCompleted = { onCompleted() },
+            onClearCancel = { viewModel.resetEditState() }
+        )
         DeleteStatus(deleteStatus) { onCompleted() }
     }
 }
@@ -211,17 +216,18 @@ fun BottomButtons(
 
 @Composable
 fun EditStatus(
-    deleteStatus: RunStatus<String>,
-    onCompleted: () -> Unit
+    editStatus: RunStatus<String>,
+    onCompleted: () -> Unit,
+    onClearCancel: () -> Unit
 ) {
-    when (deleteStatus) {
+    when (editStatus) {
         is RunStatus.Success -> {
             onCompleted()
         }
         is RunStatus.Error -> {
             AppAlert(
-                message = "${deleteStatus.message}",
-                onConfirm = { onCompleted() }
+                message = "${editStatus.message}",
+                onConfirm = { onClearCancel() }
             )
         }
         is RunStatus.Loading -> {
@@ -255,10 +261,10 @@ fun DeleteStatus(
 
 @Preview
 @Composable
-fun EditAreaScreen() {
+fun EditAreaScreenPreview() {
     RamenNoteTheme {
         EditAreaScreen(
-            areaName = "エリア名",
+            areaId = 1,
             onBackClick = {},
             onCompleted = {},
             viewModel = MockEditAreaViewModel()

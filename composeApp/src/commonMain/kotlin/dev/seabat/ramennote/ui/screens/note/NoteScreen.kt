@@ -52,6 +52,7 @@ import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.components.button.AddFab
+import dev.seabat.ramennote.ui.components.button.ReportListButton
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -77,9 +78,10 @@ fun NoteScreen(
     initialSearchText: String = "",
     goToAreaShopList: (String) -> Unit = {},
     goToAddArea: () -> Unit = {},
-    goToEditArea: (String) -> Unit = {},
+    goToEditArea: (Int) -> Unit = {},
     goToEditAreaSort: () -> Unit = {},
     goToShop: (Shop) -> Unit = {},
+    goToHistoryWithAreaFiltering: (areaId: Int) -> Unit = {},
     viewModel: NoteViewModelContract = koinViewModel<NoteViewModel>()
 ) {
     Column(
@@ -96,6 +98,7 @@ fun NoteScreen(
             onAreaLongClick = goToEditArea,
             onSortClick = goToEditAreaSort,
             onShopClick = goToShop,
+            onAreaReportClick = goToHistoryWithAreaFiltering,
             initialSearchText = initialSearchText
         )
     }
@@ -112,9 +115,10 @@ private fun MainContent(
     viewModel: NoteViewModelContract,
     onAreaClick: (String) -> Unit = {},
     onAddAreaClick: () -> Unit = {},
-    onAreaLongClick: (String) -> Unit = {},
+    onAreaLongClick: (Int) -> Unit = {},
     onSortClick: () -> Unit = {},
     onShopClick: (Shop) -> Unit = {},
+    onAreaReportClick: (areaId: Int) -> Unit = {},
     initialSearchText: String = ""
 ) {
     BoxWithConstraints(
@@ -243,10 +247,11 @@ private fun MainContent(
                             ) {
                                 AreaItem(
                                     areaName = area.name,
-                                    imageBytes = area.imageBytes,
+                                    imagePath = area.imagePath,
                                     itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                                     onClick = { onAreaClick(area.name) },
-                                    onLongClick = { onAreaLongClick(area.name) }
+                                    onLongClick = { onAreaLongClick(area.areaId) },
+                                    onReportClick = { onAreaReportClick(area.areaId) }
                                 )
                             }
                         }
@@ -311,10 +316,11 @@ private fun SortButton(
 @Composable
 private fun AreaItem(
     areaName: String,
-    imageBytes: ByteArray? = null,
+    imagePath: String? = null,
     itemCount: String,
     onClick: () -> Unit,
-    onLongClick: () -> Unit = {}
+    onLongClick: () -> Unit = {},
+    onReportClick: () -> Unit = {}
 ) {
     Card(
         modifier =
@@ -333,9 +339,9 @@ private fun AreaItem(
             modifier = Modifier.fillMaxSize()
         ) {
             // 背景画像
-            if (imageBytes != null) {
+            if (imagePath != null) {
                 AsyncImage(
-                    model = imageBytes,
+                    model = imagePath,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -381,7 +387,7 @@ private fun AreaItem(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = itemCount,
@@ -391,6 +397,7 @@ private fun AreaItem(
                             ),
                         color = Color.White.copy(alpha = 0.8f)
                     )
+                    ReportListButton(onClick = onReportClick)
                 }
             }
         }
@@ -401,7 +408,7 @@ private fun AreaItem(
 @Composable
 fun AreaItemPreview() {
     RamenNoteTheme {
-        AreaItem(areaName = "東京", imageBytes = null, itemCount = "12", onClick = {}, onLongClick = {})
+        AreaItem(areaName = "東京", imagePath = null, itemCount = "12件", onClick = {}, onLongClick = {})
     }
 }
 

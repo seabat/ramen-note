@@ -5,7 +5,6 @@ import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.share.XShareLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +24,7 @@ class MockHomeViewModel : HomeViewModelContract {
     private val _yearlyReportStats = MutableStateFlow<List<MonthlyReportCount>>(emptyList())
     override val yearlyReportStats: StateFlow<List<MonthlyReportCount>> = _yearlyReportStats.asStateFlow()
 
-    private val _threeMonthsReports =
+    private val _recentReports =
         MutableStateFlow<List<FullReport>>(
             listOf(
                 FullReport(
@@ -34,7 +33,7 @@ class MockHomeViewModel : HomeViewModelContract {
                     shopName = "一風堂 博多本店",
                     menuName = "白丸元味",
                     photoName = "hakata_ramen_1.jpg",
-                    imageBytes = null,
+                    imagePath = null,
                     impression = "とんこつスープが濃厚で美味しかった。麺も硬めで好みの硬さだった。",
                     date = LocalDate.parse("2024-12-15"),
                     star = 1
@@ -45,7 +44,7 @@ class MockHomeViewModel : HomeViewModelContract {
                     shopName = "一風堂 山口店",
                     menuName = "赤丸新味",
                     photoName = "hakata_ramen_2.jpg",
-                    imageBytes = null,
+                    imagePath = null,
                     impression = "赤丸新味の辛さがちょうど良く、スープとのバランスが絶妙だった。",
                     date = LocalDate.parse("2024-12-10"),
                     star = 2
@@ -56,7 +55,7 @@ class MockHomeViewModel : HomeViewModelContract {
                     shopName = "一風堂 広島店",
                     menuName = "一風堂特製ラーメン",
                     photoName = "hakata_ramen_3.jpg",
-                    imageBytes = null,
+                    imagePath = null,
                     impression = "特製ラーメンは具材が豊富で、ボリューム満点だった。",
                     date = LocalDate.parse("2024-12-05"),
                     star = 3
@@ -67,7 +66,7 @@ class MockHomeViewModel : HomeViewModelContract {
                     shopName = "一風堂 倉敷店",
                     menuName = "白丸元味",
                     photoName = "hakata_ramen_4.jpg",
-                    imageBytes = null,
+                    imagePath = null,
                     impression = "倉敷店でも本店と同じ味を楽しめた。また来たい。",
                     date = LocalDate.parse("2024-11-28"),
                     star = 3
@@ -78,14 +77,14 @@ class MockHomeViewModel : HomeViewModelContract {
                     shopName = "一風堂 博多本店",
                     menuName = "赤丸新味",
                     photoName = "hakata_ramen_5.jpg",
-                    imageBytes = null,
+                    imagePath = null,
                     impression = "2回目の訪問。前回より辛さを調整してもらった。",
                     date = LocalDate.parse("2024-11-20"),
                     star = 3
                 )
             )
         )
-    override val threeMonthsReports: StateFlow<List<FullReport>> = _threeMonthsReports.asStateFlow()
+    override val recentReports: StateFlow<List<FullReport>> = _recentReports.asStateFlow()
 
     private val _favoriteShops =
         MutableStateFlow<List<ShopWithImage>>(
@@ -95,7 +94,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 1,
                             name = "一風堂 博多本店",
-                            area = "福岡",
+                            areaId = 1,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,
@@ -119,7 +118,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 2,
                             name = "一風堂 山口店",
-                            area = "山口",
+                            areaId = 2,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,
@@ -143,7 +142,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 3,
                             name = "一風堂 広島店",
-                            area = "広島",
+                            areaId = 3,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,
@@ -167,7 +166,7 @@ class MockHomeViewModel : HomeViewModelContract {
                         Shop(
                             id = 4,
                             name = "一風堂 倉敷店",
-                            area = "岡山",
+                            areaId = 4,
                             shopUrl = "https://www.ippudo.com/",
                             mapUrl = "https://maps.google.com/",
                             star = 3,
@@ -193,7 +192,7 @@ class MockHomeViewModel : HomeViewModelContract {
 
     override fun shareToX(
         postText: String,
-        image: SharedImage?,
+        photoName: String,
         xShareLauncher: XShareLauncher
     ) {
         // Preview用なので何もしない
@@ -215,7 +214,7 @@ class MockHomeViewModel : HomeViewModelContract {
         // Preview用なので何もしない
     }
 
-    override fun loadThreeMonthsReports() {
+    override fun loadRecentReports() {
         // Preview用なので何もしない
     }
 

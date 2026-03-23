@@ -24,6 +24,6 @@ class AddShopUseCase(
         shopsRepository.insertShop(shopWithId)
 
         // エリア件数更新
-        updateShopCountInAreaUseCase(shop.area)
+        updateShopCountInAreaUseCase(shopWithId.areaId)
     }
 }

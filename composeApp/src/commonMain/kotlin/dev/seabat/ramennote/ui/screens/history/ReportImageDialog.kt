@@ -13,9 +13,19 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.seabat.ramennote.ui.components.dialog.WideDialog
 
+/**
+ * 食レポの画像をフルサイズで表示するダイアログ。
+ *
+ * [WideDialog] 上に [AsyncImage] を配置し、画像を画面幅いっぱいに引き伸ばさず
+ * アスペクト比を維持したまま表示する。
+ *
+ * @param model Coil に渡す画像モデル。`file://` 形式の URI 文字列または [ByteArray] を受け付ける。
+ *              `null` の場合は何も表示されない。
+ * @param onDismiss ダイアログを閉じる際に呼び出されるコールバック。
+ */
 @Composable
 fun ReportImageDialog(
-    imageBytes: ByteArray?,
+    model: Any?,
     onDismiss: () -> Unit
 ) {
     WideDialog(onDismiss = onDismiss) {
@@ -27,7 +37,7 @@ fun ReportImageDialog(
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
-                model = imageBytes,
+                model = model,
                 contentDescription = null,
                 modifier =
                     Modifier

@@ -11,7 +11,6 @@ class LoadFullReportUseCase(
     private val shopsRepository: ShopsRepositoryContract,
     private val localAreaImageRepository: LocalImageRepositoryContract
 ) : LoadFullReportUseCaseContract {
-
     override suspend operator fun invoke(reportId: Int): FullReport? {
         val report = reportsRepository.loadById(reportId) ?: return null
         val shop = shopsRepository.getShopById(report.shopId)
@@ -23,14 +22,16 @@ class LoadFullReportUseCase(
             shopName = shop?.name ?: "不明な店舗",
             menuName = report.menuName,
             photoName = report.photoName,
-            imageBytes = when(imageBytes) {
-                is RunStatus.Success -> imageBytes.data
-                is RunStatus.Error -> return null
-                else -> error("unexpected state")
-            },
+            imageBytes =
+                when (imageBytes) {
+                    is RunStatus.Success -> imageBytes.data
+                    is RunStatus.Error -> return null
+                    else -> error("unexpected state")
+                },
             impression = report.impression,
             date = report.date!!,
-            star = report.star
+            star = report.star,
+            areaId = report.areaId
         )
     }
 }

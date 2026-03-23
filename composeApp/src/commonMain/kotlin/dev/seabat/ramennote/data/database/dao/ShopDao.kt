@@ -20,8 +20,8 @@ interface ShopDao {
     @Query("SELECT * FROM shops WHERE id = :id")
     suspend fun getShopById(id: Int): ShopEntity?
 
-    @Query("SELECT * FROM shops WHERE area = :area")
-    suspend fun getShopsByArea(area: String): List<ShopEntity>
+    @Query("SELECT * FROM shops WHERE areaId = :areaId")
+    suspend fun getShopsByAreaId(areaId: Int): List<ShopEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertShop(shop: ShopEntity)

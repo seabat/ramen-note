@@ -47,6 +47,9 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 - **Ktor**: HTTP クライアント
 - **Coil**: 画像読み込み
 - **Navigation Compose**: 画面遷移
+- **SKIE**: Kotlin/Swift 連携（iOS）
+- **Firebase**: Analytics・Crashlytics・AI（Android）
+- **Gemini AI**: AI 機能（Android）
 
 ### 開発環境
 
@@ -149,9 +152,20 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 
 `.claude/agents/` にカスタムサブエージェントを定義しています。
 
-| エージェント       | 説明                                                                                                                                                                    |
-|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ui-ux-designer` | Compose Multiplatform 画面の UI/UX レビュー・改善提案・実装を行う専門エージェント。Material Design 3 準拠・アクセシビリティ・ユーザビリティの観点で分析し、`.claude/agent-memory/ui-ux-designer/` に知識を蓄積する |
+| エージェント          | 説明                                                                                                                                                                    |
+|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ui-ux-designer`    | Compose Multiplatform 画面の UI/UX レビュー・改善提案・実装を行う専門エージェント。Material Design 3 準拠・アクセシビリティ・ユーザビリティの観点で分析し、`.claude/agent-memory/ui-ux-designer/` に知識を蓄積する |
+| `regression-reviewer` | 過去に発生したデグレの再発防止チェックリストに基づきコード変更を静的レビューするエージェント。`HistoryScreen.kt` や LazyColumn 構造を変更した際に自動的に起動を促す。確認済みデグレパターンは `.claude/agent-memory/regression-reviewer/` に蓄積する |
+| `readme-updater`      | `README.md` をプロジェクトの実態と常に同期させるエージェント。スキル・エージェント・Hooks・技術スタックの変更時に該当セクションを更新する。更新パターンは `.claude/agent-memory/readme-updater/` に蓄積する |
+| `icon-replacer`       | Android・iOS 両プラットフォームのアプリアイコン・スプラッシュスクリーン・タスクスイッチャーオーバーレイを一括で差し替えるエージェント。`content_image`・`transparent_image`・`bg_color` の3パラメータを受け取り、画像コピーと XML/Swift の色更新を行う |
+
+#### regression-reviewer のチェック項目
+
+| チェック ID | 対象機能 | 主な確認内容 |
+|------------|---------|------------|
+| CHECK-1 | HistoryScreen 自動スクロール | `LaunchedEffect` のキーが `reportId` のみか／全件待機ループの有無／LazyColumn の item オフセット値／インデックス増分順序（increment-then-check）／`clearReportIdParam()` の呼び出しタイミング |
+
+> **チェック項目の追加方法**: `.claude/agents/regression-reviewer.md` に `CHECK-N` セクションを追記する。新たなデグレが発生した際は根本原因・検出方法・修正方針を記録し、次回以降の自動チェックに組み込む。
 
 ### Hooks
 

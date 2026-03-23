@@ -13,7 +13,7 @@ class MockShopViewModel : ShopViewModelContract {
             Shop(
                 id = 1,
                 name = "XXXX家",
-                area = "東京",
+                areaId = 1,
                 shopUrl = "https://example.com",
                 mapUrl = "https://maps.google.com",
                 star = 2,
@@ -27,6 +27,9 @@ class MockShopViewModel : ShopViewModelContract {
 
     private val _shopImage = MutableStateFlow<ByteArray?>(null)
     override val shopImage: StateFlow<ByteArray?> = _shopImage
+
+    private val _areaName = MutableStateFlow<String>("東京")
+    override val areaName: StateFlow<String> = _areaName.asStateFlow()
 
     override fun loadShopAndImage(id: Int) {
         _shopImage.value = null

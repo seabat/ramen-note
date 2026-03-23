@@ -9,14 +9,14 @@ class UpdateShopUseCase(
     private val localAreaImageRepository: LocalImageRepositoryContract,
     private val updateShopCountInAreaUseCase: UpdateShopCountInAreaUseCaseContract
 ) : UpdateShopUseCaseContract {
-    override suspend operator fun invoke(shop: Shop, byteArray: ByteArray?, oldArea: String) {
+    override suspend operator fun invoke(shop: Shop, byteArray: ByteArray?, oldAreaId: Int) {
         if (byteArray != null && shop.photoName1.isNotEmpty()) {
             localAreaImageRepository.save(byteArray, shop.photoName1)
         }
         shopsRepository.updateShop(shop)
 
         // エリアの変更が無くても店舗件数を更新
-        updateShopCountInAreaUseCase(oldArea)
-        updateShopCountInAreaUseCase(shop.area)
+        updateShopCountInAreaUseCase(oldAreaId)
+        updateShopCountInAreaUseCase(shop.areaId)
     }
 }

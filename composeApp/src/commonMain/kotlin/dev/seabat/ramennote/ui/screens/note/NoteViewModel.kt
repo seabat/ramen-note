@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
-import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadImagePathUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SearchShopsByNameUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class NoteViewModel(
     private val loadAreasUseCase: LoadAreasUseCaseContract,
-    private val loadImageListUseCase: LoadImageUseCaseContract,
+    private val loadImagePathUseCase: LoadImagePathUseCaseContract,
     private val searchShopsByNameUseCase: SearchShopsByNameUseCaseContract
 ) : ViewModel(),
     NoteViewModelContract {
@@ -33,16 +33,12 @@ class NoteViewModel(
             val area = loadAreasUseCase()
             area
                 .map { area ->
-                    val image = loadImageListUseCase(area.name)
                     AreaWithImage(
+                        areaId = area.areaId,
                         name = area.name,
                         count = area.count,
                         updatedDate = area.updatedDate,
-                        imageBytes =
-                            when (image) {
-                                is RunStatus.Success -> image.data
-                                else -> null
-                            }
+                        imagePath = loadImagePathUseCase(area.name)
                     )
                 }.also {
                     _areas.value = it

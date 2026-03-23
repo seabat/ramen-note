@@ -50,6 +50,15 @@ class IosLocalStorageDataSource: LocalStorageDataSourceContract {
         }
     }
 
+    func __getFilePath(name: String) async throws -> String? {
+        guard let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let fileName = "\(name).png"
+        let fileURL = documentsPath.appendingPathComponent(fileName)
+        return FileManager.default.fileExists(atPath: fileURL.path) ? fileURL.absoluteString : nil
+    }
+
     func __rename(oldName: String, newName: String) async throws {
         do {
             let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first

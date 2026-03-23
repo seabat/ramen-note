@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 interface AddShopViewModelContract {
     val saveState: StateFlow<RunStatus<String>>
     val shopAiInfoState: StateFlow<RunStatus<ShopAiInfo>>
+    val areaIdState: StateFlow<Int>
 
     fun saveShop(shop: Shop, sharedImage: SharedImage?)
 
@@ -19,4 +20,6 @@ interface AddShopViewModelContract {
     fun fetchShopAiInfo(areaName: String, shopName: String)
 
     fun setShopAiInfoStateToIdle()
+
+    fun loadAreaId(areaName: String)
 }

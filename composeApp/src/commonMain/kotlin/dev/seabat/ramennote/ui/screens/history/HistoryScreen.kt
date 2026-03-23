@@ -3,13 +3,22 @@ package dev.seabat.ramennote.ui.screens.history
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,14 +27,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.FullReport
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
-import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.screens.componens.DropdownAnchorField
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
+import dev.seabat.ramennote.ui.screens.componens.ShopItem
+import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
@@ -34,6 +48,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.composeapp.generated.resources.Res
 import ramennote.composeapp.generated.resources.history_no_data
+import ramennote.composeapp.generated.resources.history_search_hint
+import ramennote.composeapp.generated.resources.history_year
+import ramennote.composeapp.generated.resources.history_year_all
+import ramennote.composeapp.generated.resources.note_hit_count
 import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.screen_history_title
 
@@ -41,20 +59,40 @@ import ramennote.composeapp.generated.resources.screen_history_title
 fun HistoryScreen(
     reportId: Int? = null,
     shopId: Int? = null,
+    areaId: Int? = null,
     goToEditReport: (reportId: Int) -> Unit = {},
     clearReportIdParam: () -> Unit = {},
     clearShopParam: () -> Unit = {},
+    clearAreaParam: () -> Unit = {},
+    initialSearchText: String = "",
     viewModel: HistoryViewModelContract = koinViewModel<HistoryViewModel>()
 ) {
     val shopNameState by viewModel.shopName.collectAsState()
+    val areaNameState by viewModel.areaName.collectAsState()
     val reportsState by viewModel.reports.collectAsState()
+    val shops by viewModel.shops.collectAsState()
+    val yearState by viewModel.year.collectAsState()
+    val yearsState by viewModel.selectableYears.collectAsState()
+
     val listState = rememberLazyListState()
-    var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+    var selectedImagePath by remember { mutableStateOf<String?>(null) }
     val xShareLauncher = createRememberedXShareLauncher()
+    // ReportList 再生成時に渡す初期値（店舗フィルター適用後も検索テキストを保持するため）
+    var listSearchText by remember { mutableStateOf(initialSearchText) }
+    var listIsSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
 
     LaunchedEffect(Unit) {
-        viewModel.loadReports(shopId)
-        clearShopParam()
+        when {
+            areaId != null -> {
+                viewModel.loadReportsByArea(areaId)
+                clearAreaParam()
+            }
+            shopId != null -> {
+                viewModel.loadReportsByShop(shopId)
+                clearShopParam()
+            }
+            else -> viewModel.loadReports()
+        }
     }
 
     Column(
@@ -65,69 +103,112 @@ fun HistoryScreen(
     ) {
         AppBar(
             title =
-                if (shopNameState.isNotEmpty()) {
-                    "${stringResource(Res.string.screen_history_title)}($shopNameState)"
-                } else {
-                    stringResource(Res.string.screen_history_title)
+                when {
+                    areaNameState.isNotEmpty() ->
+                        "${stringResource(Res.string.screen_history_title)}($areaNameState)"
+                    shopNameState.isNotEmpty() ->
+                        "${stringResource(Res.string.screen_history_title)}($shopNameState)"
+                    yearState.isNotEmpty() ->
+                        "${stringResource(Res.string.screen_history_title)}($yearState)"
+                    else -> stringResource(Res.string.screen_history_title)
                 }
         )
         if (reportsState.isNotEmpty()) {
             Box {
                 // レポート一覧
-                ReportsList(
+                ReportList(
                     reports = reportsState,
                     listState = listState,
+                    searchText = listSearchText,
+                    isSearchResultVisible = listIsSearchResultVisible,
+                    shops = shops,
+                    years = yearsState,
+                    selectedYear = yearState,
                     goToEditReport = goToEditReport,
-                    onImageTap = { imageBytes -> selectedImageBytes = imageBytes },
-                    onShareTap = { postText, imageBytes ->
+                    onDisplayImage = { imagePath -> selectedImagePath = imagePath },
+                    onFilter = { shop ->
+                        // フィルター適用後も検索フィールドに店舗名を表示し、検索結果は非表示にする
+                        listSearchText = shop.name
+                        listIsSearchResultVisible = false
+                        viewModel.loadReportsByShop(shop.id)
+                    },
+                    onShare = { postText, photoName ->
                         viewModel.shareToX(
                             postText = postText,
-                            image =
-                                imageBytes?.let {
-                                    SharedImage(it)
-                                },
+                            photoName = photoName,
                             xShareLauncher = xShareLauncher
                         )
-                    }
+                    },
+                    onSearchTextChange = { text ->
+                        listSearchText = text
+                        if (text.isNotEmpty()) {
+                            listIsSearchResultVisible = true
+                            viewModel.searchShops(text)
+                        } else {
+                            listIsSearchResultVisible = false
+                            viewModel.loadReports()
+                        }
+                    },
+                    onYearSelect = { year ->
+                        listSearchText = ""
+                        listIsSearchResultVisible = false
+                        viewModel.loadReportsByYear(year)
+                    },
+                    onClearYearFilter = { viewModel.loadReports() }
                 )
             }
 
             // reportIdが指定されている場合、該当アイテムまで自動スクロール
-            LaunchedEffect(reportId, reportsState) {
-                if (reportId != null && reportsState.isNotEmpty()) {
-                    // レポートを年月でグループ化し、ソート
-                    val grouped = groupReports(reportsState)
+            // キーを reportId のみにして、レポートが1件ずつ追加されるたびに
+            // LaunchedEffect が再起動・キャンセルされる問題を防ぐ
+            LaunchedEffect(reportId) {
+                val id = reportId ?: return@LaunchedEffect
 
-                    // 該当のreportIdのインデックスを探す
-                    var targetIndex = -1
-                    var currentIndex = 0
-                    loop@ for ((_, monthReports) in grouped) {
-                        currentIndex++ // 年月ヘッダーのインデックス
-                        for (report in monthReports) {
-                            if (report.id == reportId) {
-                                targetIndex = currentIndex
-                                break@loop
-                            }
-                            currentIndex++
+                // 全件読み込み完了を待つ（reportsStateが変化しなくなるまで）
+                var lastSize = -1
+                while (reportsState.size != lastSize) {
+                    lastSize = reportsState.size
+                    delay(100)
+                }
+                if (reportsState.isEmpty()) {
+                    clearReportIdParam()
+                    return@LaunchedEffect
+                }
+
+                // レポートを年月でグループ化し、ソート
+                val grouped = groupReports(reportsState)
+
+                // 該当のreportIdのインデックスを探す
+                // LazyColumnの構造: Menu(0) + HintBanner(1) + グループヘッダー + レポートアイテム
+                var targetIndex = -1
+                var currentIndex = 2 // Menu と HintBanner の2アイテム分をオフセット
+                loop@ for ((_, monthReports) in grouped) {
+                    // currentIndex はヘッダーの位置（スキップ）
+                    for (report in monthReports) {
+                        currentIndex++ // レポートの位置へ移動してから確認
+                        if (report.id == id) {
+                            targetIndex = currentIndex
+                            break@loop
                         }
                     }
-
-                    // 見つかった場合、スクロール
-                    if (targetIndex >= 0) {
-                        // 少し遅延を入れてレイアウトが完了してからスクロール
-                        delay(500)
-                        listState.animateScrollToItem(targetIndex)
-                    }
-
-                    clearReportIdParam()
+                    currentIndex++ // 次のグループのヘッダー位置へ移動
                 }
+
+                // 見つかった場合、スクロール
+                if (targetIndex >= 0) {
+                    // 少し遅延を入れてレイアウトが完了してからスクロール
+                    delay(300)
+                    listState.animateScrollToItem(targetIndex)
+                }
+
+                clearReportIdParam()
             }
 
             // 画像ダイアログ
-            selectedImageBytes?.let { imageBytes ->
+            selectedImagePath?.let { path ->
                 ReportImageDialog(
-                    imageBytes = imageBytes,
-                    onDismiss = { selectedImageBytes = null }
+                    model = path,
+                    onDismiss = { selectedImagePath = null }
                 )
             }
         } else {
@@ -140,23 +221,91 @@ fun HistoryScreen(
     }
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreenPreview() {
-    RamenNoteTheme {
-        HistoryScreen(viewModel = MockHistoryViewModel())
+private fun YearDropdownField(
+    years: List<Int>,
+    selectedYear: String,
+    onYearSelect: (Int) -> Unit,
+    onClearYearFilter: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val allLabel = stringResource(Res.string.history_year_all)
+    val yearHint = stringResource(Res.string.history_year)
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        DropdownAnchorField(
+            text = if (selectedYear.isNotEmpty()) selectedYear else yearHint,
+            expanded = expanded,
+            onToggle = { expanded = !expanded },
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            // 「全て」選択肢
+            DropdownMenuItem(
+                text = { Text(allLabel) },
+                onClick = {
+                    onClearYearFilter()
+                    expanded = false
+                }
+            )
+            years.forEach { year ->
+                DropdownMenuItem(
+                    text = { Text(year.toString()) },
+                    onClick = {
+                        onYearSelect(year)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 
+/**
+ * 食レポ一覧を表示するComposable。
+ *
+ * 検索バーと年フィルターボタンを含むMenuを上部に表示し、
+ * 検索中は店舗一覧、それ以外は年月ごとにグルーピングされた食レポ一覧を表示する。
+ * 一覧の先頭にはHintBannerを3秒間表示する。
+ *
+ * @param reports 表示する食レポのリスト
+ * @param listState LazyColumnのスクロール状態
+ * @param searchText 初期表示時の検索テキスト
+ * @param shops 検索結果として表示する店舗のリスト
+ * @param goToEditReport 食レポ編集画面へ遷移するコールバック（reportIdを渡す）
+ * @param onDisplayImage 画像を拡大表示させるコールバック（画像バイト列を渡す）
+ * @param onFilter 食レポ一覧を店舗でフィルタリングするコールバック（Shop を渡す）
+ * @param onShare シェアボタンタップ時のコールバック（テキストと画像バイト列を渡す）
+ * @param onSearchTextChange 検索テキスト変更時のコールバック（空文字でフィルター解除）
+ */
 @Composable
-private fun ReportsList(
+private fun ReportList(
     reports: List<FullReport>,
     listState: LazyListState,
+    searchText: String,
+    isSearchResultVisible: Boolean,
+    shops: List<Shop>,
+    years: List<Int>,
+    selectedYear: String,
     goToEditReport: (Int) -> Unit,
-    onImageTap: (ByteArray?) -> Unit,
-    onShareTap: (String, ByteArray?) -> Unit
+    onDisplayImage: (String?) -> Unit,
+    onFilter: (Shop) -> Unit = {},
+    onShare: (String, String) -> Unit,
+    onSearchTextChange: (String) -> Unit = {},
+    onYearSelect: (Int) -> Unit = {},
+    onClearYearFilter: () -> Unit = {}
 ) {
     var isBannerVisible by remember { mutableStateOf(true) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         delay(3000)
@@ -172,32 +321,105 @@ private fun ReportsList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            HintBanner(
-                isVisible = isBannerVisible,
-                text = stringResource(Res.string.note_notification)
+            Menu(
+                searchText = searchText,
+                years = years,
+                selectedYear = selectedYear,
+                onYearSelect = onYearSelect,
+                onClearYearFilter = onClearYearFilter,
+                onSearchTextChange = onSearchTextChange
             )
         }
-
-        grouped.forEach { (yearMonth, monthReports) ->
+        if (isSearchResultVisible) {
             item {
-                Text(
-                    text = yearMonth,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
+                Column {
+                    Text(
+                        text = stringResource(Res.string.note_hit_count, shops.size),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    if (shops.isNotEmpty()) {
+                        HorizontalDivider(
+                            Modifier,
+                            1.dp,
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        )
+                    }
+                }
+            }
+            items(shops) { shop ->
+                ShopItem(
+                    shop = shop,
+                    onShopClick = {
+                        keyboardController?.hide()
+                        onFilter(shop)
+                    },
+                    onDelete = { /* 削除処理 */ }
                 )
             }
+        } else {
+            item {
+                HintBanner(
+                    isVisible = isBannerVisible,
+                    text = stringResource(Res.string.note_notification)
+                )
+            }
+            grouped.forEach { (yearMonth, monthReports) ->
+                item {
+                    Text(
+                        text = yearMonth,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
 
-            items(monthReports) { report ->
-                ReportCard(
-                    report = report,
-                    isSimpleDisplay = false,
-                    onLongPress = { goToEditReport(report.id) },
-                    onImageTap = { onImageTap(report.imageBytes) },
-                    onTap = {},
-                    onShareTap = onShareTap
-                )
+                items(monthReports) { report ->
+                    ReportCard(
+                        report = report,
+                        isSimpleDisplay = false,
+                        onLongPress = { goToEditReport(report.id) },
+                        onImageTap = { onDisplayImage(report.imagePath) },
+                        onTap = {},
+                        onShareTap = onShare
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun Menu(
+    searchText: String,
+    years: List<Int>,
+    selectedYear: String,
+    onYearSelect: (Int) -> Unit,
+    onClearYearFilter: () -> Unit,
+    onSearchTextChange: (String) -> Unit
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        YearDropdownField(
+            years = years,
+            selectedYear = selectedYear,
+            onYearSelect = onYearSelect,
+            onClearYearFilter = onClearYearFilter,
+            modifier = Modifier.width(100.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Box(modifier = Modifier.weight(1f)) {
+            SearchInputField(
+                placeholder = stringResource(Res.string.history_search_hint),
+                value = searchText,
+                onValueChange = onSearchTextChange
+            )
         }
     }
 }
@@ -209,3 +431,63 @@ private fun groupReports(reports: List<FullReport>): Map<String, List<FullReport
             val date = report.date
             "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
         }.filterKeys { it.isNotEmpty() }
+
+@Preview
+@Composable
+private fun MenuPreview() {
+    RamenNoteTheme {
+        Menu(
+            searchText = "",
+            years = listOf(2025, 2024),
+            selectedYear = "",
+            onYearSelect = {},
+            onClearYearFilter = {},
+            onSearchTextChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun MenuWithSearchTextPreview() {
+    RamenNoteTheme {
+        Menu(
+            searchText = "麺屋",
+            years = listOf(2025, 2024),
+            selectedYear = "",
+            onYearSelect = {},
+            onClearYearFilter = {},
+            onSearchTextChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HistoryScreenPreview() {
+    RamenNoteTheme {
+        HistoryScreen(viewModel = MockHistoryViewModel())
+    }
+}
+
+@Preview
+@Composable
+fun HistoryScreenForSearchWithNoHitPreview() {
+    RamenNoteTheme {
+        HistoryScreen(
+            initialSearchText = "一風堂",
+            viewModel = MockHistoryViewModel()
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HistoryScreenForSearchWithHitsPreview() {
+    RamenNoteTheme {
+        HistoryScreen(
+            initialSearchText = "一風堂",
+            viewModel = MockHistoryViewModelWithSearchHits()
+        )
+    }
+}
