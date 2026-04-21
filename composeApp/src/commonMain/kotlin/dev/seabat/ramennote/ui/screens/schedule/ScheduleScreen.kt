@@ -189,7 +189,7 @@ private fun ScheduleScreenDialog(
                             datePickerOnClickHandler(
                                 addDatePickerState,
                                 showErrorDialog = onShowPastDate,
-                                clearClicked = {},
+
                                 dismissDatePicker = onDismiss,
                                 editSchedule = { date -> onAddSchedule(state.shop.id, date) }
                             )
@@ -219,7 +219,7 @@ private fun ScheduleScreenDialog(
                             datePickerOnClickHandler(
                                 editDatePickerState,
                                 showErrorDialog = onShowPastDate,
-                                clearClicked = {},
+
                                 dismissDatePicker = onDismiss,
                                 editSchedule = { date -> onEditSchedule(state.shopId, date) }
                             )
@@ -413,32 +413,42 @@ private fun ScheduleRow(
     }
 }
 
+/**
+ * DatePickerDialog の OK ボタン押下時の処理。
+ *
+ * 選択された日付が今日以降であれば [editSchedule] を呼び出して [dismissDatePicker] でダイアログを閉じる。
+ * 過去の日付が選択された場合は [showErrorDialog] を呼び出し、ダイアログは閉じない。
+ * 日付が未選択の場合は [dismissDatePicker] のみ呼び出す。
+ *
+ * @param datePickerState DatePicker の状態。選択日付ミリ秒を取得するために使用する
+ * @param showErrorDialog 過去日付が選択されたときに呼び出すコールバック
+ * @param editSchedule 有効な日付が選択されたときに呼び出すコールバック。選択された [LocalDate] を受け取る
+ * @param dismissDatePicker DatePickerDialog を閉じるコールバック。過去日付エラー時は呼ばれない
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 private fun datePickerOnClickHandler(
     datePickerState: DatePickerState,
     showErrorDialog: () -> Unit,
-    clearClicked: () -> Unit,
     editSchedule: (LocalDate) -> Unit = { _ -> },
     dismissDatePicker: () -> Unit
 ) {
-    try {
-        val millis = datePickerState.selectedDateMillis
-        if (millis != null) {
-            val date =
-                Instant
-                    .fromEpochMilliseconds(millis)
-                    .toLocalDateTime(TimeZone.currentSystemDefault())
-                    .date
+    val millis = datePickerState.selectedDateMillis
+    if (millis != null) {
+        val date =
+            Instant
+                .fromEpochMilliseconds(millis)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
 
-            // 今日を含めた未来日かどうかをチェック
-            if (!date.isTodayOrFuture()) {
-                showErrorDialog()
-            } else {
-                editSchedule(date)
-            }
+        // 今日を含めた未来日かどうかをチェック
+        if (!date.isTodayOrFuture()) {
+            // エラーダイアログを表示するため dismissDatePicker は呼ばない
+            showErrorDialog()
+        } else {
+            editSchedule(date)
+            dismissDatePicker()
         }
-    } finally {
-        clearClicked()
+    } else {
         dismissDatePicker()
     }
 }
