@@ -9,6 +9,8 @@ interface ScheduleViewModelContract {
 
     fun loadSchedule()
 
+    fun addSchedule(shopId: Int, date: LocalDate)
+
     fun editSchedule(shopId: Int, date: LocalDate)
 
     fun deleteSchedule(shopId: Int)

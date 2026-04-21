@@ -40,6 +40,10 @@ class MockScheduleViewModel : ScheduleViewModelContract {
         // Preview / Mock 用: すでに初期値を流しているため何もしない
     }
 
+    override fun addSchedule(shopId: Int, date: LocalDate) {
+        // Preview / Mock 用
+    }
+
     override fun editSchedule(shopId: Int, date: LocalDate) {
         // Preview / Mock 用
     }

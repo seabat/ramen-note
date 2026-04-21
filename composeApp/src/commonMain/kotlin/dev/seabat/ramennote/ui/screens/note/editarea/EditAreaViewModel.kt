@@ -49,7 +49,7 @@ class EditAreaViewModel(
     override fun deleteArea(areaId: Int) {
         viewModelScope.launch {
             _deleteState.value = RunStatus.Loading()
-            _editState.value = deleteAreaUseCase(areaId)
+            _deleteState.value = deleteAreaUseCase(areaId)
         }
     }
 
