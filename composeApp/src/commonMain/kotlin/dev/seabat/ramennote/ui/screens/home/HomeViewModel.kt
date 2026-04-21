@@ -9,8 +9,8 @@ import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.usecase.LoadFavoriteShopsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImagePathUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
-import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentFullReportsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadYearlyReportStatsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateScheduleInShopUseCaseContract
 import dev.seabat.ramennote.ui.gallery.SharedImage
