@@ -102,12 +102,7 @@ fun HistoryScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             AppBar(
                 title =
                     when {
@@ -120,118 +115,127 @@ fun HistoryScreen(
                         else -> stringResource(Res.string.screen_history_title)
                     }
             )
-            if (reportsState.isNotEmpty()) {
-                Box {
-                    // レポート一覧
-                    ReportList(
-                        reports = reportsState,
-                        listState = listState,
-                        searchText = listSearchText,
-                        isSearchResultVisible = listIsSearchResultVisible,
-                        shops = shops,
-                        years = yearsState,
-                        selectedYear = yearState,
-                        goToEditReport = goToEditReport,
-                        onDisplayImage = { imagePath -> selectedImagePath = imagePath },
-                        onFilter = { shop ->
-                            // フィルター適用後も検索フィールドに店舗名を表示し、検索結果は非表示にする
-                            listSearchText = shop.name
-                            listIsSearchResultVisible = false
-                            viewModel.loadReportsByShop(shop.id)
-                        },
-                        onShare = { postText, photoName ->
-                            viewModel.shareToX(
-                                postText = postText,
-                                photoName = photoName,
-                                xShareLauncher = xShareLauncher
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    if (reportsState.isNotEmpty()) {
+                        Box {
+                            // レポート一覧
+                            ReportList(
+                                reports = reportsState,
+                                listState = listState,
+                                searchText = listSearchText,
+                                isSearchResultVisible = listIsSearchResultVisible,
+                                shops = shops,
+                                years = yearsState,
+                                selectedYear = yearState,
+                                goToEditReport = goToEditReport,
+                                onDisplayImage = { imagePath -> selectedImagePath = imagePath },
+                                onFilter = { shop ->
+                                    // フィルター適用後も検索フィールドに店舗名を表示し、検索結果は非表示にする
+                                    listSearchText = shop.name
+                                    listIsSearchResultVisible = false
+                                    viewModel.loadReportsByShop(shop.id)
+                                },
+                                onShare = { postText, photoName ->
+                                    viewModel.shareToX(
+                                        postText = postText,
+                                        photoName = photoName,
+                                        xShareLauncher = xShareLauncher
+                                    )
+                                },
+                                onSearchTextChange = { text ->
+                                    listSearchText = text
+                                    if (text.isNotEmpty()) {
+                                        listIsSearchResultVisible = true
+                                        viewModel.searchShops(text)
+                                    } else {
+                                        listIsSearchResultVisible = false
+                                        viewModel.loadReports()
+                                    }
+                                },
+                                onYearSelect = { year ->
+                                    listSearchText = ""
+                                    listIsSearchResultVisible = false
+                                    viewModel.loadReportsByYear(year)
+                                },
+                                onClearYearFilter = { viewModel.loadReports() }
                             )
-                        },
-                        onSearchTextChange = { text ->
-                            listSearchText = text
-                            if (text.isNotEmpty()) {
-                                listIsSearchResultVisible = true
-                                viewModel.searchShops(text)
-                            } else {
-                                listIsSearchResultVisible = false
-                                viewModel.loadReports()
-                            }
-                        },
-                        onYearSelect = { year ->
-                            listSearchText = ""
-                            listIsSearchResultVisible = false
-                            viewModel.loadReportsByYear(year)
-                        },
-                        onClearYearFilter = { viewModel.loadReports() }
-                    )
-                }
-
-                // reportIdが指定されている場合、該当アイテムまで自動スクロール
-                // キーを reportId のみにして、レポートが1件ずつ追加されるたびに
-                // LaunchedEffect が再起動・キャンセルされる問題を防ぐ
-                LaunchedEffect(reportId) {
-                    val id = reportId ?: return@LaunchedEffect
-
-                    // 全件読み込み完了を待つ（reportsStateが変化しなくなるまで）
-                    var lastSize = -1
-                    while (reportsState.size != lastSize) {
-                        lastSize = reportsState.size
-                        delay(100)
-                    }
-                    if (reportsState.isEmpty()) {
-                        clearReportIdParam()
-                        return@LaunchedEffect
-                    }
-
-                    // レポートを年月でグループ化し、ソート
-                    val grouped = groupReports(reportsState)
-
-                    // 該当のreportIdのインデックスを探す
-                    // LazyColumnの構造: Menu(0) + HintBanner(1) + グループヘッダー + レポートアイテム
-                    var targetIndex = -1
-                    var currentIndex = 2 // Menu と HintBanner の2アイテム分をオフセット
-                    loop@ for ((_, monthReports) in grouped) {
-                        // currentIndex はヘッダーの位置（スキップ）
-                        for (report in monthReports) {
-                            currentIndex++ // レポートの位置へ移動してから確認
-                            if (report.id == id) {
-                                targetIndex = currentIndex
-                                break@loop
-                            }
                         }
-                        currentIndex++ // 次のグループのヘッダー位置へ移動
-                    }
 
-                    // 見つかった場合、スクロール
-                    if (targetIndex >= 0) {
-                        // 少し遅延を入れてレイアウトが完了してからスクロール
-                        delay(300)
-                        listState.animateScrollToItem(targetIndex)
-                    }
+                        // reportIdが指定されている場合、該当アイテムまで自動スクロール
+                        // キーを reportId のみにして、レポートが1件ずつ追加されるたびに
+                        // LaunchedEffect が再起動・キャンセルされる問題を防ぐ
+                        LaunchedEffect(reportId) {
+                            val id = reportId ?: return@LaunchedEffect
 
-                    clearReportIdParam()
+                            // 全件読み込み完了を待つ（reportsStateが変化しなくなるまで）
+                            var lastSize = -1
+                            while (reportsState.size != lastSize) {
+                                lastSize = reportsState.size
+                                delay(100)
+                            }
+                            if (reportsState.isEmpty()) {
+                                clearReportIdParam()
+                                return@LaunchedEffect
+                            }
+
+                            // レポートを年月でグループ化し、ソート
+                            val grouped = groupReports(reportsState)
+
+                            // 該当のreportIdのインデックスを探す
+                            // LazyColumnの構造: Menu(0) + HintBanner(1) + グループヘッダー + レポートアイテム
+                            var targetIndex = -1
+                            var currentIndex = 2 // Menu と HintBanner の2アイテム分をオフセット
+                            loop@ for ((_, monthReports) in grouped) {
+                                // currentIndex はヘッダーの位置（スキップ）
+                                for (report in monthReports) {
+                                    currentIndex++ // レポートの位置へ移動してから確認
+                                    if (report.id == id) {
+                                        targetIndex = currentIndex
+                                        break@loop
+                                    }
+                                }
+                                currentIndex++ // 次のグループのヘッダー位置へ移動
+                            }
+
+                            // 見つかった場合、スクロール
+                            if (targetIndex >= 0) {
+                                // 少し遅延を入れてレイアウトが完了してからスクロール
+                                delay(300)
+                                listState.animateScrollToItem(targetIndex)
+                            }
+
+                            clearReportIdParam()
+                        }
+
+                        // 画像ダイアログ
+                        selectedImagePath?.let { path ->
+                            ReportImageDialog(
+                                model = path,
+                                onDismiss = { selectedImagePath = null }
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = stringResource(Res.string.history_no_data),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
-
-                // 画像ダイアログ
-                selectedImagePath?.let { path ->
-                    ReportImageDialog(
-                        model = path,
-                        onDismiss = { selectedImagePath = null }
+                if (!showSelectShopDialog) {
+                    AddFab(
+                        modifier = Modifier.align(Alignment.BottomEnd),
+                        contentDescription = "食レポを追加",
+                        onAddClick = { showSelectShopDialog = true }
                     )
                 }
-            } else {
-                Text(
-                    text = stringResource(Res.string.history_no_data),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
             }
-        }
-        if (!showSelectShopDialog) {
-            AddFab(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                contentDescription = "食レポを追加",
-                onAddClick = { showSelectShopDialog = true }
-            )
         }
         if (showSelectShopDialog) {
             SelectShopDialog(

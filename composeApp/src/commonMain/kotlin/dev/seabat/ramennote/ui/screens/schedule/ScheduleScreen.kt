@@ -95,23 +95,23 @@ fun ScheduleScreen(
         viewModel.loadSchedule()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize(),
+        verticalArrangement = Arrangement.Top
+    ) {
+        AppBar(
+            title = stringResource(Res.string.screen_schedule_title)
+        )
+
+        Box(
             modifier =
                 Modifier
-                    .fillMaxSize(),
-            verticalArrangement = Arrangement.Top
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
         ) {
-            AppBar(
-                title = stringResource(Res.string.screen_schedule_title)
-            )
-
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 if (schedules.isNotEmpty()) {
                     ScheduleList(
                         schedules = schedules,
@@ -141,17 +141,16 @@ fun ScheduleScreen(
                     )
                 }
             }
-        }
 
-        // FAB（他のダイアログが開いていない時のみ表示）
-        if (dialogState == DialogState.Hidden) {
-            AddFab(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                contentDescription = "予定を追加",
-                onAddClick = { dialogState = DialogState.SelectShop }
-            )
+            // FAB（他のダイアログが開いていない時のみ表示）
+            if (dialogState == DialogState.Hidden) {
+                AddFab(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    contentDescription = "予定を追加",
+                    onAddClick = { dialogState = DialogState.SelectShop }
+                )
+            }
         }
-
     }
 
     ScheduleScreenDialog(
