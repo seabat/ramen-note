@@ -1,23 +1,18 @@
 package dev.seabat.ramennote.ui.screens.componens
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -61,7 +55,6 @@ fun ShopDropdownField(
             DropdownAnchorField(
                 text = value,
                 expanded = expanded,
-                onToggle = { expanded = !expanded },
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -85,51 +78,36 @@ fun ShopDropdownField(
     }
 }
 
+/**
+ * ドロップダウンのアンカーとなる読み取り専用フィールド。
+ *
+ * [OutlinedTextField] ベースで MD3 の enabled/disabled スタイルを自動適用する。
+ * [ExposedDropdownMenuBox] の直接の子として使用し、[Modifier.menuAnchor] を渡すこと。
+ *
+ * @param text 表示するテキスト
+ * @param expanded ドロップダウンが展開中かどうか（TrailingIcon の回転に使用）
+ * @param label フィールド内に表示するラベル。null の場合はラベルなし
+ * @param enabled false にすると MD3 の disabled スタイルが自動適用される
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DropdownAnchorField(
     text: String,
     expanded: Boolean,
-    onToggle: () -> Unit,
+    label: String? = null,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier =
-            modifier
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(4.dp)
-                ).clickable { onToggle() }
-    ) {
-        // テキスト入力領域（読み取り専用として扱う）
-        BasicTextField(
-            value = text,
-            onValueChange = { /* readOnly */ },
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 28.dp, top = 8.dp, bottom = 8.dp) // 右側にアイコン分の余白
-                    .focusable(false),
-            readOnly = true,
-            singleLine = true,
-            textStyle =
-                MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
-        )
-
-        // 末尾のドロップダウンアイコン
-        Box(
-            modifier =
-                Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 4.dp)
-        ) {
-            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-        }
-    }
+    OutlinedTextField(
+        value = text,
+        onValueChange = {},
+        readOnly = true,
+        enabled = enabled,
+        label = label?.let { { Text(it) } },
+        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+        modifier = modifier,
+        singleLine = true
+    )
 }
 
 @Preview(showBackground = true)
