@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.Shop
@@ -63,7 +64,12 @@ fun SelectShopDialog(
             )
 
             // エリアドロップダウン
-            // label を DropdownAnchorField 内に持つため外側ラベルは不要
+            Text(
+                text = "エリア",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(4.dp))
             ExposedDropdownMenuBox(
                 expanded = areaExpanded,
                 onExpandedChange = { areaExpanded = !areaExpanded },
@@ -71,8 +77,8 @@ fun SelectShopDialog(
             ) {
                 DropdownAnchorField(
                     text = selectedArea?.name ?: "",
-                    label = "エリア",
                     expanded = areaExpanded,
+                    onToggle = { areaExpanded = !areaExpanded },
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -98,18 +104,27 @@ fun SelectShopDialog(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 店舗ドロップダウン（エリア未選択時は enabled = false で MD3 の disabled スタイルを自動適用）
+            // 店舗ドロップダウン（エリア未選択時はグレーアウト）
             val shopEnabled = selectedArea != null
+            Text(
+                text = "店舗",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.alpha(if (shopEnabled) 1f else 0.38f)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
             ExposedDropdownMenuBox(
                 expanded = shopExpanded,
                 onExpandedChange = { if (shopEnabled) shopExpanded = !shopExpanded },
-                modifier = Modifier.fillMaxWidth()
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .alpha(if (shopEnabled) 1f else 0.38f)
             ) {
                 DropdownAnchorField(
                     text = selectedShop?.name ?: "",
-                    label = "店舗",
                     expanded = shopExpanded,
-                    enabled = shopEnabled,
+                    onToggle = { if (shopEnabled) shopExpanded = !shopExpanded },
                     modifier =
                         Modifier
                             .fillMaxWidth()

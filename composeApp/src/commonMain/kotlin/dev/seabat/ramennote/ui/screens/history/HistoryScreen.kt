@@ -260,8 +260,8 @@ private fun YearDropdownField(
     ) {
         DropdownAnchorField(
             text = if (selectedYear.isNotEmpty()) selectedYear else yearHint,
-            label = yearHint,
             expanded = expanded,
+            onToggle = { expanded = !expanded },
             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
         )
         ExposedDropdownMenu(
