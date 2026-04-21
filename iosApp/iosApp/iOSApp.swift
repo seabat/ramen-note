@@ -1,12 +1,21 @@
 import ComposeApp
 import SwiftUI
 import FirebaseCore
+import FirebaseAppCheck
 
 @main
 struct iOSApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
+        // Firebase App Check の初期化（FirebaseApp.configure() より前に設定）
+        #if DEBUG
+        let providerFactory = AppCheckDebugProviderFactory()
+        #else
+        let providerFactory = DeviceCheckProviderFactory()
+        #endif
+        AppCheck.setAppCheckProviderFactory(providerFactory)
+
         FirebaseApp.configure()
 
         KoinHelperKt.doInitKoin(

@@ -82,6 +82,8 @@ kotlin {
             implementation(libs.firebase.ai)
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.appcheck)
+            implementation(libs.firebase.appcheck.debug)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -138,8 +140,8 @@ android {
         applicationId = "dev.seabat.ramennote"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 18
-        versionName = "1.1.0"
+        versionCode = 19
+        versionName = "1.1.1"
     }
     buildFeatures {
         buildConfig = true
