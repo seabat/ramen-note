@@ -38,7 +38,7 @@ import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.AddFab
-import dev.seabat.ramennote.ui.screens.componens.DropdownAnchorField
+import dev.seabat.ramennote.ui.components.dropdown.DropdownAnchorField
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
@@ -224,10 +224,13 @@ fun HistoryScreen(
                 )
             }
         }
-        AddFab(
-            modifier = Modifier.align(Alignment.BottomEnd),
-            onAddClick = { showSelectShopDialog = true }
-        )
+        if (!showSelectShopDialog) {
+            AddFab(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                contentDescription = "食レポを追加",
+                onAddClick = { showSelectShopDialog = true }
+            )
+        }
         if (showSelectShopDialog) {
             SelectShopDialog(
                 onDismiss = { showSelectShopDialog = false },

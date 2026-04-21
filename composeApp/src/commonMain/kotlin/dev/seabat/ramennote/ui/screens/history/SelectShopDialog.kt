@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.history
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,22 +14,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.dialog.WideDialog
-import dev.seabat.ramennote.ui.screens.componens.DropdownAnchorField
+import dev.seabat.ramennote.ui.components.dropdown.DropdownAnchorField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -40,8 +42,8 @@ fun SelectShopDialog(
     onReportClick: (Shop) -> Unit,
     viewModel: SelectShopViewModelContract = koinViewModel<SelectShopViewModel>()
 ) {
-    val areas by viewModel.areas.collectAsState()
-    val shopsInArea by viewModel.shopsInArea.collectAsState()
+    val areas by viewModel.areas.collectAsStateWithLifecycle()
+    val shopsInArea by viewModel.shopsInArea.collectAsStateWithLifecycle()
 
     var selectedArea by remember { mutableStateOf<Area?>(null) }
     var selectedShop by remember { mutableStateOf<Shop?>(null) }
@@ -59,45 +61,47 @@ fun SelectShopDialog(
         ) {
             Text(
                 text = "店舗を選択",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             // エリアドロップダウン
-            Text(
-                text = "エリア",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            ExposedDropdownMenuBox(
-                expanded = areaExpanded,
-                onExpandedChange = { areaExpanded = !areaExpanded },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                DropdownAnchorField(
-                    text = selectedArea?.name ?: "",
-                    expanded = areaExpanded,
-                    onToggle = { areaExpanded = !areaExpanded },
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+            Column(modifier = Modifier.semantics(mergeDescendants = true) {}) {
+                Text(
+                    text = "エリア",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                ExposedDropdownMenu(
+                Spacer(modifier = Modifier.height(4.dp))
+                ExposedDropdownMenuBox(
                     expanded = areaExpanded,
-                    onDismissRequest = { areaExpanded = false }
+                    onExpandedChange = { areaExpanded = !areaExpanded },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    areas.forEach { area ->
-                        DropdownMenuItem(
-                            text = { Text(area.name) },
-                            onClick = {
-                                selectedArea = area
-                                selectedShop = null
-                                viewModel.loadShopsByArea(area.name)
-                                areaExpanded = false
-                            }
-                        )
+                    DropdownAnchorField(
+                        text = selectedArea?.name ?: "",
+                        expanded = areaExpanded,
+                        onToggle = { areaExpanded = !areaExpanded },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = areaExpanded,
+                        onDismissRequest = { areaExpanded = false }
+                    ) {
+                        areas.forEach { area ->
+                            DropdownMenuItem(
+                                text = { Text(area.name) },
+                                onClick = {
+                                    selectedArea = area
+                                    selectedShop = null
+                                    viewModel.loadShopsByArea(area.name)
+                                    areaExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -106,42 +110,45 @@ fun SelectShopDialog(
 
             // 店舗ドロップダウン（エリア未選択時はグレーアウト）
             val shopEnabled = selectedArea != null
-            Text(
-                text = "店舗",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.alpha(if (shopEnabled) 1f else 0.38f)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            ExposedDropdownMenuBox(
-                expanded = shopExpanded,
-                onExpandedChange = { if (shopEnabled) shopExpanded = !shopExpanded },
+            Column(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
+                        .semantics(mergeDescendants = true) {}
                         .alpha(if (shopEnabled) 1f else 0.38f)
             ) {
-                DropdownAnchorField(
-                    text = selectedShop?.name ?: "",
-                    expanded = shopExpanded,
-                    onToggle = { if (shopEnabled) shopExpanded = !shopExpanded },
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = shopEnabled)
+                Text(
+                    text = "店舗",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                ExposedDropdownMenu(
+                Spacer(modifier = Modifier.height(4.dp))
+                ExposedDropdownMenuBox(
                     expanded = shopExpanded,
-                    onDismissRequest = { shopExpanded = false }
+                    onExpandedChange = { if (shopEnabled) shopExpanded = !shopExpanded },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    shopsInArea.forEach { shop ->
-                        DropdownMenuItem(
-                            text = { Text(shop.name) },
-                            onClick = {
-                                selectedShop = shop
-                                shopExpanded = false
-                            }
-                        )
+                    DropdownAnchorField(
+                        text = selectedShop?.name ?: "",
+                        expanded = shopExpanded,
+                        onToggle = { if (shopEnabled) shopExpanded = !shopExpanded },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = shopEnabled)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = shopExpanded,
+                        onDismissRequest = { shopExpanded = false }
+                    ) {
+                        shopsInArea.forEach { shop ->
+                            DropdownMenuItem(
+                                text = { Text(shop.name) },
+                                onClick = {
+                                    selectedShop = shop
+                                    shopExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -150,10 +157,10 @@ fun SelectShopDialog(
 
             // ボタン行
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Spacer(modifier = Modifier.weight(1f))
-                OutlinedButton(onClick = onDismiss) {
+                TextButton(onClick = onDismiss) {
                     Text("キャンセル")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
