@@ -28,6 +28,15 @@ class ScheduleViewModel(
         }
     }
 
+    override fun addSchedule(shopId: Int, date: LocalDate) {
+        viewModelScope.launch {
+            updateScheduleInShopUseCaseContract(shopId, date)
+
+            val schedules = loadScheduledShopsUseCase()
+            _schedules.value = schedules
+        }
+    }
+
     override fun editSchedule(shopId: Int, date: LocalDate) {
         viewModelScope.launch {
             updateScheduleInShopUseCaseContract(shopId, date)

@@ -2,6 +2,7 @@ package dev.seabat.ramennote.ui.screens.schedule
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +23,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,11 +31,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Schedule
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.components.button.AddFab
+import dev.seabat.ramennote.ui.components.dialog.SelectShopDialog
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.Instant
@@ -55,6 +59,7 @@ import ramennote.composeapp.generated.resources.schedule_delete_confirm
 import ramennote.composeapp.generated.resources.schedule_no_data
 import ramennote.composeapp.generated.resources.schedule_picker_label
 import ramennote.composeapp.generated.resources.screen_schedule_title
+import ramennote.composeapp.generated.resources.select_shop_dialog_create_schedule_button
 
 private sealed interface ErrorDialogType {
     object Hidden : ErrorDialogType
@@ -66,6 +71,16 @@ private sealed interface ErrorDialogType {
     ) : ErrorDialogType
 }
 
+private sealed interface AddScheduleDialogState {
+    object Hidden : AddScheduleDialogState
+
+    object SelectShop : AddScheduleDialogState
+
+    data class DatePicker(
+        val shop: Shop
+    ) : AddScheduleDialogState
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
@@ -73,63 +88,122 @@ fun ScheduleScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
-    val schedules by viewModel.schedules.collectAsState()
+    val schedules by viewModel.schedules.collectAsStateWithLifecycle()
     var showDatePicker by remember { mutableStateOf(false) }
     var clickedShopId by remember { mutableStateOf(0) }
     var errorDialogType by remember { mutableStateOf<ErrorDialogType>(ErrorDialogType.Hidden) }
     val datePickerState = rememberDatePickerState()
+    var addDialogState by remember { mutableStateOf<AddScheduleDialogState>(AddScheduleDialogState.Hidden) }
+    val addDatePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSchedule()
     }
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize(),
-        verticalArrangement = Arrangement.Top
-    ) {
-        AppBar(
-            title = stringResource(Res.string.screen_schedule_title)
-        )
-
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
+                    .fillMaxSize(),
+            verticalArrangement = Arrangement.Top
         ) {
-            if (schedules.isNotEmpty()) {
-                ScheduleList(
-                    schedules = schedules,
-                    onReportClick = { schedule ->
-                        goToReport(
-                            schedule.shopId,
-                            schedule.shopName,
-                            schedule.menuName,
-                            schedule.scheduledDate?.toString() ?: ""
+            AppBar(
+                title = stringResource(Res.string.screen_schedule_title)
+            )
+
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+            ) {
+                if (schedules.isNotEmpty()) {
+                    ScheduleList(
+                        schedules = schedules,
+                        onReportClick = { schedule ->
+                            goToReport(
+                                schedule.shopId,
+                                schedule.shopName,
+                                schedule.menuName,
+                                schedule.scheduledDate?.toString() ?: ""
+                            )
+                        },
+                        onEditClick = { shopId ->
+                            showDatePicker = true
+                            clickedShopId = shopId
+                        },
+                        onDeleteClick = { shopId ->
+                            errorDialogType = ErrorDialogType.DeleteConfirm(shopId)
+                        },
+                        onListItemClick = { schedule ->
+                            goToShop(schedule.shopId, schedule.shopName)
+                        }
+                    )
+                } else {
+                    Text(
+                        text = stringResource(Res.string.schedule_no_data),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        }
+
+        // FAB（他のダイアログが開いていない時のみ表示）
+        if (addDialogState == AddScheduleDialogState.Hidden && !showDatePicker && errorDialogType == ErrorDialogType.Hidden) {
+            AddFab(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                contentDescription = "予定を追加",
+                onAddClick = { addDialogState = AddScheduleDialogState.SelectShop }
+            )
+        }
+
+        // 店舗選択ダイアログ（追加フロー）
+        if (addDialogState == AddScheduleDialogState.SelectShop) {
+            SelectShopDialog(
+                onDismiss = { addDialogState = AddScheduleDialogState.Hidden },
+                confirmButtonLabel = stringResource(Res.string.select_shop_dialog_create_schedule_button),
+                onConfirmClick = { shop ->
+                    addDialogState = AddScheduleDialogState.DatePicker(shop)
+                }
+            )
+        }
+    }
+
+    // 日付選択ダイアログ（追加フロー）
+    if (addDialogState is AddScheduleDialogState.DatePicker) {
+        val shop = (addDialogState as AddScheduleDialogState.DatePicker).shop
+        DatePickerDialog(
+            onDismissRequest = { addDialogState = AddScheduleDialogState.Hidden },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerOnClickHandler(
+                            addDatePickerState,
+                            showErrorDialog = { errorDialogType = ErrorDialogType.PastDate },
+                            clearClicked = {},
+                            dismissDatePicker = { addDialogState = AddScheduleDialogState.Hidden },
+                            editSchedule = { date -> viewModel.addSchedule(shop.id, date) }
                         )
-                    },
-                    onEditClick = { shopId ->
-                        showDatePicker = true
-                        clickedShopId = shopId
-                    },
-                    onDeleteClick = { shopId ->
-                        errorDialogType = ErrorDialogType.DeleteConfirm(shopId)
-                    },
-                    onListItemClick = { schedule ->
-                        goToShop(schedule.shopId, schedule.shopName)
                     }
-                )
-            } else {
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { addDialogState = AddScheduleDialogState.Hidden }) { Text("Cancel") }
+            }
+        ) {
+            Column {
                 Text(
-                    text = stringResource(Res.string.schedule_no_data),
+                    text = stringResource(Res.string.schedule_picker_label),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
+                DatePicker(state = addDatePickerState)
             }
         }
     }
+
+    // 既存: 編集用日付選択ダイアログ
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },

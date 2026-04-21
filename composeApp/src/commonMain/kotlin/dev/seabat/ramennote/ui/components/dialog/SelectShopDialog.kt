@@ -1,4 +1,4 @@
-package dev.seabat.ramennote.ui.screens.history
+package dev.seabat.ramennote.ui.components.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,17 +29,28 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.model.Area
 import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.components.dialog.WideDialog
 import dev.seabat.ramennote.ui.components.dropdown.DropdownAnchorField
+import dev.seabat.ramennote.ui.screens.history.MockSelectShopViewModel
+import dev.seabat.ramennote.ui.screens.history.MockSelectShopViewModelWithData
+import dev.seabat.ramennote.ui.screens.history.SelectShopViewModel
+import dev.seabat.ramennote.ui.screens.history.SelectShopViewModelContract
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import ramennote.composeapp.generated.resources.Res
+import ramennote.composeapp.generated.resources.select_shop_dialog_area_label
+import ramennote.composeapp.generated.resources.select_shop_dialog_cancel_button
+import ramennote.composeapp.generated.resources.select_shop_dialog_shop_label
+import ramennote.composeapp.generated.resources.select_shop_dialog_title
+import ramennote.composeapp.generated.resources.select_shop_dialog_write_report_button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectShopDialog(
     onDismiss: () -> Unit,
-    onReportClick: (Shop) -> Unit,
+    confirmButtonLabel: String,
+    onConfirmClick: (Shop) -> Unit,
     viewModel: SelectShopViewModelContract = koinViewModel<SelectShopViewModel>()
 ) {
     val areas by viewModel.areas.collectAsStateWithLifecycle()
@@ -60,7 +71,7 @@ fun SelectShopDialog(
                     .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = "店舗を選択",
+                text = stringResource(Res.string.select_shop_dialog_title),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -68,7 +79,7 @@ fun SelectShopDialog(
             // エリアドロップダウン
             Column(modifier = Modifier.semantics(mergeDescendants = true) {}) {
                 Text(
-                    text = "エリア",
+                    text = stringResource(Res.string.select_shop_dialog_area_label),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -117,7 +128,7 @@ fun SelectShopDialog(
                         .alpha(if (shopEnabled) 1f else 0.38f)
             ) {
                 Text(
-                    text = "店舗",
+                    text = stringResource(Res.string.select_shop_dialog_shop_label),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -161,14 +172,14 @@ fun SelectShopDialog(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onDismiss) {
-                    Text("キャンセル")
+                    Text(stringResource(Res.string.select_shop_dialog_cancel_button))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
-                    onClick = { selectedShop?.let { onReportClick(it) } },
+                    onClick = { selectedShop?.let { onConfirmClick(it) } },
                     enabled = selectedShop != null
                 ) {
-                    Text("レポートを書く")
+                    Text(confirmButtonLabel)
                 }
             }
 
@@ -183,7 +194,8 @@ private fun SelectShopDialogPreview() {
     RamenNoteTheme {
         SelectShopDialog(
             onDismiss = {},
-            onReportClick = {},
+            confirmButtonLabel = stringResource(Res.string.select_shop_dialog_write_report_button),
+            onConfirmClick = {},
             viewModel = MockSelectShopViewModel()
         )
     }
@@ -195,7 +207,8 @@ private fun SelectShopDialogWithDataPreview() {
     RamenNoteTheme {
         SelectShopDialog(
             onDismiss = {},
-            onReportClick = {},
+            confirmButtonLabel = stringResource(Res.string.select_shop_dialog_write_report_button),
+            onConfirmClick = {},
             viewModel = MockSelectShopViewModelWithData()
         )
     }

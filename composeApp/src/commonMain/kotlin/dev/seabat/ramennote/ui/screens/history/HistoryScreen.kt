@@ -38,6 +38,7 @@ import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.AddFab
+import dev.seabat.ramennote.ui.components.dialog.SelectShopDialog
 import dev.seabat.ramennote.ui.components.dropdown.DropdownAnchorField
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
@@ -56,6 +57,7 @@ import ramennote.composeapp.generated.resources.history_year_all
 import ramennote.composeapp.generated.resources.note_hit_count
 import ramennote.composeapp.generated.resources.note_notification
 import ramennote.composeapp.generated.resources.screen_history_title
+import ramennote.composeapp.generated.resources.select_shop_dialog_write_report_button
 
 @Composable
 fun HistoryScreen(
@@ -234,7 +236,8 @@ fun HistoryScreen(
         if (showSelectShopDialog) {
             SelectShopDialog(
                 onDismiss = { showSelectShopDialog = false },
-                onReportClick = { shop ->
+                confirmButtonLabel = stringResource(Res.string.select_shop_dialog_write_report_button),
+                onConfirmClick = { shop ->
                     showSelectShopDialog = false
                     goToReport(shop.id, shop.name, shop.menuName1, createTodayLocalDate().toString())
                 }
