@@ -42,7 +42,7 @@ import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.components.dialog.SelectShopDialog
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

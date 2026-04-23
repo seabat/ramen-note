@@ -2,7 +2,7 @@ package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
