@@ -1,6 +1,6 @@
 package dev.seabat.ramennote.domain.usecase
 
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
