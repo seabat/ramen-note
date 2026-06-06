@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -12,7 +11,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.googleService)
     alias(libs.plugins.firebaseCrashlytics)
-    id("co.touchlab.skie") version "0.10.6"
+    id("co.touchlab.skie") version "0.10.11"
 }
 
 // local.properties から API キーを読み込み、commonMain 向けに BuildSecrets.kt を生成する
@@ -140,8 +139,8 @@ android {
         applicationId = "dev.seabat.ramennote"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 19
-        versionName = "1.1.1"
+        versionCode = 20
+        versionName = "1.2.0"
     }
     buildFeatures {
         buildConfig = true
@@ -154,7 +153,7 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {

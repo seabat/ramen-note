@@ -2,6 +2,7 @@ package dev.seabat.ramennote.ui.screens.schedule
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +23,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,14 +31,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Schedule
+import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
+import dev.seabat.ramennote.ui.components.button.AddFab
+import dev.seabat.ramennote.ui.components.dialog.SelectShopDialog
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -55,15 +59,26 @@ import ramennote.composeapp.generated.resources.schedule_delete_confirm
 import ramennote.composeapp.generated.resources.schedule_no_data
 import ramennote.composeapp.generated.resources.schedule_picker_label
 import ramennote.composeapp.generated.resources.screen_schedule_title
+import ramennote.composeapp.generated.resources.select_shop_dialog_create_schedule_button
 
-private sealed interface ErrorDialogType {
-    object Hidden : ErrorDialogType
+private sealed interface DialogState {
+    object Hidden : DialogState
 
-    object PastDate : ErrorDialogType
+    object SelectShop : DialogState
+
+    data class AddDatePicker(
+        val shop: Shop
+    ) : DialogState
+
+    data class EditDatePicker(
+        val shopId: Int
+    ) : DialogState
+
+    object PastDate : DialogState
 
     data class DeleteConfirm(
         val shopId: Int
-    ) : ErrorDialogType
+    ) : DialogState
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,11 +88,8 @@ fun ScheduleScreen(
     goToShop: (shopId: Int, shopName: String) -> Unit = { _, _ -> },
     viewModel: ScheduleViewModelContract = koinViewModel<ScheduleViewModel>()
 ) {
-    val schedules by viewModel.schedules.collectAsState()
-    var showDatePicker by remember { mutableStateOf(false) }
-    var clickedShopId by remember { mutableStateOf(0) }
-    var errorDialogType by remember { mutableStateOf<ErrorDialogType>(ErrorDialogType.Hidden) }
-    val datePickerState = rememberDatePickerState()
+    val schedules by viewModel.schedules.collectAsStateWithLifecycle()
+    var dialogState by remember { mutableStateOf<DialogState>(DialogState.Hidden) }
 
     LaunchedEffect(Unit) {
         viewModel.loadSchedule()
@@ -93,94 +105,164 @@ fun ScheduleScreen(
             title = stringResource(Res.string.screen_schedule_title)
         )
 
-        Column(
+        Box(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
         ) {
-            if (schedules.isNotEmpty()) {
-                ScheduleList(
-                    schedules = schedules,
-                    onReportClick = { schedule ->
-                        goToReport(
-                            schedule.shopId,
-                            schedule.shopName,
-                            schedule.menuName,
-                            schedule.scheduledDate?.toString() ?: ""
-                        )
-                    },
-                    onEditClick = { shopId ->
-                        showDatePicker = true
-                        clickedShopId = shopId
-                    },
-                    onDeleteClick = { shopId ->
-                        errorDialogType = ErrorDialogType.DeleteConfirm(shopId)
-                    },
-                    onListItemClick = { schedule ->
-                        goToShop(schedule.shopId, schedule.shopName)
-                    }
-                )
-            } else {
-                Text(
-                    text = stringResource(Res.string.schedule_no_data),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary
+            Column(modifier = Modifier.fillMaxSize()) {
+                if (schedules.isNotEmpty()) {
+                    ScheduleList(
+                        schedules = schedules,
+                        onReportClick = { schedule ->
+                            goToReport(
+                                schedule.shopId,
+                                schedule.shopName,
+                                schedule.menuName,
+                                schedule.scheduledDate?.toString() ?: ""
+                            )
+                        },
+                        onEditClick = { shopId ->
+                            dialogState = DialogState.EditDatePicker(shopId)
+                        },
+                        onDeleteClick = { shopId ->
+                            dialogState = DialogState.DeleteConfirm(shopId)
+                        },
+                        onListItemClick = { schedule ->
+                            goToShop(schedule.shopId, schedule.shopName)
+                        }
+                    )
+                } else {
+                    Text(
+                        text = stringResource(Res.string.schedule_no_data),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            // FAB（他のダイアログが開いていない時のみ表示）
+            if (dialogState == DialogState.Hidden) {
+                AddFab(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    contentDescription = "予定を追加",
+                    onAddClick = { dialogState = DialogState.SelectShop }
                 )
             }
         }
     }
-    if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerOnClickHandler(
-                            datePickerState,
-                            showErrorDialog = { errorDialogType = ErrorDialogType.PastDate },
-                            clearClicked = { clickedShopId = 0 },
-                            dismissDatePicker = { showDatePicker = false },
-                            editSchedule = { date -> viewModel.editSchedule(clickedShopId, date) }
-                        )
-                    }
-                ) { Text("OK") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-            }
-        ) {
-            Column {
-                Text(
-                    text = stringResource(Res.string.schedule_picker_label),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-                DatePicker(state = datePickerState)
+
+    ScheduleScreenDialog(
+        dialogState = dialogState,
+        onDismiss = { dialogState = DialogState.Hidden },
+        onSelectShop = { shop -> dialogState = DialogState.AddDatePicker(shop) },
+        onShowPastDate = { dialogState = DialogState.PastDate },
+        onAddSchedule = { shopId, date -> viewModel.addSchedule(shopId, date) },
+        onEditSchedule = { shopId, date -> viewModel.editSchedule(shopId, date) },
+        onDeleteSchedule = { shopId -> viewModel.deleteSchedule(shopId) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ScheduleScreenDialog(
+    dialogState: DialogState,
+    onDismiss: () -> Unit,
+    onSelectShop: (Shop) -> Unit,
+    onShowPastDate: () -> Unit,
+    onAddSchedule: (shopId: Int, date: LocalDate) -> Unit,
+    onEditSchedule: (shopId: Int, date: LocalDate) -> Unit,
+    onDeleteSchedule: (shopId: Int) -> Unit
+) {
+    val editDatePickerState = rememberDatePickerState()
+    val addDatePickerState = rememberDatePickerState()
+
+    when (val state = dialogState) {
+        is DialogState.AddDatePicker -> {
+            DatePickerDialog(
+                onDismissRequest = onDismiss,
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            datePickerOnClickHandler(
+                                addDatePickerState,
+                                showErrorDialog = onShowPastDate,
+
+                                dismissDatePicker = onDismiss,
+                                editSchedule = { date -> onAddSchedule(state.shop.id, date) }
+                            )
+                        }
+                    ) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDismiss) { Text("Cancel") }
+                }
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(Res.string.schedule_picker_label),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    DatePicker(state = addDatePickerState)
+                }
             }
         }
-    }
-    // エラーダイアログ
-    when (val shouldShow = errorDialogType) {
-        is ErrorDialogType.PastDate -> {
+        is DialogState.EditDatePicker -> {
+            DatePickerDialog(
+                onDismissRequest = onDismiss,
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            datePickerOnClickHandler(
+                                editDatePickerState,
+                                showErrorDialog = onShowPastDate,
+
+                                dismissDatePicker = onDismiss,
+                                editSchedule = { date -> onEditSchedule(state.shopId, date) }
+                            )
+                        }
+                    ) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDismiss) { Text("Cancel") }
+                }
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(Res.string.schedule_picker_label),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    DatePicker(state = editDatePickerState)
+                }
+            }
+        }
+        is DialogState.PastDate -> {
             AppAlert(
                 message = stringResource(Res.string.add_schedule_error_past_date_message),
-                onConfirm = { errorDialogType = ErrorDialogType.Hidden }
+                onConfirm = onDismiss
             )
         }
-        is ErrorDialogType.DeleteConfirm -> {
+        is DialogState.DeleteConfirm -> {
             AppTwoButtonAlert(
                 message = stringResource(Res.string.schedule_delete_confirm),
                 onConfirm = {
-                    viewModel.deleteSchedule(shouldShow.shopId)
-                    errorDialogType = ErrorDialogType.Hidden
+                    onDeleteSchedule(state.shopId)
+                    onDismiss()
                 },
-                onNegative = {
-                    errorDialogType = ErrorDialogType.Hidden
-                }
+                onNegative = onDismiss
             )
         }
-        is ErrorDialogType.Hidden -> {
+        is DialogState.SelectShop -> {
+            SelectShopDialog(
+                onDismiss = onDismiss,
+                confirmButtonLabel = stringResource(Res.string.select_shop_dialog_create_schedule_button),
+                onConfirmClick = { shop -> onSelectShop(shop) }
+            )
+        }
+        is DialogState.Hidden -> {
             // 何も表示しない
         }
     }
@@ -330,32 +412,42 @@ private fun ScheduleRow(
     }
 }
 
+/**
+ * DatePickerDialog の OK ボタン押下時の処理。
+ *
+ * 選択された日付が今日以降であれば [editSchedule] を呼び出して [dismissDatePicker] でダイアログを閉じる。
+ * 過去の日付が選択された場合は [showErrorDialog] を呼び出し、ダイアログは閉じない。
+ * 日付が未選択の場合は [dismissDatePicker] のみ呼び出す。
+ *
+ * @param datePickerState DatePicker の状態。選択日付ミリ秒を取得するために使用する
+ * @param showErrorDialog 過去日付が選択されたときに呼び出すコールバック
+ * @param editSchedule 有効な日付が選択されたときに呼び出すコールバック。選択された [LocalDate] を受け取る
+ * @param dismissDatePicker DatePickerDialog を閉じるコールバック。過去日付エラー時は呼ばれない
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 private fun datePickerOnClickHandler(
     datePickerState: DatePickerState,
     showErrorDialog: () -> Unit,
-    clearClicked: () -> Unit,
     editSchedule: (LocalDate) -> Unit = { _ -> },
     dismissDatePicker: () -> Unit
 ) {
-    try {
-        val millis = datePickerState.selectedDateMillis
-        if (millis != null) {
-            val date =
-                Instant
-                    .fromEpochMilliseconds(millis)
-                    .toLocalDateTime(TimeZone.currentSystemDefault())
-                    .date
+    val millis = datePickerState.selectedDateMillis
+    if (millis != null) {
+        val date =
+            Instant
+                .fromEpochMilliseconds(millis)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
 
-            // 今日を含めた未来日かどうかをチェック
-            if (!date.isTodayOrFuture()) {
-                showErrorDialog()
-            } else {
-                editSchedule(date)
-            }
+        // 今日を含めた未来日かどうかをチェック
+        if (!date.isTodayOrFuture()) {
+            // エラーダイアログを表示するため dismissDatePicker は呼ばない
+            showErrorDialog()
+        } else {
+            editSchedule(date)
+            dismissDatePicker()
         }
-    } finally {
-        clearClicked()
+    } else {
         dismissDatePicker()
     }
 }

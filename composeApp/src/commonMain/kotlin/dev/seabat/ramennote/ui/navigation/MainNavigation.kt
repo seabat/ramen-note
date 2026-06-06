@@ -463,6 +463,9 @@ fun MainNavigation() {
                             goToEditReport = { reportId ->
                                 navController.navigate(Screen.EditReport(reportId))
                             },
+                            goToReport = { shopId, shopName, menuName, iso8601Date ->
+                                navController.navigate(Screen.Report(shopId, shopName, menuName, iso8601Date))
+                            },
                             clearReportIdParam = {
                                 reportIdParam = null
                             },

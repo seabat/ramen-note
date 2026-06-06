@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AddFab(
     modifier: Modifier = Modifier,
+    contentDescription: String = "追加",
     onAddClick: () -> Unit
 ) {
     FloatingActionButton(
@@ -23,7 +24,7 @@ fun AddFab(
     ) {
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = "追加"
+            contentDescription = contentDescription
         )
     }
 }

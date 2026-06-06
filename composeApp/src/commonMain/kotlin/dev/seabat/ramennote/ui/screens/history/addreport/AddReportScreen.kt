@@ -41,7 +41,7 @@ import dev.seabat.ramennote.ui.screens.componens.ShopInputField
 import dev.seabat.ramennote.ui.share.createPostText
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

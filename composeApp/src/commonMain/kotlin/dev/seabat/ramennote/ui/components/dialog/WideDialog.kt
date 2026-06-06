@@ -67,8 +67,8 @@ fun WideDialog(
                 modifier =
                     Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 16.dp, y = (-16).dp) // コンテンツBoxの右上角に配置（右方向に調整）
-                        .size(32.dp)
+                        .offset(x = 24.dp, y = (-24).dp) // コンテンツBoxの右上角に配置（右方向に調整）
+                        .size(48.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.background)
                         .border(

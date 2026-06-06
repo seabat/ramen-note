@@ -36,7 +36,7 @@ import dev.seabat.ramennote.ui.screens.componens.ReportStarRatingItem
 import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.componens.ShopInputField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource

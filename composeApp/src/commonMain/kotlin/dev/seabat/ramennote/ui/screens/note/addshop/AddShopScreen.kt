@@ -50,7 +50,7 @@ import dev.seabat.ramennote.ui.screens.componens.ShopMultilineInputField
 import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview

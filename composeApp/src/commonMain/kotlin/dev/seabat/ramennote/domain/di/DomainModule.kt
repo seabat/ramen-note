@@ -46,6 +46,8 @@ import dev.seabat.ramennote.domain.usecase.LoadImagePathUseCase
 import dev.seabat.ramennote.domain.usecase.LoadImagePathUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCase
 import dev.seabat.ramennote.domain.usecase.LoadImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadRecentFullReportsUseCase
+import dev.seabat.ramennote.domain.usecase.LoadRecentFullReportsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCase
 import dev.seabat.ramennote.domain.usecase.LoadRecentScheduleUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadReportsByYearUseCase
@@ -56,8 +58,6 @@ import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCase
 import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCase
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
-import dev.seabat.ramennote.domain.usecase.LoadRecentFullReportsUseCase
-import dev.seabat.ramennote.domain.usecase.LoadRecentFullReportsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadYearlyReportStatsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadYearlyReportStatsUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SearchShopsByNameUseCase
