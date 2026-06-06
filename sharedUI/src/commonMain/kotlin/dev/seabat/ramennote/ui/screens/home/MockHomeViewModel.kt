@@ -1,5 +1,6 @@
 package dev.seabat.ramennote.ui.screens.home
 
+import androidx.lifecycle.ViewModel
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.domain.model.RunStatus
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.LocalDate
 
-class MockHomeViewModel : HomeViewModelContract {
+class MockHomeViewModel : ViewModel(), HomeViewModelContract {
     private val _schedule = MutableStateFlow<Schedule?>(Schedule())
     override val schedule: StateFlow<Schedule?> = _schedule.asStateFlow()
 

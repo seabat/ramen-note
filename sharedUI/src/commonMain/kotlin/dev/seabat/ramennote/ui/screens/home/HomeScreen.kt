@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -138,7 +139,11 @@ fun HomeScreen(
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
     goToHistory: (reportId: Int) -> Unit = { _ -> },
     goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
-    viewModel: HomeViewModelContract = koinViewModel<HomeViewModel>()
+    viewModel: HomeViewModelContract = if (LocalInspectionMode.current) {
+        MockHomeViewModel()
+    } else {
+        koinViewModel<HomeViewModel>()
+    }
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
     val loadedScheduleState by viewModel.loadedScheduleState.collectAsStateWithLifecycle()
