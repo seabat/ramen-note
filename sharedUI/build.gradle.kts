@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    id("co.touchlab.skie") version "0.10.11"
+    id("co.touchlab.skie") version "0.10.12"
 }
 
 kotlin {
@@ -28,6 +28,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "sharedUI"
             isStatic = true
+            export(projects.sharedLogic)
         }
     }
 
@@ -39,7 +40,7 @@ kotlin {
             implementation(libs.accompanist.permissions)
         }
         commonMain.dependencies {
-            implementation(projects.sharedLogic)
+            api(projects.sharedLogic)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
