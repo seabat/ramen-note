@@ -1,4 +1,4 @@
-import ComposeApp
+import sharedUI
 import SwiftUI
 import FirebaseCore
 import FirebaseAppCheck
