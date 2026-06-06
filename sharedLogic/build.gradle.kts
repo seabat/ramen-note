@@ -40,7 +40,7 @@ val generateBuildSecrets by tasks.registering {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "dev.seabat.ramennote.sharedlogic"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
