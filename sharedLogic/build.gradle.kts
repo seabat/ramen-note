@@ -23,6 +23,7 @@ val generateBuildSecrets by tasks.registering {
             localPropertiesFile.inputStream().use { props.load(it) }
         }
         val unsplashKey = props.getProperty("UNSPLASH_ACCESS_KEY", "")
+        val googleMapsKey = props.getProperty("GOOGLE_MAPS_API_KEY", "")
 
         val outputFile = outputDir.get().asFile.resolve("BuildSecrets.kt")
         outputFile.parentFile.mkdirs()
@@ -33,6 +34,7 @@ val generateBuildSecrets by tasks.registering {
             |// このファイルは Gradle によって自動生成されます。直接編集しないでください。
             |object BuildSecrets {
             |    const val UNSPLASH_ACCESS_KEY = "$unsplashKey"
+            |    const val GOOGLE_MAPS_API_KEY = "$googleMapsKey"
             |}
             """.trimMargin()
         )

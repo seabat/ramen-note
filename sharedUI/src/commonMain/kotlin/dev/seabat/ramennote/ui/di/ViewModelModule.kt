@@ -13,6 +13,7 @@ import dev.seabat.ramennote.ui.screens.note.editareasort.EditAreaSortViewModel
 import dev.seabat.ramennote.ui.screens.note.editshop.EditShopViewModel
 import dev.seabat.ramennote.ui.screens.note.shop.ShopViewModel
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListViewModel
+import dev.seabat.ramennote.ui.screens.note.shopslocation.ShopsLocationViewModel
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleViewModel
 import dev.seabat.ramennote.ui.screens.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModel
@@ -35,4 +36,5 @@ val viewModelModule =
         viewModel { ShopViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { ScheduleViewModel(get(), get(), get()) }
         viewModel { SettingsViewModel(get()) }
+        viewModel { ShopsLocationViewModel(get(), get()) }
     }

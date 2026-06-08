@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.LocalDate
 
-class MockHomeViewModel : ViewModel(), HomeViewModelContract {
+class MockHomeViewModel :
+    ViewModel(),
+    HomeViewModelContract {
     private val _schedule = MutableStateFlow<Schedule?>(Schedule())
     override val schedule: StateFlow<Schedule?> = _schedule.asStateFlow()
 

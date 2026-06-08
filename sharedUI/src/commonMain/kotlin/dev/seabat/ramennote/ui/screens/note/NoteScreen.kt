@@ -63,9 +63,11 @@ import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
+import ramennote.sharedui.generated.resources.location_on_24px
 import ramennote.sharedui.generated.resources.note_background
 import ramennote.sharedui.generated.resources.note_hit_count
 import ramennote.sharedui.generated.resources.note_item_count
+import ramennote.sharedui.generated.resources.note_map_button
 import ramennote.sharedui.generated.resources.note_no_data
 import ramennote.sharedui.generated.resources.note_notification
 import ramennote.sharedui.generated.resources.note_search_hint
@@ -82,6 +84,7 @@ fun NoteScreen(
     goToEditAreaSort: () -> Unit = {},
     goToShop: (Shop) -> Unit = {},
     goToHistoryWithAreaFiltering: (areaId: Int) -> Unit = {},
+    goToShopsLocation: (areaId: Int, areaName: String) -> Unit = { _, _ -> },
     viewModel: NoteViewModelContract = koinViewModel<NoteViewModel>()
 ) {
     Column(
@@ -99,6 +102,7 @@ fun NoteScreen(
             onSortClick = goToEditAreaSort,
             onShopClick = goToShop,
             onAreaReportClick = goToHistoryWithAreaFiltering,
+            onMapClick = goToShopsLocation,
             initialSearchText = initialSearchText
         )
     }
@@ -119,6 +123,7 @@ private fun MainContent(
     onSortClick: () -> Unit = {},
     onShopClick: (Shop) -> Unit = {},
     onAreaReportClick: (areaId: Int) -> Unit = {},
+    onMapClick: (areaId: Int, areaName: String) -> Unit = { _, _ -> },
     initialSearchText: String = ""
 ) {
     BoxWithConstraints(
@@ -251,7 +256,8 @@ private fun MainContent(
                                     itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                                     onClick = { onAreaClick(area.name) },
                                     onLongClick = { onAreaLongClick(area.areaId) },
-                                    onReportClick = { onAreaReportClick(area.areaId) }
+                                    onReportClick = { onAreaReportClick(area.areaId) },
+                                    onMapClick = { onMapClick(area.areaId, area.name) }
                                 )
                             }
                         }
@@ -320,7 +326,8 @@ private fun AreaItem(
     itemCount: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit = {},
-    onReportClick: () -> Unit = {}
+    onReportClick: () -> Unit = {},
+    onMapClick: () -> Unit = {}
 ) {
     Card(
         modifier =
@@ -396,6 +403,11 @@ private fun AreaItem(
                                 fontWeight = FontWeight.Bold
                             ),
                         color = Color.White.copy(alpha = 0.8f)
+                    )
+                    ActionButton(
+                        icon = vectorResource(Res.drawable.location_on_24px),
+                        text = stringResource(Res.string.note_map_button),
+                        onClick = onMapClick
                     )
                     ReportListButton(onClick = onReportClick)
                 }

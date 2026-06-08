@@ -54,12 +54,16 @@ import dev.seabat.ramennote.domain.usecase.LoadReportsByYearUseCase
 import dev.seabat.ramennote.domain.usecase.LoadReportsByYearUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadScheduledShopsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadScheduledShopsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaIdUseCase
+import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaIdUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCase
 import dev.seabat.ramennote.domain.usecase.LoadShopListByAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCase
 import dev.seabat.ramennote.domain.usecase.LoadShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadYearlyReportStatsUseCase
 import dev.seabat.ramennote.domain.usecase.LoadYearlyReportStatsUseCaseContract
+import dev.seabat.ramennote.domain.usecase.ResolveShopLocationUseCase
+import dev.seabat.ramennote.domain.usecase.ResolveShopLocationUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SearchShopsByNameUseCase
 import dev.seabat.ramennote.domain.usecase.SearchShopsByNameUseCaseContract
 import dev.seabat.ramennote.domain.usecase.SwitchFavoriteUseCase
@@ -103,6 +107,8 @@ val useCaseModule =
         single<LoadImageUseCaseContract> { LoadImageUseCase(get()) }
         single<LoadImagePathUseCaseContract> { LoadImagePathUseCase(get()) }
         single<LoadShopListByAreaUseCaseContract> { LoadShopListByAreaUseCase(get(), get()) }
+        single<LoadShopListByAreaIdUseCaseContract> { LoadShopListByAreaIdUseCase(get()) }
+        single<ResolveShopLocationUseCaseContract> { ResolveShopLocationUseCase(get(), get()) }
         single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
         single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get(), get()) }
         single<LoadFullReportUseCaseContract> { LoadFullReportUseCase(get(), get(), get()) }
