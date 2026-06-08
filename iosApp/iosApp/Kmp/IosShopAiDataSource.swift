@@ -28,7 +28,9 @@ class IosShopAiDataSource: ShopAiDataSourceContract {
             ]
         )
 
-        let ai = FirebaseAI.firebaseAI(backend: .googleAI())
+        // googleAI() バックエンドは Firebase プロジェクトのプリペイドクレジットが枯渇すると利用不可になる。
+        // Vertex AI バックエンドは Google Cloud の従量課金で動作しクレジット枯渇の影響を受けないため切り替えた。
+        let ai = FirebaseAI.firebaseAI(backend: .vertexAI())
         let model = ai.generativeModel(
             modelName: "gemini-2.5-flash",
             generationConfig: GenerationConfig(
