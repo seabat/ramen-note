@@ -39,10 +39,7 @@ actual fun ShopsMap(
                 state = MarkerState(LatLng(shopLocation.latitude, shopLocation.longitude)),
                 title = shopLocation.shop.name,
                 snippet = shopLocation.shop.category.ifEmpty { null },
-                onClick = {
-                    onPinClick(shopLocation.shop)
-                    true
-                }
+                onInfoWindowClick = { onPinClick(shopLocation.shop) }
             )
         }
     }
