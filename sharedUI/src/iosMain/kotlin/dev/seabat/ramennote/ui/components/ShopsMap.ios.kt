@@ -1,6 +1,7 @@
 package dev.seabat.ramennote.ui.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.interop.UIKitView
@@ -20,6 +21,8 @@ actual fun ShopsMap(
     modifier: Modifier
 ) {
     val locationsState = rememberUpdatedState(locations)
+    // Kotlin/Native の GC による回収を防ぐため Kotlin 側でも強参照を保持する
+    val annotationRefs = remember { mutableListOf<MKPointAnnotation>() }
 
     UIKitView(
         factory = { MKMapView() },
@@ -27,6 +30,7 @@ actual fun ShopsMap(
             val currentLocations = locationsState.value
 
             mapView.removeAnnotations(mapView.annotations)
+            annotationRefs.clear()
 
             currentLocations.forEach { shopLocation ->
                 val annotation =
@@ -37,6 +41,7 @@ actual fun ShopsMap(
                         setTitle(shopLocation.shop.name)
                         setSubtitle(shopLocation.shop.stationName.ifEmpty { shopLocation.shop.category })
                     }
+                annotationRefs.add(annotation)
                 mapView.addAnnotation(annotation)
             }
 
@@ -71,7 +76,8 @@ private fun fitMapToLocations(
     val centerLng = (minLng + maxLng) / 2.0
     val latDelta = (maxLat - minLat) * 1.5 + 0.01
     val lngDelta = (maxLng - minLng) * 1.5 + 0.01
-    val spanMeters = maxOf(latDelta, lngDelta) * 111_000.0
+    // MKCoordinateRegionMakeWithDistance の spanMeters が大きすぎると Invalid Region でクラッシュするため上限を設ける
+    val spanMeters = minOf(maxOf(latDelta, lngDelta) * 111_000.0, 10_000_000.0)
 
     val region =
         MKCoordinateRegionMakeWithDistance(
