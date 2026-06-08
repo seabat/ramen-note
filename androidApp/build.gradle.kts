@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -7,6 +8,12 @@ plugins {
     alias(libs.plugins.googleService)
     alias(libs.plugins.firebaseCrashlytics)
 }
+
+val localProperties =
+    Properties().also { props ->
+        val f = rootProject.file("local.properties")
+        if (f.exists()) f.inputStream().use { props.load(it) }
+    }
 
 android {
     namespace = "dev.seabat.ramennote"
@@ -18,6 +25,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 20
         versionName = "1.2.0"
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = localProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
     }
     buildFeatures {
         buildConfig = true

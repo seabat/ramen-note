@@ -52,7 +52,6 @@ import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingRow
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -75,6 +74,7 @@ import ramennote.sharedui.generated.resources.favorite_disabled
 import ramennote.sharedui.generated.resources.favorite_enabled
 import ramennote.sharedui.generated.resources.schedule_picker_label
 import ramennote.sharedui.generated.resources.shop_map_label
+import kotlin.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

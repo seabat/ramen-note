@@ -22,8 +22,10 @@ class ShopAiDataSource : ShopAiDataSourceContract {
                 )
             )
 
+        // googleAI() バックエンドは Firebase プロジェクト単位のプリペイドクレジットが枯渇すると利用不可になる。
+        // Vertex AI バックエンドは Google Cloud の従量課金で動作し、クレジット枯渇の影響を受けないため切り替えた。
         val model =
-            Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
+            Firebase.ai(backend = GenerativeBackend.vertexAI()).generativeModel(
                 modelName = "gemini-2.5-flash",
                 generationConfig =
                     generationConfig {

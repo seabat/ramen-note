@@ -36,7 +36,6 @@ import dev.seabat.ramennote.ui.screens.componens.ReportStarRatingItem
 import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.componens.ShopInputField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -49,6 +48,7 @@ import ramennote.sharedui.generated.resources.report_delete_confirm
 import ramennote.sharedui.generated.resources.report_header
 import ramennote.sharedui.generated.resources.report_impressions
 import ramennote.sharedui.generated.resources.report_shop_name
+import kotlin.time.Instant
 
 private sealed interface ErrorDialogType {
     object Hidden : ErrorDialogType

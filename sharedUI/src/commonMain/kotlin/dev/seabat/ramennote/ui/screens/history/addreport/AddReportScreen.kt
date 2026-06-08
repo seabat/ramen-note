@@ -41,7 +41,6 @@ import dev.seabat.ramennote.ui.screens.componens.ShopInputField
 import dev.seabat.ramennote.ui.share.createPostText
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -54,6 +53,7 @@ import ramennote.sharedui.generated.resources.report_impressions
 import ramennote.sharedui.generated.resources.report_post_x
 import ramennote.sharedui.generated.resources.report_run
 import ramennote.sharedui.generated.resources.report_shop_name
+import kotlin.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

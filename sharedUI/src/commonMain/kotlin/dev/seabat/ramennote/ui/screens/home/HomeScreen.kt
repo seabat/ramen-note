@@ -79,7 +79,6 @@ import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.createFormattedDateString
 import kotlinx.datetime.DatePeriod
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
@@ -105,6 +104,7 @@ import ramennote.sharedui.generated.resources.home_schedule_date
 import ramennote.sharedui.generated.resources.home_today_schedule
 import ramennote.sharedui.generated.resources.home_tomorrow_schedule
 import ramennote.sharedui.generated.resources.schedule_picker_label
+import kotlin.time.Instant
 
 private const val FAVORITE_SHOP_ITEM_HEIGHT = 66
 
@@ -139,11 +139,12 @@ fun HomeScreen(
     goToReport: (shopId: Int, shopName: String, menuName: String, iso8601Date: String) -> Unit = { _, _, _, _ -> },
     goToHistory: (reportId: Int) -> Unit = { _ -> },
     goToHistoryWithFiltering: (shopId: Int) -> Unit = { _ -> },
-    viewModel: HomeViewModelContract = if (LocalInspectionMode.current) {
-        MockHomeViewModel()
-    } else {
-        koinViewModel<HomeViewModel>()
-    }
+    viewModel: HomeViewModelContract =
+        if (LocalInspectionMode.current) {
+            MockHomeViewModel()
+        } else {
+            koinViewModel<HomeViewModel>()
+        }
 ) {
     val schedule by viewModel.schedule.collectAsStateWithLifecycle()
     val loadedScheduleState by viewModel.loadedScheduleState.collectAsStateWithLifecycle()

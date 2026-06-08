@@ -46,6 +46,7 @@ import dev.seabat.ramennote.ui.screens.note.editareasort.EditAreaSortScreen
 import dev.seabat.ramennote.ui.screens.note.editshop.EditShopScreen
 import dev.seabat.ramennote.ui.screens.note.shop.ShopScreen
 import dev.seabat.ramennote.ui.screens.note.shoplist.AreaShopListScreen
+import dev.seabat.ramennote.ui.screens.note.shopslocation.ShopsLocationScreen
 import dev.seabat.ramennote.ui.screens.schedule.ScheduleScreen
 import dev.seabat.ramennote.ui.screens.settings.SettingsScreen
 import kotlinx.datetime.LocalDate
@@ -247,6 +248,20 @@ sealed interface Screen {
 
         @Composable
         override fun getTitle(): String = "レポート編集"
+    }
+
+    @Serializable
+    data class ShopsLocation(
+        val areaId: Int,
+        val areaName: String
+    ) : Screen {
+        override val route: String = getRouteName(ShopsLocation::class)
+
+        @Composable
+        override fun getIcon(): ImageVector = Icons.Default.Star
+
+        @Composable
+        override fun getTitle(): String = areaName
     }
 
     val route: String
@@ -452,6 +467,9 @@ fun MainNavigation() {
                                         saveState = true
                                     }
                                 }
+                            },
+                            goToShopsLocation = { areaId, areaName ->
+                                navController.navigate(Screen.ShopsLocation(areaId, areaName))
                             }
                         )
                     }
@@ -608,6 +626,17 @@ fun MainNavigation() {
                         EditReportScreen(
                             reportId = screen.reportId,
                             onBackClick = { navController.popBackStack() }
+                        )
+                    }
+                    composable<Screen.ShopsLocation> { backStackEntry ->
+                        val screen: Screen.ShopsLocation = backStackEntry.toRoute()
+                        ShopsLocationScreen(
+                            areaId = screen.areaId,
+                            areaName = screen.areaName,
+                            onBackClick = { navController.popBackStack() },
+                            onShopClick = { shop ->
+                                navController.navigate(Screen.Shop(shop.id, shop.name))
+                            }
                         )
                     }
                 }

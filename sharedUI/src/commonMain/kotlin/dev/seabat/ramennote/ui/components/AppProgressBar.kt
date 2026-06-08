@@ -15,10 +15,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 @Composable
 fun AppProgressBar() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.3f))
-            .pointerInput(Unit) {},
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f))
+                .pointerInput(Unit) {},
         contentAlignment = Alignment.Center
     ) {
         LinearProgressIndicator(

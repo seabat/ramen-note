@@ -42,7 +42,6 @@ import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.components.dialog.SelectShopDialog
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -60,6 +59,7 @@ import ramennote.sharedui.generated.resources.schedule_no_data
 import ramennote.sharedui.generated.resources.schedule_picker_label
 import ramennote.sharedui.generated.resources.screen_schedule_title
 import ramennote.sharedui.generated.resources.select_shop_dialog_create_schedule_button
+import kotlin.time.Instant
 
 private sealed interface DialogState {
     object Hidden : DialogState
@@ -188,7 +188,6 @@ private fun ScheduleScreenDialog(
                             datePickerOnClickHandler(
                                 addDatePickerState,
                                 showErrorDialog = onShowPastDate,
-
                                 dismissDatePicker = onDismiss,
                                 editSchedule = { date -> onAddSchedule(state.shop.id, date) }
                             )
@@ -218,7 +217,6 @@ private fun ScheduleScreenDialog(
                             datePickerOnClickHandler(
                                 editDatePickerState,
                                 showErrorDialog = onShowPastDate,
-
                                 dismissDatePicker = onDismiss,
                                 editSchedule = { date -> onEditSchedule(state.shopId, date) }
                             )

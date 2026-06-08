@@ -50,7 +50,6 @@ import dev.seabat.ramennote.ui.screens.componens.ShopMultilineInputField
 import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import kotlin.time.Clock
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -65,6 +64,7 @@ import ramennote.sharedui.generated.resources.add_shop_register_button
 import ramennote.sharedui.generated.resources.add_shop_title
 import ramennote.sharedui.generated.resources.add_station_label
 import ramennote.sharedui.generated.resources.add_web_site_label
+import kotlin.time.Clock
 
 @Composable
 fun AddShopScreen(

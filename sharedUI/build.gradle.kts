@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             implementation(libs.accompanist.permissions)
+            implementation(libs.maps.compose)
         }
         commonMain.dependencies {
             api(projects.sharedLogic)

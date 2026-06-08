@@ -46,6 +46,10 @@ class ShopsRepository(
     }
 
     override suspend fun getShopsByName(query: String): List<Shop> = shopDao.searchShopsByName(query).map { it.toDomainModel() }
+
+    override suspend fun updateMapUrl(shopId: Int, mapUrl: String) {
+        shopDao.updateMapUrl(shopId, mapUrl)
+    }
 }
 
 private fun ShopEntity.toDomainModel(): Shop =

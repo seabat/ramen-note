@@ -21,4 +21,6 @@ interface ShopsRepositoryContract {
     suspend fun deleteShopById(id: Int)
 
     suspend fun getShopsByName(query: String): List<Shop>
+
+    suspend fun updateMapUrl(shopId: Int, mapUrl: String)
 }

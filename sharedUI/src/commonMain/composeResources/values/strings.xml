@@ -54,6 +54,7 @@
     <string name="note_notification">カードを長押しすると編集できます</string>
     <string name="note_search_hint">店舗名を入力して下さい</string>
     <string name="note_hit_count">%1$s件見つかりました。</string>
+    <string name="note_map_button">地図</string>
 
 
     <!-- Edit Area Screen -->
