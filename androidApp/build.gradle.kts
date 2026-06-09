@@ -23,8 +23,8 @@ android {
         applicationId = "dev.seabat.ramennote"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 20
-        versionName = "1.2.0"
+        versionCode = 21
+        versionName = "1.3.0"
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = localProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
     }
     buildFeatures {
