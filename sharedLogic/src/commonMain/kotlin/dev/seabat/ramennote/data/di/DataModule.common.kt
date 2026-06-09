@@ -12,6 +12,8 @@ import dev.seabat.ramennote.data.repository.AreaImageRepository
 import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
 import dev.seabat.ramennote.data.repository.AreasRepository
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
+import dev.seabat.ramennote.data.repository.ExpandShortUrlRepository
+import dev.seabat.ramennote.data.repository.ExpandShortUrlRepositoryContract
 import dev.seabat.ramennote.data.repository.GeocodingRepository
 import dev.seabat.ramennote.data.repository.GeocodingRepositoryContract
 import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepository
@@ -29,6 +31,7 @@ import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.data.repository.UnsplashImageRepository
 import dev.seabat.ramennote.data.repository.UnsplashImageRepositoryContract
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
@@ -87,6 +90,17 @@ val repositoryModule =
                                 isLenient = true
                             }
                         )
+                    }
+                }
+            )
+        }
+        single<ExpandShortUrlRepositoryContract> {
+            ExpandShortUrlRepository(
+                HttpClient {
+                    // Ktor 層でリダイレクトを追跡することで iOS Darwin エンジンの
+                    // NSURLSession による透過リダイレクトを回避し、最終 URL を取得できる
+                    install(HttpRedirect) {
+                        checkHttpMethod = false
                     }
                 }
             )
