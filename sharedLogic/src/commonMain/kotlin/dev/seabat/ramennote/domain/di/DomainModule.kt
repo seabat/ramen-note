@@ -108,7 +108,7 @@ val useCaseModule =
         single<LoadImagePathUseCaseContract> { LoadImagePathUseCase(get()) }
         single<LoadShopListByAreaUseCaseContract> { LoadShopListByAreaUseCase(get(), get()) }
         single<LoadShopListByAreaIdUseCaseContract> { LoadShopListByAreaIdUseCase(get()) }
-        single<ResolveShopLocationUseCaseContract> { ResolveShopLocationUseCase(get(), get()) }
+        single<ResolveShopLocationUseCaseContract> { ResolveShopLocationUseCase(get(), get(), get()) }
         single<LoadShopUseCaseContract> { LoadShopUseCase(get()) }
         single<LoadRecentScheduleUseCaseContract> { LoadRecentScheduleUseCase(get(), get()) }
         single<LoadFullReportUseCaseContract> { LoadFullReportUseCase(get(), get(), get()) }

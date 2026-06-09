@@ -12,6 +12,8 @@ import dev.seabat.ramennote.data.repository.AreaImageRepository
 import dev.seabat.ramennote.data.repository.AreaImageRepositoryContract
 import dev.seabat.ramennote.data.repository.AreasRepository
 import dev.seabat.ramennote.data.repository.AreasRepositoryContract
+import dev.seabat.ramennote.data.repository.ExpandShortUrlRepository
+import dev.seabat.ramennote.data.repository.ExpandShortUrlRepositoryContract
 import dev.seabat.ramennote.data.repository.GeocodingRepository
 import dev.seabat.ramennote.data.repository.GeocodingRepositoryContract
 import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepository
@@ -90,6 +92,10 @@ val repositoryModule =
                     }
                 }
             )
+        }
+        single<ExpandShortUrlRepositoryContract> {
+            // HttpRedirect プラグイン未使用＝リダイレクト非自動追跡。手動で Location ヘッダーを辿る。
+            ExpandShortUrlRepository(HttpClient())
         }
     }
 
