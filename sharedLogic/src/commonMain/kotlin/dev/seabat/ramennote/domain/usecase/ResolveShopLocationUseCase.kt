@@ -117,29 +117,53 @@ class ResolveShopLocationUseCase(
 
     /**
      * `maps.app.goo.gl` 短縮 URL をリダイレクト展開して座標を取得する。
-     * 展開先の `/@lat,lng,zoom` 形式から座標をパースする。
-     * パース失敗時は店舗名でジオコーディングにフォールバックする。
+     *
+     * 展開先 URL を以下の優先順で処理する:
+     * 1. `/@lat,lng,zoom` 形式 → 直接パース
+     * 2. `?q=住所` 形式 → 住所で Geocoding API（店舗名より精度が高い）
+     * 3. 全て失敗 → 店舗名で Geocoding API にフォールバック
      */
     private suspend fun expandAndResolve(shop: Shop): ShopLocation? {
-        return when (val result = expandShortUrlRepository.expand(shop.mapUrl)) {
-            is RunStatus.Success -> {
-                val expandedUrl = result.data!!
-                try {
-                    // https://www.google.com/maps/place/PlaceName/@lat,lng,17z/... 形式から座標を取得
-                    val afterAt = expandedUrl.substringAfter("/@").substringBefore("/")
-                    val parts = afterAt.split(",")
-                    val lat = parts[0].toDouble()
-                    val lng = parts[1].toDouble()
-                    if (lat !in 24.0..46.0 || lng !in 122.0..154.0) return geocodeByShopName(shop)
+        val expandResult = expandShortUrlRepository.expand(shop.mapUrl)
+        if (expandResult !is RunStatus.Success) return geocodeByShopName(shop)
+        val expandedUrl = expandResult.data!!
+
+        // 1. /@lat,lng 形式を試みる
+        if (expandedUrl.contains("/@")) {
+            try {
+                val afterAt = expandedUrl.substringAfter("/@").substringBefore("/")
+                val parts = afterAt.split(",")
+                val lat = parts[0].toDouble()
+                val lng = parts[1].toDouble()
+                if (lat in 24.0..46.0 && lng in 122.0..154.0) {
                     val newMapUrl = buildMapUrl(shop, lat, lng)
                     shopsRepository.updateMapUrl(shop.id, newMapUrl)
-                    ShopLocation(shop, lat, lng)
-                } catch (_: Exception) {
-                    geocodeByShopName(shop)
+                    return ShopLocation(shop, lat, lng)
                 }
-            }
-            else -> geocodeByShopName(shop)
+            } catch (_: Exception) { /* 次の手段へ */ }
         }
+
+        // 2. q= パラメータの住所でジオコーディング
+        val address = try {
+            expandedUrl.substringAfter("?q=").substringBefore("&").decodeURLQueryComponent()
+        } catch (_: Exception) { null }
+
+        if (!address.isNullOrEmpty()) {
+            when (val geocodeResult = geocodingRepository.geocode(address)) {
+                is RunStatus.Success -> {
+                    val (lat, lng) = geocodeResult.data!!
+                    if (lat in 24.0..46.0 && lng in 122.0..154.0) {
+                        val newMapUrl = buildMapUrl(shop, lat, lng)
+                        shopsRepository.updateMapUrl(shop.id, newMapUrl)
+                        return ShopLocation(shop, lat, lng)
+                    }
+                }
+                else -> { /* 次の手段へ */ }
+            }
+        }
+
+        // 3. 店舗名でジオコーディング
+        return geocodeByShopName(shop)
     }
 
     // ピンに店舗名を表示するため q=name@lat,lng 形式を使用する
