@@ -9,24 +9,16 @@ import io.ktor.http.HttpHeaders
 class ExpandShortUrlRepository(
     private val httpClient: HttpClient
 ) : ExpandShortUrlRepositoryContract {
+    // HttpRedirect プラグインが Ktor 層でリダイレクトを追跡するため、
+    // 最終リダイレクト先の URL は response.request.url から取得できる
     override suspend fun expand(shortUrl: String): RunStatus<String> =
         try {
-            var currentUrl = shortUrl
-            // maps.app.goo.gl は複数回リダイレクトする場合があるため最大10回追跡する
-            repeat(10) {
-                val response = httpClient.get(currentUrl) {
-                    headers {
-                        append(HttpHeaders.UserAgent, "Mozilla/5.0")
-                    }
-                }
-                val location = response.headers[HttpHeaders.Location]
-                if (response.status.value in 300..399 && location != null) {
-                    currentUrl = location
-                } else {
-                    return RunStatus.Success(currentUrl)
+            val response = httpClient.get(shortUrl) {
+                headers {
+                    append(HttpHeaders.UserAgent, "Mozilla/5.0")
                 }
             }
-            RunStatus.Error("リダイレクト上限超過")
+            RunStatus.Success(response.call.request.url.toString())
         } catch (e: Exception) {
             RunStatus.Error("URL 展開エラー: ${e.message}")
         }

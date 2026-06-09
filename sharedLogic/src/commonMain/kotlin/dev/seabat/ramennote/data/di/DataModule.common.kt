@@ -31,6 +31,7 @@ import dev.seabat.ramennote.data.repository.ShopsRepositoryContract
 import dev.seabat.ramennote.data.repository.UnsplashImageRepository
 import dev.seabat.ramennote.data.repository.UnsplashImageRepositoryContract
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
@@ -94,8 +95,15 @@ val repositoryModule =
             )
         }
         single<ExpandShortUrlRepositoryContract> {
-            // HttpRedirect プラグイン未使用＝リダイレクト非自動追跡。手動で Location ヘッダーを辿る。
-            ExpandShortUrlRepository(HttpClient())
+            ExpandShortUrlRepository(
+                HttpClient {
+                    // Ktor 層でリダイレクトを追跡することで iOS Darwin エンジンの
+                    // NSURLSession による透過リダイレクトを回避し、最終 URL を取得できる
+                    install(HttpRedirect) {
+                        checkHttpMethod = false
+                    }
+                }
+            )
         }
     }
 
