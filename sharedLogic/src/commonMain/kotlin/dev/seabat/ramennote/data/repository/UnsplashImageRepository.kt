@@ -22,24 +22,17 @@ class UnsplashImageRepository(
         withContext(Dispatchers.IO) {
             runCatching {
                 httpClient
-                    .get("$BASE_URL/search/photos") {
+                    .get("$BASE_URL/photos/random") {
                         headers {
                             append("Authorization", "Client-ID ${UnsplashConfig.ACCESS_KEY}")
                         }
                         parameter("query", query)
-                        parameter("page", 1)
-                        parameter("per_page", 1)
                         parameter("orientation", "landscape")
-                    }.body<UnsplashSearchResponse>()
+                    }.body<UnsplashPhoto>()
             }.fold(
-                onSuccess = { response: UnsplashSearchResponse ->
-                    val firstPhoto = response.results.firstOrNull()
-                    if (firstPhoto == null) {
-                        RunStatus.Error("$query の画像が見つかりませんでした。")
-                    } else {
-                        val imageResponse = httpClient.get(firstPhoto.urls.regular)
-                        RunStatus.Success(imageResponse.body<ByteArray>())
-                    }
+                onSuccess = { photo: UnsplashPhoto ->
+                    val imageResponse = httpClient.get(photo.urls.regular)
+                    RunStatus.Success(imageResponse.body<ByteArray>())
                 },
                 onFailure = { e -> RunStatus.Error(toErrorMessage(e)) }
             )
@@ -53,13 +46,6 @@ private fun toErrorMessage(e: Throwable): String =
         e.cause?.message?.contains("timeout", ignoreCase = true) == true -> "通信がタイムアウトしました"
         else -> e.message ?: "画像の取得に失敗しました"
     }
-
-@Serializable
-data class UnsplashSearchResponse(
-    val total: Int,
-    val total_pages: Int,
-    val results: List<UnsplashPhoto>
-)
 
 @Serializable
 data class UnsplashPhoto(
