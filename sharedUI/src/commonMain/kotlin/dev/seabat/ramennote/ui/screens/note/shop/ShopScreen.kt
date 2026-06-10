@@ -1,0 +1,555 @@
+package dev.seabat.ramennote.ui.screens.note.shop
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import dev.seabat.ramennote.domain.extension.isTodayOrFuture
+import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.ShopStarIcon
+import dev.seabat.ramennote.ui.components.alert.AppAlert
+import dev.seabat.ramennote.ui.components.button.AddReportButton
+import dev.seabat.ramennote.ui.components.button.EditShopButton
+import dev.seabat.ramennote.ui.components.button.ReportListButton
+import dev.seabat.ramennote.ui.components.button.ScheduleButton
+import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
+import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingRow
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import dev.seabat.ramennote.ui.util.createFormattedDateString
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
+import ramennote.sharedui.generated.resources.Res
+import ramennote.sharedui.generated.resources.add_category_label
+import ramennote.sharedui.generated.resources.add_evaluation_label
+import ramennote.sharedui.generated.resources.add_no_data_label
+import ramennote.sharedui.generated.resources.add_note_label
+import ramennote.sharedui.generated.resources.add_schedule_complete_message
+import ramennote.sharedui.generated.resources.add_schedule_error_past_date_message
+import ramennote.sharedui.generated.resources.add_schedule_label
+import ramennote.sharedui.generated.resources.add_station_label
+import ramennote.sharedui.generated.resources.add_web_site_label
+import ramennote.sharedui.generated.resources.edit_area_label
+import ramennote.sharedui.generated.resources.favorite_disabled
+import ramennote.sharedui.generated.resources.favorite_enabled
+import ramennote.sharedui.generated.resources.schedule_picker_label
+import ramennote.sharedui.generated.resources.shop_map_label
+import kotlin.time.Instant
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShopScreen(
+    shopId: Int,
+    shopName: String,
+    goBack: () -> Unit,
+    goToEditShop: (Shop) -> Unit = {},
+    goToReport: (Shop) -> Unit = {},
+    goToSchedule: () -> Unit = {},
+    goToHistory: (shopId: Int) -> Unit = {},
+    viewModel: ShopViewModelContract = koinViewModel<ShopViewModel>()
+) {
+    // Shopデータと画像を読み込み
+    LaunchedEffect(shopId) {
+        viewModel.loadShopAndImage(shopId)
+    }
+
+    val shop by viewModel.shop.collectAsState()
+    val imageBytes by viewModel.shopImage.collectAsState()
+    val areaName by viewModel.areaName.collectAsState()
+
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var showScheduledDialog by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top
+        ) {
+            AppBar(
+                title = shop?.name ?: "",
+                onBackClick = goBack
+            )
+
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+            ) {
+                // ヘッダー画像エリア
+                Header(
+                    imageBytes = imageBytes,
+                    shop = shop,
+                    onFavoriteClick = { onOff, shopId ->
+                        viewModel.switchFavorite(onOff, shopId)
+                    }
+                )
+
+                // アクションボタン
+                Menu(
+                    shop,
+                    onAddScheduleClick = {
+                        showDatePicker = true
+                    },
+                    onReportClick = {
+                        shop?.let { goToReport(it) }
+                    },
+                    onHistoryClick = {
+                        shop?.let { goToHistory(it.id) }
+                    },
+                    onEditClick = {
+                        shop?.let { goToEditShop(it) }
+                    }
+                )
+
+                // 詳細情報
+                shop?.let { shopData ->
+                    Detail(
+                        shopData,
+                        areaName = areaName,
+                        updateStar = { newStar ->
+                            viewModel.updateStar(newStar, shopId)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerOnClickHandler(
+                            datePickerState,
+                            onFailure = { showErrorDialog = true },
+                            onSuccess = { date ->
+                                viewModel.addSchedule(shopId, date)
+                                showScheduledDialog = true
+                            },
+                            dismissDatePicker = { showDatePicker = false }
+                        )
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            Column {
+                Text(
+                    text = stringResource(Res.string.schedule_picker_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                DatePicker(state = datePickerState)
+            }
+        }
+    }
+
+    // エラーダイアログ
+    if (showErrorDialog) {
+        AppAlert(
+            message = stringResource(Res.string.add_schedule_error_past_date_message),
+            onConfirm = { showErrorDialog = false }
+        )
+    }
+
+    if (showScheduledDialog) {
+        AppAlert(
+            message = stringResource(Res.string.add_schedule_complete_message),
+            onConfirm = { showScheduledDialog = false }
+        )
+    }
+}
+
+@Composable
+fun Header(
+    imageBytes: ByteArray?,
+    shop: Shop?,
+    onFavoriteClick: (Boolean, Int) -> Unit
+) {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
+    ) {
+        if (imageBytes != null) {
+            AsyncImage(
+                model = imageBytes,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        // オーバーレイ（半透明の黒い背景）
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.70f)
+                                ),
+                            startY = 0f,
+                            endY = 1000f
+                        )
+                    )
+        )
+
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = shop?.menuName1 ?: "",
+                style =
+                    MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                color = Color.White
+            )
+        }
+
+        // お気に入りボタン（右上）
+        if (shop != null) {
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .clickable {
+                            onFavoriteClick(!shop.favorite, shop.id)
+                        }
+            ) {
+                Image(
+                    painter =
+                        painterResource(
+                            if (shop.favorite) {
+                                Res.drawable.favorite_enabled
+                            } else {
+                                Res.drawable.favorite_disabled
+                            }
+                        ),
+                    contentDescription = if (shop.favorite) "お気に入り解除" else "お気に入り追加",
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+
+        // 左右の矢印（スワイプ可能を示唆）
+        // TODO: 画面遷移が未実装のため一旦非表示
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .align(Alignment.BottomCenter),
+//            horizontalArrangement = Arrangement.SpaceBetween
+//        ) {
+//            Icon(
+//                imageVector = Icons.Default.ArrowBack,
+//                contentDescription = "前へ",
+//                tint = Color.White.copy(alpha = 0.7f),
+//                modifier = Modifier.padding(vertical = 16.dp)
+//            )
+//            Icon(
+//                imageVector = Icons.Default.ArrowForward,
+//                contentDescription = "次へ",
+//                tint = Color.White.copy(alpha = 0.7f),
+//                modifier = Modifier.padding(vertical = 16.dp)
+//            )
+//        }
+    }
+}
+
+// アクションボタン
+@Composable
+fun Menu(
+    shop: Shop?,
+    onEditClick: () -> Unit = {},
+    onReportClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {},
+    onAddScheduleClick: () -> Unit = {}
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+//        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        ScheduleButton(
+            hasScheduledDate = shop?.scheduledDate?.isTodayOrFuture() == true,
+            onClick = { onAddScheduleClick() },
+            modifier = Modifier.weight(1f)
+        )
+
+        AddReportButton(
+            onClick = onReportClick,
+            modifier = Modifier.weight(1f)
+        )
+
+        ReportListButton(
+            onClick = onHistoryClick,
+            modifier = Modifier.weight(1f)
+        )
+
+        EditShopButton(
+            onClick = onEditClick,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun Detail(
+    shop: Shop,
+    areaName: String = "",
+    updateStar: (Int) -> Unit = { }
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+    ) {
+        // 予定（YYYY年mm月DD日 表記）
+        shop.scheduledDate?.let { date ->
+            // 今日を含めた未来日の場合のみ表示
+            if (date.isTodayOrFuture()) {
+                val formatted = createFormattedDateString(date)
+                ShopDetailItem(
+                    label = stringResource(Res.string.add_schedule_label),
+                    value = formatted
+                )
+            }
+        }
+
+        // エリア
+        ShopDetailItem(
+            label = stringResource(Res.string.edit_area_label),
+            value = areaName.ifEmpty { stringResource(Res.string.add_no_data_label) }
+        )
+
+        // Webサイト
+        UrlItem(
+            label = stringResource(Res.string.add_web_site_label),
+            url = shop.shopUrl
+        )
+
+        // 地図
+        UrlItem(
+            label = stringResource(Res.string.shop_map_label),
+            url = shop.mapUrl
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        // 評価（星）
+        ShopStarRatingRow(
+            star = shop.star,
+            onValueChange = { newStar -> updateStar(newStar) }
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        // 最寄り駅
+        ShopDetailItem(
+            label = stringResource(Res.string.add_station_label),
+            value = shop.stationName.ifEmpty { stringResource(Res.string.add_no_data_label) }
+        )
+
+        // 系統
+        ShopDetailItem(
+            label = stringResource(Res.string.add_category_label),
+            value = shop.category.ifEmpty { stringResource(Res.string.add_no_data_label) }
+        )
+
+        // note
+        ShopDetailItem(
+            label = stringResource(Res.string.add_note_label),
+            value = shop.note.ifEmpty { stringResource(Res.string.add_no_data_label) },
+            enabledBorder = true
+        )
+    }
+}
+
+@Composable
+private fun UrlItem(
+    label: String,
+    url: String
+) {
+    val urlHandler = LocalUriHandler.current
+    val isUrlEmpty = url.isEmpty()
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp)
+                .let { modifier ->
+                    if (isUrlEmpty) {
+                        modifier
+                    } else {
+                        modifier.clickable { urlHandler.openUri(url) }
+                    }
+                },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = if (isUrlEmpty) Color.Unspecified else Color.Blue
+        )
+        if (isUrlEmpty) {
+            Text(
+                text = stringResource(Res.string.add_no_data_label),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+fun StarItem(star: Int) {
+    Row(
+        modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(Res.string.add_evaluation_label),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(end = 16.dp)
+        )
+        // 星の表示（最大3つ）
+        Row {
+            repeat(3) { index ->
+                ShopStarIcon(
+                    onOff = index < star
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun datePickerOnClickHandler(
+    datePickerState: DatePickerState,
+    onFailure: () -> Unit,
+    onSuccess: (LocalDate) -> Unit,
+    dismissDatePicker: () -> Unit
+) {
+    try {
+        val millis = datePickerState.selectedDateMillis
+        if (millis != null) {
+            val selectedDate =
+                Instant
+                    .fromEpochMilliseconds(millis)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
+
+            // 今日を含めた未来日かどうかをチェック
+            if (!selectedDate.isTodayOrFuture()) {
+                onFailure()
+            } else {
+                onSuccess(selectedDate)
+            }
+        }
+    } finally {
+        dismissDatePicker()
+    }
+}
+
+@Preview
+@Composable
+fun ShopScreenPreview() {
+    RamenNoteTheme {
+        ShopScreen(
+            shopId = 1,
+            shopName = "〇〇家",
+            goBack = { },
+            goToEditShop = { },
+            goToReport = { },
+            goToSchedule = { },
+            viewModel = MockShopViewModel()
+        )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 640, name = "Small Phone")
+@Composable
+fun ShopScreenSmallPhonePreview() {
+    RamenNoteTheme {
+        ShopScreen(
+            shopId = 1,
+            shopName = "〇〇家",
+            goBack = { },
+            goToEditShop = { },
+            goToReport = { },
+            goToSchedule = { },
+            viewModel = MockShopViewModel()
+        )
+    }
+}
