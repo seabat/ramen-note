@@ -39,6 +39,9 @@ class EditAreaViewModel(
     // 新たに取得した画像バイト（null = 画像変更なし）
     private var newImageBytes: ByteArray? = null
 
+    // 現在表示中の画像バイト（エラー後に復元するため保持）
+    private var displayedImageBytes: ByteArray? = null
+
     override fun editArea(areaId: Int, newAreaName: String) {
         viewModelScope.launch {
             _editState.value = RunStatus.Loading()
@@ -64,6 +67,7 @@ class EditAreaViewModel(
             _imageState.value = result
             if (result is RunStatus.Success) {
                 newImageBytes = result.data
+                displayedImageBytes = result.data
             }
         }
     }
@@ -79,13 +83,16 @@ class EditAreaViewModel(
     override fun loadImage(areaId: Int) {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = loadAreaImageUseCase(areaId)
+            val result = loadAreaImageUseCase(areaId)
+            _imageState.value = result
+            if (result is RunStatus.Success) {
+                displayedImageBytes = result.data
+            }
         }
     }
 
     override fun resetImageState() {
-        newImageBytes = null
-        _imageState.value = RunStatus.Idle()
+        _imageState.value = displayedImageBytes?.let { RunStatus.Success(it) } ?: RunStatus.Idle()
     }
 
     override fun resetEditState() {
