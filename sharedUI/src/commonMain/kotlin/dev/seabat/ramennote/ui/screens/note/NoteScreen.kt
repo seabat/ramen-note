@@ -51,7 +51,6 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.rememberLifecycleState
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.components.button.AddFab
@@ -80,6 +79,7 @@ import ramennote.sharedui.generated.resources.sort_24px
 
 @Composable
 fun NoteScreen(
+    refreshKey: Int = 0,
     initialSearchText: String = "",
     goToAreaShopList: (String) -> Unit = {},
     goToAddArea: () -> Unit = {},
@@ -98,6 +98,7 @@ fun NoteScreen(
     ) {
         ScreenBar()
         MainContent(
+            refreshKey = refreshKey,
             viewModel = viewModel,
             onAreaClick = goToAreaShopList,
             onAddAreaClick = goToAddArea,
@@ -119,6 +120,7 @@ private fun ScreenBar() {
 
 @Composable
 private fun MainContent(
+    refreshKey: Int = 0,
     viewModel: NoteViewModelContract,
     onAreaClick: (String) -> Unit = {},
     onAddAreaClick: () -> Unit = {},
@@ -167,11 +169,8 @@ private fun MainContent(
             var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
             var searchText by remember { mutableStateOf(initialSearchText) }
 
-            val lifecycleState by rememberLifecycleState()
-            LaunchedEffect(lifecycleState.isResumed) {
-                if (lifecycleState.isResumed) {
-                    viewModel.fetchAreas()
-                }
+            LaunchedEffect(refreshKey) {
+                viewModel.fetchAreas()
             }
 
             LaunchedEffect(Unit) {
