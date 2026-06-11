@@ -222,7 +222,9 @@ fun EditStatus(
 ) {
     when (editStatus) {
         is RunStatus.Success -> {
-            onCompleted()
+            LaunchedEffect(editStatus) {
+                onCompleted()
+            }
         }
         is RunStatus.Error -> {
             AppAlert(
@@ -244,7 +246,9 @@ fun DeleteStatus(
 ) {
     when (deleteStatus) {
         is RunStatus.Success -> {
-            onCompleted()
+            LaunchedEffect(deleteStatus) {
+                onCompleted()
+            }
         }
         is RunStatus.Error -> {
             AppAlert(
