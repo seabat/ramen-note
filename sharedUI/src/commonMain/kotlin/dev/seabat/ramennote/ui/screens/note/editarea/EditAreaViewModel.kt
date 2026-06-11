@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
-import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class EditAreaViewModel(
     private val deleteAreaUseCase: DeleteAreaUseCaseContract,
     private val updateAreaUseCase: UpdateAreaUseCaseContract,
-    private val updateAreaImageUseCase: UpdateAreaImageUseCaseContract,
+    private val fetchUnsplashImageUseCase: FetchUnsplashImageUseCaseContract,
     private val loadAreaImageUseCase: LoadAreaImageUseCaseContract,
     private val loadAreasUseCase: LoadAreasUseCaseContract
 ) : ViewModel(),
@@ -36,12 +36,19 @@ class EditAreaViewModel(
     private val _areaName: MutableStateFlow<String> = MutableStateFlow("")
     override val areaName: StateFlow<String> = _areaName.asStateFlow()
 
+    // 新たに取得した画像バイト（null = 画像変更なし）
+    private var newImageBytes: ByteArray? = null
+
+    // 現在表示中の画像バイト（エラー後に復元するため保持）
+    private var displayedImageBytes: ByteArray? = null
+
     override fun editArea(areaId: Int, newAreaName: String) {
         viewModelScope.launch {
             _editState.value = RunStatus.Loading()
-            _editState.value = updateAreaUseCase(areaId, newAreaName)
+            _editState.value = updateAreaUseCase(areaId, newAreaName, newImageBytes)
             if (_editState.value is RunStatus.Success) {
                 _areaName.value = newAreaName
+                newImageBytes = null
             }
         }
     }
@@ -56,7 +63,12 @@ class EditAreaViewModel(
     override fun fetchNewImage(areaName: String) {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = updateAreaImageUseCase(areaName)
+            val result = fetchUnsplashImageUseCase(areaName)
+            _imageState.value = result
+            if (result is RunStatus.Success) {
+                newImageBytes = result.data
+                displayedImageBytes = result.data
+            }
         }
     }
 
@@ -71,12 +83,16 @@ class EditAreaViewModel(
     override fun loadImage(areaId: Int) {
         viewModelScope.launch {
             _imageState.value = RunStatus.Loading()
-            _imageState.value = loadAreaImageUseCase(areaId)
+            val result = loadAreaImageUseCase(areaId)
+            _imageState.value = result
+            if (result is RunStatus.Success) {
+                displayedImageBytes = result.data
+            }
         }
     }
 
     override fun resetImageState() {
-        _imageState.value = RunStatus.Idle()
+        _imageState.value = displayedImageBytes?.let { RunStatus.Success(it) } ?: RunStatus.Idle()
     }
 
     override fun resetEditState() {

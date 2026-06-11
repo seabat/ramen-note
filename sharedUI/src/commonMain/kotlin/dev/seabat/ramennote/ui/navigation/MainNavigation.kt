@@ -287,6 +287,9 @@ fun MainNavigation() {
     // HistoryScreenに遷移する際のareaIdを管理するState
     var areaIdParam by remember { mutableStateOf<Int?>(null) }
 
+    // NoteScreen のエリア一覧再取得トリガー（エリア関連の子画面が完了したときにインクリメント）
+    var noteRefreshKey by remember { mutableStateOf(0) }
+
     val tabScreens =
         listOf(
             Screen.Home,
@@ -444,6 +447,7 @@ fun MainNavigation() {
                     }
                     composable<Screen.Note> {
                         NoteScreen(
+                            refreshKey = noteRefreshKey,
                             goToAreaShopList = { areaName ->
                                 navController.navigate(Screen.AreaShopList(areaName))
                             },
@@ -516,7 +520,10 @@ fun MainNavigation() {
                     composable<Screen.AddArea> {
                         AddAreaScreen(
                             onBackClick = { navController.popBackStack() },
-                            onCompleted = { navController.popBackStack() }
+                            onCompleted = {
+                                noteRefreshKey++
+                                navController.popBackStack()
+                            }
                         )
                     }
                     composable<Screen.EditArea> { backStackEntry ->
@@ -524,13 +531,19 @@ fun MainNavigation() {
                         EditAreaScreen(
                             areaId = screen.areaId,
                             onBackClick = { navController.popBackStack() },
-                            onCompleted = { navController.popBackStack() }
+                            onCompleted = {
+                                noteRefreshKey++
+                                navController.popBackStack()
+                            }
                         )
                     }
                     composable<Screen.EditAreaSort> {
                         EditAreaSortScreen(
                             onBackClick = { navController.popBackStack() },
-                            onCompleted = { navController.popBackStack() }
+                            onCompleted = {
+                                noteRefreshKey++
+                                navController.popBackStack()
+                            }
                         )
                     }
                     composable<Screen.Shop> { backStackEntry ->
