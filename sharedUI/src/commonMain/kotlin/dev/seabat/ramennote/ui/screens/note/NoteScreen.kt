@@ -261,7 +261,7 @@ private fun MainContent(
                                 AreaItem(
                                     areaName = area.name,
                                     imagePath = area.imagePath,
-                                    imageKey = area.updatedDate.toString(),
+                                    imageKey = refreshKey.toString(),
                                     itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                                     onClick = { onAreaClick(area.name) },
                                     onLongClick = { onAreaLongClick(area.areaId) },
