@@ -47,6 +47,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
@@ -77,6 +79,7 @@ import ramennote.sharedui.generated.resources.sort_24px
 
 @Composable
 fun NoteScreen(
+    refreshKey: Int = 0,
     initialSearchText: String = "",
     goToAreaShopList: (String) -> Unit = {},
     goToAddArea: () -> Unit = {},
@@ -95,6 +98,7 @@ fun NoteScreen(
     ) {
         ScreenBar()
         MainContent(
+            refreshKey = refreshKey,
             viewModel = viewModel,
             onAreaClick = goToAreaShopList,
             onAddAreaClick = goToAddArea,
@@ -116,6 +120,7 @@ private fun ScreenBar() {
 
 @Composable
 private fun MainContent(
+    refreshKey: Int = 0,
     viewModel: NoteViewModelContract,
     onAreaClick: (String) -> Unit = {},
     onAddAreaClick: () -> Unit = {},
@@ -164,8 +169,11 @@ private fun MainContent(
             var isSearchResultVisible by remember { mutableStateOf(initialSearchText.isNotEmpty()) }
             var searchText by remember { mutableStateOf(initialSearchText) }
 
-            LaunchedEffect(Unit) {
+            LaunchedEffect(refreshKey) {
                 viewModel.fetchAreas()
+            }
+
+            LaunchedEffect(Unit) {
                 if (searchText.isNotEmpty()) {
                     viewModel.searchShops(searchText)
                 }
@@ -253,6 +261,7 @@ private fun MainContent(
                                 AreaItem(
                                     areaName = area.name,
                                     imagePath = area.imagePath,
+                                    imageKey = refreshKey.toString(),
                                     itemCount = "${area.count}${stringResource(Res.string.note_item_count)}",
                                     onClick = { onAreaClick(area.name) },
                                     onLongClick = { onAreaLongClick(area.areaId) },
@@ -323,6 +332,7 @@ private fun SortButton(
 private fun AreaItem(
     areaName: String,
     imagePath: String? = null,
+    imageKey: String? = null,
     itemCount: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit = {},
@@ -348,7 +358,10 @@ private fun AreaItem(
             // 背景画像
             if (imagePath != null) {
                 AsyncImage(
-                    model = imagePath,
+                    model = ImageRequest.Builder(LocalPlatformContext.current)
+                        .data(imagePath)
+                        .memoryCacheKey("$imagePath#$imageKey")
+                        .build(),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

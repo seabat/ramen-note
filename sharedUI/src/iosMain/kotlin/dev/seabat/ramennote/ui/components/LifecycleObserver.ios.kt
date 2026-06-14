@@ -5,40 +5,31 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import kotlinx.cinterop.ExperimentalForeignApi
-import platform.Foundation.NSNotificationCenter
-import platform.UIKit.UIApplicationDidBecomeActiveNotification
-import platform.UIKit.UIApplicationWillResignActiveNotification
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
-@OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun rememberLifecycleState(): State<LifecycleState> {
-    val lifecycleState = remember { mutableStateOf(LifecycleState(isResumed = true)) } // デフォルトはtrue（アプリ起動時はフォアグラウンド）
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState =
+        remember {
+            mutableStateOf(
+                LifecycleState(
+                    isResumed =
+                        lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+                )
+            )
+        }
 
-    DisposableEffect(Unit) {
-        val notificationCenter = NSNotificationCenter.defaultCenter
-
-        val becomeActiveObserver =
-            notificationCenter.addObserverForName(
-                name = UIApplicationDidBecomeActiveNotification,
-                `object` = null,
-                queue = null
-            ) { _ ->
-                lifecycleState.value = lifecycleState.value.copy(isResumed = true)
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                lifecycleState.value = lifecycleState.value.copy(isResumed = event == Lifecycle.Event.ON_RESUME)
             }
-
-        val resignActiveObserver =
-            notificationCenter.addObserverForName(
-                name = UIApplicationWillResignActiveNotification,
-                `object` = null,
-                queue = null
-            ) { _ ->
-                lifecycleState.value = lifecycleState.value.copy(isResumed = false)
-            }
-
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
-            notificationCenter.removeObserver(becomeActiveObserver)
-            notificationCenter.removeObserver(resignActiveObserver)
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
