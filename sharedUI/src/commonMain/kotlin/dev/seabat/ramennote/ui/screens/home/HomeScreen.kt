@@ -86,6 +86,11 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavGraphRoot
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_schedule_error_past_date_message
@@ -132,6 +137,11 @@ private sealed interface DialogState {
     object CompleteAddSchedule : DialogState
 }
 
+@NavGraphRoot
+@NavDestination(route = Screen.Home::class)
+@NavEdge(to = Screen.Shop::class, label = "店舗詳細へ")
+@NavEdge(to = Screen.Report::class, label = "レポート追加へ")
+@NavEdge(to = Screen.History::class, label = "履歴へ")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -1041,5 +1051,14 @@ fun YearlyReportChartEmptyPreview() {
             // データがない場合のプレビュー
             YearlyReportChart(emptyList())
         }
+    }
+}
+
+@NavPreview(Screen.Home::class, primary = true)
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    RamenNoteTheme {
+        HomeScreen(viewModel = MockHomeViewModel())
     }
 }

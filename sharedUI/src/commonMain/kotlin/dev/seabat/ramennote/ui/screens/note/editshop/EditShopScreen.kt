@@ -39,6 +39,10 @@ import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_map_label
@@ -63,6 +67,8 @@ private sealed interface ErrorDialogType {
     ) : ErrorDialogType
 }
 
+@NavDestination(route = Screen.EditShop::class)
+@NavEdge(to = Screen.AreaShopList::class, label = "エリア店舗リストへ")
 @Composable
 fun EditShopScreen(
     shop: Shop,
@@ -308,6 +314,7 @@ fun EditShopScreen(
     }
 }
 
+@NavPreview(route = Screen.EditShop::class, primary = true)
 @Preview
 @Composable
 fun EditShopScreenPreview() {
