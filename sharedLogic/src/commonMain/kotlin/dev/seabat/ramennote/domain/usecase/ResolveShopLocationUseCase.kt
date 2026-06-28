@@ -92,7 +92,7 @@ class ResolveShopLocationUseCase(
         }
         return when (val result = geocodingRepository.geocode(query)) {
             is RunStatus.Success -> {
-                val (lat, lng) = result.data!!
+                val (lat, lng) = requireNotNull(result.data) { "geocode result data is null" }
                 val newMapUrl = buildMapUrl(shop, lat, lng)
                 shopsRepository.updateMapUrl(shop.id, newMapUrl)
                 ShopLocation(shop, lat, lng)
@@ -106,7 +106,7 @@ class ResolveShopLocationUseCase(
         val query = shop.mapUrl.substringAfter("query=").substringBefore("&").decodeURLQueryComponent()
         return when (val result = geocodingRepository.geocode(query)) {
             is RunStatus.Success -> {
-                val (lat, lng) = result.data!!
+                val (lat, lng) = requireNotNull(result.data) { "geocode result data is null" }
                 val newMapUrl = buildMapUrl(shop, lat, lng)
                 shopsRepository.updateMapUrl(shop.id, newMapUrl)
                 ShopLocation(shop, lat, lng)
@@ -126,7 +126,7 @@ class ResolveShopLocationUseCase(
     private suspend fun expandAndResolve(shop: Shop): ShopLocation? {
         val expandResult = expandShortUrlRepository.expand(shop.mapUrl)
         if (expandResult !is RunStatus.Success) return geocodeByShopName(shop)
-        val expandedUrl = expandResult.data!!
+        val expandedUrl = requireNotNull(expandResult.data) { "expanded URL is null" }
 
         // 1. /@lat,lng 形式を試みる
         if (expandedUrl.contains("/@")) {
@@ -151,7 +151,7 @@ class ResolveShopLocationUseCase(
         if (!address.isNullOrEmpty()) {
             when (val geocodeResult = geocodingRepository.geocode(address)) {
                 is RunStatus.Success -> {
-                    val (lat, lng) = geocodeResult.data!!
+                    val (lat, lng) = requireNotNull(geocodeResult.data) { "geocode result data is null" }
                     if (lat in 24.0..46.0 && lng in 122.0..154.0) {
                         val newMapUrl = buildMapUrl(shop, lat, lng)
                         shopsRepository.updateMapUrl(shop.id, newMapUrl)
