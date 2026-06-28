@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.event_note_24px
 import ramennote.sharedui.generated.resources.shop_menu_schedule_add_button

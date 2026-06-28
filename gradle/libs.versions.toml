@@ -27,6 +27,8 @@ firebase-bom = "34.12.0"
 googleService = "4.4.4"
 firebaseCrashlyticsPlugin = "3.0.7"
 mapsCompose = "6.4.1"
+skie = "0.10.12"
+navgraph = "0.2.0"
 
 
 [libraries]
@@ -89,3 +91,5 @@ room = { id = "androidx.room", version.ref = "room" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 googleService = { id = "com.google.gms.google-services", version.ref = "googleService" }
 firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+touchlab-skie = { id = "co.touchlab.skie", version.ref = "skie" }
+skydoves-navgraph = { id = "com.github.skydoves.navgraph", version.ref = "navgraph" }

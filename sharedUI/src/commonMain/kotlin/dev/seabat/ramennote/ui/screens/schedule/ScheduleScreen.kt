@@ -47,7 +47,11 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_schedule_error_past_date_message
@@ -81,6 +85,9 @@ private sealed interface DialogState {
     ) : DialogState
 }
 
+@NavDestination(route = Screen.Schedule::class)
+@NavEdge(to = Screen.Report::class, label = "レポート追加へ")
+@NavEdge(to = Screen.Shop::class, label = "店舗詳細へ")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
@@ -450,6 +457,7 @@ private fun datePickerOnClickHandler(
     }
 }
 
+@NavPreview(route = Screen.Schedule::class, primary = true)
 @Preview
 @Composable
 fun ScheduleScreenPreview() {

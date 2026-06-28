@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.components.ReportStarIcon
 import dev.seabat.ramennote.ui.components.ShopStarIcon
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_evaluation_label
 

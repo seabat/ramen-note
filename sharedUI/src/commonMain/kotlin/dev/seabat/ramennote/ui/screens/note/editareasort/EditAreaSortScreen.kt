@@ -45,7 +45,10 @@ import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_circle_24px
@@ -54,6 +57,7 @@ import ramennote.sharedui.generated.resources.editarea_edit_button
 import ramennote.sharedui.generated.resources.editareasort_description
 import ramennote.sharedui.generated.resources.editareasort_title
 
+@NavDestination(route = Screen.EditAreaSort::class)
 @Composable
 fun EditAreaSortScreen(
     onBackClick: () -> Unit,
@@ -253,6 +257,7 @@ private fun EditAreasStatus(
     }
 }
 
+@NavPreview(Screen.EditAreaSort::class, primary = true)
 @Preview
 @Composable
 fun EditAreaSortScreenPreview() {

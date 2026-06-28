@@ -45,7 +45,11 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.report_header
@@ -55,6 +59,8 @@ import ramennote.sharedui.generated.resources.report_run
 import ramennote.sharedui.generated.resources.report_shop_name
 import kotlin.time.Instant
 
+@NavDestination(route = Screen.Report::class)
+@NavEdge(to = Screen.History::class, label = "履歴へ")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddReportScreen(
@@ -261,6 +267,7 @@ fun ReportStatus(
     }
 }
 
+@NavPreview(route = Screen.Report::class, primary = true)
 @Preview
 @Composable
 fun ReportScreenPreview() {

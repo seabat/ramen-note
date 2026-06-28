@@ -24,11 +24,18 @@ import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.shoplist_no_data
 
+@NavDestination(route = Screen.AreaShopList::class)
+@NavEdge(to = Screen.Shop::class, label = "店舗詳細へ")
+@NavEdge(to = Screen.AddShop::class, label = "店舗追加へ")
 @Composable
 fun AreaShopListScreen(
     areaName: String,
@@ -121,6 +128,7 @@ private fun AreaShopListMainContent(
     }
 }
 
+@NavPreview(Screen.AreaShopList::class, primary = true)
 @Preview
 @Composable
 fun DetailScreenPreview() {

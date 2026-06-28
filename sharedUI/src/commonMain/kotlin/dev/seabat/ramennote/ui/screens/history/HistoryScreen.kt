@@ -47,7 +47,11 @@ import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.history_no_data
@@ -59,6 +63,9 @@ import ramennote.sharedui.generated.resources.note_notification
 import ramennote.sharedui.generated.resources.screen_history_title
 import ramennote.sharedui.generated.resources.select_shop_dialog_write_report_button
 
+@NavDestination(route = Screen.History::class)
+@NavEdge(to = Screen.EditReport::class, label = "レポート編集へ")
+@NavEdge(to = Screen.Report::class, label = "レポート追加へ")
 @Composable
 fun HistoryScreen(
     reportId: Int? = null,
@@ -491,6 +498,7 @@ private fun MenuWithSearchTextPreview() {
     }
 }
 
+@NavPreview(Screen.History::class, primary = true)
 @Preview
 @Composable
 fun HistoryScreenPreview() {
@@ -499,6 +507,7 @@ fun HistoryScreenPreview() {
     }
 }
 
+@NavPreview(Screen.History::class, primary = false)
 @Preview
 @Composable
 fun HistoryScreenForSearchWithNoHitPreview() {
@@ -510,6 +519,7 @@ fun HistoryScreenForSearchWithNoHitPreview() {
     }
 }
 
+@NavPreview(Screen.History::class, primary = false)
 @Preview
 @Composable
 fun HistoryScreenForSearchWithHitsPreview() {

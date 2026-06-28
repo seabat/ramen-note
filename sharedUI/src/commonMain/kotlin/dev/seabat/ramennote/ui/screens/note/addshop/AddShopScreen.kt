@@ -52,7 +52,10 @@ import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_category_label
@@ -66,6 +69,7 @@ import ramennote.sharedui.generated.resources.add_station_label
 import ramennote.sharedui.generated.resources.add_web_site_label
 import kotlin.time.Clock
 
+@NavDestination(route = Screen.AddShop::class)
 @Composable
 fun AddShopScreen(
     areaName: String,
@@ -420,6 +424,7 @@ private fun ShopAiInfoState(
     }
 }
 
+@NavPreview(route = Screen.AddShop::class, primary = true)
 @Preview
 @Composable
 fun AddShopScreenPreview() {

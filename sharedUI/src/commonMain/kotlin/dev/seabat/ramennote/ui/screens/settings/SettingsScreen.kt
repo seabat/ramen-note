@@ -23,11 +23,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.settings_title
 
+@NavDestination(route = Screen.Settings::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModelContract = koinViewModel<SettingsViewModel>()
@@ -135,6 +139,7 @@ fun AppVersionPreview() {
     }
 }
 
+@NavPreview(route = Screen.Settings::class, primary = true)
 @Preview
 @Composable
 fun SettingsScreenPreview() {

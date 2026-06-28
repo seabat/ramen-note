@@ -13,9 +13,15 @@ import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.ShopsMap
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 
+@NavDestination(route = Screen.ShopsLocation::class)
+@NavEdge(to = Screen.Shop::class, label = "店舗詳細へ")
 @Composable
 fun ShopsLocationScreen(
     areaId: Int,
@@ -51,6 +57,7 @@ fun ShopsLocationScreen(
     }
 }
 
+@NavPreview(route = Screen.ShopsLocation::class, primary = true)
 @Preview
 @Composable
 private fun ShopsLocationScreenPreview() {
