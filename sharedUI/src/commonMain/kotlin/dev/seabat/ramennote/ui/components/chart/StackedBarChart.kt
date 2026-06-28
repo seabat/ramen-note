@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.home_no_recent_report
 
