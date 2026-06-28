@@ -28,7 +28,7 @@ googleService = "4.4.4"
 firebaseCrashlyticsPlugin = "3.0.7"
 mapsCompose = "6.4.1"
 skie = "0.10.12"
-navgraph = "0.1.1"
+navgraph = "0.2.0"
 
 
 [libraries]
