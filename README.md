@@ -48,6 +48,7 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 - **Coil**: 画像読み込み
 - **Navigation Compose**: 画面遷移
 - **SKIE**: Kotlin/Swift 連携（iOS）
+- **compose-nav-graph**: IDE の NavGraph Graph ビュー（ナビゲーション構造の可視化）
 - **Firebase**: Analytics・Crashlytics・AI・App Check（Android: Play Integrity / Debug、iOS: DeviceCheck / Debug）
 - **Gemini AI**: AI 機能（Android）
 
@@ -139,6 +140,17 @@ Windows:
   ```bash
   ./gradlew ktlintFormat
   ```
+
+### NavGraph Graph ビュー
+
+compose-nav-graph プラグイン（0.2.0）を導入しており、IDE の **NavGraph Graph** タブでナビゲーション構造を視覚的に確認できます。
+
+プレビューギャラリーの生成:
+```bash
+./gradlew :sharedUI:generatePreviewGallery
+```
+
+> **注意**: `@Preview` アノテーションは `androidx.compose.ui.tooling.preview.Preview` を使用してください。`org.jetbrains` 版は Compose Multiplatform 1.9.0 で deprecated となり、compose-nav-graph の KSP プロセッサが認識しません。
 
 ## Claude Code
 
