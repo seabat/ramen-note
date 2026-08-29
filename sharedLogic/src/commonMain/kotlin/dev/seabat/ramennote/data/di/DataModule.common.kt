@@ -54,7 +54,7 @@ expect val factoryModule: Module
 val repositoryModule =
     module {
         single<AppVersionRepositoryContract> { AppVersionRepository() }
-        single<AreasRepositoryContract> { get<RamenNoteDatabase>().let { db -> AreasRepository(db.areaDao(), db) } }
+        single<AreasRepositoryContract> { AreasRepository(get()) }
         single<AreaImageRepositoryContract> {
             AreaImageRepository(
                 HttpClient {
@@ -81,9 +81,7 @@ val repositoryModule =
         single<ReportsRepositoryContract> { ReportsRepository(get()) }
         single<ShopsRepositoryContract> { ShopsRepository(get()) }
         single<ShopAiRepositoryContract> { ShopAiRepository(get()) }
-        single<ShopAiCacheRepositoryContract> {
-            get<RamenNoteDatabase>().let { db -> ShopAiCacheRepository(db.shopAiCacheDao()) }
-        }
+        single<ShopAiCacheRepositoryContract> { ShopAiCacheRepository(get()) }
         single<GoogleMapSearchUrlRepositoryContract> { GoogleMapSearchUrlRepository() }
         single<GeocodingRepositoryContract> {
             GeocodingRepository(

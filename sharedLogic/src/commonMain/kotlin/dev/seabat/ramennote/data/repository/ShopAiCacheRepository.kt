@@ -1,13 +1,16 @@
 package dev.seabat.ramennote.data.repository
 
+import dev.seabat.ramennote.data.database.RamenNoteDatabase
 import dev.seabat.ramennote.data.database.dao.ShopAiCacheDao
 import dev.seabat.ramennote.data.database.entity.ShopAiCacheEntity
 import dev.seabat.ramennote.domain.model.ShopAiInfo
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
 
 class ShopAiCacheRepository(
-    private val shopAiCacheDao: ShopAiCacheDao
+    private val database: RamenNoteDatabase
 ) : ShopAiCacheRepositoryContract {
+    private val shopAiCacheDao: ShopAiCacheDao by lazy { database.shopAiCacheDao() }
+
     override suspend fun get(areaName: String, shopName: String): ShopAiInfo? =
         shopAiCacheDao.getByAreaAndShop(areaName, shopName)?.let { entity ->
             ShopAiInfo(

@@ -335,12 +335,18 @@ class ShopsRepositoryTest {
 
         override suspend fun searchShopsByName(query: String): List<ShopEntity> =
             shops.filter { it.name.contains(query) }
+
+        override suspend fun updateMapUrl(shopId: Int, mapUrl: String) {
+            val index = shops.indexOfFirst { it.id == shopId }
+            if (index >= 0) shops[index] = shops[index].copy(mapUrl = mapUrl)
+        }
     }
 
     private class FakeRamenNoteDatabase(private val dao: FakeShopDao) : RamenNoteDatabase() {
         override fun areaDao() = throw UnsupportedOperationException("テスト対象外")
         override fun shopDao() = dao
         override fun reportDao() = throw UnsupportedOperationException("テスト対象外")
+        override fun shopAiCacheDao() = throw UnsupportedOperationException("テスト対象外")
         override fun createInvalidationTracker(): InvalidationTracker =
             InvalidationTracker(this, emptyMap(), emptyMap())
         fun clearAllTables() = Unit
