@@ -123,10 +123,13 @@ override fun fetchShopAiInfo(areaName: String, shopName: String) {
 - ✅ `./gradlew :androidApp:assembleDebug` → **BUILD SUCCESSFUL**（`thinkingConfig` DSL・`maxOutputTokens`・`vertexAI(location="global")`・モデル名・ガードのコンパイル確認）
 - ✅ ktlint: 変更ファイルに違反なし（`ktlintCheck` の失敗は無関係な既存 iosMain ファイルの pre-existing 違反）
 - ✅ Room KSP コード生成成功（新 Entity/DAO/`MIGRATION_6_7` を含めてビルド通過）
-- ⏳ 実機での動作確認は未実施 → **実行推奨**（ビルドでは検証不可）:
-  - `gemini-3.1-flash-lite` / `global` ロケーションでの疎通・分類精度・description 品質・出力上限512
-  - キャッシュのヒット/ミス動作（2回目の同一店で API を叩かないこと）
-  - 既存 DB（v6）からの v7 マイグレーションが例外なく完了すること
+- ✅ **実機検証（エミュ Pixel 9・2026-08-30）完了**:
+  - **v6→v7 マイグレーション**: 旧アプリ（DB v6）に新デバッグ APK を上書き→起動でクラッシュなし。DB 実測で `user_version=7`・`shop_ai_cache` テーブル生成・既存3テーブル保持を確認
+  - **サービス停止解除**: ¥100 化後に AI 呼び出しが成功（¥10 発動中なら失敗）
+  - **App Check（ENFORCED）**: デバッグトークン登録後に生成成功＝通過を確認
+  - **モデル `gemini-3.1-flash-lite`/`global`**: 「Yoshimuraya」→ 吉村家・家系・横浜駅・公式URL・的確な紹介文を正確生成。思考OFF＋`maxOutputTokens=512` でも description は切れず完結
+  - **キャッシュ**: 生成後に `shop_ai_cache` へ行保存。**機内モード（通信オフ）で同一店を再生成→オフライン成功**により、キャッシュヒット時に Vertex AI を呼ばないことを決定的に確認
+- ⚠️ 実機検証で判明した軽微な挙動（任意対応）: キャッシュヒット時、名前欄が AI 正規化名ではなく入力した検索キー（店名）で返る。キャッシュが検索キーを `shopName` として保存し AI 正規化名を保持しないため。日本語入力の通常運用では入力＝AI出力で一致するため実害は小さい。厳密化するには `resultShopName` 列追加（v7→v8 マイグレーション）が必要で、費用対効果は低いため現状維持を推奨。
 
 ---
 
