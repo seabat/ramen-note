@@ -20,8 +20,8 @@ ramen-note の店情報自動生成機能（`ShopAiDataSource` 経由の Gemini 
 | 4 | 多重実行ガード | ✅ 実施済み | `AddShopViewModel.kt` |
 | 6 | 失敗時リトライ制御 | ✅ 対応不要 | 現状 auto-retry なし（`catch` のみ）で要件充足 |
 | 5 | 同一店キャッシュ再利用（Room） | ✅ 実施済み | DB v6→v7 マイグレーション＋新テーブル `shop_ai_cache` |
-| 7 | Firebase App Check | ⏳ 未実施（手動） | Firebase コンソール作業 |
-| 8 | 予算キャップ引上げ（¥10→¥500〜1,000） | ⏳ 未実施（手動） | GCP コンソール作業 |
+| 7 | Firebase App Check | ✅ 実施済み | 2アプリ登録＋`firebaseml.googleapis.com` が `ENFORCED`（gcloud で確認済み） |
+| 8 | 予算キャップ引上げ（¥10→¥100） | ✅ 実施済み | 利用額上限を ¥10→¥100（enforcement 維持）に更新し停止解除 |
 
 ---
 
@@ -135,9 +135,11 @@ override fun fetchShopAiInfo(areaName: String, shopName: String) {
 ### コード（別タスク）
 - **（推奨）モデル名の Remote Config 化**: 今回モデルを `gemini-3.1-flash-lite` に移行済み。将来の廃止・値下げに際しアプリ更新なしで差し替えられるよう、Firebase Remote Config でモデル名を管理する構成が公式推奨。
 
-### 手動作業（コンソール）
-- **⑦ App Check 有効化**: Firebase コンソールで App Check を有効化し、正規アプリ以外からの Vertex AI 呼び出しを遮断（実質的な乱用防止・レート制限の土台）。
-- **⑧ 予算キャップ引上げ**: GCP「予算とアラート」で上限 ¥10 → ¥500〜1,000 に引上げ（enforcement 維持）。実コスト ~¥107/月に対し ¥10 は低すぎ、月半ばで機能停止するため必須。
+### 手動作業（コンソール）— 実施済み（2026-08-30）
+- **⑦ App Check**: 適用済み。Android/iOS の2アプリが「登録済み（適用済み）」、App Check サービス `firebaseml.googleapis.com`（Firebase AI Logic / Vertex AI 対応）の enforcementMode が `ENFORCED` であることを gcloud（Firebase App Check REST API）で確認。
+- **⑧ 予算キャップ**: 利用額上限「ramen-note 利用額上限」を **¥10 → ¥100**（利用額上限の適用＝enforcement 維持）に更新。¥10 発動によるサービス停止を解除。通知しきい値は 50/80/100%（¥50/¥80/¥100）に自動更新。
+  - 注意: 実コスト想定 ~¥71/月に対し ¥100 は余裕が約1.4倍と小さい。停止が頻発する場合は ¥300〜500 へ再調整する。
+  - 補足: 「利用額上限の適用（spending cap）」はプレビュー機能で Cloud Billing Budget API には現れない（コンソール管理）。CLI で読めるのはアラート予算のみ（`Firebase Project seabat-dev`=¥50、`ramen-note 予算`=¥1）。
 
 ---
 
