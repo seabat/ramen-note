@@ -32,6 +32,9 @@ node_modules/
 .claude/*
 !.claude/CLAUDE.md
 !.claude/settings.json
+# rules/: CLAUDE.md から分散した詳細ルールを追跡
+!.claude/rules/
+!.claude/rules/**
 # skills/: 基本無視。pr-create と release-prep のみ追跡
 !.claude/skills/
 .claude/skills/*
