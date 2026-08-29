@@ -19,7 +19,7 @@ ramen-note の店情報自動生成機能（`ShopAiDataSource` 経由の Gemini 
 | 3 | 出力上限（`maxOutputTokens = 512`） | ✅ 実施済み | `ShopAiDataSource.kt` |
 | 4 | 多重実行ガード | ✅ 実施済み | `AddShopViewModel.kt` |
 | 6 | 失敗時リトライ制御 | ✅ 対応不要 | 現状 auto-retry なし（`catch` のみ）で要件充足 |
-| 5 | 同一店キャッシュ再利用（Room） | ⏳ 未実施 | DB マイグレーション v6→v7 を伴うため別タスク |
+| 5 | 同一店キャッシュ再利用（Room） | ✅ 実施済み | DB v6→v7 マイグレーション＋新テーブル `shop_ai_cache` |
 | 7 | Firebase App Check | ⏳ 未実施（手動） | Firebase コンソール作業 |
 | 8 | 予算キャップ引上げ（¥10→¥500〜1,000） | ⏳ 未実施（手動） | GCP コンソール作業 |
 
@@ -58,6 +58,27 @@ Firebase.ai(backend = GenerativeBackend.vertexAI(location = "global")).generativ
     modelName = "gemini-3.1-flash-lite",
     ...
 )
+```
+
+### 2-4. 同一店キャッシュ再利用（Room） — 新規テーブル `shop_ai_cache`
+
+同一 (areaName, shopName) の生成結果を Room に保持し、再生成時は Vertex AI を叩かず
+キャッシュを返す。呼び出し回数そのものを削減し、暴走時のコスト増も抑える。
+
+- 新規: `ShopAiCacheEntity`（PK: areaName + shopName）/ `ShopAiCacheDao` /
+  `ShopAiCacheRepository`(Contract+実装)
+- DB: `RamenNoteDatabase` を **v6 → v7** に更新、`MIGRATION_6_7`（`shop_ai_cache` を
+  CREATE、既存テーブルは不変＝追加のみで低リスク）
+- `FetchAiShopInfoUseCase`: 先頭でキャッシュを参照し、ヒット時は AI 呼び出しをスキップ
+  （`mapUrl` はローカル生成のため毎回再生成）。ミス時のみ AI を呼び、成功時に保存。
+- DI: `repositoryModule` に `ShopAiCacheRepositoryContract` を登録、UseCase の引数を追加
+
+```kotlin
+// FetchAiShopInfoUseCase 冒頭
+val cachedAiInfo = shopAiCacheRepository.get(areaName, shopName)
+if (cachedAiInfo != null) {
+    return RunStatus.Success(cachedAiInfo.copy(mapUrl = createMapUrl(areaName, shopName)))
+}
 ```
 
 ### 2-2. 多重実行ガード — `AddShopViewModel.kt`
@@ -101,14 +122,17 @@ override fun fetchShopAiInfo(areaName: String, shopName: String) {
 
 - ✅ `./gradlew :androidApp:assembleDebug` → **BUILD SUCCESSFUL**（`thinkingConfig` DSL・`maxOutputTokens`・`vertexAI(location="global")`・モデル名・ガードのコンパイル確認）
 - ✅ ktlint: 変更ファイルに違反なし（`ktlintCheck` の失敗は無関係な既存 iosMain ファイルの pre-existing 違反）
-- ⏳ 実機での生成確認（`gemini-3.1-flash-lite` / `global` ロケーションでの疎通・分類精度・description 品質・出力上限512の影響）は未実施 → **実行推奨**（ビルドでは検証不可のため）
+- ✅ Room KSP コード生成成功（新 Entity/DAO/`MIGRATION_6_7` を含めてビルド通過）
+- ⏳ 実機での動作確認は未実施 → **実行推奨**（ビルドでは検証不可）:
+  - `gemini-3.1-flash-lite` / `global` ロケーションでの疎通・分類精度・description 品質・出力上限512
+  - キャッシュのヒット/ミス動作（2回目の同一店で API を叩かないこと）
+  - 既存 DB（v6）からの v7 マイグレーションが例外なく完了すること
 
 ---
 
 ## 5. 未実施・残作業
 
 ### コード（別タスク）
-- **⑤ 同一店キャッシュ**: 同一 (areaName, shopName) の生成結果を Room に保持し再生成時に API を叩かない仕組み。DB マイグレーション（現行 v6 → v7）と DAO/Repository 追加を伴うため、デグレ確認込みの別タスクとして分離。
 - **（推奨）モデル名の Remote Config 化**: 今回モデルを `gemini-3.1-flash-lite` に移行済み。将来の廃止・値下げに際しアプリ更新なしで差し替えられるよう、Firebase Remote Config でモデル名を管理する構成が公式推奨。
 
 ### 手動作業（コンソール）

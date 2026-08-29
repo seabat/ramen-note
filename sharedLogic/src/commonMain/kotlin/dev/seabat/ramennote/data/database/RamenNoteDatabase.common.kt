@@ -6,14 +6,16 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import dev.seabat.ramennote.data.database.dao.AreaDao
 import dev.seabat.ramennote.data.database.dao.ReportDao
+import dev.seabat.ramennote.data.database.dao.ShopAiCacheDao
 import dev.seabat.ramennote.data.database.dao.ShopDao
 import dev.seabat.ramennote.data.database.entity.AreaEntity
 import dev.seabat.ramennote.data.database.entity.ReportEntity
+import dev.seabat.ramennote.data.database.entity.ShopAiCacheEntity
 import dev.seabat.ramennote.data.database.entity.ShopEntity
 
 @Database(
-    entities = [AreaEntity::class, ShopEntity::class, ReportEntity::class],
-    version = 6,
+    entities = [AreaEntity::class, ShopEntity::class, ReportEntity::class, ShopAiCacheEntity::class],
+    version = 7,
     exportSchema = false
 )
 @ConstructedBy(RamenNoteDatabaseConstructor::class)
@@ -23,6 +25,8 @@ abstract class RamenNoteDatabase : RoomDatabase() {
     abstract fun shopDao(): ShopDao
 
     abstract fun reportDao(): ReportDao
+
+    abstract fun shopAiCacheDao(): ShopAiCacheDao
 }
 
 @Suppress("KotlinNoActualForExpect")
