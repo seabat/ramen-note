@@ -10,9 +10,10 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import kotlinx.datetime.LocalDate
 
 class AreasRepository(
-    private val areaDao: AreaDao,
     private val database: RamenNoteDatabase
 ) : AreasRepositoryContract {
+    private val areaDao: AreaDao by lazy { database.areaDao() }
+
     override suspend fun load(): List<Area> {
         val entities = areaDao.getAllAreas()
         return entities.map { entity -> entity.toDomain() }

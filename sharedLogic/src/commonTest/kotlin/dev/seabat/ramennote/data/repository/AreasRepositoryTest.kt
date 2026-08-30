@@ -221,7 +221,7 @@ class AreasRepositoryTest {
     // --- ヘルパー ---
 
     private fun buildRepository(dao: FakeAreaDao): AreasRepository =
-        AreasRepository(areaDao = dao, database = FakeRamenNoteDatabase(dao))
+        AreasRepository(database = FakeRamenNoteDatabase(dao))
 
     // --- フェイク実装 ---
 
@@ -269,6 +269,7 @@ class AreasRepositoryTest {
         override fun areaDao() = dao
         override fun shopDao() = throw UnsupportedOperationException("テスト対象外")
         override fun reportDao() = throw UnsupportedOperationException("テスト対象外")
+        override fun shopAiCacheDao() = throw UnsupportedOperationException("テスト対象外")
         override fun createInvalidationTracker(): InvalidationTracker =
             InvalidationTracker(this, emptyMap(), emptyMap())
         fun clearAllTables() = Unit

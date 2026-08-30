@@ -7,13 +7,13 @@ KMP（Kotlin Multiplatform）のラーメン店管理アプリ。Android / iOS �
 - コード内コメント・コミットメッセージ・PR・ドキュメントはすべて日本語で記述する
 
 ## 技術スタック
-- **Kotlin**: 2.2.10 / **Compose Multiplatform**: 1.9.0
-- **Room**: 2.8.1（DB） / **Koin**: 4.1.1（DI） / **Ktor**: 3.3.0（HTTP）
-- **Coil**: 3.3.0（画像） / **Navigation Compose**: 2.9.0-rc01
-- **SKIE**: 0.10.6（iOS 連携）
+- **Kotlin**: 2.3.21 / **Compose Multiplatform**: 1.10.3
+- **Room**: 2.8.4（DB） / **Koin**: 4.2.1（DI） / **Ktor**: 3.4.3（HTTP）
+- **Coil**: 3.4.0（画像） / **Navigation Compose**: 2.9.2
+- **SKIE**: 0.10.12（iOS 連携）
 - **compose-nav-graph**: 0.2.0（NavGraph Graph ビュー / IDE プラグイン）
-- **Firebase AI / Gemini AI**: 0.7.0（Android のみ）
-- **Android SDK**: compileSdk 36, minSdk 24, targetSdk 36
+- **Firebase AI**: firebase-bom 34.12.0 / **Gemini AI**: 0.9.0（Android のみ）
+- **Android SDK**: compileSdk 37, minSdk 24, targetSdk 37
 
 ## 実行コマンド
 ```bash
@@ -47,69 +47,35 @@ ramen-note/
 
 - 各層は **Contract（インターフェース）** を介して依存する（実装クラスを直接参照しない）
 
-## コーディング規約
+## 詳細ルール（必要時に参照）
+以下は状況に応じて該当ファイルを読むこと（コンテキスト節約のため本ファイルには自動展開しない）。
 
-- **ViewModel**: Contract + 実装 + Mock の3点セット。状態は `MutableStateFlow`（private）+ `StateFlow`（public）。UseCase の Contract に依存する
-- **UseCase**: Contract + 実装。単一責任（1操作）。`operator fun invoke()` で呼び出し。結果は `RunStatus<T>` でラップ
-- **Repository**: Contract + 実装。Entity ↔ Domain モデル変換を担当。DataSource の Contract に依存する
-- **DataSource**: プラットフォーム固有処理は `expect/actual` + Contract パターン
-- **Database（Room）**: マイグレーション は `DataModule.common.kt` に記述。現在のバージョン: 5（AreaEntity, ShopEntity, ReportEntity）
+- **コーディング規約 / ファイル命名規則** → `.claude/rules/coding-conventions.md`
+  （ViewModel / UseCase / Repository / DataSource / Room の実装規約、命名パターン）
+- **@Preview / NavGraph アノテーション規約** → `.claude/rules/navgraph-preview.md`
+  （Composable の Preview import・`@NavDestination` / `@NavPreview` 付与ルール）
+- **DI（Koin）登録ルール** → `.claude/rules/di-koin.md`
+  （各モジュールの登録先ファイルと登録方法）
+- **プラットフォーム固有 API** → `.claude/rules/platform-specific.md`
+  （expect/actual、Contract + Swift の2パターン。片方変更時の同期）
+- **機密情報（API キー等）の管理** → `.claude/rules/secrets.md`
+  （local.properties / BuildSecrets 生成 / 編集ブロック対象）
+- **ktlint 設定** → `.claude/rules/ktlint.md`
+  （無効化ルール、lint 対象外の範囲）
+- **PR フォーマット** → `.claude/rules/pr-format.md`
+  （タイトル・本文の構成）
+- **AI 実装（Firebase AI Logic / Gemini）** → `.claude/rules/ai-implementation.md`
+  （Vertex AI バックエンド・モデル/ロケーション・思考OFF/出力上限・キャッシュ・App Check）
 
-### @Preview / NavGraph アノテーション規約
-
-- **`@Preview` import は必ず `androidx` 版を使用**: `androidx.compose.ui.tooling.preview.Preview`
-  - `org.jetbrains.compose.ui.tooling.preview.Preview` は Compose Multiplatform 1.9.0 で deprecated。compose-nav-graph 0.2.0 の KSP プロセッサが `androidx` 版のみを検索するため統一必須
-- **画面 Composable には `@NavDestination` と `@NavPreview` を付与**: IDE の NavGraph Graph ビューに表示するために必要
-  - `@NavDestination`: ナビゲーショングラフのノードとして登録
-  - `@NavPreview`: NavGraph Previews タブにサムネイルを表示
-
-## ファイル命名規則
-- **expect/actual**: `Xxxx.common.kt` / `Xxxx.android.kt` / `Xxxx.ios.kt`
-- **ViewModel**: `XxxxViewModelContract.kt` / `XxxxViewModel.kt` / `MockXxxxViewModel.kt`
-- **UseCase**: `XxxxUseCaseContract.kt` / `XxxxUseCase.kt`
-- **Repository**: `XxxxRepositoryContract.kt` / `XxxxRepository.kt`
-
-## DI（Koin）登録ルール
-
-エントリーポイント: `sharedUI` の `di/KoinHelper.kt` の `initKoin()`
-
-| モジュール | ファイル | 登録方法 |
-|---|---|---|
-| `viewModelModule` | `sharedUI` `ui/di/ViewModelModule.kt` | `viewModel { XxxxViewModel(get(), ...) }` |
-| `useCaseModule` | `sharedLogic` `domain/di/DomainModule.kt` | `single<Contract> { Impl(get(), ...) }` |
-| `repositoryModule` | `sharedLogic` `data/di/DataModule.common.kt` | `single<Contract> { Impl(get(), ...) }` |
-| `databaseModule` | `sharedLogic` `data/di/DataModule.common.kt` | `single<RamenNoteDatabase> { ... }` |
-| `dataSourceModule` | `sharedLogic` `data/di/DataModule.common.kt` | expect/actual で定義 |
-| `factoryModule` | `sharedLogic` `data/di/DataModule.common.kt` | expect/actual で定義 |
-| `uiModule` | `sharedUI` `ui/di/UiModule.common.kt` | expect/actual で定義 |
-
-## プラットフォーム固有 API
-**いずれかを変更した場合、もう一方のプラットフォームにも同等の変更が必要。**
-
-- **パターン1（expect/actual）**: androidMain / iosMain に Kotlin 実装。例: `logd`、`GalleryLauncher`、`DataModule`、`LifecycleObserver`
-- **パターン2（Contract + Swift）**: commonMain で Contract 定義 → androidMain に Kotlin 実装 → `iosApp/` に Swift 実装。Swift 実装は `SwiftLibDependencyFactoryContract` 経由で Koin に登録。例: `ShopAiDataSource`、`UnsplashDataSource`
-
-## 機密情報（API キー等）の管理
-- `local.properties` に機密値を定義（`.gitignore` 済み）
-- `sharedLogic/build.gradle.kts` の `generateBuildSecrets` タスクが `BuildSecrets.kt` を自動生成
-- commonMain から `BuildSecrets.UNSPLASH_ACCESS_KEY` などで参照
-- `local.properties`・`google-services.json`・`.env` への Claude Code からの編集は Hooks によりブロックされる
-
-## ktlint 設定
-無効化ルール（`.editorconfig`）: `trailing-comma`、`function-signature`、`parameter-list-wrapping`、`expression-body-syntax`、`backing-property` / `property-naming`（`_xxx` StateFlow 許可）、`filename`（`logd.android.kt` 形式許可）、Composable 関数名の除外
-
-ktlint 対象外: テストコード、ビルド出力、Gradle ファイル、secrets ディレクトリ
-
-## PR フォーマット
-タイトル: 50文字以内、体言止め
-
-本文:
-- **概要**: 変更の目的と背景
-- **変更内容**: 具体的な変更点をリスト形式で
-- **テスト**: テスト方法と確認事項
+## サブエージェントの自動起動
+実装中、以下の変更を行ったら対応するサブエージェントを起動すること（PostToolUse Hook でも該当時にリマインダが出る）。
+- **画面（`*Screen.kt`）を作成・大きく変更したら** → `ui-ux-designer` で UI/UX（Material Design 3 準拠・アクセシビリティ等）を確認
+- **LazyColumn を含む画面（`*Screen.kt`）を変更したら** → `regression-reviewer` でデグレ確認（インデックスベースの自動スクロール等が壊れやすいため）
+- **`.claude/` 配下（agents / skills / settings.json 等）または `build.gradle.kts` を変更したら** → `readme-updater` で README を最新化
 
 ## Hooks
 自動動作の詳細は @.claude/settings.json を参照。
+PostToolUse: Edit/Write 後に変更ファイルを判定し、上記サブエージェントの起動を促すリマインダを注入する。
 
 ## 注意事項
 - Room の KSP 生成タスクと Compose Resource 生成タスクに依存関係がある（build.gradle.kts 参照）

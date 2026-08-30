@@ -193,6 +193,7 @@ class DeleteShopAndImageUseCaseTest {
         override suspend fun updateShop(shop: Shop) = Unit
         override suspend fun deleteShop(shop: Shop) = Unit
         override suspend fun getShopsByName(query: String): List<Shop> = emptyList()
+        override suspend fun updateMapUrl(shopId: Int, mapUrl: String) = Unit
     }
 
     private class FakeLocalImageRepository : LocalImageRepositoryContract {
