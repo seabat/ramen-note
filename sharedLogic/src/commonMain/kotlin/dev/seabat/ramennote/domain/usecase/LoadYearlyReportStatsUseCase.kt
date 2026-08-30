@@ -6,6 +6,7 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
@@ -38,7 +39,7 @@ class LoadYearlyReportStatsUseCase(
 
         filteredReports.forEach { report ->
             val date = report.date ?: return@forEach
-            val yearMonth = "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
+            val yearMonth = "${date.year}-${date.month.number.toString().padStart(2, '0')}"
             monthlyCounts[yearMonth] = (monthlyCounts[yearMonth] ?: 0) + 1
         }
 
@@ -47,7 +48,7 @@ class LoadYearlyReportStatsUseCase(
         var currentDate = oneYearAgo
 
         while (currentDate <= today) {
-            val yearMonth = "${currentDate.year}-${currentDate.monthNumber.toString().padStart(2, '0')}"
+            val yearMonth = "${currentDate.year}-${currentDate.month.number.toString().padStart(2, '0')}"
             val count = monthlyCounts[yearMonth] ?: 0
             result.add(MonthlyReportCount(yearMonth = yearMonth, count = count))
 

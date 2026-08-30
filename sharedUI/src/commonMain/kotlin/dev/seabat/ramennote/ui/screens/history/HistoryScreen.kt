@@ -15,10 +15,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +51,7 @@ import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
+import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
@@ -279,7 +280,7 @@ private fun YearDropdownField(
             text = if (selectedYear.isNotEmpty()) selectedYear else yearHint,
             expanded = expanded,
             onToggle = { expanded = !expanded },
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -465,7 +466,7 @@ private fun groupReports(reports: List<FullReport>): Map<String, List<FullReport
         .sortedByDescending { it.date }
         .groupBy { report ->
             val date = report.date
-            "${date.year}-${date.monthNumber.toString().padStart(2, '0')}"
+            "${date.year}-${date.month.number.toString().padStart(2, '0')}"
         }.filterKeys { it.isNotEmpty() }
 
 @Preview

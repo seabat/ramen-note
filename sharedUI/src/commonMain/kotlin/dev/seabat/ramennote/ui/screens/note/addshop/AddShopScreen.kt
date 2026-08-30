@@ -54,6 +54,7 @@ import dev.seabat.ramennote.ui.screens.componens.ShopMultilineInputField
 import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -303,8 +304,8 @@ private fun createPhotoName(number: Int): String {
         Clock.System.now().toLocalDateTime(
             kotlinx.datetime.TimeZone.currentSystemDefault()
         )
-    val currentTime = "${now.year}${now.monthNumber.toString()
-        .padStart(2, '0')}${now.dayOfMonth.toString()
+    val currentTime = "${now.year}${now.month.number.toString()
+        .padStart(2, '0')}${now.day.toString()
         .padStart(2, '0')}T${now.hour.toString()
         .padStart(2, '0')}${now.minute.toString()
         .padStart(2, '0')}${now.second.toString()

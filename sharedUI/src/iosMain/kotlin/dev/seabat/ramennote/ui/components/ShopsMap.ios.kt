@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.viewinterop.UIKitView
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.model.ShopLocation
 import kotlinx.cinterop.ExperimentalForeignApi

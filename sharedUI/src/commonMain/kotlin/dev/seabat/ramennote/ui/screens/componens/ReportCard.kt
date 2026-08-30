@@ -57,7 +57,7 @@ fun ReportCard(
     val date: LocalDate = report.date
     val dayText =
         if (date != null) {
-            "${date.dayOfMonth.toString().padStart(2, '0')}日(${dayOfWeekJp(date)})"
+            "${date.day.toString().padStart(2, '0')}日(${dayOfWeekJp(date)})"
         } else {
             ""
         }

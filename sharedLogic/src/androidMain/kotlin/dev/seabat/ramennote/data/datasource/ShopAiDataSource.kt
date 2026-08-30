@@ -24,11 +24,14 @@ class ShopAiDataSource : ShopAiDataSourceContract {
             )
 
         // googleAI() バックエンドは Firebase プロジェクト単位のプリペイドクレジットが枯渇すると利用不可になる。
-        // Vertex AI バックエンドは Google Cloud の従量課金で動作し、クレジット枯渇の影響を受けないため切り替えた。
+        // Google Cloud の従量課金で動作するバックエンドはクレジット枯渇の影響を受けないため切り替えた。
+        // vertexAI() は deprecated となり後継の agentPlatform() へ移行。enum 値は変わるが
+        // リクエスト先（ホスト・パス）は vertexAI() と同一のため課金経路は変わらない。
         // gemini-2.5 系は 2026/10 に廃止されるため、より安価な gemini-3.1-flash-lite へ移行済み。
-        // Gemini 3.x は Firebase AI Logic では location="global" のみ対応のため明示指定する。
+        // Gemini 3.x は Firebase AI Logic では location="global" のみ対応のため明示指定する
+        // （agentPlatform() のデフォルトも "global" だが、要件であることを明示するため指定する）。
         val model =
-            Firebase.ai(backend = GenerativeBackend.vertexAI(location = "global")).generativeModel(
+            Firebase.ai(backend = GenerativeBackend.agentPlatform(location = "global")).generativeModel(
                 modelName = "gemini-3.1-flash-lite",
                 generationConfig =
                     generationConfig {

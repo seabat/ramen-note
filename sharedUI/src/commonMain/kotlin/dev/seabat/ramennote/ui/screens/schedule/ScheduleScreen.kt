@@ -49,6 +49,7 @@ import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -286,7 +287,7 @@ private fun ScheduleList(
         schedules
             .groupBy { schedule ->
                 val date = schedule.scheduledDate
-                if (date != null) "${date.year}-${date.monthNumber.toString().padStart(2, '0')}" else ""
+                if (date != null) "${date.year}-${date.month.number.toString().padStart(2, '0')}" else ""
             }.filterKeys { it.isNotEmpty() }
 
     LazyColumn(
@@ -350,7 +351,7 @@ private fun ScheduleRow(
     val date: LocalDate? = schedule.scheduledDate
     val dayText =
         if (date != null) {
-            "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
+            "${date.day.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
         } else {
             ""
         }
