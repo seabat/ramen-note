@@ -54,30 +54,32 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 
 ### 開発環境
 
-- Kotlin: 2.2.10
-- Compose Multiplatform: 1.9.0
-- Android Gradle Plugin: 8.11.2
-- Android SDK: minSdk 24, targetSdk 36, compileSdk 36
+- Kotlin: 2.3.21
+- Compose Multiplatform: 1.10.3
+- Android Gradle Plugin: 9.2.0
+- Android SDK: minSdk 24, targetSdk 37, compileSdk 37
 
 ## プロジェクト構造
 
 ```
 ramen-note/
-├── composeApp/              # 共有コード
+├── sharedLogic/             # KMP ライブラリ: data / domain / config 層
 │   └── src/
-│       ├── commonMain/      # 全プラットフォーム共通コード
-│       ├── androidMain/     # Android 固有コード
-│       └── iosMain/         # iOS 固有コード
-├── iosApp/                  # iOS アプリケーション
-└── gradle/                  # Gradle 設定
+│       ├── commonMain/      # 共通コード（Room・Repository・UseCase・API クライアント）
+│       ├── androidMain/     # Android 固有実装
+│       └── iosMain/         # iOS 固有実装
+├── sharedUI/                # Compose Multiplatform ライブラリ: ui / di 層（commonMain 中心）
+├── androidApp/              # Android アプリのエントリーポイント
+├── iosApp/                  # iOS アプリ（Swift / Xcode）
+└── gradle/                  # バージョンカタログ（libs.versions.toml）
 ```
 
 ### 主要なパッケージ構成
 
-- `data/`: データソース、リポジトリ、データベース
-- `domain/`: ドメインモデル、ユースケース
-- `ui/`: 画面、コンポーネント、ナビゲーション
-- `di/`: 依存性注入の設定
+- `sharedLogic` の `data/`: データソース、リポジトリ、Room データベース
+- `sharedLogic` の `domain/`: ドメインモデル、ユースケース
+- `sharedUI` の `ui/`: 画面、コンポーネント、ナビゲーション
+- `sharedUI` / `sharedLogic` の `di/`: 依存性注入（Koin）の設定
 
 ## セットアップ
 
@@ -142,12 +144,12 @@ Firebase App Check によって不正クライアントからの API アクセ�
 
 macOS/Linux:
 ```bash
-./gradlew :composeApp:assembleDebug
+./gradlew :androidApp:assembleDebug
 ```
 
 Windows:
 ```bash
-.\gradlew.bat :composeApp:assembleDebug
+.\gradlew.bat :androidApp:assembleDebug
 ```
 
 #### iOS アプリ
@@ -220,7 +222,7 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 
 | タイミング                | 処理                                                                                          |
 |--------------------------|-----------------------------------------------------------------------------------------------|
-| `Edit` / `Write` 前      | `composeApp/secrets/`・`local.properties`・`google-services.json`・`.env` への変更をブロック |
+| `Edit` / `Write` 前      | `local.properties`・`google-services.json`・`.env` への変更をブロック |
 | `Bash` 前（危険コマンド）| `push --force`・`reset --hard`・`clean -fd`・`rm -rf /` をブロック                           |
 | `Bash` 前（コミット）    | `git commit` 前に `ktlintFormat` を自動実行し、フォーマット済みファイルをステージング        |
 | `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater／`*Screen.kt` → ui-ux-designer／`LazyColumn` を含む `*Screen.kt` → regression-reviewer も） |

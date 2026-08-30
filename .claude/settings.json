@@ -9,7 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "INPUT=$(cat); FILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty'); if echo \"$FILE_PATH\" | grep -qE '(composeApp/secrets/|local\\.properties|google-services\\.json|\\.env)'; then echo '機密ファイルへの変更はブロックされました' >&2; exit 2; fi"
+            "command": "INPUT=$(cat); FILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty'); if echo \"$FILE_PATH\" | grep -qE '(local\\.properties|google-services\\.json|\\.env)'; then echo '機密ファイルへの変更はブロックされました' >&2; exit 2; fi"
           }
         ]
       },
