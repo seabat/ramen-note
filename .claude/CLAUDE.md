@@ -67,8 +67,14 @@ ramen-note/
 - **AI 実装（Firebase AI Logic / Gemini）** → `.claude/rules/ai-implementation.md`
   （Vertex AI バックエンド・モデル/ロケーション・思考OFF/出力上限・キャッシュ・App Check）
 
+## サブエージェントの自動起動
+実装中、以下の変更を行ったら対応するサブエージェントを起動すること（PostToolUse Hook でも該当時にリマインダが出る）。
+- **LazyColumn を含む画面（`*Screen.kt`）を変更したら** → `regression-reviewer` でデグレ確認（インデックスベースの自動スクロール等が壊れやすいため）
+- **`.claude/` 配下（agents / skills / settings.json 等）または `build.gradle.kts` を変更したら** → `readme-updater` で README を最新化
+
 ## Hooks
 自動動作の詳細は @.claude/settings.json を参照。
+PostToolUse: Edit/Write 後に変更ファイルを判定し、上記サブエージェントの起動を促すリマインダを注入する。
 
 ## 注意事項
 - Room の KSP 生成タスクと Compose Resource 生成タスクに依存関係がある（build.gradle.kts 参照）
