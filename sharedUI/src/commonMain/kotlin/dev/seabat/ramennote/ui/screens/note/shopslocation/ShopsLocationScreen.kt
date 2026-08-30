@@ -8,16 +8,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import dev.seabat.ramennote.domain.model.Shop
-import dev.seabat.ramennote.ui.components.AppBar
-import dev.seabat.ramennote.ui.components.AppProgressBar
-import dev.seabat.ramennote.ui.components.ShopsMap
-import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.skydoves.navgraph.annotations.NavDestination
 import com.github.skydoves.navgraph.annotations.NavEdge
 import com.github.skydoves.navgraph.annotations.NavPreview
+import dev.seabat.ramennote.domain.model.Shop
+import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.components.AppProgressBar
+import dev.seabat.ramennote.ui.components.ShopsMap
 import dev.seabat.ramennote.ui.navigation.Screen
+import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @NavDestination(route = Screen.ShopsLocation::class)

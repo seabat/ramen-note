@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.model.Area
@@ -36,7 +37,6 @@ import dev.seabat.ramennote.ui.screens.history.SelectShopViewModel
 import dev.seabat.ramennote.ui.screens.history.SelectShopViewModelContract
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.select_shop_dialog_area_label

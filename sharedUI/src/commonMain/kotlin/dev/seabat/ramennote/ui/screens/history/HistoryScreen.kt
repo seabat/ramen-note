@@ -31,7 +31,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
@@ -40,6 +44,7 @@ import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.components.dialog.SelectShopDialog
 import dev.seabat.ramennote.ui.components.dropdown.DropdownAnchorField
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
@@ -47,11 +52,6 @@ import dev.seabat.ramennote.ui.share.createRememberedXShareLauncher
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import com.github.skydoves.navgraph.annotations.NavDestination
-import com.github.skydoves.navgraph.annotations.NavEdge
-import com.github.skydoves.navgraph.annotations.NavPreview
-import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.history_no_data

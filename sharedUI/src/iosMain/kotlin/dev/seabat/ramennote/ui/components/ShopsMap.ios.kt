@@ -50,11 +50,12 @@ actual fun ShopsMap(
                 mapView.addAnnotation(annotation)
             }
 
-            val delegate = ShopsMapDelegate(
-                annotationRefs = annotationRefs.toList(),
-                shopLocations = currentLocations,
-                onPinClick = onPinClickState.value
-            )
+            val delegate =
+                ShopsMapDelegate(
+                    annotationRefs = annotationRefs.toList(),
+                    shopLocations = currentLocations,
+                    onPinClick = onPinClickState.value
+                )
             delegateRef.clear()
             delegateRef.add(delegate)
             mapView.delegate = delegate
@@ -72,18 +73,21 @@ private class ShopsMapDelegate(
     private val annotationRefs: List<MKPointAnnotation>,
     private val shopLocations: List<ShopLocation>,
     private val onPinClick: (Shop) -> Unit
-) : NSObject(), MKMapViewDelegateProtocol {
+) : NSObject(),
+    MKMapViewDelegateProtocol {
     override fun mapView(mapView: MKMapView, didSelectAnnotationView: MKAnnotationView) {
         val tappedAnnotation = didSelectAnnotationView.annotation ?: return
         mapView.deselectAnnotation(tappedAnnotation, animated = false)
 
         // isEqual による比較、失敗時はタイトル（店名）でフォールバック
-        val idx = annotationRefs.indexOfFirst { it == tappedAnnotation }
-            .takeIf { it >= 0 }
-            ?: run {
-                val title = (tappedAnnotation as? MKPointAnnotation)?.title()
-                shopLocations.indexOfFirst { it.shop.name == title }
-            }
+        val idx =
+            annotationRefs
+                .indexOfFirst { it == tappedAnnotation }
+                .takeIf { it >= 0 }
+                ?: run {
+                    val title = (tappedAnnotation as? MKPointAnnotation)?.title()
+                    shopLocations.indexOfFirst { it.shop.name == title }
+                }
 
         if (idx >= 0) onPinClick(shopLocations[idx].shop)
     }

@@ -24,7 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.ui.components.AppBar
@@ -33,6 +37,7 @@ import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.screens.componens.DateSelectItem
 import dev.seabat.ramennote.ui.screens.componens.RamenField
 import dev.seabat.ramennote.ui.screens.componens.ReportStarRatingItem
@@ -45,11 +50,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import com.github.skydoves.navgraph.annotations.NavDestination
-import com.github.skydoves.navgraph.annotations.NavEdge
-import com.github.skydoves.navgraph.annotations.NavPreview
-import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.report_header

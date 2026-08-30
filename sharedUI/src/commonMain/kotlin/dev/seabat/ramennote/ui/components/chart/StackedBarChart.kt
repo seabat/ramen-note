@@ -24,11 +24,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.home_no_recent_report
 

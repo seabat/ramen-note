@@ -7,10 +7,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.kid_star_24px_empty
 import ramennote.sharedui.generated.resources.kid_star_24px_fill

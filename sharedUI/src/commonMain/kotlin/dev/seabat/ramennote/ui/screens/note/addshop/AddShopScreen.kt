@@ -25,7 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.domain.model.ShopAiInfo
@@ -38,6 +41,7 @@ import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
 import dev.seabat.ramennote.ui.gallery.SharedImage
 import dev.seabat.ramennote.ui.gallery.createRememberedGalleryLauncher
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.permission.PermissionCallback
 import dev.seabat.ramennote.ui.permission.PermissionStatus
 import dev.seabat.ramennote.ui.permission.PermissionType
@@ -52,10 +56,6 @@ import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import com.github.skydoves.navgraph.annotations.NavDestination
-import com.github.skydoves.navgraph.annotations.NavPreview
-import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_category_label
