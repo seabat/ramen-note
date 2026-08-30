@@ -1,14 +1,21 @@
 # AI 実装ルール（Firebase AI Logic / Gemini）
 
-店舗情報の自動生成に Firebase AI Logic（Vertex AI バックエンド）を利用する際の実装規約。
-背景・料金・コスト管理の詳細は `docs/vertex-ai-cost-management.md` を参照。
+店舗情報の自動生成に Firebase AI Logic（Agent Platform バックエンド）を利用する際の実装規約。
+背景・料金・コスト管理の詳細は `docs/vertex-ai-cost-management.md`、
+バックエンド API の移行経緯は `docs/firebase-ai-backend-migration.md` を参照。
 
 ## 基本方針
 
-- **バックエンドは Vertex AI**（`GenerativeBackend.vertexAI(...)`）を使う。
-  googleAI() バックエンドはプリペイドクレジット枯渇で停止するため採用しない。
+- **バックエンドは Agent Platform**（`GenerativeBackend.agentPlatform(...)`）を使う。
+  Google Cloud の従量課金で動作するため、プリペイドクレジット枯渇で停止する
+  googleAI() バックエンドは採用しない。
+  なお旧 `GenerativeBackend.vertexAI(...)` は firebase-ai 17.16.0（firebase-bom 34.18.0）で
+  deprecated となり `agentPlatform(...)` が後継。enum は別値（`GenerativeBackendEnum.AGENT_PLATFORM`）
+  になるが 17.16.0 時点では VERTEX_AI と同一分岐でリクエスト先も同じ。詳細は
+  `docs/firebase-ai-backend-migration.md`（コンソール設定への影響の判定を含む）を参照。
 - **モデルは `gemini-3.1-flash-lite`**。Gemini 3.x は Firebase AI Logic で
-  **`location = "global"` のみ対応**のため、`vertexAI(location = "global")` を明示指定する。
+  **`location = "global"` のみ対応**のため、`agentPlatform(location = "global")` を明示指定する
+  （`agentPlatform()` のデフォルトも "global" だが、要件であることを明示するため指定する）。
   モデル名はサーバ側の値で SDK では検証できない。変更時は Firebase の対応モデル一覧で
   モデル名とロケーションを必ず確認する。
 - 実装は `ShopAiDataSource`（androidMain の Kotlin 実装。プラットフォーム固有）に置く。

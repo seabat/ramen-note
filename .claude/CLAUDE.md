@@ -7,13 +7,15 @@ KMP（Kotlin Multiplatform）のラーメン店管理アプリ。Android / iOS �
 - コード内コメント・コミットメッセージ・PR・ドキュメントはすべて日本語で記述する
 
 ## 技術スタック
-- **Kotlin**: 2.3.21 / **Compose Multiplatform**: 1.10.3
-- **Room**: 2.8.4（DB） / **Koin**: 4.2.1（DI） / **Ktor**: 3.4.3（HTTP）
-- **Coil**: 3.4.0（画像） / **Navigation Compose**: 2.9.2
-- **SKIE**: 0.10.12（iOS 連携）
-- **compose-nav-graph**: 0.2.0（NavGraph Graph ビュー / IDE プラグイン）
-- **Firebase AI**: firebase-bom 34.12.0 / **Gemini AI**: 0.9.0（Android のみ）
+Compose Multiplatform（UI）/ Room（DB）/ Koin（DI）/ Ktor（HTTP）/ Coil（画像）/
+Navigation Compose（画面遷移）/ SKIE（iOS 連携）/ compose-nav-graph（NavGraph Graph ビュー）/
+Firebase（Analytics・Crashlytics・AI Logic・App Check）/ Gemini AI（Android のみ）
+
+- **バージョンは `gradle/libs.versions.toml` が唯一の正**。本ファイルには転記しない
+  （同期されず陳腐化するため）。必要時にカタログを読むこと
 - **Android SDK**: compileSdk 37, minSdk 24, targetSdk 37
+  （`minSdk 24` は API ガードの要否を左右するため、ここに記載する）
+- **上げられないバージョンとその理由** → `.claude/rules/dependencies.md`
 
 ## 実行コマンド
 ```bash
@@ -65,7 +67,9 @@ ramen-note/
 - **PR フォーマット** → `.claude/rules/pr-format.md`
   （タイトル・本文の構成）
 - **AI 実装（Firebase AI Logic / Gemini）** → `.claude/rules/ai-implementation.md`
-  （Vertex AI バックエンド・モデル/ロケーション・思考OFF/出力上限・キャッシュ・App Check）
+  （Agent Platform バックエンド・モデル/ロケーション・思考OFF/出力上限・キャッシュ・App Check）
+- **依存バージョン管理** → `.claude/rules/dependencies.md`
+  （固定中のバージョンと理由、更新手順、iOS を含む検証コマンド）
 
 ## サブエージェントの自動起動
 実装中、以下の変更を行ったら対応するサブエージェントを起動すること（PostToolUse Hook でも該当時にリマインダが出る）。

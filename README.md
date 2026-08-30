@@ -55,8 +55,9 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 ### 開発環境
 
 - Kotlin: 2.3.21
-- Compose Multiplatform: 1.10.3
-- Android Gradle Plugin: 9.2.0
+- Compose Multiplatform: 1.12.0
+- Android Gradle Plugin: 9.3.2
+- Gradle: 9.7.1（AGP 9.3 以降は Gradle 9.5 以上が必須）
 - Android SDK: minSdk 24, targetSdk 37, compileSdk 37
 
 ## プロジェクト構造
@@ -120,9 +121,10 @@ Firebase App Check によって不正クライアントからの API アクセ�
 
 | 項目 | 内容 |
 |------|------|
-| バックエンド | Vertex AI（`GenerativeBackend.vertexAI(location = "global")`） |
+| バックエンド | Vertex AI / Agent Platform（`GenerativeBackend.agentPlatform(location = "global")`） |
 | モデル | `gemini-3.1-flash-lite` |
-| 課金 | Vertex AI の従量課金（Firebase のお支払いアカウントに合算） |
+| 課金 | Vertex AI（`aiplatform.googleapis.com`）の従量課金。Agent Platform の利用分を含む |
+| 請求先 | Firebase（Blaze プラン）に紐づく Cloud Billing アカウント。プロジェクト × サービス単位で利用額上限を設定済み |
 | 実装 | `sharedLogic` の `ShopAiDataSource`（androidMain）/ `FetchAiShopInfoUseCase` |
 
 コスト削減のため、以下を実施しています（詳細は下記ドキュメント参照）。
@@ -135,7 +137,13 @@ Firebase App Check によって不正クライアントからの API アクセ�
 起動時に logcat へ出力されるデバッグトークンを Firebase コンソール（App Check → デバッグトークン）に
 登録する必要があります。
 
-> 💡 料金体系・コスト管理の方針・実施記録は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md) を参照してください。
+> ℹ️ `GenerativeBackend.vertexAI()` は firebase-ai 17.16.0（firebase-bom 34.18.0）で deprecated と
+> なったため、後継の `agentPlatform()` に移行しました。リクエスト先のホスト・パスは従来と同一で、
+> Firebase / Google Cloud のコンソール設定（AI Logic・App Check・利用額上限）の変更は不要です。
+> 詳細は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照。
+
+> 💡 料金体系・コスト管理の方針・実施記録は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md)、
+> バックエンド API の移行記録は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照してください。
 > AI 実装のコーディングルールは [`.claude/rules/ai-implementation.md`](./.claude/rules/ai-implementation.md) にまとめています。
 
 ### ビルドと実行
@@ -170,7 +178,7 @@ Windows:
 
 ### NavGraph Graph ビュー
 
-compose-nav-graph プラグイン（0.2.0）を導入しており、IDE の **NavGraph Graph** タブでナビゲーション構造を視覚的に確認できます。
+compose-nav-graph プラグイン（0.2.1）を導入しており、IDE の **NavGraph Graph** タブでナビゲーション構造を視覚的に確認できます。
 
 プレビューギャラリーの生成:
 ```bash
