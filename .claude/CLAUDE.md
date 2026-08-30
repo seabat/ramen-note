@@ -69,6 +69,7 @@ ramen-note/
 
 ## サブエージェントの自動起動
 実装中、以下の変更を行ったら対応するサブエージェントを起動すること（PostToolUse Hook でも該当時にリマインダが出る）。
+- **画面（`*Screen.kt`）を作成・大きく変更したら** → `ui-ux-designer` で UI/UX（Material Design 3 準拠・アクセシビリティ等）を確認
 - **LazyColumn を含む画面（`*Screen.kt`）を変更したら** → `regression-reviewer` でデグレ確認（インデックスベースの自動スクロール等が壊れやすいため）
 - **`.claude/` 配下（agents / skills / settings.json 等）または `build.gradle.kts` を変更したら** → `readme-updater` で README を最新化
 

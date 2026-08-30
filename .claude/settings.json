@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "INPUT=$(cat); FP=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty'); MSG=\"\"; if echo \"$FP\" | grep -qE '(\\.claude/|build\\.gradle\\.kts$)'; then MSG=\"変更ファイル: ${FP} は README に影響しうる変更です。readme-updater サブエージェントで README を最新化してください。\"; fi; if echo \"$FP\" | grep -qE 'Screen\\.kt$' && [ -f \"$FP\" ] && grep -q 'LazyColumn' \"$FP\"; then R=\"LazyColumn を含む画面 ${FP} を変更しました。regression-reviewer サブエージェントでデグレ確認をしてください。\"; if [ -n \"$MSG\" ]; then MSG=\"${MSG}\"$'\\n'\"${R}\"; else MSG=\"${R}\"; fi; fi; if [ -n \"$MSG\" ]; then jq -nc --arg m \"$MSG\" '{hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:$m}}'; fi",
+            "command": "INPUT=$(cat); FP=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty'); MSG=\"\"; if echo \"$FP\" | grep -qE '(\\.claude/|build\\.gradle\\.kts$)'; then MSG=\"変更ファイル: ${FP} は README に影響しうる変更です。readme-updater サブエージェントで README を最新化してください。\"; fi; if echo \"$FP\" | grep -qE 'Screen\\.kt$'; then U=\"画面 ${FP} を変更しました。ui-ux-designer サブエージェントで UI/UX を確認してください。\"; if [ -n \"$MSG\" ]; then MSG=\"${MSG}\"$'\\n'\"${U}\"; else MSG=\"${U}\"; fi; if [ -f \"$FP\" ] && grep -q 'LazyColumn' \"$FP\"; then MSG=\"${MSG}\"$'\\n'\"LazyColumn を含む画面のため regression-reviewer サブエージェントでデグレ確認もしてください。\"; fi; fi; if [ -n \"$MSG\" ]; then jq -nc --arg m \"$MSG\" '{hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:$m}}'; fi",
             "statusMessage": "サブエージェント起動要否を確認中"
           }
         ]
