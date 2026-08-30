@@ -28,34 +28,5 @@ captures
 node_modules/
 
 # Claude Code
-# .claude/: 基本無視。CLAUDE.md と settings.json のみ追跡
-.claude/*
-!.claude/CLAUDE.md
-!.claude/settings.json
-# rules/: CLAUDE.md から分散した詳細ルールを追跡
-!.claude/rules/
-!.claude/rules/**
-# skills/: 基本無視。pr-create / release-prep / icon-replacer のみ追跡
-!.claude/skills/
-.claude/skills/*
-!.claude/skills/pr-create/
-!.claude/skills/pr-create/SKILL.md
-!.claude/skills/release-prep/
-!.claude/skills/release-prep/SKILL.md
-!.claude/skills/icon-replacer/
-!.claude/skills/icon-replacer/SKILL.md
-# agents/: 基本無視。各エージェントファイルのみ追跡
-!.claude/agents/
-.claude/agents/*
-!.claude/agents/ui-ux-designer.md
-!.claude/agents/regression-reviewer.md
-!.claude/agents/readme-updater.md
-# agent-memory/: 基本無視。各エージェントのメモリディレクトリのみ追跡
-!.claude/agent-memory/
-.claude/agent-memory/*
-!.claude/agent-memory/ui-ux-designer/
-!.claude/agent-memory/ui-ux-designer/**
-!.claude/agent-memory/regression-reviewer/
-!.claude/agent-memory/regression-reviewer/**
-!.claude/agent-memory/readme-updater/
-!.claude/agent-memory/readme-updater/**
+# .claude/: settings.local.json（個人ローカル設定）以外はすべて追跡する
+.claude/settings.local.json
