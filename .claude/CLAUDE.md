@@ -64,6 +64,8 @@ ramen-note/
   （無効化ルール、lint 対象外の範囲）
 - **PR フォーマット** → `.claude/rules/pr-format.md`
   （タイトル・本文の構成）
+- **AI 実装（Firebase AI Logic / Gemini）** → `.claude/rules/ai-implementation.md`
+  （Vertex AI バックエンド・モデル/ロケーション・思考OFF/出力上限・キャッシュ・App Check）
 
 ## Hooks
 自動動作の詳細は @.claude/settings.json を参照。

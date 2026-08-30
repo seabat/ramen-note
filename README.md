@@ -111,6 +111,31 @@ Firebase App Check によって不正クライアントからの API アクセ�
 | Android | Play Integrity | Debug プロバイダー |
 | iOS | DeviceCheck | Debug プロバイダー |
 
+### Firebase AI Logic（Gemini）の設定
+
+店舗情報の自動生成（店を追加する際に、エリア名と店名から Web サイト・最寄り駅・カテゴリ・
+紹介文を AI が生成）に **Firebase AI Logic** を利用しています。
+
+| 項目 | 内容 |
+|------|------|
+| バックエンド | Vertex AI（`GenerativeBackend.vertexAI(location = "global")`） |
+| モデル | `gemini-3.1-flash-lite` |
+| 課金 | Vertex AI の従量課金（Firebase のお支払いアカウントに合算） |
+| 実装 | `sharedLogic` の `ShopAiDataSource`（androidMain）/ `FetchAiShopInfoUseCase` |
+
+コスト削減のため、以下を実施しています（詳細は下記ドキュメント参照）。
+
+- **思考トークンの無効化**（`thinkingBudget = 0`）… 単純な抽出・分類タスクのため
+- **出力トークン上限**（`maxOutputTokens = 512`）
+- **Room キャッシュ**（`shop_ai_cache` テーブル）… 同一 (エリア, 店名) は再生成時に API を叩かない
+
+**前提**: App Check が有効（ENFORCED）のため、デバッグビルドを実機/エミュで動かす場合は、
+起動時に logcat へ出力されるデバッグトークンを Firebase コンソール（App Check → デバッグトークン）に
+登録する必要があります。
+
+> 💡 料金体系・コスト管理の方針・実施記録は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md) を参照してください。
+> AI 実装のコーディングルールは [`.claude/rules/ai-implementation.md`](./.claude/rules/ai-implementation.md) にまとめています。
+
 ### ビルドと実行
 
 #### Android アプリ
