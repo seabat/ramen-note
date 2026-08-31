@@ -100,6 +100,54 @@ android.newDsl=true
 （`unzip -l` のエントリ名・サイズ一覧を削除前後で比較する。R8・リソース圧縮系の
 フラグはデバッグビルドでは差が出ない）。
 
+## iOS の Swift Package（SPM）が壊れたときの対処
+
+Xcode ビルドが次のように**全プロダクトまとめて**失敗することがある。
+
+```
+Missing package product 'FirebaseAILogic'
+Missing package product 'FirebaseCrashlytics'
+Missing package product 'FirebaseAI'
+Missing package product 'FirebaseAnalytics'
+Missing package product 'FirebaseAppCheck'
+```
+
+**5つ同時に出るのは、個々のプロダクト名の誤りではなくパッケージグラフ全体の
+ロード失敗**（DerivedData 内の SPM 状態の不整合）。まず解決をやり直す。
+
+```bash
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -resolvePackageDependencies
+```
+
+Xcode GUI なら **File → Packages → Resolve Package Versions**、
+それでも直らなければ **Reset Package Caches**。
+
+### 誤診しないための切り分け
+
+- **`project.pbxproj` の差分を見る。** バージョン番号（`MARKETING_VERSION` /
+  `CURRENT_PROJECT_VERSION`）しか変わっていないなら、その変更は原因ではない
+- **プロダクト名は Package.swift で実在を確認する。** 例えば `FirebaseAI` と
+  `FirebaseAILogic` は**両方とも実在する**別プロダクトで、併記されていても誤りではない
+
+```bash
+curl -s https://raw.githubusercontent.com/firebase/firebase-ios-sdk/<ver>/Package.swift \
+  | grep -A2 '\.library(' | grep 'name:'
+```
+
+- **`Package.resolved` は git 管理下**（`iosApp/iosApp.xcodeproj/project.xcworkspace/
+  xcshareddata/swiftpm/Package.resolved`）。解決し直して差分が出たらコミット要否を判断する
+
+### Gradle の iOS 検証では検出できない
+
+`:sharedUI:linkDebugFrameworkIosSimulatorArm64` は Kotlin 側の klib・SKIE を検証するが、
+**SPM の解決は Xcode 側の処理なので通過しない**。SPM 起因の失敗は Xcode ビルドでしか出ない。
+
+```bash
+# Xcode ビルドまで確認する場合
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+  -destination 'platform=iOS Simulator,name=iPhone 17' build
+```
+
 ## その他の対応関係
 
 - **AGP ↔ Gradle**: AGP 9.3 以降は **Gradle 9.5 以上**が必須。AGP を上げたら
