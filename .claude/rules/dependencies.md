@@ -66,13 +66,39 @@ unzip -oq x.klib -d k && find k -name manifest -exec grep -E 'compiler_version|a
 
 ```bash
 ./gradlew ktlintFormat
-./gradlew :androidApp:assembleDebug ktlintCheck :androidApp:testDebugUnitTest \
+./gradlew :androidApp:assembleDebug ktlintCheck \
+          :sharedLogic:allTests :sharedUI:allTests \
           :sharedUI:generatePreviewGallery \
           :sharedUI:linkDebugFrameworkIosSimulatorArm64 --rerun-tasks
 ```
 
 - **iOS のリンクまで通すこと**。Android だけでは klib 非互換・SKIE の問題を検出できない
+- **テストは `allTests` を使うこと**。テストは `sharedLogic` / `sharedUI` の `commonTest` にあり、
+  `:androidApp:testDebugUnitTest` は **NO-SOURCE で何も実行しない**（過去にこれが原因で
+  テストの破損が長期間検出されなかった）
 - `--rerun-tasks` を付けないとキャッシュで警告が出ず、deprecation の見落としにつながる
+
+## AGP 9 新 DSL（`android.newDsl` / `android.builtInKotlin`）
+
+**この2フラグは連動しており、片方だけ有効にすると必ず失敗する。**
+
+```
+android.builtInKotlin=true
+android.newDsl=true
+```
+
+- `newDsl=true` だけにすると `org.jetbrains.kotlin.android` プラグインの適用時に
+  `ApplicationExtensionImpl cannot be cast to BaseExtension` で**ビルドが落ちる**
+- `builtInKotlin=true` にしたら、各モジュールの `plugins {}` から
+  `alias(libs.plugins.kotlinAndroid)` を**削除する**（AGP 組み込みの Kotlin を使うため）
+- 旧 DSL のままだと `Project.android(...)` と `org.jetbrains.kotlin.android` の
+  deprecation 警告が出続ける
+
+なお AGP のバージョン更新時に `android.*` の互換フラグが増えることがある。
+`The option setting 'android.xxx=yyy' is deprecated` と出たものは削除してよいが、
+**リリースビルドの出力に影響しないことを APK の中身で確認する**こと
+（`unzip -l` のエントリ名・サイズ一覧を削除前後で比較する。R8・リソース圧縮系の
+フラグはデバッグビルドでは差が出ない）。
 
 ## その他の対応関係
 

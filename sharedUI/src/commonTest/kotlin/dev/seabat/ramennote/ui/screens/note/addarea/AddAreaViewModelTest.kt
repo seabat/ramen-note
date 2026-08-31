@@ -72,13 +72,14 @@ class AddAreaViewModelTest {
     }
 
     @Test
-    fun `addArea - エリア名の前後スペースがトリムされてaddが呼ばれる`() = runTest {
+    fun `addArea - 入力値がそのままUseCaseに渡される`() = runTest {
+        // 前後スペースのトリムは AddAreaUseCase の責務のため、ViewModel は素通しする
         fakeAddAreaUseCase.result = RunStatus.Success("福岡")
         fakeFetchUnsplashImageUseCase.result = RunStatus.Success(byteArrayOf())
 
         viewModel.addArea("  福岡  ")
 
-        assertEquals("福岡", fakeAddAreaUseCase.invokedAreaName)
+        assertEquals("  福岡  ", fakeAddAreaUseCase.invokedAreaName)
     }
 
     @Test

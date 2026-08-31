@@ -22,7 +22,7 @@ Firebase（Analytics・Crashlytics・AI Logic・App Check）/ Gemini AI（Androi
 ./gradlew :androidApp:assembleDebug              # ビルド
 ./gradlew ktlintCheck                            # lint チェック
 ./gradlew ktlintFormat                           # lint 自動修正
-./gradlew :androidApp:testDebugUnitTest          # テスト
+./gradlew :sharedLogic:allTests :sharedUI:allTests  # テスト（123件）
 ./gradlew :sharedUI:generatePreviewGallery       # NavGraph Previews 生成（68件）
 ```
 
