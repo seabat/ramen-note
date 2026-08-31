@@ -47,6 +47,7 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 - **Ktor**: HTTP クライアント
 - **Coil**: 画像読み込み
 - **Navigation Compose**: 画面遷移
+- **Google Maps Compose**: 店舗位置の地図表示（Android。iOS は UIKitView + MapKit）。座標変換は Geocoding API（Ktor 経由）
 - **SKIE**: Kotlin/Swift 連携（iOS）
 - **compose-nav-graph**: IDE の NavGraph Graph ビュー（ナビゲーション構造の可視化）
 - **Firebase**: Analytics・Crashlytics・AI・App Check（Android: Play Integrity / Debug、iOS: DeviceCheck / Debug）
@@ -107,6 +108,21 @@ UNSPLASH_ACCESS_KEY=取得した Access Key
 ビルド時に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.kt` を自動生成します。アプリコードは `BuildSecrets.UNSPLASH_ACCESS_KEY` 経由で参照します。
 
 **注意**: Access Key を設定せずにビルドすると、エリア画像の取得が正常に動作しません。
+
+### Google Maps API の設定
+
+エリア内の店舗位置を地図上に表示する ShopsLocationScreen で、Google Maps SDK（Android の地図表示）と Geocoding API（住所→座標変換、Android/iOS 共通で Ktor 経由）を使用しています。ビルド前に以下の手順で API キーを設定してください。
+
+1. Google Cloud Console で対象プロジェクトの「Maps SDK for Android」「Geocoding API」を有効化し、API キーを発行
+2. プロジェクトルートの `local.properties` に以下を追加
+
+```properties
+GOOGLE_MAPS_API_KEY=取得した API キー
+```
+
+ビルド時に、Unsplash と同様に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.GOOGLE_MAPS_API_KEY` を自動生成するほか、Android の `AndroidManifest.xml` にも `manifestPlaceholders` 経由で埋め込まれます。
+
+**注意**: API キーを設定せずにビルドすると、店舗位置マップ機能が動作しません。
 
 ### Firebase App Check の設定
 
