@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seabat.ramennote.domain.model.Area
@@ -36,7 +37,6 @@ import dev.seabat.ramennote.ui.screens.history.SelectShopViewModel
 import dev.seabat.ramennote.ui.screens.history.SelectShopViewModelContract
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.select_shop_dialog_area_label
@@ -96,7 +96,7 @@ fun SelectShopDialog(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
                     )
                     ExposedDropdownMenu(
                         expanded = areaExpanded,
@@ -145,7 +145,7 @@ fun SelectShopDialog(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = shopEnabled)
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = shopEnabled)
                     )
                     ExposedDropdownMenu(
                         expanded = shopExpanded,

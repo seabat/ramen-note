@@ -47,6 +47,7 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 - **Ktor**: HTTP クライアント
 - **Coil**: 画像読み込み
 - **Navigation Compose**: 画面遷移
+- **Google Maps Compose**: 店舗位置の地図表示（Android。iOS は UIKitView + MapKit）。座標変換は Geocoding API（Ktor 経由）
 - **SKIE**: Kotlin/Swift 連携（iOS）
 - **compose-nav-graph**: IDE の NavGraph Graph ビュー（ナビゲーション構造の可視化）
 - **Firebase**: Analytics・Crashlytics・AI・App Check（Android: Play Integrity / Debug、iOS: DeviceCheck / Debug）
@@ -55,9 +56,13 @@ RamenNote は、ラーメン店の情報をエリア別に管理し、訪問予�
 ### 開発環境
 
 - Kotlin: 2.3.21
-- Compose Multiplatform: 1.10.3
-- Android Gradle Plugin: 9.2.0
+- Compose Multiplatform: 1.12.0
+- Android Gradle Plugin: 9.3.2
+- Gradle: 9.7.1（AGP 9.3 以降は Gradle 9.5 以上が必須）
 - Android SDK: minSdk 24, targetSdk 37, compileSdk 37
+- AGP 9 の新 DSL を採用（`android.newDsl` / `android.builtInKotlin` を有効化）。
+  Kotlin のコンパイルは AGP 組み込みのものを使うため、`org.jetbrains.kotlin.android`
+  プラグインは適用していません
 
 ## プロジェクト構造
 
@@ -104,6 +109,21 @@ UNSPLASH_ACCESS_KEY=取得した Access Key
 
 **注意**: Access Key を設定せずにビルドすると、エリア画像の取得が正常に動作しません。
 
+### Google Maps API の設定
+
+エリア内の店舗位置を地図上に表示する ShopsLocationScreen で、Google Maps SDK（Android の地図表示）と Geocoding API（住所→座標変換、Android/iOS 共通で Ktor 経由）を使用しています。ビルド前に以下の手順で API キーを設定してください。
+
+1. Google Cloud Console で対象プロジェクトの「Maps SDK for Android」「Geocoding API」を有効化し、API キーを発行
+2. プロジェクトルートの `local.properties` に以下を追加
+
+```properties
+GOOGLE_MAPS_API_KEY=取得した API キー
+```
+
+ビルド時に、Unsplash と同様に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.GOOGLE_MAPS_API_KEY` を自動生成するほか、Android の `AndroidManifest.xml` にも `manifestPlaceholders` 経由で埋め込まれます。
+
+**注意**: API キーを設定せずにビルドすると、店舗位置マップ機能が動作しません。
+
 ### Firebase App Check の設定
 
 Firebase App Check によって不正クライアントからの API アクセスを防いでいます。詳細は [`docs/firebase-api-security.md`](./docs/firebase-api-security.md) を参照してください。
@@ -120,9 +140,10 @@ Firebase App Check によって不正クライアントからの API アクセ�
 
 | 項目 | 内容 |
 |------|------|
-| バックエンド | Vertex AI（`GenerativeBackend.vertexAI(location = "global")`） |
+| バックエンド | Vertex AI / Agent Platform（`GenerativeBackend.agentPlatform(location = "global")`） |
 | モデル | `gemini-3.1-flash-lite` |
-| 課金 | Vertex AI の従量課金（Firebase のお支払いアカウントに合算） |
+| 課金 | Vertex AI（`aiplatform.googleapis.com`）の従量課金。Agent Platform の利用分を含む |
+| 請求先 | Firebase（Blaze プラン）に紐づく Cloud Billing アカウント。プロジェクト × サービス単位で利用額上限を設定済み |
 | 実装 | `sharedLogic` の `ShopAiDataSource`（androidMain）/ `FetchAiShopInfoUseCase` |
 
 コスト削減のため、以下を実施しています（詳細は下記ドキュメント参照）。
@@ -135,7 +156,13 @@ Firebase App Check によって不正クライアントからの API アクセ�
 起動時に logcat へ出力されるデバッグトークンを Firebase コンソール（App Check → デバッグトークン）に
 登録する必要があります。
 
-> 💡 料金体系・コスト管理の方針・実施記録は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md) を参照してください。
+> ℹ️ `GenerativeBackend.vertexAI()` は firebase-ai 17.16.0（firebase-bom 34.18.0）で deprecated と
+> なったため、後継の `agentPlatform()` に移行しました。リクエスト先のホスト・パスは従来と同一で、
+> Firebase / Google Cloud のコンソール設定（AI Logic・App Check・利用額上限）の変更は不要です。
+> 詳細は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照。
+
+> 💡 料金体系・コスト管理の方針・実施記録は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md)、
+> バックエンド API の移行記録は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照してください。
 > AI 実装のコーディングルールは [`.claude/rules/ai-implementation.md`](./.claude/rules/ai-implementation.md) にまとめています。
 
 ### ビルドと実行
@@ -157,6 +184,17 @@ Windows:
 1. Xcode で `/iosApp` ディレクトリを開く
 2. Xcode から実行するか、IDE の実行設定を使用
 
+### テスト
+
+テストは `sharedLogic` / `sharedUI` の `commonTest` にあります（計 123 件）。
+
+```bash
+./gradlew :sharedLogic:allTests :sharedUI:allTests
+```
+
+> **注意**: `:androidApp:testDebugUnitTest` は **NO-SOURCE**（実行対象なし）で、
+> 何もテストせずに成功します。テストの実行には必ず `allTests` を使用してください。
+
 ### コードスタイル (ktlint)
 
 - チェック:  
@@ -170,7 +208,7 @@ Windows:
 
 ### NavGraph Graph ビュー
 
-compose-nav-graph プラグイン（0.2.0）を導入しており、IDE の **NavGraph Graph** タブでナビゲーション構造を視覚的に確認できます。
+compose-nav-graph プラグイン（0.2.1）を導入しており、IDE の **NavGraph Graph** タブでナビゲーション構造を視覚的に確認できます。
 
 プレビューギャラリーの生成:
 ```bash
@@ -196,7 +234,8 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 | `/android-device-interactor`| Android 実機・エミュレータを操作して動作確認を行う。UI 要素のレイアウト取得・座標特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb 経由で実行する |
 | `/icon-replacer`            | Android・iOS 両プラットフォームのアプリアイコン・スプラッシュスクリーン・タスクスイッチャーオーバーレイを一括で差し替える。開発者が `content_image`・`transparent_image`・`bg_color` を用意し、明示的に実行する |
 | `/pr-create`                | 現在のブランチから PR を日本語で作成。ベースブランチを自動検出してユーザーに確認後、所定のフォーマットで `gh pr create` を実行する            |
-| `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存             |
+| `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存。バージョンの更新自体は `/version-increment` に委譲する |
+| `/version-increment`        | Android・iOS のアプリバージョンを同じ値に更新してコミットする。`androidApp/build.gradle.kts` の `versionCode` / `versionName` と `project.pbxproj` の `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`（Debug・Release）を書き換える。引数なしならマイナー +1 案を提示。push・PR は行わない |
 
 ### サブエージェント（Agents）
 

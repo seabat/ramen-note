@@ -86,10 +86,11 @@ class ResolveShopLocationUseCase(
      * 成功時は mapUrl を座標付き URL で DB に上書きする。失敗時は `null` を返す。
      */
     private suspend fun geocodeByShopName(shop: Shop): ShopLocation? {
-        val query = buildString {
-            append(shop.name)
-            if (shop.stationName.isNotEmpty()) append(" ${shop.stationName}駅")
-        }
+        val query =
+            buildString {
+                append(shop.name)
+                if (shop.stationName.isNotEmpty()) append(" ${shop.stationName}駅")
+            }
         return when (val result = geocodingRepository.geocode(query)) {
             is RunStatus.Success -> {
                 val (lat, lng) = requireNotNull(result.data) { "geocode result data is null" }
@@ -103,7 +104,11 @@ class ResolveShopLocationUseCase(
 
     private suspend fun geocodeAndUpdate(shop: Shop): ShopLocation? {
         // `+` はスペースの URL エンコード。decodeURLQueryComponent で正しく復元してから API に渡す。
-        val query = shop.mapUrl.substringAfter("query=").substringBefore("&").decodeURLQueryComponent()
+        val query =
+            shop.mapUrl
+                .substringAfter("query=")
+                .substringBefore("&")
+                .decodeURLQueryComponent()
         return when (val result = geocodingRepository.geocode(query)) {
             is RunStatus.Success -> {
                 val (lat, lng) = requireNotNull(result.data) { "geocode result data is null" }
@@ -140,13 +145,18 @@ class ResolveShopLocationUseCase(
                     shopsRepository.updateMapUrl(shop.id, newMapUrl)
                     return ShopLocation(shop, lat, lng)
                 }
-            } catch (_: Exception) { /* 次の手段へ */ }
+            } catch (_: Exception) {
+                // 次の手段へ
+            }
         }
 
         // 2. q= パラメータの住所でジオコーディング
-        val address = try {
-            expandedUrl.substringAfter("?q=").substringBefore("&").decodeURLQueryComponent()
-        } catch (_: Exception) { null }
+        val address =
+            try {
+                expandedUrl.substringAfter("?q=").substringBefore("&").decodeURLQueryComponent()
+            } catch (_: Exception) {
+                null
+            }
 
         if (!address.isNullOrEmpty()) {
             when (val geocodeResult = geocodingRepository.geocode(address)) {

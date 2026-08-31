@@ -24,10 +24,10 @@ import dev.seabat.ramennote.domain.usecase.FetchAiShopInfoUseCase
 import dev.seabat.ramennote.domain.usecase.FetchAiShopUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchAndSaveUnsplashImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchAndSaveUnsplashImageUseCaseContract
-import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCase
-import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCase
 import dev.seabat.ramennote.domain.usecase.FetchPlaceHolderImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCase
+import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCase
 import dev.seabat.ramennote.domain.usecase.InquiryAppVersionUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreaImageUseCase

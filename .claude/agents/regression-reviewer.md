@@ -25,7 +25,7 @@ model: sonnet
 `reportId` 指定時の自動スクロール機能が2度にわたって壊れた。
 
 **チェック対象ファイル**:
-`composeApp/src/commonMain/kotlin/dev/seabat/ramennote/ui/screens/history/HistoryScreen.kt`
+`sharedUI/src/commonMain/kotlin/dev/seabat/ramennote/ui/screens/history/HistoryScreen.kt`
 
 **確認項目（すべて満たすこと）**:
 

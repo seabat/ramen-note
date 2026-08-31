@@ -12,11 +12,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.ui.components.ReportStarIcon
 import dev.seabat.ramennote.ui.components.ShopStarIcon
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_evaluation_label
 

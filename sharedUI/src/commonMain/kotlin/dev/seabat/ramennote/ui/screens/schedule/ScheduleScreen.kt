@@ -30,8 +30,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.domain.model.Shop
@@ -40,18 +44,15 @@ import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.components.dialog.SelectShopDialog
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import dev.seabat.ramennote.ui.util.dayOfWeekJp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import com.github.skydoves.navgraph.annotations.NavDestination
-import com.github.skydoves.navgraph.annotations.NavEdge
-import com.github.skydoves.navgraph.annotations.NavPreview
-import dev.seabat.ramennote.ui.navigation.Screen
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_schedule_error_past_date_message
@@ -286,7 +287,7 @@ private fun ScheduleList(
         schedules
             .groupBy { schedule ->
                 val date = schedule.scheduledDate
-                if (date != null) "${date.year}-${date.monthNumber.toString().padStart(2, '0')}" else ""
+                if (date != null) "${date.year}-${date.month.number.toString().padStart(2, '0')}" else ""
             }.filterKeys { it.isNotEmpty() }
 
     LazyColumn(
@@ -350,7 +351,7 @@ private fun ScheduleRow(
     val date: LocalDate? = schedule.scheduledDate
     val dayText =
         if (date != null) {
-            "${date.dayOfMonth.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
+            "${date.day.toString().padStart(2, '0')} (${dayOfWeekJp(date)})"
         } else {
             ""
         }

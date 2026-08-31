@@ -5,7 +5,7 @@ import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.usecase.DeleteAreaUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreaImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.LoadAreasUseCaseContract
-import dev.seabat.ramennote.domain.usecase.UpdateAreaImageUseCaseContract
+import dev.seabat.ramennote.domain.usecase.FetchUnsplashImageUseCaseContract
 import dev.seabat.ramennote.domain.usecase.UpdateAreaUseCaseContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,7 +26,7 @@ class EditAreaViewModelTest {
 
     private val fakeDeleteAreaUseCase = FakeDeleteAreaUseCase()
     private val fakeUpdateAreaUseCase = FakeUpdateAreaUseCase()
-    private val fakeUpdateAreaImageUseCase = FakeUpdateAreaImageUseCase()
+    private val fakeFetchUnsplashImageUseCase = FakeFetchUnsplashImageUseCase()
     private val fakeLoadAreaImageUseCase = FakeLoadAreaImageUseCase()
     private val fakeLoadAreasUseCase = FakeLoadAreasUseCase()
 
@@ -39,7 +39,7 @@ class EditAreaViewModelTest {
             EditAreaViewModel(
                 deleteAreaUseCase = fakeDeleteAreaUseCase,
                 updateAreaUseCase = fakeUpdateAreaUseCase,
-                updateAreaImageUseCase = fakeUpdateAreaImageUseCase,
+                fetchUnsplashImageUseCase = fakeFetchUnsplashImageUseCase,
                 loadAreaImageUseCase = fakeLoadAreaImageUseCase,
                 loadAreasUseCase = fakeLoadAreasUseCase
             )
@@ -114,12 +114,12 @@ class EditAreaViewModelTest {
     // --- deleteArea ---
 
     @Test
-    fun `deleteArea - 成功時にeditStateがSuccessになる`() = runTest {
+    fun `deleteArea - 成功時にdeleteStateがSuccessになる`() = runTest {
         fakeDeleteAreaUseCase.result = RunStatus.Success("")
 
         viewModel.deleteArea(1)
 
-        assertIs<RunStatus.Success<String>>(viewModel.editState.value)
+        assertIs<RunStatus.Success<String>>(viewModel.deleteState.value)
     }
 
     @Test
@@ -132,12 +132,12 @@ class EditAreaViewModelTest {
     }
 
     @Test
-    fun `deleteArea - Errorの場合にeditStateがErrorになる`() = runTest {
+    fun `deleteArea - Errorの場合にdeleteStateがErrorになる`() = runTest {
         fakeDeleteAreaUseCase.result = RunStatus.Error("削除失敗")
 
         viewModel.deleteArea(1)
 
-        assertIs<RunStatus.Error<String>>(viewModel.editState.value)
+        assertIs<RunStatus.Error<String>>(viewModel.deleteState.value)
     }
 
     // --- fetchNewImage ---
@@ -145,7 +145,7 @@ class EditAreaViewModelTest {
     @Test
     fun `fetchNewImage - 成功時にimageStateがSuccessになる`() = runTest {
         val imageBytes = byteArrayOf(1, 2, 3)
-        fakeUpdateAreaImageUseCase.result = RunStatus.Success(imageBytes)
+        fakeFetchUnsplashImageUseCase.result = RunStatus.Success(imageBytes)
 
         viewModel.fetchNewImage("テストエリア")
 
@@ -156,16 +156,16 @@ class EditAreaViewModelTest {
 
     @Test
     fun `fetchNewImage - エリア名がUseCaseに渡される`() = runTest {
-        fakeUpdateAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
+        fakeFetchUnsplashImageUseCase.result = RunStatus.Success(byteArrayOf())
 
         viewModel.fetchNewImage("別エリア")
 
-        assertEquals("別エリア", fakeUpdateAreaImageUseCase.invokedAreaName)
+        assertEquals("別エリア", fakeFetchUnsplashImageUseCase.invokedAreaName)
     }
 
     @Test
     fun `fetchNewImage - Errorの場合にimageStateがErrorになる`() = runTest {
-        fakeUpdateAreaImageUseCase.result = RunStatus.Error("画像取得失敗")
+        fakeFetchUnsplashImageUseCase.result = RunStatus.Error("画像取得失敗")
 
         viewModel.fetchNewImage("テストエリア")
 
@@ -218,10 +218,24 @@ class EditAreaViewModelTest {
     // --- resetImageState ---
 
     @Test
-    fun `resetImageState - imageStateがIdleに戻る`() = runTest {
-        fakeLoadAreaImageUseCase.result = RunStatus.Success(byteArrayOf())
+    fun `resetImageState - 表示中の画像がある場合はSuccessに復元される`() = runTest {
+        val displayed = byteArrayOf(1, 2, 3)
+        fakeLoadAreaImageUseCase.result = RunStatus.Success(displayed)
         viewModel.loadImage(1)
         assertIs<RunStatus.Success<ByteArray>>(viewModel.imageState.value)
+
+        viewModel.resetImageState()
+
+        val state = viewModel.imageState.value
+        assertIs<RunStatus.Success<ByteArray>>(state)
+        assertEquals(displayed.toList(), state.data?.toList())
+    }
+
+    @Test
+    fun `resetImageState - 表示中の画像がない場合はIdleに戻る`() = runTest {
+        fakeFetchUnsplashImageUseCase.result = RunStatus.Error("画像取得失敗")
+        viewModel.fetchNewImage("テストエリア")
+        assertIs<RunStatus.Error<ByteArray>>(viewModel.imageState.value)
 
         viewModel.resetImageState()
 
@@ -253,16 +267,18 @@ class EditAreaViewModelTest {
     private class FakeUpdateAreaUseCase : UpdateAreaUseCaseContract {
         var invokedAreaId: Int? = null
         var invokedNewName: String? = null
+        var invokedByteArray: ByteArray? = null
         var result: RunStatus<String> = RunStatus.Success("")
 
-        override suspend fun invoke(areaId: Int, newName: String): RunStatus<String> {
+        override suspend fun invoke(areaId: Int, newName: String, byteArray: ByteArray?): RunStatus<String> {
             invokedAreaId = areaId
             invokedNewName = newName
+            invokedByteArray = byteArray
             return result
         }
     }
 
-    private class FakeUpdateAreaImageUseCase : UpdateAreaImageUseCaseContract {
+    private class FakeFetchUnsplashImageUseCase : FetchUnsplashImageUseCaseContract {
         var invokedAreaName: String? = null
         var result: RunStatus<ByteArray> = RunStatus.Success(byteArrayOf())
 

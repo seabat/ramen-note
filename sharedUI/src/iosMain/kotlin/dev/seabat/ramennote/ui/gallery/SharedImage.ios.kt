@@ -33,9 +33,10 @@ actual class SharedImage(
     @OptIn(ExperimentalForeignApi::class)
     actual fun toByteArray(): ByteArray? =
         if (image != null) {
-            val imageData = requireNotNull(UIImageJPEGRepresentation(image, COMPRESSION_QUALITY)) {
-                "image data is null"
-            }
+            val imageData =
+                requireNotNull(UIImageJPEGRepresentation(image, COMPRESSION_QUALITY)) {
+                    "image data is null"
+                }
             val bytes = requireNotNull(imageData.bytes) { "image bytes is null" }
             val length = imageData.length
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.seabat.ramennote.domain.model.Schedule
 import dev.seabat.ramennote.ui.components.dialog.WideDialog
@@ -15,7 +16,6 @@ import dev.seabat.ramennote.ui.screens.componens.MenuItem
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.book_5_24px
 import ramennote.sharedui.generated.resources.globe_24px

@@ -85,6 +85,10 @@ Firebase.ai(backend = GenerativeBackend.vertexAI(location = "global")).generativ
 )
 ```
 
+> ⚠️ 現在のコードは `vertexAI()` ではなく後継の `agentPlatform()` を使用している（2026-08-30 移行）。
+> 移行の経緯・コンソール設定への影響は [`docs/firebase-ai-backend-migration.md`](./firebase-ai-backend-migration.md) を参照。
+> 本記録のコスト試算・削減策には影響しない。
+
 ### 2-4. 同一店キャッシュ再利用（Room） — 新規テーブル `shop_ai_cache`
 
 同一 (areaName, shopName) の生成結果を Room に保持し、再生成時は Vertex AI を叩かず

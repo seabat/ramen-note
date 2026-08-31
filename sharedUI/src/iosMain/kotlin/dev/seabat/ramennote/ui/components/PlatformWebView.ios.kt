@@ -2,7 +2,7 @@ package dev.seabat.ramennote.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.viewinterop.UIKitView
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest
