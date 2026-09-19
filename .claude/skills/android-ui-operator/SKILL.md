@@ -1,7 +1,14 @@
 ---
-name: android-device-interactor
-description: Android 実機 / エミュレータを操作して動作確認を行う。UI レイアウトの取得、要素座標の特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb を使って実行する。
+name: android-ui-operator
+description: ramen-note の Android アプリを実機 / エミュレータで操作し、動作確認や実装後の結合テストを行う。UI レイアウトの取得、要素座標の特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb を使って実行する。
 ---
+
+# ramen-note 固有の情報
+
+ビルド・起動手順、画面遷移マップ、機能別の動作確認レシピは `recipe.md` を参照してください。
+新しい機能を追加したり既存機能を改修した場合は、確認後に `recipe.md` を更新してください。
+
+以下は Android CLI / adb の汎用的な操作基準です（ramen-note 固有ではありません）。
 
 # ツール
 `android layout --help` および `android screen --help` を実行して詳細を確認してください。

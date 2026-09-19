@@ -231,7 +231,7 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 
 | スキル                       | 説明                                                                                                                                         |
 |-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `/android-device-interactor`| Android 実機・エミュレータを操作して動作確認を行う。UI 要素のレイアウト取得・座標特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb 経由で実行する |
+| `/android-ui-operator`      | ramen-note の Android アプリを実機・エミュレータで操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 要素のレイアウト取得・座標特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb 経由で実行する |
 | `/icon-replacer`            | Android・iOS 両プラットフォームのアプリアイコン・スプラッシュスクリーン・タスクスイッチャーオーバーレイを一括で差し替える。開発者が `content_image`・`transparent_image`・`bg_color` を用意し、明示的に実行する |
 | `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存。バージョンの更新自体は `/version-increment` に委譲する |
 | `/version-increment`        | Android・iOS のアプリバージョンを同じ値に更新してコミットする。`androidApp/build.gradle.kts` の `versionCode` / `versionName` と `project.pbxproj` の `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`（Debug・Release）を書き換える。引数なしならマイナー +1 案を提示。push・PR は行わない |
