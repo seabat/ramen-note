@@ -98,7 +98,3 @@ adb shell monkey -p dev.seabat.ramennote -c android.intent.category.LAUNCHER 1  
 ### 設定タブ
 
 - 表示のみ（バージョン番号、プライバシーポリシーへのリンク）。操作確認は起動して表示を見るだけでよい
-
-## Android CLI 利用時の既知の差異
-
-- `android screen resolve` のオプション名は SKILL.md 記載の `--screen` ではなく **`--screenshot`** が正しい（2026-09-19 時点の Android CLI 1.0.15498356 で確認）。`android screen resolve --screenshot <パス> --string "#N"` の形式で実行すること

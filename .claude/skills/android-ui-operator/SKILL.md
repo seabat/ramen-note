@@ -46,7 +46,7 @@ Android アプリの動作確認の補助的な手段として `screen capture` 
 
 ## アノテーション付きスクリーンショット
 `android screen capture --annotate -o <ファイルパス>`
-`android screen resolve --screen <パス> --string <文字列>`
+`android screen resolve --screenshot <パス> --string <文字列>`
 
 `--annotate` コマンドは UI 要素の周囲に数字ラベルとバウンディングボックスを追加します。`layout` の出力から特定できない UI 要素を見つけるために使用してください。
 
@@ -54,11 +54,11 @@ Android アプリの動作確認の補助的な手段として `screen capture` 
 
 入力コマンドでこれらのラベルを参照するには、`screen resolve` を使ってラベルを座標に変換してください：
 
-`android screen resolve --screen <ファイルパス> --string "#3"` は `<region 3 の x 座標> <region 3 の y 座標>` を返します。
+`android screen resolve --screenshot <ファイルパス> --string "#3"` は `<region 3 の x 座標> <region 3 の y 座標>` を返します。
 
 ターン数を節約するため、シェルコマンドを組み合わせて使えます：
 
-`adb shell input $(android screen resolve --screen screen.png --string "tap #34")`
+`adb shell input $(android screen resolve --screenshot screen.png --string "tap #34")`
 
 このコマンドは `screen.png` の #34 の領域をタップします。
 
