@@ -233,8 +233,28 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 |-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
 | `/android-ui-operator`      | ramen-note の Android アプリを実機・エミュレータで操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 要素のレイアウト取得・座標特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb 経由で実行する |
 | `/icon-replacer`            | Android・iOS 両プラットフォームのアプリアイコン・スプラッシュスクリーン・タスクスイッチャーオーバーレイを一括で差し替える。開発者が `content_image`・`transparent_image`・`bg_color` を用意し、明示的に実行する |
+| `/ios-ui-operator`          | ramen-note の iOS アプリをシミュレータ・実機で操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 階層取得・タップ・テキスト入力は Maestro MCP（`maestro mcp`）経由で実行する（詳細は後述） |
 | `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存。バージョンの更新自体は `/version-increment` に委譲する |
 | `/version-increment`        | Android・iOS のアプリバージョンを同じ値に更新してコミットする。`androidApp/build.gradle.kts` の `versionCode` / `versionName` と `project.pbxproj` の `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`（Debug・Release）を書き換える。引数なしならマイナー +1 案を提示。push・PR は行わない |
+
+#### UI 操作系スキルの前提条件
+
+`/android-ui-operator` と `/ios-ui-operator` は実機・シミュレータを直接操作して動作確認を行うスキルのため、他のスキルにはない追加のセットアップが必要です（Claude Code 自体はインストール済みの前提）。
+
+**`/android-ui-operator`**
+- Android SDK が導入済みで、Android CLI（`android` コマンド）が PATH に通っていること
+- `adb`（Android SDK platform-tools に含まれる）
+- 操作対象の Android エミュレータ（AVD）または実機が起動し、`adb devices` で認識されていること
+
+`android layout` / `android screen` / `adb shell input` を Bash 経由で直接実行して UI を操作する。
+
+**`/ios-ui-operator`**
+- Xcode（Xcode Command Line Tools を含む）
+- [Maestro CLI](https://maestro.dev/)（`brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro`）
+- Maestro MCP サーバーの登録（開発者ごとに1回、このMac上で実行）: `claude mcp add -s user maestro -- maestro mcp`
+- 操作対象の iOS シミュレータが起動していること（`xcrun simctl boot "<device name>"`）
+
+**UI 操作の仕組み**: iOS には Android CLI に相当する単発実行コマンドが無いため、[Maestro](https://maestro.dev/) の MCP サーバー（`maestro mcp`）を経由して操作する。Maestro は内部的に iOS 標準の XCUITest ベースの自前ドライバ（テスト実行中に常駐する HTTP サーバーを介して UI 階層取得・タップ命令をやり取りする方式）でシミュレータ・実機を制御しており、以前使われていた idb（Facebook製）は信頼性の問題により Maestro 自身によって置き換えられた経緯がある。MCP から提供される `list_devices` → `inspect_screen`（UI階層取得）→ `run`（その場で組み立てた1行の inline YAML を実行）というワークフローにより、Android 版と同様に「画面を見る → 判断する → 操作する → 再度画面を見る」という対話的な操作が可能。
 
 ### サブエージェント（Agents）
 
