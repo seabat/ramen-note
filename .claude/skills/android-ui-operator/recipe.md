@@ -33,17 +33,20 @@ adb shell monkey -p dev.seabat.ramennote -c android.intent.category.LAUNCHER 1  
 ├─ [+] → エリア登録 (AddAreaScreen)
 ├─ カード長押し → エリア編集 (EditAreaScreen) → 削除する
 ├─ 並び替え → エリアの並び替え (EditAreaSortScreen)
-├─ エリアカード「地図」→ 店舗地図 (ShopsLocationScreen, Google Map)
+├─ エリアカード本体タップ（「地図」「一覧」ボタン以外の部分）→ エリア店舗一覧 (AreaShopListScreen)
+│   ├─ [+] → 店舗登録 (AddShopScreen, AI自動入力あり)
+│   └─ 店舗タップ → 店舗詳細 (ShopScreen)
+│       ├─ 📋追加/変更 → 訪問予定日をDatePickerで選択（即時登録、専用フォームなし）
+│       ├─ 🍜追加 → 食レポ登録 (AddReportScreen)
+│       ├─ 🍜一覧 → 食レポ一覧 (HistoryScreen、店舗フィルタ付き)
+│       │           └─ カード長押し → 食レポ編集 (EditReportScreen) → 削除する
+│       ├─ 編集 → 店舗編集 (EditShopScreen) → 削除する
+│       └─ ♡アイコン → お気に入りトグル（即時反映、確認ダイアログなし）
+├─ エリアカード「地図」ボタン → 店舗地図 (ShopsLocationScreen, Google Map)
 │                         └─ ピンタップ → 店舗詳細 (ShopScreen)
-└─ エリアカード「一覧」→ エリア店舗一覧 (AreaShopListScreen)
-    ├─ [+] → 店舗登録 (AddShopScreen, AI自動入力あり)
-    └─ 店舗タップ → 店舗詳細 (ShopScreen)
-        ├─ 📋追加/変更 → 訪問予定日をDatePickerで選択（即時登録、専用フォームなし）
-        ├─ 🍜追加 → 食レポ登録 (AddReportScreen)
-        ├─ 🍜一覧 → 食レポ一覧 (HistoryScreen、店舗フィルタ付き)
-        │           └─ カード長押し → 食レポ編集 (EditReportScreen) → 削除する
-        ├─ 編集 → 店舗編集 (EditShopScreen) → 削除する
-        └─ ♡アイコン → お気に入りトグル（即時反映、確認ダイアログなし）
+└─ エリアカード「一覧」ボタン（`ReportListButton`）→ 食レポ一覧 (HistoryScreen、**エリア**フィルタ付き。店舗一覧ではない)
+
+⚠️ **重要（誤りやすい点）**: エリアカードの「一覧」ボタンは見た目のラベルに反して **AreaShopListScreen（店舗一覧）には遷移しない**。実装は `ReportListButton`（`shop_menu_history_button` 文字列リソース）で `onAreaReportClick` → `goToHistoryWithAreaFiltering` に配線されている（`NoteScreen.kt`）。店舗一覧を開くには**カード本体（ボタン以外の領域）をタップ**する必要がある。この2つのタップ領域は隣接しており、動的なY座標のズレで誤タップしやすいので注意（後述の「操作上の注意」も参照）。
 
 予定 (ScheduleScreen) … 全訪問予定一覧
 └─ カードの 編集/削除 アイコン、食レポアイコンで AddReportScreen へ
@@ -67,7 +70,7 @@ adb shell monkey -p dev.seabat.ramennote -c android.intent.category.LAUNCHER 1  
 3. **並び替え**: 「並び替え」ボタン → 各エリアの表示順を数値で指定 → 「変更する」
 4. **削除**: 編集画面の「削除する」→ 確認ダイアログ「はい」
 
-### 店舗 CRUD（ノート → エリア → 一覧）
+### 店舗 CRUD（ノート → エリアカード本体タップ → エリア店舗一覧）
 
 1. **登録**: エリア店舗一覧の `[+]` → 「店名」入力 → 「店舗情報を取得」ボタンで **Gemini AI（ShopAiDataSource）** が系統・地図URL・最寄り駅・ノート等を自動生成
    - AI 生成値かどうかの判定: `ShopAiInfo` のデフォルト値は空文字なので、系統・最寄り駅等が空でなければ AI 呼び出しが成功している
@@ -93,7 +96,7 @@ adb shell monkey -p dev.seabat.ramennote -c android.intent.category.LAUNCHER 1  
 ### 地図表示（ノート → エリアカード「地図」）
 
 - `ShopsMap` コンポーネント（ネイティブ Google Map）でエリア内の店舗をピン表示。ピンタップで店舗詳細へ遷移
-- ⚠️ **操作上の注意**: エリアカードの「並び替え」ヒント文（`カードを長押しすると編集できます`）の表示有無でカード群の Y 座標が数十px 変動する。**「地図」「一覧」ボタンをタップする直前に必ず `android layout` を再取得**し、古い座標でタップしないこと（古い座標のままタップするとカード全体のクリック領域＝エリア店舗一覧（一覧）に飛んでしまう）
+- ⚠️ **操作上の注意**: エリアカードの「並び替え」ヒント文（`カードを長押しすると編集できます`）の表示有無でカード群の Y 座標が数十px 変動する。**「地図」「一覧」ボタンをタップする直前に必ず `android layout` を再取得**し、古い座標でタップしないこと（古い座標のままタップすると「地図」「一覧」ボタンの当たり判定を外れてカード本体＝エリア店舗一覧（AreaShopListScreen）に飛んでしまう。実際にこの誤タップで「一覧ボタン→店舗一覧」という誤った検証結果を記録しかけた経緯がある。ボタンの動作を確認する際は座標の新鮮さを特に疑うこと）
 
 ### 設定タブ
 
