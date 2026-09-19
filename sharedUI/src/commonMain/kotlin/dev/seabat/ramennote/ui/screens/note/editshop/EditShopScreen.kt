@@ -22,7 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
@@ -30,6 +34,7 @@ import dev.seabat.ramennote.ui.components.PhotoSelectionHandler
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.screens.componens.RamenField
 import dev.seabat.ramennote.ui.screens.componens.ShopDropdownField
 import dev.seabat.ramennote.ui.screens.componens.ShopInputField
@@ -38,7 +43,6 @@ import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingItem
 import dev.seabat.ramennote.ui.screens.note.categoryList
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_map_label
@@ -63,6 +67,8 @@ private sealed interface ErrorDialogType {
     ) : ErrorDialogType
 }
 
+@NavDestination(route = Screen.EditShop::class)
+@NavEdge(to = Screen.AreaShopList::class, label = "エリア店舗リストへ")
 @Composable
 fun EditShopScreen(
     shop: Shop,
@@ -308,6 +314,7 @@ fun EditShopScreen(
     }
 }
 
+@NavPreview(route = Screen.EditShop::class, primary = true)
 @Preview
 @Composable
 fun EditShopScreenPreview() {

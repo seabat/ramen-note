@@ -28,17 +28,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.alert.AppTwoButtonAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.editarea_change_image_button
@@ -48,6 +51,7 @@ import ramennote.sharedui.generated.resources.editarea_edit_button
 import ramennote.sharedui.generated.resources.editarea_image_load_error
 import ramennote.sharedui.generated.resources.editarea_title
 
+@NavDestination(route = Screen.EditArea::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditAreaScreen(
@@ -263,6 +267,7 @@ fun DeleteStatus(
     }
 }
 
+@NavPreview(Screen.EditArea::class, primary = true)
 @Preview
 @Composable
 fun EditAreaScreenPreview() {

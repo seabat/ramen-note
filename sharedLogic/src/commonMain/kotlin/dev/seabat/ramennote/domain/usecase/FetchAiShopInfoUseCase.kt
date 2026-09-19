@@ -1,15 +1,24 @@
 package dev.seabat.ramennote.domain.usecase
 
 import dev.seabat.ramennote.data.repository.GoogleMapSearchUrlRepositoryContract
+import dev.seabat.ramennote.data.repository.ShopAiCacheRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopAiRepositoryContract
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.domain.model.ShopAiInfo
 
 class FetchAiShopInfoUseCase(
     private val shopAiRepository: ShopAiRepositoryContract,
-    private val googleMapSearchUrlRepository: GoogleMapSearchUrlRepositoryContract
+    private val googleMapSearchUrlRepository: GoogleMapSearchUrlRepositoryContract,
+    private val shopAiCacheRepository: ShopAiCacheRepositoryContract
 ) : FetchAiShopUseCaseContract {
     override suspend operator fun invoke(areaName: String, shopName: String): RunStatus<ShopAiInfo> {
+        // キャッシュヒット時は Vertex AI を呼ばずにキャッシュを再利用し、API コストを削減する。
+        // mapUrl は下部で毎回生成し直すため、ここでは AI 生成分（駅名・カテゴリ等）だけを再利用する。
+        val cachedAiInfo = shopAiCacheRepository.get(areaName, shopName)
+        if (cachedAiInfo != null) {
+            return RunStatus.Success(cachedAiInfo.copy(mapUrl = createMapUrl(areaName, shopName)))
+        }
+
         val prompt =
             """
             以下のラーメン店の情報を調べて、JSON形式で返してください：
@@ -38,18 +47,22 @@ class FetchAiShopInfoUseCase(
         return when (val result = shopAiRepository.fetch(prompt)) {
             is RunStatus.Success -> {
                 val shopAiInfo = result.data
-                // GoogleマップURLを生成
-                val mapUrl =
-                    when (val mapUrlResult = googleMapSearchUrlRepository.createUrl(areaName, shopName)) {
-                        is RunStatus.Success -> mapUrlResult.data ?: ""
-                        else -> ""
-                    }
-
-                RunStatus.Success(
-                    shopAiInfo?.copy(mapUrl = mapUrl) ?: ShopAiInfo(shopName = shopName)
-                )
+                if (shopAiInfo != null) {
+                    // 次回以降 API を呼ばずに済むようキャッシュへ保存する（成功時のみ）
+                    shopAiCacheRepository.save(areaName, shopName, shopAiInfo)
+                    RunStatus.Success(shopAiInfo.copy(mapUrl = createMapUrl(areaName, shopName)))
+                } else {
+                    RunStatus.Success(ShopAiInfo(shopName = shopName))
+                }
             }
             else -> result
         }
     }
+
+    /** Google マップの検索 URL を生成する。生成に失敗した場合は空文字を返す。 */
+    private suspend fun createMapUrl(areaName: String, shopName: String): String =
+        when (val mapUrlResult = googleMapSearchUrlRepository.createUrl(areaName, shopName)) {
+            is RunStatus.Success -> mapUrlResult.data ?: ""
+            else -> ""
+        }
 }

@@ -26,15 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.model.RunStatus
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.button.MaxWidthButton
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_shop_add_button
@@ -42,6 +45,7 @@ import ramennote.sharedui.generated.resources.add_shop_area_description
 import ramennote.sharedui.generated.resources.add_shop_area_input
 import ramennote.sharedui.generated.resources.add_shop_area_title
 
+@NavDestination(route = Screen.AddArea::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddAreaScreen(
@@ -139,6 +143,7 @@ fun AddStatus(
     }
 }
 
+@NavPreview(Screen.AddArea::class, primary = true)
 @Preview
 @Composable
 fun AddAreaScreenView() {

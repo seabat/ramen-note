@@ -58,10 +58,15 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavGraphRoot
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.FullReport
 import dev.seabat.ramennote.domain.model.MonthlyReportCount
@@ -72,6 +77,7 @@ import dev.seabat.ramennote.domain.util.createTodayLocalDate
 import dev.seabat.ramennote.ui.components.AppProgressBar
 import dev.seabat.ramennote.ui.components.alert.AppAlert
 import dev.seabat.ramennote.ui.components.chart.StackedBarChart
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.screens.componens.ReportCard
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.history.ReportImageDialog
@@ -85,7 +91,6 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_schedule_error_past_date_message
@@ -132,6 +137,11 @@ private sealed interface DialogState {
     object CompleteAddSchedule : DialogState
 }
 
+@NavGraphRoot
+@NavDestination(route = Screen.Home::class)
+@NavEdge(to = Screen.Shop::class, label = "店舗詳細へ")
+@NavEdge(to = Screen.Report::class, label = "レポート追加へ")
+@NavEdge(to = Screen.History::class, label = "履歴へ")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -1041,5 +1051,14 @@ fun YearlyReportChartEmptyPreview() {
             // データがない場合のプレビュー
             YearlyReportChart(emptyList())
         }
+    }
+}
+
+@NavPreview(Screen.Home::class, primary = true)
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    RamenNoteTheme {
+        HomeScreen(viewModel = MockHomeViewModel())
     }
 }

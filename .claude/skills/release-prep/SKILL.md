@@ -15,14 +15,14 @@ allowed-tools: Bash, Read, Write, Grep
 
 ### 1-1. 現在のブランチのバージョン取得
 
-`composeApp/build.gradle.kts` を読み込み、現在の `versionName` と `versionCode` を取得する。
+`androidApp/build.gradle.kts` を読み込み、現在の `versionName` と `versionCode` を取得する。
 
 ### 1-2. main ブランチのバージョン取得
 
 以下を実行して main ブランチの `versionName` と `versionCode` を取得する：
 
 ```bash
-git show main:composeApp/build.gradle.kts | grep -E 'versionName|versionCode'
+git show main:androidApp/build.gradle.kts | grep -E 'versionName|versionCode'
 ```
 
 ### 1-3. ユーザーに確認
@@ -35,6 +35,9 @@ main ブランチ  : versionName = X.X.X, versionCode = N
 ```
 
 ユーザーが問題ないと回答したら、ステップ 2 に進む。
+
+> **バージョンの更新自体はこのスキルでは行わない。** Android / iOS 両方のバージョンを
+> 上げてコミットする作業は `/version-increment` に委譲している。ここでは現在値の確認のみを行う。
 
 ---
 
@@ -94,7 +97,9 @@ metadata/release-notes/<versionName>.md
 
 以下の項目を確認してユーザーに提示する：
 
-- [ ] `versionName` が正しいか
+- [ ] `versionName` が正しいか（未更新なら `/version-increment` で更新する）
 - [ ] `versionCode` が前回から +1 されているか
+- [ ] iOS 側（`iosApp/iosApp.xcodeproj/project.pbxproj` の `MARKETING_VERSION` /
+      `CURRENT_PROJECT_VERSION`）が Android と同じ値になっているか
 - [ ] ストア向けリリースノートに漏れがないか
 - [ ] Room DB バージョンが上がっていれば、対応する `Migration` が `DataModule.common.kt` に追加されているか

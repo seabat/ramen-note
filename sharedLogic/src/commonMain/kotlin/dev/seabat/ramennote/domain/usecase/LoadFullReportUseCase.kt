@@ -29,7 +29,7 @@ class LoadFullReportUseCase(
                     else -> error("unexpected state")
                 },
             impression = report.impression,
-            date = report.date!!,
+            date = requireNotNull(report.date) { "report.date is null (id=${report.id})" },
             star = report.star,
             areaId = report.areaId
         )

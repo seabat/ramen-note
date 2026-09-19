@@ -24,6 +24,8 @@ import dev.seabat.ramennote.data.repository.NoImageRepository
 import dev.seabat.ramennote.data.repository.NoImageRepositoryContract
 import dev.seabat.ramennote.data.repository.ReportsRepository
 import dev.seabat.ramennote.data.repository.ReportsRepositoryContract
+import dev.seabat.ramennote.data.repository.ShopAiCacheRepository
+import dev.seabat.ramennote.data.repository.ShopAiCacheRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopAiRepository
 import dev.seabat.ramennote.data.repository.ShopAiRepositoryContract
 import dev.seabat.ramennote.data.repository.ShopsRepository
@@ -52,7 +54,7 @@ expect val factoryModule: Module
 val repositoryModule =
     module {
         single<AppVersionRepositoryContract> { AppVersionRepository() }
-        single<AreasRepositoryContract> { get<RamenNoteDatabase>().let { db -> AreasRepository(db.areaDao(), db) } }
+        single<AreasRepositoryContract> { AreasRepository(get()) }
         single<AreaImageRepositoryContract> {
             AreaImageRepository(
                 HttpClient {
@@ -79,6 +81,7 @@ val repositoryModule =
         single<ReportsRepositoryContract> { ReportsRepository(get()) }
         single<ShopsRepositoryContract> { ShopsRepository(get()) }
         single<ShopAiRepositoryContract> { ShopAiRepository(get()) }
+        single<ShopAiCacheRepositoryContract> { ShopAiCacheRepository(get()) }
         single<GoogleMapSearchUrlRepositoryContract> { GoogleMapSearchUrlRepository() }
         single<GeocodingRepositoryContract> {
             GeocodingRepository(
@@ -215,6 +218,32 @@ val MIGRATION_5_6 =
         }
     }
 
+/**
+ * データベースバージョンを 6 から 7 にマイグレーションする
+ *
+ * - shop_ai_cache テーブルを新規追加（AI 生成した店情報のキャッシュ）
+ */
+val MIGRATION_6_7 =
+    object : Migration(6, 7) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS shop_ai_cache (
+                    areaName TEXT NOT NULL,
+                    shopName TEXT NOT NULL,
+                    shopUrl TEXT NOT NULL,
+                    mapUrl TEXT NOT NULL,
+                    stationName TEXT NOT NULL,
+                    category TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    createdAt TEXT NOT NULL,
+                    PRIMARY KEY (areaName, shopName)
+                )
+                """.trimIndent()
+            )
+        }
+    }
+
 fun getRamenNoteDatabase(
     factory: DatabaseFactoryContract
 ): RamenNoteDatabase =
@@ -222,5 +251,5 @@ fun getRamenNoteDatabase(
         .getBuilder()
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+        .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
         .build()

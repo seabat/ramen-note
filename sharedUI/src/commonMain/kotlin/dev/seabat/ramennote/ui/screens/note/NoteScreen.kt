@@ -45,16 +45,21 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
 import dev.seabat.ramennote.ui.components.banner.HintBanner
 import dev.seabat.ramennote.ui.components.button.ActionButton
 import dev.seabat.ramennote.ui.components.button.AddFab
 import dev.seabat.ramennote.ui.components.button.ReportListButton
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.screens.componens.ShopItem
 import dev.seabat.ramennote.ui.screens.note.shop.SearchInputField
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -62,7 +67,6 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.location_on_24px
@@ -77,6 +81,14 @@ import ramennote.sharedui.generated.resources.note_sort
 import ramennote.sharedui.generated.resources.screen_note_title
 import ramennote.sharedui.generated.resources.sort_24px
 
+@NavDestination(route = Screen.Note::class)
+@NavEdge(to = Screen.AreaShopList::class, label = "エリア店舗リストへ")
+@NavEdge(to = Screen.AddArea::class, label = "エリア追加へ")
+@NavEdge(to = Screen.EditArea::class, label = "エリア編集へ")
+@NavEdge(to = Screen.EditAreaSort::class, label = "エリア並べ替えへ")
+@NavEdge(to = Screen.Shop::class, label = "店舗詳細へ")
+@NavEdge(to = Screen.History::class, label = "履歴（エリアフィルタ）へ")
+@NavEdge(to = Screen.ShopsLocation::class, label = "マップへ")
 @Composable
 fun NoteScreen(
     refreshKey: Int = 0,
@@ -358,10 +370,12 @@ private fun AreaItem(
             // 背景画像
             if (imagePath != null) {
                 AsyncImage(
-                    model = ImageRequest.Builder(LocalPlatformContext.current)
-                        .data(imagePath)
-                        .memoryCacheKey("$imagePath#$imageKey")
-                        .build(),
+                    model =
+                        ImageRequest
+                            .Builder(LocalPlatformContext.current)
+                            .data(imagePath)
+                            .memoryCacheKey("$imagePath#$imageKey")
+                            .build(),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -437,6 +451,7 @@ fun AreaItemPreview() {
     }
 }
 
+@NavPreview(route = Screen.Note::class, primary = true)
 @Preview
 @Composable
 fun NoteScreenForAreaPreview() {
@@ -449,6 +464,7 @@ fun NoteScreenForAreaPreview() {
     }
 }
 
+@NavPreview(route = Screen.Note::class, primary = false)
 @Preview
 @Composable
 fun NoteScreenForSearchPreview() {

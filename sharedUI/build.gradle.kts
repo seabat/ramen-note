@@ -6,7 +6,9 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlin.serialization)
-    id("co.touchlab.skie") version "0.10.12"
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.touchlab.skie)
+    alias(libs.plugins.skydoves.navgraph)
 }
 
 kotlin {
@@ -50,7 +52,7 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.multiplatform.ui.tooling.preview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.navigation.compose)

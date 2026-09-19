@@ -18,16 +18,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.ui.components.AppBar
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.settings_title
 
+@NavDestination(route = Screen.Settings::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModelContract = koinViewModel<SettingsViewModel>()
@@ -135,6 +139,7 @@ fun AppVersionPreview() {
     }
 }
 
+@NavPreview(route = Screen.Settings::class, primary = true)
 @Preview
 @Composable
 fun SettingsScreenPreview() {

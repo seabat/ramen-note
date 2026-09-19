@@ -86,13 +86,14 @@ class ResolveShopLocationUseCase(
      * 成功時は mapUrl を座標付き URL で DB に上書きする。失敗時は `null` を返す。
      */
     private suspend fun geocodeByShopName(shop: Shop): ShopLocation? {
-        val query = buildString {
-            append(shop.name)
-            if (shop.stationName.isNotEmpty()) append(" ${shop.stationName}駅")
-        }
+        val query =
+            buildString {
+                append(shop.name)
+                if (shop.stationName.isNotEmpty()) append(" ${shop.stationName}駅")
+            }
         return when (val result = geocodingRepository.geocode(query)) {
             is RunStatus.Success -> {
-                val (lat, lng) = result.data!!
+                val (lat, lng) = requireNotNull(result.data) { "geocode result data is null" }
                 val newMapUrl = buildMapUrl(shop, lat, lng)
                 shopsRepository.updateMapUrl(shop.id, newMapUrl)
                 ShopLocation(shop, lat, lng)
@@ -103,10 +104,14 @@ class ResolveShopLocationUseCase(
 
     private suspend fun geocodeAndUpdate(shop: Shop): ShopLocation? {
         // `+` はスペースの URL エンコード。decodeURLQueryComponent で正しく復元してから API に渡す。
-        val query = shop.mapUrl.substringAfter("query=").substringBefore("&").decodeURLQueryComponent()
+        val query =
+            shop.mapUrl
+                .substringAfter("query=")
+                .substringBefore("&")
+                .decodeURLQueryComponent()
         return when (val result = geocodingRepository.geocode(query)) {
             is RunStatus.Success -> {
-                val (lat, lng) = result.data!!
+                val (lat, lng) = requireNotNull(result.data) { "geocode result data is null" }
                 val newMapUrl = buildMapUrl(shop, lat, lng)
                 shopsRepository.updateMapUrl(shop.id, newMapUrl)
                 ShopLocation(shop, lat, lng)
@@ -126,7 +131,7 @@ class ResolveShopLocationUseCase(
     private suspend fun expandAndResolve(shop: Shop): ShopLocation? {
         val expandResult = expandShortUrlRepository.expand(shop.mapUrl)
         if (expandResult !is RunStatus.Success) return geocodeByShopName(shop)
-        val expandedUrl = expandResult.data!!
+        val expandedUrl = requireNotNull(expandResult.data) { "expanded URL is null" }
 
         // 1. /@lat,lng 形式を試みる
         if (expandedUrl.contains("/@")) {
@@ -140,18 +145,23 @@ class ResolveShopLocationUseCase(
                     shopsRepository.updateMapUrl(shop.id, newMapUrl)
                     return ShopLocation(shop, lat, lng)
                 }
-            } catch (_: Exception) { /* 次の手段へ */ }
+            } catch (_: Exception) {
+                // 次の手段へ
+            }
         }
 
         // 2. q= パラメータの住所でジオコーディング
-        val address = try {
-            expandedUrl.substringAfter("?q=").substringBefore("&").decodeURLQueryComponent()
-        } catch (_: Exception) { null }
+        val address =
+            try {
+                expandedUrl.substringAfter("?q=").substringBefore("&").decodeURLQueryComponent()
+            } catch (_: Exception) {
+                null
+            }
 
         if (!address.isNullOrEmpty()) {
             when (val geocodeResult = geocodingRepository.geocode(address)) {
                 is RunStatus.Success -> {
-                    val (lat, lng) = geocodeResult.data!!
+                    val (lat, lng) = requireNotNull(geocodeResult.data) { "geocode result data is null" }
                     if (lat in 24.0..46.0 && lng in 122.0..154.0) {
                         val newMapUrl = buildMapUrl(shop, lat, lng)
                         shopsRepository.updateMapUrl(shop.id, newMapUrl)

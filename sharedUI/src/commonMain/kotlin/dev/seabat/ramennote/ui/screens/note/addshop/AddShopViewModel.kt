@@ -51,6 +51,9 @@ class AddShopViewModel(
     override fun createNoImage(): ByteArray = createNoImageUseCase.invoke()
 
     override fun fetchShopAiInfo(areaName: String, shopName: String) {
+        // 多重実行ガード: 生成中に再度呼ばれても API を叩かないようにする。
+        // ボタン連打による重複リクエスト（＝無駄な課金）を防ぐ。
+        if (_shopAiInfoState.value is RunStatus.Loading) return
         viewModelScope.launch {
             _shopAiInfoState.value = RunStatus.Loading()
             try {

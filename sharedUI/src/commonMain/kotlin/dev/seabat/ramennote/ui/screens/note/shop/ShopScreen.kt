@@ -37,8 +37,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.github.skydoves.navgraph.annotations.NavDestination
+import com.github.skydoves.navgraph.annotations.NavEdge
+import com.github.skydoves.navgraph.annotations.NavPreview
 import dev.seabat.ramennote.domain.extension.isTodayOrFuture
 import dev.seabat.ramennote.domain.model.Shop
 import dev.seabat.ramennote.ui.components.AppBar
@@ -48,6 +52,7 @@ import dev.seabat.ramennote.ui.components.button.AddReportButton
 import dev.seabat.ramennote.ui.components.button.EditShopButton
 import dev.seabat.ramennote.ui.components.button.ReportListButton
 import dev.seabat.ramennote.ui.components.button.ScheduleButton
+import dev.seabat.ramennote.ui.navigation.Screen
 import dev.seabat.ramennote.ui.screens.componens.ShopDetailItem
 import dev.seabat.ramennote.ui.screens.componens.ShopStarRatingRow
 import dev.seabat.ramennote.ui.theme.RamenNoteTheme
@@ -57,7 +62,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ramennote.sharedui.generated.resources.Res
 import ramennote.sharedui.generated.resources.add_category_label
@@ -76,6 +80,10 @@ import ramennote.sharedui.generated.resources.schedule_picker_label
 import ramennote.sharedui.generated.resources.shop_map_label
 import kotlin.time.Instant
 
+@NavDestination(route = Screen.Shop::class)
+@NavEdge(to = Screen.EditShop::class, label = "店舗編集へ")
+@NavEdge(to = Screen.Report::class, label = "レポート追加へ")
+@NavEdge(to = Screen.History::class, label = "履歴へ")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
@@ -522,6 +530,7 @@ private fun datePickerOnClickHandler(
     }
 }
 
+@NavPreview(route = Screen.Shop::class, primary = true)
 @Preview
 @Composable
 fun ShopScreenPreview() {

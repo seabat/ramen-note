@@ -20,7 +20,7 @@ model: sonnet
 | スキル一覧 | `.claude/skills/` 配下の `SKILL.md` |
 | エージェント一覧 | `.claude/agents/` 配下の `*.md` |
 | Hooks 設定 | `.claude/settings.json` |
-| 技術スタック・SDK バージョン | `composeApp/build.gradle.kts` |
+| 技術スタック・SDK バージョン | `androidApp/build.gradle.kts` |
 
 ### ステップ2: 差分の特定
 
