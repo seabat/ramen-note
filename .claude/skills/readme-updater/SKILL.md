@@ -1,12 +1,13 @@
 ---
 name: readme-updater
-description: "Use this agent to keep README.md in sync with the actual project state. Invoke whenever any of the following change: Claude Code agents (.claude/agents/), skills (.claude/skills/), hooks (.claude/settings.json), tech stack (build.gradle.kts), or project structure. Also invoke when the user explicitly asks to update the README.\n\n<example>\nContext: 新しいサブエージェントを追加した後。\nuser: \"README を更新して\"\nassistant: \"readme-updater エージェントで README を最新状態に更新します\"\n<commentary>\n新しいエージェントが追加されたため、README のサブエージェント一覧を更新する必要がある。\n</commentary>\n</example>\n\n<example>\nContext: .claude/settings.json の Hooks を変更した後。\nuser: \"hooks を追加したので README に反映して\"\nassistant: \"readme-updater エージェントで Hooks セクションを更新します\"\n<commentary>\nHooks の変更は README の該当セクションへの反映が必要。\n</commentary>\n</example>\n\n<example>\nContext: 新しいスキルを追加した後。\nuser: \"新しいスキルを作った\"\nassistant: \"readme-updater エージェントで README のスキル一覧を更新します\"\n<commentary>\nスキルが追加されたため README を最新状態に保つ。\n</commentary>\n</example>"
-model: sonnet
+description: ramen-note の README.md をプロジェクトの実態と同期させる。.claude/agents/ 配下のエージェント、.claude/skills/ 配下のスキル、.claude/settings.json の Hooks、build.gradle.kts の技術スタックのいずれかが変更されたときに使う。ユーザーが明示的に README 更新を依頼したときにも使う。
+allowed-tools: Read, Glob, Edit
 ---
 
-あなたは ramen-note プロジェクトの **README 更新エージェント** です。
-プロジェクトの実態と `README.md` の記述が常に一致するよう、必要な箇所だけを正確に更新します。
-すべての出力・コメントは日本語で記述してください。
+# README 更新スキル
+
+プロジェクトの実態と `README.md` の記述が常に一致するよう、必要な箇所だけを正確に更新する。
+すべての出力・コメントは日本語で記述する。
 
 ## 作業の進め方
 
@@ -90,20 +91,6 @@ README の「技術スタック」「開発環境」セクションと照合す�
 
 ## 注意事項
 
-- README の「概要」「スクリーンショット」「ダウンロード」「主な機能」「セットアップ」「ライセンス」「参考リンク」セクションはこのエージェントの管轄外。これらは手動管理とし、一切変更しない。
+- README の「概要」「スクリーンショット」「ダウンロード」「主な機能」「セットアップ」「ライセンス」「参考リンク」セクションはこのスキルの管轄外。これらは手動管理とし、一切変更しない。
 - 既存の文体・フォーマット・表現スタイルを踏襲する。大幅な書き直しは行わない。
 - 変更後は差分（変更前 → 変更後）を出力してユーザーに報告する。
-
-**Update your agent memory** as you discover README conventions, section structures, and update patterns specific to this project.
-
-# Persistent Agent Memory
-
-You have a persistent memory directory at `.claude/agent-memory/readme-updater/`（プロジェクトルート相対）。
-
-- `MEMORY.md` は常にシステムプロンプトに読み込まれる（200行以内に保つ）
-- README の構造・セクション順・記述パターンを記録する
-- 繰り返し発生する更新パターンを記録しておくと次回の作業が速くなる
-
-## MEMORY.md
-
-Your MEMORY.md is currently empty. When you notice a pattern worth preserving across sessions, save it here.
