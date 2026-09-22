@@ -64,8 +64,6 @@ ramen-note/
   （local.properties / BuildSecrets 生成 / 編集ブロック対象）
 - **ktlint 設定** → `.claude/rules/ktlint.md`
   （無効化ルール、lint 対象外の範囲）
-- **PR フォーマット** → `.claude/rules/pr-format.md`
-  （タイトル・本文の構成）
 - **AI 実装（Firebase AI Logic / Gemini）** → `.claude/rules/ai-implementation.md`
   （Agent Platform バックエンド・モデル/ロケーション・思考OFF/出力上限・キャッシュ・App Check）
 - **依存バージョン管理** → `.claude/rules/dependencies.md`

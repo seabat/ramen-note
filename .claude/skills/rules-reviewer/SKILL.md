@@ -12,7 +12,7 @@ allowed-tools: Read, Glob, Bash
 
 ## 対象範囲
 
-以下の5ルールのみを対象とする。それ以外（`ktlint.md` / `secrets.md` / `dependencies.md` / `pr-format.md`）は
+以下の5ルールのみを対象とする。それ以外（`ktlint.md` / `secrets.md` / `dependencies.md`）は
 自動化済み・対象外のためレビューしない。
 
 - `coding-conventions.md`
