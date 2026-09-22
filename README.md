@@ -256,6 +256,8 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 
 **UI 操作の仕組み**: iOS には Android CLI に相当する単発実行コマンドが無いため、[Maestro](https://maestro.dev/) の MCP サーバー（`maestro mcp`）を経由して操作する。Maestro は内部的に iOS 標準の XCUITest ベースの自前ドライバ（テスト実行中に常駐する HTTP サーバーを介して UI 階層取得・タップ命令をやり取りする方式）でシミュレータ・実機を制御しており、以前使われていた idb（Facebook製）は信頼性の問題により Maestro 自身によって置き換えられた経緯がある。MCP から提供される `list_devices` → `inspect_screen`（UI階層取得）→ `run`（その場で組み立てた1行の inline YAML を実行）というワークフローにより、Android 版と同様に「画面を見る → 判断する → 操作する → 再度画面を見る」という対話的な操作が可能。
 
+制御パスを Android と比較した図: [docs/ios-ui-control-path.png](docs/ios-ui-control-path.png)
+
 **セキュリティについて**: Maestro MCP はこの Mac 上で `maestro` CLI をローカル起動するだけであり、実際に使用する `list_devices` / `inspect_screen` / `take_screenshot` / `run` は外部と通信しない（Claude Code ↔ `maestro mcp` は標準入出力、`maestro mcp` ↔ シミュレータはローカルの XCUITest HTTP サーバー経由）。そのため、これらの操作でアプリの画面内容やデータが外部に漏れることはない。なお Maestro CLI 自体には匿名の利用状況分析（コマンド名・成否・実行時間などのメタデータのみで、アプリの実データやスクリーンショットは含まれない）がデフォルトで有効になっており、無効化したい場合は環境変数 `MAESTRO_CLI_NO_ANALYTICS` を設定する。
 
 ### サブエージェント（Agents）
