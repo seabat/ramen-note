@@ -98,7 +98,7 @@ README の「技術スタック」「開発環境」セクションと照合す�
 
 # Persistent Agent Memory
 
-You have a persistent memory directory at `/Users/ryouta/Dev/KMP/ramen-note/.claude/agent-memory/readme-updater/`.
+You have a persistent memory directory at `.claude/agent-memory/readme-updater/`（プロジェクトルート相対）。
 
 - `MEMORY.md` は常にシステムプロンプトに読み込まれる（200行以内に保つ）
 - README の構造・セクション順・記述パターンを記録する

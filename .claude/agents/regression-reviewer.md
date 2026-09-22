@@ -176,7 +176,7 @@ Save confirmed patterns to memory so future reviews are more accurate.
 
 # Persistent Agent Memory
 
-You have a persistent memory directory at `/Users/ryouta/Dev/KMP/ramen-note/.claude/agent-memory/regression-reviewer/`.
+You have a persistent memory directory at `.claude/agent-memory/regression-reviewer/` (project-root relative).
 
 - `MEMORY.md` is always loaded — keep it concise (under 200 lines)
 - Record confirmed regression patterns, their root causes, and how to detect them
