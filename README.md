@@ -94,9 +94,26 @@ ramen-note/
 - Android Studio または IntelliJ IDEA
 - Xcode (iOS ビルドの場合)
 
+### Git Hooks の設定
+
+**クローン後に一度だけ以下を実行して有効化してください**（事前に Claude Code CLI の `claude` コマンドと `jq` が PATH に通っている必要があります）。
+
+```bash
+git config core.hooksPath .githooks
+```
+
+**仕組み**: `git commit` のたびに `.githooks/pre-commit` が自動実行され、ktlint 整形と
+`rules-reviewer` によるコーディング規約準拠レビューを行います。ステージに `*.kt` が含まれる場合は
+まず整形し、差分が出れば再ステージした上で commit を中止します（差分がなければそのままレビューへ
+進みます）。レビューは `rules-reviewer` の対象ファイル（`coding-conventions` / `di-koin` /
+`navgraph-preview` / `platform-specific` / `ai-implementation` / `secrets`）が含まれる場合のみ、
+現在ログイン中のセッションで `claude -p` を実行して行い、FAIL があれば commit を中止します
+（レビュー自体が実行できなかった場合も安全側に倒して中止）。緊急時に全体を飛ばす場合は
+`git commit --no-verify` を使用してください。
+
 ### Unsplash API の設定
 
-エリアの画像を表示するために Unsplash API を使用しています。ビルド前に以下の手順で Access Key を設定してください。
+**ビルド前に以下を設定してください。**
 
 1. [Unsplash Developers](https://unsplash.com/developers) でアプリケーションを登録し、Access Key を取得
 2. プロジェクトルートの `local.properties` に以下を追加
@@ -105,13 +122,15 @@ ramen-note/
 UNSPLASH_ACCESS_KEY=取得した Access Key
 ```
 
-ビルド時に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.kt` を自動生成します。アプリコードは `BuildSecrets.UNSPLASH_ACCESS_KEY` 経由で参照します。
+**仕組み**: ビルド時に Gradle が `local.properties` から値を読み込み、commonMain 向けに
+`BuildSecrets.kt` を自動生成します。アプリコードは `BuildSecrets.UNSPLASH_ACCESS_KEY` 経由で参照します
+（エリア画像の表示に使用）。
 
 **注意**: Access Key を設定せずにビルドすると、エリア画像の取得が正常に動作しません。
 
 ### Google Maps API の設定
 
-エリア内の店舗位置を地図上に表示する ShopsLocationScreen で、Google Maps SDK（Android の地図表示）と Geocoding API（住所→座標変換、Android/iOS 共通で Ktor 経由）を使用しています。ビルド前に以下の手順で API キーを設定してください。
+**ビルド前に以下を設定してください。**
 
 1. Google Cloud Console で対象プロジェクトの「Maps SDK for Android」「Geocoding API」を有効化し、API キーを発行
 2. プロジェクトルートの `local.properties` に以下を追加
@@ -120,50 +139,39 @@ UNSPLASH_ACCESS_KEY=取得した Access Key
 GOOGLE_MAPS_API_KEY=取得した API キー
 ```
 
-ビルド時に、Unsplash と同様に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.GOOGLE_MAPS_API_KEY` を自動生成するほか、Android の `AndroidManifest.xml` にも `manifestPlaceholders` 経由で埋め込まれます。
+**仕組み**: Unsplash と同様に、ビルド時に Gradle が `local.properties` から値を読み込み、commonMain
+向けに `BuildSecrets.GOOGLE_MAPS_API_KEY` を自動生成するほか、Android の `AndroidManifest.xml` にも
+`manifestPlaceholders` 経由で埋め込まれます（店舗位置の地図表示・住所→座標変換に使用）。
 
 **注意**: API キーを設定せずにビルドすると、店舗位置マップ機能が動作しません。
 
 ### Firebase App Check の設定
 
-Firebase App Check によって不正クライアントからの API アクセスを防いでいます。詳細は [`docs/firebase-api-security.md`](./docs/firebase-api-security.md) を参照してください。
+デバッグビルドを実機/エミュレータで動かす場合、**以下の手順でデバッグトークンを登録してください。**
 
-| プラットフォーム | 本番ビルド | デバッグビルド |
-|----------------|-----------|--------------|
-| Android | Play Integrity | Debug プロバイダー |
-| iOS | DeviceCheck | Debug プロバイダー |
+1. アプリを起動し、デバッグトークンを確認する（Android は logcat、iOS は Xcode コンソールに出力される）
+2. Firebase コンソール → App Check → デバッグトークン に登録する（デバイスごとに別トークン）
+
+**仕組み**: Firebase App Check が不正クライアントからの API アクセスを防いでおり（本番ビルドは
+Android: Play Integrity・iOS: DeviceCheck、デバッグビルドは両OSともDebugプロバイダー）、
+ENFORCED（強制）で有効化されているため、上記の登録なしにはデバッグビルドから保護対象 API を
+呼び出せません。詳細は [`docs/firebase-api-security.md`](./docs/firebase-api-security.md) を参照してください。
 
 ### Firebase AI Logic（Gemini）の設定
 
-店舗情報の自動生成（店を追加する際に、エリア名と店名から Web サイト・最寄り駅・カテゴリ・
-紹介文を AI が生成）に **Firebase AI Logic** を利用しています。
+店舗情報の自動生成（エリア名と店名から Web サイト・最寄り駅・カテゴリ・紹介文を AI が生成）に
+**Firebase AI Logic** を利用しています。**追加のローカル設定は不要です**（上記の Firebase App Check
+のデバッグトークン登録が済んでいれば動作します）。
 
-| 項目 | 内容 |
-|------|------|
-| バックエンド | Vertex AI / Agent Platform（`GenerativeBackend.agentPlatform(location = "global")`） |
-| モデル | `gemini-3.1-flash-lite` |
-| 課金 | Vertex AI（`aiplatform.googleapis.com`）の従量課金。Agent Platform の利用分を含む |
-| 請求先 | Firebase（Blaze プラン）に紐づく Cloud Billing アカウント。プロジェクト × サービス単位で利用額上限を設定済み |
-| 実装 | `sharedLogic` の `ShopAiDataSource`（androidMain）/ `FetchAiShopInfoUseCase` |
+**仕組み**: バックエンドは Vertex AI / Agent Platform（`GenerativeBackend.agentPlatform(location = "global")`）、
+モデルは `gemini-3.1-flash-lite`、実装は `sharedLogic` の `ShopAiDataSource`（androidMain）/
+`FetchAiShopInfoUseCase` です。課金は Vertex AI の従量課金（Firebase Blaze プランに紐づく Cloud
+Billing、利用額上限設定済み）。コスト削減のため思考トークンの無効化・出力トークン上限・Room
+キャッシュ（同一 (エリア, 店名) は再生成時に API を叩かない）を実施しています。
 
-コスト削減のため、以下を実施しています（詳細は下記ドキュメント参照）。
-
-- **思考トークンの無効化**（`thinkingBudget = 0`）… 単純な抽出・分類タスクのため
-- **出力トークン上限**（`maxOutputTokens = 512`）
-- **Room キャッシュ**（`shop_ai_cache` テーブル）… 同一 (エリア, 店名) は再生成時に API を叩かない
-
-**前提**: App Check が有効（ENFORCED）のため、デバッグビルドを実機/エミュで動かす場合は、
-起動時に logcat へ出力されるデバッグトークンを Firebase コンソール（App Check → デバッグトークン）に
-登録する必要があります。
-
-> ℹ️ `GenerativeBackend.vertexAI()` は firebase-ai 17.16.0（firebase-bom 34.18.0）で deprecated と
-> なったため、後継の `agentPlatform()` に移行しました。リクエスト先のホスト・パスは従来と同一で、
-> Firebase / Google Cloud のコンソール設定（AI Logic・App Check・利用額上限）の変更は不要です。
-> 詳細は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照。
-
-> 💡 料金体系・コスト管理の方針・実施記録は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md)、
-> バックエンド API の移行記録は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照してください。
-> AI 実装のコーディングルールは [`.claude/rules/ai-implementation.md`](./.claude/rules/ai-implementation.md) にまとめています。
+> 💡 料金体系・コスト管理の方針は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md)、
+> バックエンド API の移行経緯は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md)、
+> AI 実装のコーディングルールは [`.claude/rules/ai-implementation.md`](./.claude/rules/ai-implementation.md) を参照してください。
 
 ### ビルドと実行
 
@@ -234,7 +242,9 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 | `/android-ui-operator`      | ramen-note の Android アプリを実機・エミュレータで操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 要素のレイアウト取得・座標特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb 経由で実行する |
 | `/icon-replacer`            | Android・iOS 両プラットフォームのアプリアイコン・スプラッシュスクリーン・タスクスイッチャーオーバーレイを一括で差し替える。開発者が `content_image`・`transparent_image`・`bg_color` を用意し、明示的に実行する |
 | `/ios-ui-operator`          | ramen-note の iOS アプリをシミュレータ・実機で操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 階層取得・タップ・テキスト入力は Maestro MCP（`maestro mcp`）経由で実行する（詳細は後述） |
+| `/readme-updater`           | ramen-note の README.md をプロジェクトの実態と同期させる。エージェント・スキル・Hooks・技術スタックのいずれかが変更されたとき、またはユーザーが明示的に依頼したときに実行する |
 | `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存。バージョンの更新自体は `/version-increment` に委譲する |
+| `/rules-reviewer`           | `.claude/rules/` のコーディング規約（coding-conventions / di-koin / navgraph-preview / platform-specific / ai-implementation / secrets）に現在の差分が準拠しているかレビューする。指摘・修正案の提示のみ行い、修正自体はユーザー承認後に別途実施する |
 | `/version-increment`        | Android・iOS のアプリバージョンを同じ値に更新してコミットする。`androidApp/build.gradle.kts` の `versionCode` / `versionName` と `project.pbxproj` の `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`（Debug・Release）を書き換える。引数なしならマイナー +1 案を提示。push・PR は行わない |
 
 #### UI 操作系スキルの前提条件
@@ -256,6 +266,8 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 
 **UI 操作の仕組み**: iOS には Android CLI に相当する単発実行コマンドが無いため、[Maestro](https://maestro.dev/) の MCP サーバー（`maestro mcp`）を経由して操作する。Maestro は内部的に iOS 標準の XCUITest ベースの自前ドライバ（テスト実行中に常駐する HTTP サーバーを介して UI 階層取得・タップ命令をやり取りする方式）でシミュレータ・実機を制御しており、以前使われていた idb（Facebook製）は信頼性の問題により Maestro 自身によって置き換えられた経緯がある。MCP から提供される `list_devices` → `inspect_screen`（UI階層取得）→ `run`（その場で組み立てた1行の inline YAML を実行）というワークフローにより、Android 版と同様に「画面を見る → 判断する → 操作する → 再度画面を見る」という対話的な操作が可能。
 
+制御パスを Android と比較した図: [docs/ios-ui-control-path.png](docs/ios-ui-control-path.png)
+
 **セキュリティについて**: Maestro MCP はこの Mac 上で `maestro` CLI をローカル起動するだけであり、実際に使用する `list_devices` / `inspect_screen` / `take_screenshot` / `run` は外部と通信しない（Claude Code ↔ `maestro mcp` は標準入出力、`maestro mcp` ↔ シミュレータはローカルの XCUITest HTTP サーバー経由）。そのため、これらの操作でアプリの画面内容やデータが外部に漏れることはない。なお Maestro CLI 自体には匿名の利用状況分析（コマンド名・成否・実行時間などのメタデータのみで、アプリの実データやスクリーンショットは含まれない）がデフォルトで有効になっており、無効化したい場合は環境変数 `MAESTRO_CLI_NO_ANALYTICS` を設定する。
 
 ### サブエージェント（Agents）
@@ -266,7 +278,6 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ui-ux-designer`    | Compose Multiplatform 画面の UI/UX レビュー・改善提案・実装を行う専門エージェント。Material Design 3 準拠・アクセシビリティ・ユーザビリティの観点で分析し、`.claude/agent-memory/ui-ux-designer/` に知識を蓄積する。`*Screen.kt`（`sharedUI/src/commonMain/kotlin/dev/seabat/ramennote/ui/screens/` 配下）を作成・大きく変更したとき、または UI/UX レビュー依頼時に自動的に起動を促す |
 | `regression-reviewer` | 過去に発生したデグレの再発防止チェックリストに基づきコード変更を静的レビューするエージェント。`HistoryScreen.kt` や LazyColumn 構造を変更した際に自動的に起動を促す。確認済みデグレパターンは `.claude/agent-memory/regression-reviewer/` に蓄積する |
-| `readme-updater`      | `README.md` をプロジェクトの実態と常に同期させるエージェント。スキル・エージェント・Hooks・技術スタックの変更時に該当セクションを更新する。更新パターンは `.claude/agent-memory/readme-updater/` に蓄積する |
 
 #### regression-reviewer のチェック項目
 
@@ -278,15 +289,18 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 
 ### Hooks
 
-`.claude/settings.json` に以下の自動処理を設定しています。
+`.claude/settings.json` に以下の自動処理を設定しています（Claude Code 経由の操作にのみ働く）。
 
 | タイミング                | 処理                                                                                          |
 |--------------------------|-----------------------------------------------------------------------------------------------|
 | `Edit` / `Write` 前      | `local.properties`・`google-services.json`・`.env` への変更をブロック |
 | `Bash` 前（危険コマンド）| `push --force`・`reset --hard`・`clean -fd`・`rm -rf /` をブロック                           |
-| `Bash` 前（コミット）    | `git commit` 前に `ktlintFormat` を自動実行し、フォーマット済みファイルをステージング        |
-| `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater／`*Screen.kt` → ui-ux-designer／`LazyColumn` を含む `*Screen.kt` → regression-reviewer も） |
+| `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント・スキル起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater スキル／`*Screen.kt` → ui-ux-designer エージェント／`LazyColumn` を含む `*Screen.kt` → regression-reviewer エージェントも） |
 | 応答完了時（Stop）       | macOS 通知で「応答が必要です」を表示                                                          |
+
+これとは別に、`git commit` 実行時には git 標準の pre-commit フックが ktlint 整形と
+`rules-reviewer` レビューを行います（Claude Code を介さない commit にも効く）。
+詳細は「セットアップ」の [Git Hooks の設定](#git-hooks-の設定) を参照してください。
 
 ## ライセンス
 

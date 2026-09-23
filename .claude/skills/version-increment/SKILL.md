@@ -147,23 +147,19 @@ git commit -m "バージョンを ${NEW_NAME} (${NEW_CODE}) に更新" \
 - **メッセージは件名 1 行のみ。** `Co-Authored-By` や `Claude-Session` などのトレーラーは付けない
 - **パス指定は必須。** 理由は下記の Hook 注意を参照
 
-### ⚠ PreToolUse Hook との共存
+### ⚠ git の pre-commit フックとの共存
 
-`.claude/settings.json` の PreToolUse Hook が `git commit` を含むコマンドを検知すると、
-コミット前に自動で以下を実行する。
+`.githooks/pre-commit`（`git config core.hooksPath .githooks` で有効化されている場合）が
+`git commit` のたびに自動で動く。本スキルへの影響は2点。
 
-```bash
-./gradlew ktlintFormat --rerun-tasks && git add -u
-```
+- **ktlintFormat は走らない**: フックはステージに `*.kt` が含まれる場合のみ ktlintFormat を実行する。
+  本スキルは `build.gradle.kts` と `project.pbxproj` しか変更しないため、この段階はスキップされる
+- **rules-reviewer は走る**: `build.gradle.kts` は `secrets` ルールの対象パターンに一致するため、
+  `claude -p` によるレビューが実行される（実測で数十秒）。
+  **この分の待ち時間が発生する旨を実行前にユーザーへ伝える**こと
 
-このため次の 3 点を守る。
-
-- **コミットに数十秒〜数分かかる**旨を実行前にユーザーへ伝える（Gradle がフルで走るため）
-- **パス指定コミットを必須にする**。`git add -u` が追跡中の全変更をステージするが、
-  パス指定コミットはインデックスを参照しないため、コミット内容には混入しない
-- **コミット後の `git status` は報告しない**。Hook がステージした無関係なファイルが並ぶだけでノイズになる
-
-なお本スキルは Kotlin ファイルを変更しないため、`ktlintFormat` が差分を生むことはない。
+パス指定コミット自体は、Hook 起因の巻き込みリスクとは無関係に**精度のため引き続き必須**とする
+（本スキルの対象外ファイルが誤って含まれるのを防ぐため）。
 
 ---
 
