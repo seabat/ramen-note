@@ -94,6 +94,23 @@ ramen-note/
 - Android Studio または IntelliJ IDEA
 - Xcode (iOS ビルドの場合)
 
+### Git Hooks の設定
+
+`.claude/rules/` のコーディング規約に準拠しているかを commit 前に自動レビューする pre-commit フックを
+`.githooks/` に用意しています。クローン後に一度だけ以下を実行して有効化してください。
+
+```bash
+git config core.hooksPath .githooks
+```
+
+- ステージされた変更に `rules-reviewer` スキル（`coding-conventions` / `di-koin` / `navgraph-preview` /
+  `platform-specific` / `ai-implementation` / `secrets`）の対象ファイルが含まれる場合のみ、
+  Claude Code をヘッドレス実行してレビューし、**FAIL が1件でもあれば commit を中止**します
+- レビュー自体が実行できなかった場合（ネットワーク障害・認証エラー等）も安全側に倒して commit を中止します
+- Claude Code CLI（`claude` コマンド）と `jq` が PATH に通っている必要があります。現在ログイン中の
+  セッション（サブスクリプション）を使って `claude -p` でレビューを実行します
+- 緊急時にレビューを飛ばす場合は `git commit --no-verify` を使用してください
+
 ### Unsplash API の設定
 
 エリアの画像を表示するために Unsplash API を使用しています。ビルド前に以下の手順で Access Key を設定してください。

@@ -79,6 +79,10 @@ ramen-note/
 自動動作の詳細は @.claude/settings.json を参照。
 PostToolUse: Edit/Write 後に変更ファイルを判定し、上記サブエージェントの起動を促すリマインダを注入する。
 
+git の pre-commit フック（`.githooks/pre-commit`）が commit 時に `rules-reviewer` を自動実行し、
+FAIL があれば commit をブロックする（Claude Code の Hooks とは別物）。詳細は README の
+「Git Hooks の設定」を参照。
+
 ## 注意事項
 - Room の KSP 生成タスクと Compose Resource 生成タスクに依存関係がある（build.gradle.kts 参照）
 - iOS ビルドは Xcode から実行（`iosApp/` ディレクトリ）
