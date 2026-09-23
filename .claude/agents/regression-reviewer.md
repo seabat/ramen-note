@@ -1,6 +1,6 @@
 ---
 name: regression-reviewer
-description: "Use this agent to review code changes in ramen-note for regressions based on past incidents. Invoke whenever HistoryScreen.kt or LazyColumn-based screens are modified, or when the user wants a regression check before committing/merging.\n\n<example>\nContext: HistoryScreen に何らかの変更を加えた後。\nuser: \"HistoryScreen の表示レイアウトを変更した\"\nassistant: \"regression-reviewer エージェントでデグレがないか確認します\"\n<commentary>\nHistoryScreen は過去に自動スクロール機能が壊れたことがあるため、変更後は必ずデグレチェックを行う。\n</commentary>\n</example>\n\n<example>\nContext: LazyColumn 構造（アイテム追加・削除）を変更したとき。\nuser: \"ReportList に新しいヘッダー行を追加した\"\nassistant: \"LazyColumn の item 構造が変わったため regression-reviewer でスクロールインデックス整合性を確認します\"\n<commentary>\nLazyColumn の item 構造変更はインデックスベースのスクロールロジックに影響するため必ずチェックが必要。\n</commentary>\n</example>"
+description: "Use this agent to review code changes in ramen-note for regressions based on past incidents (HistoryScreen.kt auto-scroll, LazyColumn item structure). Invoke whenever HistoryScreen.kt or LazyColumn-based screens are modified, or when the user wants a regression check before committing/merging."
 model: sonnet
 ---
 
