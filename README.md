@@ -236,7 +236,7 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 | `/ios-ui-operator`          | ramen-note の iOS アプリをシミュレータ・実機で操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 階層取得・タップ・テキスト入力は Maestro MCP（`maestro mcp`）経由で実行する（詳細は後述） |
 | `/readme-updater`           | ramen-note の README.md をプロジェクトの実態と同期させる。エージェント・スキル・Hooks・技術スタックのいずれかが変更されたとき、またはユーザーが明示的に依頼したときに実行する |
 | `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存。バージョンの更新自体は `/version-increment` に委譲する |
-| `/rules-reviewer`           | `.claude/rules/` のコーディング規約（coding-conventions / di-koin / navgraph-preview / platform-specific / ai-implementation）に現在の差分が準拠しているかレビューする。指摘・修正案の提示のみ行い、修正自体はユーザー承認後に別途実施する |
+| `/rules-reviewer`           | `.claude/rules/` のコーディング規約（coding-conventions / di-koin / navgraph-preview / platform-specific / ai-implementation / secrets）に現在の差分が準拠しているかレビューする。指摘・修正案の提示のみ行い、修正自体はユーザー承認後に別途実施する |
 | `/version-increment`        | Android・iOS のアプリバージョンを同じ値に更新してコミットする。`androidApp/build.gradle.kts` の `versionCode` / `versionName` と `project.pbxproj` の `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`（Debug・Release）を書き換える。引数なしならマイナー +1 案を提示。push・PR は行わない |
 
 #### UI 操作系スキルの前提条件

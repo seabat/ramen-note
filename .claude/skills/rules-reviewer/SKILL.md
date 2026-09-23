@@ -1,6 +1,6 @@
 ---
 name: rules-reviewer
-description: .claude/rules/ 配下のコーディング規約（coding-conventions / di-koin / navgraph-preview / platform-specific / ai-implementation）に、現在の差分（git diff）が準拠しているかレビューする。
+description: .claude/rules/ 配下のコーディング規約（coding-conventions / di-koin / navgraph-preview / platform-specific / ai-implementation / secrets）に、現在の差分（git diff）が準拠しているかレビューする。
 disable-model-invocation: true
 allowed-tools: Read, Glob, Bash
 ---
@@ -12,7 +12,7 @@ allowed-tools: Read, Glob, Bash
 
 ## 対象範囲
 
-以下の5ルールのみを対象とする。それ以外（`ktlint.md` / `secrets.md` / `dependencies.md`）は
+以下の6ルールのみを対象とする。それ以外（`ktlint.md` / `dependencies.md`）は
 自動化済み・対象外のためレビューしない。
 
 - `coding-conventions.md`
@@ -20,6 +20,12 @@ allowed-tools: Read, Glob, Bash
 - `navgraph-preview.md`
 - `platform-specific.md`
 - `ai-implementation.md`
+- `secrets.md`
+
+> `secrets.md` は Hook（`.claude/settings.json` の PreToolUse）が `local.properties` /
+> `google-services.json` / `.env` への**編集そのもの**を既にブロックしているが、Hook はファイルパスしか
+> 見ないため「コード内への秘密情報のベタ書き」までは防げない。このすり抜けを検知するために
+> 対象に含める（他の5ルールとは異なり、ファイルの構造・命名規則ではなく**diffの内容**を確認する）。
 
 ---
 
@@ -54,6 +60,7 @@ git diff main...HEAD           # ない場合（ブランチ全体）
 | `navgraph-preview` | `*Screen.kt` |
 | `platform-specific` | `androidMain/` または `iosMain/` 配下の `*.android.kt` / `*.ios.kt`、`iosApp/` 配下の Swift 実装 |
 | `ai-implementation` | `ShopAiDataSource*` および Firebase AI Logic 呼び出しを含む UseCase・ViewModel |
+| `secrets` | `*Config*.kt` / `*Repository*.kt` / `*DataSource*.kt`（秘密情報を扱いやすい箇所）、`build.gradle.kts`、および `local.properties` / `google-services.json` / `.env` 自体が diff に含まれる場合 |
 
 ---
 
@@ -100,6 +107,16 @@ git diff main...HEAD           # ない場合（ブランチ全体）
 - パース失敗時に例外を投げず、空のドメインモデルを返しているか
 - キャッシュ参照 → ミス時のみ API 呼び出し → 成功時のみ保存、の順序になっているか
 - 多重実行ガード（実行中の再呼び出し防止）があるか
+
+### secrets
+
+- 追加・変更された行に、API キーやトークンらしき文字列リテラルが直接ハードコードされていないか
+  （`BuildSecrets.UNSPLASH_ACCESS_KEY` / `BuildSecrets.GOOGLE_MAPS_API_KEY` のように
+  `BuildSecrets.*` 経由の参照になっているか）
+- 新しい秘密情報を追加する変更であれば、`local.properties` → `generateBuildSecrets` タスク →
+  `BuildSecrets.kt` 自動生成 → `BuildSecrets.XXX_KEY` 参照という既存パターンに従っているか
+- diff（`git status --porcelain` の結果を含む）に `local.properties` / `google-services.json` /
+  `.env` 自体が追加・変更として含まれていないか（Hook をすり抜けているケースの検知）
 
 ---
 
