@@ -102,14 +102,15 @@ ramen-note/
 git config core.hooksPath .githooks
 ```
 
-**仕組み**: `git commit` のたびに `.githooks/pre-commit` が自動実行され、ktlint 整形と
-`rules-reviewer` によるコーディング規約準拠レビューを行います。ステージに `*.kt` が含まれる場合は
-まず整形し、差分が出れば再ステージした上で commit を中止します（差分がなければそのままレビューへ
-進みます）。レビューは `rules-reviewer` の対象ファイル（`coding-conventions` / `di-koin` /
-`navgraph-preview` / `platform-specific` / `ai-implementation` / `secrets`）が含まれる場合のみ、
-現在ログイン中のセッションで `claude -p` を実行して行い、FAIL があれば commit を中止します
-（レビュー自体が実行できなかった場合も安全側に倒して中止）。緊急時に全体を飛ばす場合は
-`git commit --no-verify` を使用してください。
+**仕組み**: `git commit` のたびに `.githooks/pre-commit` が自動実行され、ktlint 整形・
+`rules-reviewer` によるコーディング規約準拠レビュー・`regression-reviewer` によるデグレ再発防止
+レビューを行います。ステージに `*.kt` が含まれる場合はまず整形し、差分が出れば再ステージした上で
+commit を中止します（差分がなければそのままレビューへ進みます）。`rules-reviewer` は対象ファイル
+（`coding-conventions` / `di-koin` / `navgraph-preview` / `platform-specific` / `ai-implementation` /
+`secrets`）が含まれる場合のみ、`regression-reviewer` は対象ファイル（`HistoryScreen.kt`、または
+LazyColumn・onCompleted を含む `*Screen.kt`）が含まれる場合のみ、現在ログイン中のセッションで
+`claude -p` を実行して行い、FAIL があれば commit を中止します（レビュー自体が実行できなかった場合も
+安全側に倒して中止）。緊急時に全体を飛ばす場合は `git commit --no-verify` を使用してください。
 
 ### Unsplash API の設定
 
@@ -243,9 +244,19 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 | `/icon-replacer`            | Android・iOS 両プラットフォームのアプリアイコン・スプラッシュスクリーン・タスクスイッチャーオーバーレイを一括で差し替える。開発者が `content_image`・`transparent_image`・`bg_color` を用意し、明示的に実行する |
 | `/ios-ui-operator`          | ramen-note の iOS アプリをシミュレータ・実機で操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 階層取得・タップ・テキスト入力は Maestro MCP（`maestro mcp`）経由で実行する（詳細は後述） |
 | `/readme-updater`           | ramen-note の README.md をプロジェクトの実態と同期させる。エージェント・スキル・Hooks・技術スタックのいずれかが変更されたとき、またはユーザーが明示的に依頼したときに実行する |
+| `/regression-reviewer`      | 過去に発生したデグレの再発防止チェックリスト（HistoryScreen.kt 自動スクロール、RunStatus.Success 完了コールバックの LaunchedEffect ラップ）に現在の差分が抵触していないかレビューする。指摘・修正案の提示のみ行い、修正自体はユーザー承認後に別途実施する。`git commit` 時に対象ファイルがあれば pre-commit フックから自動実行される（詳細は後述） |
 | `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存。バージョンの更新自体は `/version-increment` に委譲する |
 | `/rules-reviewer`           | `.claude/rules/` のコーディング規約（coding-conventions / di-koin / navgraph-preview / platform-specific / ai-implementation / secrets）に現在の差分が準拠しているかレビューする。指摘・修正案の提示のみ行い、修正自体はユーザー承認後に別途実施する |
 | `/version-increment`        | Android・iOS のアプリバージョンを同じ値に更新してコミットする。`androidApp/build.gradle.kts` の `versionCode` / `versionName` と `project.pbxproj` の `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`（Debug・Release）を書き換える。引数なしならマイナー +1 案を提示。push・PR は行わない |
+
+#### regression-reviewer のチェック項目
+
+| チェック ID | 対象機能 | 主な確認内容 |
+|------------|---------|------------|
+| CHECK-1 | HistoryScreen 自動スクロール | `LaunchedEffect` のキーが `reportId` のみか／全件待機ループの有無／LazyColumn の item オフセット値／インデックス増分順序（increment-then-check）／`clearReportIdParam()` の呼び出しタイミング |
+| CHECK-2 | RunStatus.Success 完了コールバックの LaunchedEffect ラップ | onCompleted 等のナビゲーション系コールバックが RunStatus.Success 分岐で LaunchedEffect(state) { onCompleted() } の形で呼ばれているか（LaunchedEffect なしで直接呼ぶと popBackStack() が二重実行されタブ誤遷移・空白画面につながる） |
+
+> **チェック項目の追加方法**: `.claude/rules/regression-patterns.md` に `CHECK-N` セクションを追記する（`SKILL.md` 自体の変更は不要）。新たなデグレが発生した際は根本原因・検出方法・修正方針を記録し、次回以降の自動チェックに組み込む。
 
 #### UI 操作系スキルの前提条件
 
@@ -277,15 +288,6 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 | エージェント          | 説明                                                                                                                                                                    |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ui-ux-designer`    | Compose Multiplatform 画面の UI/UX レビュー・改善提案・実装を行う専門エージェント。Material Design 3 準拠・アクセシビリティ・ユーザビリティの観点で分析し、`.claude/agent-memory/ui-ux-designer/` に知識を蓄積する。`*Screen.kt`（`sharedUI/src/commonMain/kotlin/dev/seabat/ramennote/ui/screens/` 配下）を作成・大きく変更したとき、または UI/UX レビュー依頼時に自動的に起動を促す |
-| `regression-reviewer` | 過去に発生したデグレの再発防止チェックリストに基づきコード変更を静的レビューするエージェント。`HistoryScreen.kt` や LazyColumn 構造を変更した際に自動的に起動を促す。確認済みデグレパターンは `.claude/agent-memory/regression-reviewer/` に蓄積する |
-
-#### regression-reviewer のチェック項目
-
-| チェック ID | 対象機能 | 主な確認内容 |
-|------------|---------|------------|
-| CHECK-1 | HistoryScreen 自動スクロール | `LaunchedEffect` のキーが `reportId` のみか／全件待機ループの有無／LazyColumn の item オフセット値／インデックス増分順序（increment-then-check）／`clearReportIdParam()` の呼び出しタイミング |
-
-> **チェック項目の追加方法**: `.claude/agents/regression-reviewer.md` に `CHECK-N` セクションを追記する。新たなデグレが発生した際は根本原因・検出方法・修正方針を記録し、次回以降の自動チェックに組み込む。
 
 ### Hooks
 
@@ -295,11 +297,11 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 |--------------------------|-----------------------------------------------------------------------------------------------|
 | `Edit` / `Write` 前      | `local.properties`・`google-services.json`・`.env` への変更をブロック |
 | `Bash` 前（危険コマンド）| `push --force`・`reset --hard`・`clean -fd`・`rm -rf /` をブロック                           |
-| `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント・スキル起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater スキル／`*Screen.kt` → ui-ux-designer エージェント／`LazyColumn` を含む `*Screen.kt` → regression-reviewer エージェントも） |
+| `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント・スキル起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater スキル／`*Screen.kt` → ui-ux-designer エージェント） |
 | 応答完了時（Stop）       | macOS 通知で「応答が必要です」を表示                                                          |
 
 これとは別に、`git commit` 実行時には git 標準の pre-commit フックが ktlint 整形と
-`rules-reviewer` レビューを行います（Claude Code を介さない commit にも効く）。
+`rules-reviewer`・`regression-reviewer` レビューを行います（Claude Code を介さない commit にも効く）。
 詳細は「セットアップ」の [Git Hooks の設定](#git-hooks-の設定) を参照してください。
 
 ## ライセンス

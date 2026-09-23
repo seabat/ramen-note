@@ -385,7 +385,9 @@ private fun SaveShopState(
 ) {
     when (saveState) {
         is RunStatus.Success -> {
-            onCompleted()
+            LaunchedEffect(saveState) {
+                onCompleted()
+            }
         }
         is RunStatus.Loading -> {
             AppProgressBar()

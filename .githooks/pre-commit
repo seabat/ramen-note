@@ -1,5 +1,5 @@
 #!/bin/sh
-# commit 前の ktlint 整形 + rules-reviewer レビュー。
+# commit 前の ktlint 整形 + rules-reviewer レビュー + regression-reviewer レビュー。
 #
 # 1. ステージ済みファイルに *.kt が含まれる場合のみ ktlintFormat を実行する
 #    （Claude Code の Hook ではなく git 標準の pre-commit に統一。旧来
@@ -14,6 +14,15 @@
 #    platform-specific / ai-implementation / secrets）に関連しそうな
 #    ファイルがステージされている場合のみ、Claude Code をヘッドレス実行して
 #    レビューし、FAIL が1件でもあれば commit を中止する
+# 4. .claude/skills/regression-reviewer/SKILL.md が定義する過去のデグレ
+#    チェックリスト（HistoryScreen.kt 自動スクロール、RunStatus.Success 完了
+#    コールバックの LaunchedEffect ラップ）に関連しそうなファイルがステージ
+#    されている場合のみ、同様に Claude Code をヘッドレス実行してレビューし、
+#    FAIL が1件でもあれば commit を中止する
+#    （旧来 .claude/agents/regression-reviewer.md + PostToolUse フックの
+#    リマインダで対話セッション中の起動を促していたが、セッションの
+#    context を消費し起動が保証されないため、rules-reviewer と同じ
+#    pre-commit 方式に統一した）
 #
 # 有効化（開発者ごとに1回、クローン後に実行）:
 #   git config core.hooksPath .githooks
@@ -22,6 +31,17 @@
 #   git commit --no-verify
 
 set -eu
+
+# ステップ3・4共通の一時ファイル群。EXIT 時にまとめて削除する
+# （trap を複数回上書き登録すると最後の登録分しか効かず、先行分が
+# 削除されずに残ってしまうため、リストに蓄積する方式にしている）。
+TMP_FILES=""
+cleanup() {
+  for f in $TMP_FILES; do
+    [ -n "$f" ] && rm -f "$f"
+  done
+}
+trap cleanup EXIT
 
 STAGED_FILES=$(git diff --cached --name-only)
 
@@ -82,7 +102,7 @@ PROMPT='/rules-reviewer --staged'
 
 STDOUT_FILE=$(mktemp)
 STDERR_FILE=$(mktemp)
-trap 'rm -f "$STDOUT_FILE" "$STDERR_FILE"' EXIT
+TMP_FILES="$TMP_FILES $STDOUT_FILE $STDERR_FILE"
 
 # 注意: stdout/stderr は必ず分離してファイルに書き出す。$(...) 経由で変数に
 # 取り込んでから echo で jq に渡すと、/bin/sh（dash 等）の echo がバックスラッシュ
@@ -124,6 +144,93 @@ fi
 
 if ! printf '%s' "$RESULT_TEXT" | grep -q "RULES_REVIEW_RESULT: PASS"; then
   echo "rules-reviewer: 判定マーカーが出力されなかったため commit を中止します。" >&2
+  exit 1
+fi
+
+# --- ステップ4: regression-reviewer 対象判定（コスト削減のための高速フィルタ） ---
+
+STAGED_FILES=$(git diff --cached --name-only)
+
+# regression-reviewer の対象判定は「*Screen.kt かつ LazyColumn または onCompleted を含む」
+# という内容ベースの高速フィルタ（SKILL.md ステップ2と同じ考え方）。
+# ここでの判定はコスト削減のための高速フィルタであり、最終判断は claude -p 側で行う。
+REGRESSION_TARGET=false
+OLDIFS=$IFS
+IFS='
+'
+for f in $STAGED_FILES; do
+  case "$f" in
+    *Screen.kt)
+      if [ -f "$f" ] && grep -qE 'LazyColumn|onCompleted' "$f"; then
+        REGRESSION_TARGET=true
+      fi
+      ;;
+  esac
+done
+IFS=$OLDIFS
+
+if [ "$REGRESSION_TARGET" != "true" ]; then
+  exit 0
+fi
+
+if ! command -v claude >/dev/null 2>&1; then
+  echo "regression-reviewer: claude コマンドが見つからないため commit を中止します。" >&2
+  echo "  (Claude Code が未インストール、または PATH が通っていません)" >&2
+  exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "regression-reviewer: jq コマンドが見つからないため commit を中止します。" >&2
+  exit 1
+fi
+
+echo "regression-reviewer: 対象ファイルを検出しました。レビューを実行します（数十秒かかる場合があります）..."
+
+# 注意: プロンプトは "/regression-reviewer ..." を先頭に単独で置く必要がある。
+# 前後に他の文言を混ぜると「Unknown command: /regression-reviewer」としてスキルが解決されない
+# （rules-reviewer で動作検証済みの制約と同じ）。
+PROMPT='/regression-reviewer --staged'
+
+STDOUT_FILE=$(mktemp)
+STDERR_FILE=$(mktemp)
+TMP_FILES="$TMP_FILES $STDOUT_FILE $STDERR_FILE"
+
+set +e
+claude -p "$PROMPT" \
+  --allowedTools "Read,Glob,Bash" \
+  --permission-prompts none \
+  --output-format json \
+  --max-budget-usd 2.00 \
+  > "$STDOUT_FILE" 2> "$STDERR_FILE"
+STATUS=$?
+set -e
+
+if [ "$STATUS" -ne 0 ]; then
+  echo "regression-reviewer: claude -p の実行に失敗したため commit を中止します（ネットワーク・認証エラー等の可能性）。" >&2
+  cat "$STDERR_FILE" >&2
+  cat "$STDOUT_FILE" >&2
+  exit 1
+fi
+
+RESULT_TEXT=$(jq -r '.result // empty' "$STDOUT_FILE" 2>/dev/null || true)
+
+if [ -z "$RESULT_TEXT" ]; then
+  echo "regression-reviewer: レビュー結果を取得できなかったため commit を中止します。" >&2
+  cat "$STDOUT_FILE" >&2
+  exit 1
+fi
+
+printf '%s\n' "$RESULT_TEXT"
+echo ""
+
+if printf '%s' "$RESULT_TEXT" | grep -q "REGRESSION_REVIEW_RESULT: FAIL"; then
+  echo "regression-reviewer で FAIL が検出されたため commit を中止しました。" >&2
+  echo "  修正するか、緊急時は 'git commit --no-verify' で回避してください。" >&2
+  exit 1
+fi
+
+if ! printf '%s' "$RESULT_TEXT" | grep -q "REGRESSION_REVIEW_RESULT: PASS"; then
+  echo "regression-reviewer: 判定マーカーが出力されなかったため commit を中止します。" >&2
   exit 1
 fi
 
