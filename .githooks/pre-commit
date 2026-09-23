@@ -1,16 +1,24 @@
 #!/bin/sh
-# rules-reviewer によるコミット前レビュー。
+# commit 前の ktlint 整形 + rules-reviewer レビュー。
 #
-# .claude/skills/rules-reviewer/SKILL.md が定義する6ルール
-# （coding-conventions / di-koin / navgraph-preview / platform-specific /
-#  ai-implementation / secrets）に関連しそうなファイルがステージされている
-# 場合のみ、Claude Code をヘッドレス実行してレビューし、FAIL が1件でもあれば
-# commit を中止する。
+# 1. ステージ済みファイルに *.kt が含まれる場合のみ ktlintFormat を実行する
+#    （Claude Code の Hook ではなく git 標準の pre-commit に統一。旧来
+#    .claude/settings.json 側にあった同等の処理は削除済み）
+# 2. 整形によってファイルが変化した場合は、変化分を再ステージした上で
+#    commit を中止する（レビューは実行しない）。ステージ内容が整形前後で
+#    変わってしまい、何をレビューすべきか曖昧になるため。開発者は差分を
+#    確認して再度 commit すればよい（次回は整形差分が出ないためそのまま
+#    ステップ3に進む）
+# 3. 整形で変化がなければ、.claude/skills/rules-reviewer/SKILL.md が定義する
+#    6ルール（coding-conventions / di-koin / navgraph-preview /
+#    platform-specific / ai-implementation / secrets）に関連しそうな
+#    ファイルがステージされている場合のみ、Claude Code をヘッドレス実行して
+#    レビューし、FAIL が1件でもあれば commit を中止する
 #
 # 有効化（開発者ごとに1回、クローン後に実行）:
 #   git config core.hooksPath .githooks
 #
-# 緊急時にレビューを飛ばす場合:
+# 緊急時に全体を飛ばす場合:
 #   git commit --no-verify
 
 set -eu
@@ -20,6 +28,30 @@ STAGED_FILES=$(git diff --cached --name-only)
 if [ -z "$STAGED_FILES" ]; then
   exit 0
 fi
+
+# --- ステップ1/2: ktlint 整形 ---
+
+if echo "$STAGED_FILES" | grep -qE '\.kt$'; then
+  echo "pre-commit: ステージに *.kt が含まれるため ktlintFormat を実行します..."
+
+  BEFORE_STATUS=$(git status --porcelain)
+  ./gradlew ktlintFormat --rerun-tasks
+  AFTER_STATUS=$(git status --porcelain)
+
+  if [ "$BEFORE_STATUS" != "$AFTER_STATUS" ]; then
+    git add -u
+    echo "" >&2
+    echo "pre-commit: ktlintFormat がファイルを整形したため commit を中止しました。" >&2
+    echo "  整形済みの変更は再ステージ済みです。差分を確認し、再度 'git commit' してください。" >&2
+    echo "  （整形で変化がなければ、その回はそのままレビューへ進みます）" >&2
+    exit 1
+  fi
+fi
+
+# --- ステップ3: rules-reviewer 対象判定（コスト削減のための高速フィルタ） ---
+
+# ktlintFormat で git add -u は発生していない想定だが、念のため最新のステージ内容を取り直す。
+STAGED_FILES=$(git diff --cached --name-only)
 
 # rules-reviewer の6ルールの対象ファイルパターン（SKILL.md ステップ2と同じ内容）。
 # ここでの判定はコスト削減のための高速フィルタであり、最終判断は claude -p 側で行う。

@@ -21,15 +21,6 @@
             "command": "INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r '.tool_input.command // empty'); if echo \"$CMD\" | grep -qE '(push\\s+--force|push\\s+-f|reset\\s+--hard|clean\\s+-fd|rm\\s+-rf\\s+/)'; then echo '危険なコマンドはブロックされました' >&2; exit 2; fi"
           }
         ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r '.tool_input.command // empty'); if echo \"$CMD\" | grep -qE 'git\\s+commit'; then cd /Users/ryouta/Dev/KMP/ramen-note && ./gradlew ktlintFormat --rerun-tasks 2>&1 && git add -u; fi"
-          }
-        ]
       }
     ],
     "Stop": [

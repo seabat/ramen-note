@@ -96,20 +96,26 @@ ramen-note/
 
 ### Git Hooks の設定
 
-`.claude/rules/` のコーディング規約に準拠しているかを commit 前に自動レビューする pre-commit フックを
-`.githooks/` に用意しています。クローン後に一度だけ以下を実行して有効化してください。
+commit 前に ktlint 整形と `.claude/rules/` のコーディング規約準拠レビューを自動で行う pre-commit
+フックを `.githooks/` に用意しています。クローン後に一度だけ以下を実行して有効化してください。
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-- ステージされた変更に `rules-reviewer` スキル（`coding-conventions` / `di-koin` / `navgraph-preview` /
-  `platform-specific` / `ai-implementation` / `secrets`）の対象ファイルが含まれる場合のみ、
-  Claude Code をヘッドレス実行してレビューし、**FAIL が1件でもあれば commit を中止**します
+1. **ktlint 整形**: ステージされた変更に `*.kt` が含まれる場合のみ `ktlintFormat` を実行します。
+   整形によってファイルが変化した場合は、その変更を再ステージした上で **commit を中止**します
+   （レビューは実行しません）。差分を確認して再度 `git commit` してください
+   （2回目は整形差分が出ないためそのまま次のレビュー段階に進みます）
+2. **rules-reviewer レビュー**: 整形で変化がなかった場合、ステージされた変更に `rules-reviewer`
+   スキル（`coding-conventions` / `di-koin` / `navgraph-preview` / `platform-specific` /
+   `ai-implementation` / `secrets`）の対象ファイルが含まれるときのみ、Claude Code をヘッドレス実行
+   してレビューし、**FAIL が1件でもあれば commit を中止**します
+
 - レビュー自体が実行できなかった場合（ネットワーク障害・認証エラー等）も安全側に倒して commit を中止します
 - Claude Code CLI（`claude` コマンド）と `jq` が PATH に通っている必要があります。現在ログイン中の
   セッション（サブスクリプション）を使って `claude -p` でレビューを実行します
-- 緊急時にレビューを飛ばす場合は `git commit --no-verify` を使用してください
+- 緊急時に全体を飛ばす場合は `git commit --no-verify` を使用してください
 
 ### Unsplash API の設定
 
@@ -298,15 +304,18 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 
 ### Hooks
 
-`.claude/settings.json` に以下の自動処理を設定しています。
+`.claude/settings.json` に以下の自動処理を設定しています（Claude Code 経由の操作にのみ働く）。
 
 | タイミング                | 処理                                                                                          |
 |--------------------------|-----------------------------------------------------------------------------------------------|
 | `Edit` / `Write` 前      | `local.properties`・`google-services.json`・`.env` への変更をブロック |
 | `Bash` 前（危険コマンド）| `push --force`・`reset --hard`・`clean -fd`・`rm -rf /` をブロック                           |
-| `Bash` 前（コミット）    | `git commit` 前に `ktlintFormat` を自動実行し、フォーマット済みファイルをステージング        |
 | `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント・スキル起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater スキル／`*Screen.kt` → ui-ux-designer エージェント／`LazyColumn` を含む `*Screen.kt` → regression-reviewer エージェントも） |
 | 応答完了時（Stop）       | macOS 通知で「応答が必要です」を表示                                                          |
+
+これとは別に、`git commit` 実行時には git 標準の pre-commit フックが ktlint 整形と
+`rules-reviewer` レビューを行います（Claude Code を介さない commit にも効く）。
+詳細は「セットアップ」の [Git Hooks の設定](#git-hooks-の設定) を参照してください。
 
 ## ライセンス
 
