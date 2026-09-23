@@ -155,7 +155,7 @@ git commit -m "バージョンを ${NEW_NAME} (${NEW_CODE}) に更新" \
 - **ktlintFormat は走らない**: フックはステージに `*.kt` が含まれる場合のみ ktlintFormat を実行する。
   本スキルは `build.gradle.kts` と `project.pbxproj` しか変更しないため、この段階はスキップされる
 - **rules-reviewer は走る**: `build.gradle.kts` は `secrets` ルールの対象パターンに一致するため、
-  `claude -p` によるレビューが実行される（実測 1 回あたり約 $0.19、数十秒）。
+  `claude -p` によるレビューが実行される（実測で数十秒）。
   **この分の待ち時間が発生する旨を実行前にユーザーへ伝える**こと
 
 パス指定コミット自体は、Hook 起因の巻き込みリスクとは無関係に**精度のため引き続き必須**とする
