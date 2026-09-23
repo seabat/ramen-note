@@ -140,6 +140,61 @@ if (listIsSearchResultVisible) {
 
 ---
 
+### ✅ CHECK-2: RunStatus.Success 完了コールバックの LaunchedEffect ラップ
+
+**背景**: `AddAreaScreen.kt` で、`RunStatus.Success` になった際に `onCompleted()`
+（= `navController.popBackStack()`）を `LaunchedEffect` で囲まずコンポーザブル本体で直接呼んでいた。
+副作用がリコンポジションのたびに再実行されうるため、`popBackStack()` が二重実行され、
+`Note` タブごと pop されて `Home` タブへ意図せず遷移し、遷移後の画面が空白になるデグレが発生した
+（2026-09-23、AddAreaScreen / AddShopScreen / EditAreaSortScreen の3箇所で同一パターンを確認）。
+
+**チェック対象ファイル**:
+`onCompleted: () -> Unit` / `onBackClick` など、呼び出し元でナビゲーション（`popBackStack()` 等）を
+行うコールバックを引数に持つ `*Screen.kt` 全般。特に `RunStatus<T>` を購読し、`Success` 時に
+そのコールバックを呼ぶ画面（`AddAreaScreen.kt`、`AddShopScreen.kt`、`EditAreaScreen.kt`、
+`EditAreaSortScreen.kt`、`EditShopScreen.kt` など）。
+
+**確認項目（すべて満たすこと）**:
+
+#### 2-A: `RunStatus.Success` 分岐内でのコールバック呼び出しが `LaunchedEffect` で囲まれていること
+
+```kotlin
+// ✅ 正しい（state を key にした LaunchedEffect 内で呼ぶ）
+is RunStatus.Success -> {
+    LaunchedEffect(addStatus) {
+        onCompleted()
+    }
+}
+
+// ❌ 誤り（コンポーザブル本体で副作用を直接実行。リコンポジションのたびに
+//          再実行され、ナビゲーションコールバックが二重・多重実行されうる）
+is RunStatus.Success -> {
+    onCompleted()
+}
+```
+
+**理由**: Compose ではコンポーザブル本体は何度でも再実行されうる。`RunStatus.Success` が
+StateFlow に保持されたまま何らかの理由で再コンポジションが走ると、`LaunchedEffect` なしでは
+副作用（ここではナビゲーション呼び出し）が毎回再実行される。`popBackStack()` が意図せず
+複数回呼ばれると、想定より多くのバックスタックエントリが pop され、タブ画面（`Note` 等）ごと
+pop されて別タブに着地し、遷移先が不整合な状態（空白画面）になることがある。
+
+#### 2-B: `LaunchedEffect` のキーに該当する `RunStatus` の State 自体（または同等に変化する値）が使われていること
+
+```kotlin
+// ✅ 正しい
+LaunchedEffect(addStatus) { onCompleted() }
+
+// ⚠️ 要確認（Unit key だと画面初回表示時にしか発火しないため、
+//           ボタン押下 → Success 遷移のタイミングによっては動作しないことがある）
+LaunchedEffect(Unit) { onCompleted() }
+```
+
+**参考実装（正しいパターン）**: `EditAreaScreen.kt`・`EditShopScreen.kt` はこのパターンに
+準拠済み。新規・変更時はこの2ファイルの実装を参照すること。
+
+---
+
 ## 出力フォーマット
 
 ```
@@ -155,6 +210,12 @@ if (listIsSearchResultVisible) {
 | 1-E: clearReportIdParam の位置 | ✅ PASS | - |
 | 1-F: 検索モード考慮 | ⚠️ 要確認 | ... |
 
+### CHECK-2: RunStatus.Success 完了コールバックの LaunchedEffect ラップ
+| 項目 | 判定 | 詳細 |
+|------|------|------|
+| 2-A: LaunchedEffect でのラップ | ❌ FAIL | onCompleted() がコンポーザブル本体で直接呼ばれている |
+| 2-B: キーの妥当性 | ✅ PASS | - |
+
 ### 総合判定
 ❌ FAIL（1件以上の FAIL あり）
 
@@ -169,6 +230,8 @@ if (listIsSearchResultVisible) {
 - LazyColumn の構造（`item {}` / `items()` の数・順序）が変更された場合、
   必ず CHECK-1-C のオフセット値を再計算してレポートすること。
 - `isSearchResultVisible` の条件分岐が変わった場合も CHECK-1-F を重点確認すること。
+- `RunStatus<T>` を購読して `Success` 時に `onCompleted` 等のナビゲーション系コールバックを
+  呼ぶ画面を新規追加・変更した場合、必ず CHECK-2 を実行すること（`*Screen.kt` 全般が対象）。
 - チェックリストは今後の新たなデグレ事例に応じて追加していく。
 
 **Update your agent memory** as you discover new regression patterns in this project.

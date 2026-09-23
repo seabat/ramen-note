@@ -284,6 +284,7 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 | チェック ID | 対象機能 | 主な確認内容 |
 |------------|---------|------------|
 | CHECK-1 | HistoryScreen 自動スクロール | `LaunchedEffect` のキーが `reportId` のみか／全件待機ループの有無／LazyColumn の item オフセット値／インデックス増分順序（increment-then-check）／`clearReportIdParam()` の呼び出しタイミング |
+| CHECK-2 | RunStatus.Success 完了コールバックの LaunchedEffect ラップ | onCompleted 等のナビゲーション系コールバックが RunStatus.Success 分岐で LaunchedEffect(state) { onCompleted() } の形で呼ばれているか（LaunchedEffect なしで直接呼ぶと popBackStack() が二重実行されタブ誤遷移・空白画面につながる） |
 
 > **チェック項目の追加方法**: `.claude/agents/regression-reviewer.md` に `CHECK-N` セクションを追記する。新たなデグレが発生した際は根本原因・検出方法・修正方針を記録し、次回以降の自動チェックに組み込む。
 
@@ -295,7 +296,7 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 |--------------------------|-----------------------------------------------------------------------------------------------|
 | `Edit` / `Write` 前      | `local.properties`・`google-services.json`・`.env` への変更をブロック |
 | `Bash` 前（危険コマンド）| `push --force`・`reset --hard`・`clean -fd`・`rm -rf /` をブロック                           |
-| `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント・スキル起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater スキル／`*Screen.kt` → ui-ux-designer エージェント／`LazyColumn` を含む `*Screen.kt` → regression-reviewer エージェントも） |
+| `Edit` / `Write` 後      | 変更ファイルに応じてサブエージェント・スキル起動を促すリマインダを表示（`.claude/` 配下 または `build.gradle.kts` → readme-updater スキル／`*Screen.kt` → ui-ux-designer エージェント／LazyColumn を含む、または onCompleted コールバックを持つ `*Screen.kt` → regression-reviewer エージェントも） |
 | 応答完了時（Stop）       | macOS 通知で「応答が必要です」を表示                                                          |
 
 これとは別に、`git commit` 実行時には git 標準の pre-commit フックが ktlint 整形と
