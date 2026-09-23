@@ -96,30 +96,24 @@ ramen-note/
 
 ### Git Hooks の設定
 
-commit 前に ktlint 整形と `.claude/rules/` のコーディング規約準拠レビューを自動で行う pre-commit
-フックを `.githooks/` に用意しています。クローン後に一度だけ以下を実行して有効化してください。
+**クローン後に一度だけ以下を実行して有効化してください**（事前に Claude Code CLI の `claude` コマンドと `jq` が PATH に通っている必要があります）。
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-1. **ktlint 整形**: ステージされた変更に `*.kt` が含まれる場合のみ `ktlintFormat` を実行します。
-   整形によってファイルが変化した場合は、その変更を再ステージした上で **commit を中止**します
-   （レビューは実行しません）。差分を確認して再度 `git commit` してください
-   （2回目は整形差分が出ないためそのまま次のレビュー段階に進みます）
-2. **rules-reviewer レビュー**: 整形で変化がなかった場合、ステージされた変更に `rules-reviewer`
-   スキル（`coding-conventions` / `di-koin` / `navgraph-preview` / `platform-specific` /
-   `ai-implementation` / `secrets`）の対象ファイルが含まれるときのみ、Claude Code をヘッドレス実行
-   してレビューし、**FAIL が1件でもあれば commit を中止**します
-
-- レビュー自体が実行できなかった場合（ネットワーク障害・認証エラー等）も安全側に倒して commit を中止します
-- Claude Code CLI（`claude` コマンド）と `jq` が PATH に通っている必要があります。現在ログイン中の
-  セッション（サブスクリプション）を使って `claude -p` でレビューを実行します
-- 緊急時に全体を飛ばす場合は `git commit --no-verify` を使用してください
+**仕組み**: `git commit` のたびに `.githooks/pre-commit` が自動実行され、ktlint 整形と
+`rules-reviewer` によるコーディング規約準拠レビューを行います。ステージに `*.kt` が含まれる場合は
+まず整形し、差分が出れば再ステージした上で commit を中止します（差分がなければそのままレビューへ
+進みます）。レビューは `rules-reviewer` の対象ファイル（`coding-conventions` / `di-koin` /
+`navgraph-preview` / `platform-specific` / `ai-implementation` / `secrets`）が含まれる場合のみ、
+現在ログイン中のセッションで `claude -p` を実行して行い、FAIL があれば commit を中止します
+（レビュー自体が実行できなかった場合も安全側に倒して中止）。緊急時に全体を飛ばす場合は
+`git commit --no-verify` を使用してください。
 
 ### Unsplash API の設定
 
-エリアの画像を表示するために Unsplash API を使用しています。ビルド前に以下の手順で Access Key を設定してください。
+**ビルド前に以下を設定してください。**
 
 1. [Unsplash Developers](https://unsplash.com/developers) でアプリケーションを登録し、Access Key を取得
 2. プロジェクトルートの `local.properties` に以下を追加
@@ -128,13 +122,15 @@ git config core.hooksPath .githooks
 UNSPLASH_ACCESS_KEY=取得した Access Key
 ```
 
-ビルド時に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.kt` を自動生成します。アプリコードは `BuildSecrets.UNSPLASH_ACCESS_KEY` 経由で参照します。
+**仕組み**: ビルド時に Gradle が `local.properties` から値を読み込み、commonMain 向けに
+`BuildSecrets.kt` を自動生成します。アプリコードは `BuildSecrets.UNSPLASH_ACCESS_KEY` 経由で参照します
+（エリア画像の表示に使用）。
 
 **注意**: Access Key を設定せずにビルドすると、エリア画像の取得が正常に動作しません。
 
 ### Google Maps API の設定
 
-エリア内の店舗位置を地図上に表示する ShopsLocationScreen で、Google Maps SDK（Android の地図表示）と Geocoding API（住所→座標変換、Android/iOS 共通で Ktor 経由）を使用しています。ビルド前に以下の手順で API キーを設定してください。
+**ビルド前に以下を設定してください。**
 
 1. Google Cloud Console で対象プロジェクトの「Maps SDK for Android」「Geocoding API」を有効化し、API キーを発行
 2. プロジェクトルートの `local.properties` に以下を追加
@@ -143,50 +139,39 @@ UNSPLASH_ACCESS_KEY=取得した Access Key
 GOOGLE_MAPS_API_KEY=取得した API キー
 ```
 
-ビルド時に、Unsplash と同様に Gradle が `local.properties` から値を読み込み、commonMain 向けに `BuildSecrets.GOOGLE_MAPS_API_KEY` を自動生成するほか、Android の `AndroidManifest.xml` にも `manifestPlaceholders` 経由で埋め込まれます。
+**仕組み**: Unsplash と同様に、ビルド時に Gradle が `local.properties` から値を読み込み、commonMain
+向けに `BuildSecrets.GOOGLE_MAPS_API_KEY` を自動生成するほか、Android の `AndroidManifest.xml` にも
+`manifestPlaceholders` 経由で埋め込まれます（店舗位置の地図表示・住所→座標変換に使用）。
 
 **注意**: API キーを設定せずにビルドすると、店舗位置マップ機能が動作しません。
 
 ### Firebase App Check の設定
 
-Firebase App Check によって不正クライアントからの API アクセスを防いでいます。詳細は [`docs/firebase-api-security.md`](./docs/firebase-api-security.md) を参照してください。
+デバッグビルドを実機/エミュレータで動かす場合、**以下の手順でデバッグトークンを登録してください。**
 
-| プラットフォーム | 本番ビルド | デバッグビルド |
-|----------------|-----------|--------------|
-| Android | Play Integrity | Debug プロバイダー |
-| iOS | DeviceCheck | Debug プロバイダー |
+1. アプリを起動し、デバッグトークンを確認する（Android は logcat、iOS は Xcode コンソールに出力される）
+2. Firebase コンソール → App Check → デバッグトークン に登録する（デバイスごとに別トークン）
+
+**仕組み**: Firebase App Check が不正クライアントからの API アクセスを防いでおり（本番ビルドは
+Android: Play Integrity・iOS: DeviceCheck、デバッグビルドは両OSともDebugプロバイダー）、
+ENFORCED（強制）で有効化されているため、上記の登録なしにはデバッグビルドから保護対象 API を
+呼び出せません。詳細は [`docs/firebase-api-security.md`](./docs/firebase-api-security.md) を参照してください。
 
 ### Firebase AI Logic（Gemini）の設定
 
-店舗情報の自動生成（店を追加する際に、エリア名と店名から Web サイト・最寄り駅・カテゴリ・
-紹介文を AI が生成）に **Firebase AI Logic** を利用しています。
+店舗情報の自動生成（エリア名と店名から Web サイト・最寄り駅・カテゴリ・紹介文を AI が生成）に
+**Firebase AI Logic** を利用しています。**追加のローカル設定は不要です**（上記の Firebase App Check
+のデバッグトークン登録が済んでいれば動作します）。
 
-| 項目 | 内容 |
-|------|------|
-| バックエンド | Vertex AI / Agent Platform（`GenerativeBackend.agentPlatform(location = "global")`） |
-| モデル | `gemini-3.1-flash-lite` |
-| 課金 | Vertex AI（`aiplatform.googleapis.com`）の従量課金。Agent Platform の利用分を含む |
-| 請求先 | Firebase（Blaze プラン）に紐づく Cloud Billing アカウント。プロジェクト × サービス単位で利用額上限を設定済み |
-| 実装 | `sharedLogic` の `ShopAiDataSource`（androidMain）/ `FetchAiShopInfoUseCase` |
+**仕組み**: バックエンドは Vertex AI / Agent Platform（`GenerativeBackend.agentPlatform(location = "global")`）、
+モデルは `gemini-3.1-flash-lite`、実装は `sharedLogic` の `ShopAiDataSource`（androidMain）/
+`FetchAiShopInfoUseCase` です。課金は Vertex AI の従量課金（Firebase Blaze プランに紐づく Cloud
+Billing、利用額上限設定済み）。コスト削減のため思考トークンの無効化・出力トークン上限・Room
+キャッシュ（同一 (エリア, 店名) は再生成時に API を叩かない）を実施しています。
 
-コスト削減のため、以下を実施しています（詳細は下記ドキュメント参照）。
-
-- **思考トークンの無効化**（`thinkingBudget = 0`）… 単純な抽出・分類タスクのため
-- **出力トークン上限**（`maxOutputTokens = 512`）
-- **Room キャッシュ**（`shop_ai_cache` テーブル）… 同一 (エリア, 店名) は再生成時に API を叩かない
-
-**前提**: App Check が有効（ENFORCED）のため、デバッグビルドを実機/エミュで動かす場合は、
-起動時に logcat へ出力されるデバッグトークンを Firebase コンソール（App Check → デバッグトークン）に
-登録する必要があります。
-
-> ℹ️ `GenerativeBackend.vertexAI()` は firebase-ai 17.16.0（firebase-bom 34.18.0）で deprecated と
-> なったため、後継の `agentPlatform()` に移行しました。リクエスト先のホスト・パスは従来と同一で、
-> Firebase / Google Cloud のコンソール設定（AI Logic・App Check・利用額上限）の変更は不要です。
-> 詳細は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照。
-
-> 💡 料金体系・コスト管理の方針・実施記録は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md)、
-> バックエンド API の移行記録は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md) を参照してください。
-> AI 実装のコーディングルールは [`.claude/rules/ai-implementation.md`](./.claude/rules/ai-implementation.md) にまとめています。
+> 💡 料金体系・コスト管理の方針は [`docs/vertex-ai-cost-management.md`](./docs/vertex-ai-cost-management.md)、
+> バックエンド API の移行経緯は [`docs/firebase-ai-backend-migration.md`](./docs/firebase-ai-backend-migration.md)、
+> AI 実装のコーディングルールは [`.claude/rules/ai-implementation.md`](./.claude/rules/ai-implementation.md) を参照してください。
 
 ### ビルドと実行
 
