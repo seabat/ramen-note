@@ -28,5 +28,7 @@ captures
 node_modules/
 
 # Claude Code
-# .claude/: settings.local.json（個人ローカル設定）以外はすべて追跡する
+# .claude/: settings.local.json（個人ローカル設定）・リグレッションテストの証跡スクリーンショット
+# 以外はすべて追跡する
 .claude/settings.local.json
+.claude/skills/regression-test-runner/screenshots/
