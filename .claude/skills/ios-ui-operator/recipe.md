@@ -30,10 +30,14 @@ xcrun simctl list devices booted                # 起動中デバイスの UDID 
 ```bash
 cd /path/to/ramen-note
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
-  -destination 'platform=iOS Simulator,name=iPhone 17' build
+  -destination 'platform=iOS Simulator,name=iPhone 17' build \
+  2>&1 | tee /tmp/ios_build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+# ↑ xcodebuild の生ログは非常に冗長（同じ -F フラグ等が何十行も続く）なのでコンテキストに直接読み込まない。
+#   ログファイルに保存しつつ要点だけ grep で見る。BUILD SUCCEEDED が出なければ /tmp/ios_build.log を確認する
 
-# ビルド成果物のパスは DerivedData 配下。毎回変わるので都度 find で確認する
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/iosApp-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app")
+# ビルド成果物のパスは DerivedData 配下。毎回変わるので都度 find で確認する。
+# "iosApp-*" は複数の DerivedData ディレクトリにマッチしうるため "RamenNote.app" まで指定して一意にする
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/iosApp-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "RamenNote.app")
 xcrun simctl install "iPhone 17" "$APP_PATH"
 xcrun simctl launch "iPhone 17" dev.seabat.ramennote
 ```
@@ -128,6 +132,9 @@ xcrun simctl launch "iPhone 17" dev.seabat.ramennote
    - iOS では Unsplash 画像取得は問題なく成功する（Android の開発環境で見られたエラーダイアログは発生しなかった。2026-09-19 時点確認）
 2. **編集**: エリアカードを長押し → エリア名変更 / 画像変更 / 削除
 3. **並び替え**: 「並び替え」ボタン → 各エリアの表示順を数値で指定 → 「変更する」
+   - ⚠️ 数値フィールドをタップしてキーボードで直接入力すると、ソフトウェアキーボードが下部の
+     「変更する」ボタンを隠して押せなくなることがある（クセ3参照）。各行に併設された
+     「+」「−」ステッパーボタンを使えばキーボードを開かずに値を変更できるため、これを推奨する
 4. **削除**: 編集画面の「削除する」→ 確認ダイアログ「はい」
 
 ### 店舗 CRUD（ノート → エリアカード本体タップ → エリア店舗一覧）

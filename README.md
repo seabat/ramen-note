@@ -245,6 +245,7 @@ Claude Code のカスタムスキルを `.claude/skills/` に定義していま�
 | `/ios-ui-operator`          | ramen-note の iOS アプリをシミュレータ・実機で操作し、動作確認や実装後の結合テストを行う。ビルド手順・画面遷移マップ・機能別の動作確認レシピは `recipe.md` に記載。UI 階層取得・タップ・テキスト入力は Maestro MCP（`maestro mcp`）経由で実行する（詳細は後述） |
 | `/readme-updater`           | ramen-note の README.md をプロジェクトの実態と同期させる。エージェント・スキル・Hooks・技術スタックのいずれかが変更されたとき、またはユーザーが明示的に依頼したときに実行する |
 | `/regression-reviewer`      | 過去に発生したデグレの再発防止チェックリスト（HistoryScreen.kt 自動スクロール、RunStatus.Success 完了コールバックの LaunchedEffect ラップ）に現在の差分が抵触していないかレビューする。指摘・修正案の提示のみ行い、修正自体はユーザー承認後に別途実施する。`git commit` 時に対象ファイルがあれば pre-commit フックから自動実行される（詳細は後述） |
+| `/regression-test-runner`   | ramen-note のリグレッションテストを Android・iOS の実機/シミュレータ上で実際に操作して実行する。同ディレクトリの `test-case.md` に定義したテストケースを現在のコードと照合して自動で追加・更新した上で、`/android-ui-operator` / `/ios-ui-operator` を呼び出して検証し、結果（PASS/FAIL/SKIP）を記録する。実機操作を伴う重い処理のため手動呼び出し専用（`disable-model-invocation: true`） |
 | `/release-prep`             | リリース前の準備作業。現在ブランチと main のバージョン比較・確認 → 前回リリース差分の把握 → ストア向けリリースノートの作成・保存。バージョンの更新自体は `/version-increment` に委譲する |
 | `/rules-reviewer`           | `.claude/rules/` のコーディング規約（coding-conventions / di-koin / navgraph-preview / platform-specific / ai-implementation / secrets）に現在の差分が準拠しているかレビューする。指摘・修正案の提示のみ行い、修正自体はユーザー承認後に別途実施する |
 | `/version-increment`        | Android・iOS のアプリバージョンを同じ値に更新してコミットする。`androidApp/build.gradle.kts` の `versionCode` / `versionName` と `project.pbxproj` の `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`（Debug・Release）を書き換える。引数なしならマイナー +1 案を提示。push・PR は行わない |
