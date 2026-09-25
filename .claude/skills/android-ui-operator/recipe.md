@@ -13,7 +13,8 @@ UI 要素の特定・操作は `text` または `content-desc` を手がかり�
 
 ```bash
 adb devices                              # エミュレータ/実機が接続されているか確認
-./gradlew :androidApp:installDebug       # デバッグビルドしてインストール（差分があれば再ビルド、既存データは保持される）
+./gradlew :androidApp:installDebug 2>&1 | tee /tmp/android_install.log | grep -E "BUILD (SUCCESSFUL|FAILED)|FAILURE|error:" || true
+# ↑ 生ログはコンテキストに直接読み込まず、失敗時のみ /tmp/android_install.log を確認する
 adb shell monkey -p dev.seabat.ramennote -c android.intent.category.LAUNCHER 1   # アプリを起動
 ```
 

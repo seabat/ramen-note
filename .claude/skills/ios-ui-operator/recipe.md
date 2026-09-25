@@ -30,10 +30,14 @@ xcrun simctl list devices booted                # 起動中デバイスの UDID 
 ```bash
 cd /path/to/ramen-note
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
-  -destination 'platform=iOS Simulator,name=iPhone 17' build
+  -destination 'platform=iOS Simulator,name=iPhone 17' build \
+  2>&1 | tee /tmp/ios_build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+# ↑ xcodebuild の生ログは非常に冗長（同じ -F フラグ等が何十行も続く）なのでコンテキストに直接読み込まない。
+#   ログファイルに保存しつつ要点だけ grep で見る。BUILD SUCCEEDED が出なければ /tmp/ios_build.log を確認する
 
-# ビルド成果物のパスは DerivedData 配下。毎回変わるので都度 find で確認する
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/iosApp-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app")
+# ビルド成果物のパスは DerivedData 配下。毎回変わるので都度 find で確認する。
+# "iosApp-*" は複数の DerivedData ディレクトリにマッチしうるため "RamenNote.app" まで指定して一意にする
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/iosApp-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "RamenNote.app")
 xcrun simctl install "iPhone 17" "$APP_PATH"
 xcrun simctl launch "iPhone 17" dev.seabat.ramennote
 ```

@@ -2,7 +2,7 @@
 name: regression-test-runner
 description: ramen-note のリグレッションテストを Android / iOS の実機・シミュレータ上で実際に操作して実行する。test-case.md のテストケースを現在のコードと照合して自動で追加・更新した上で、android-ui-operator / ios-ui-operator を呼び出して検証し、結果を記録する。
 disable-model-invocation: true
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill, Agent
 ---
 
 # リグレッションテスト実行
@@ -12,6 +12,13 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill
 
 このスキルは**手動呼び出し専用**（`disable-model-invocation: true`）。実機/シミュレータ操作を
 伴う重い処理のため、他の変更をトリガーに自動起動することはない。
+
+**トークン節約（全ケース実行時）**: 引数なし・複数No.指定などで実行件数が多い場合、UI階層ダンプや
+ビルドログで手元の会話コンテキストが肥大化しやすい。Android・iOS それぞれを `Agent` ツール
+（`subagent_type: "fork"`）でバックグラウンド実行し、各フォークには本ファイルと `test-case.md` の
+該当プラットフォーム表の内容、対象デバイス、実行順序（前提条件の依存関係を考慮した順）を明示した上で、
+`test-case.md` 自体は編集させず結果の要約のみを返させる。呼び出し元は両フォークの結果を受け取ってから
+`test-case.md` に反映する。単一ケースの再実行など軽量な場合はこの限りではなく、直接実行してよい。
 
 ---
 
@@ -57,11 +64,15 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill
 対象プラットフォームごとに、実行前に必ずアプリをビルド・インストール・起動する
 （`android-ui-operator` / `ios-ui-operator` の操作ループに入る前に完了させておく）。
 
+**トークン節約**: `./gradlew` / `xcodebuild` はどちらも成功時・失敗時ともに大量の冗長なログを出す。
+生ログをそのままコンテキストに読み込まず、必ずログファイルに保存した上で要点だけを `grep` で抽出する
+（失敗時のみログファイル該当箇所を読みに行く）。
+
 ### Android
 
 ```bash
 adb devices
-./gradlew :androidApp:installDebug
+./gradlew :androidApp:installDebug 2>&1 | tee /tmp/android_install.log | grep -E "BUILD (SUCCESSFUL|FAILED)|FAILURE|error:" || true
 adb shell monkey -p dev.seabat.ramennote -c android.intent.category.LAUNCHER 1
 ```
 
@@ -75,8 +86,12 @@ osascript -e 'tell application "Simulator" to activate' \
   -e 'tell application "System Events" to tell process "Simulator" to perform action "AXRaise" of (first window whose name contains "iPhone 17")'
 
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
-  -destination 'platform=iOS Simulator,name=iPhone 17' build
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/iosApp-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app")
+  -destination 'platform=iOS Simulator,name=iPhone 17' build \
+  2>&1 | tee /tmp/ios_build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+# ↑ BUILD SUCCEEDED が出なければ /tmp/ios_build.log を tail -80 等で確認する
+
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/iosApp-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "RamenNote.app")
+# ↑ 複数の DerivedData ディレクトリが "iosApp-*" にマッチしうるため "RamenNote.app" まで指定して一意にする
 xcrun simctl install "iPhone 17" "$APP_PATH"
 xcrun simctl launch "iPhone 17" dev.seabat.ramennote
 ```
