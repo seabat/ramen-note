@@ -242,7 +242,9 @@ private fun EditAreasStatus(
 ) {
     when (status) {
         is RunStatus.Success -> {
-            onCompleted()
+            LaunchedEffect(status) {
+                onCompleted()
+            }
         }
         is RunStatus.Error -> {
             AppAlert(

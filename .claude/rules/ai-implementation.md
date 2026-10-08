@@ -57,8 +57,27 @@
 - App Check は ENFORCED。**デバッグビルドを実機/エミュで動かす場合**は、起動時に logcat へ
   出力されるデバッグトークンを Firebase コンソール（App Check → デバッグトークン）に登録しないと
   AI 呼び出しがブロックされる。デバイスごとに別トークン。
+- ⚠️ **「リプレイ保護」は有効化しないこと**（Firebase Console → App Check → API → Firebase AI Logic）。
+  App Check トークンは通常 SDK 側で TTL（数十分〜1時間程度）の間キャッシュされ、複数回の API 呼び出しで
+  使い回される。リプレイ保護（トークンを1回しか使えなくする機能）を有効にすると、この通常のキャッシュ
+  挙動と衝突し、2回目以降の呼び出しがすべて「再利用されたトークン」として拒否される
+  （エラーメッセージは `Firebase App Check token is invalid.` で、原因が分かりにくい）。
+  リプレイ保護を使うには、各リクエストごとに使い捨てトークンを取得するようアプリ側を作り込む必要があり、
+  本実装ではその対応をしていない。2026-09-24 に誤って有効化され、ストア配布のリリースビルドを含む
+  全クライアントで AI 呼び出しの大半（実測 77%）が失敗する障害を引き起こした（該当インシデントは
+  `.claude/skills/regression-test-runner/test-case.md` の Android No.5 参照）。「基本」保護（適用）は
+  有効のままでよい。
 
 ## 変更時の同期
 
 - モデル・ロケーション・スキーマを変更したら、iOS 側の実装（Swift）にも同等の変更が必要か確認する
   （`.claude/rules/platform-specific.md`）。
+- ⚠️ **2026-09-25 時点、iOS の Firebase AI (Swift) SDK には `agentPlatform()` に相当する API がまだ無い**
+  （`Backend.swift` は `vertexAI(location:)` と `googleAI()` のみ）。そのため iOS 側
+  （`IosShopAiDataSource.swift`）は `FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))` を
+  使う（`vertexAI()` のまま、ロケーションだけ Android と同じ `"global"` を指定）。モデル名・
+  `thinkingConfig`・`maxOutputTokens` は Android と揃えること。SDK アップデートで `agentPlatform`
+  相当の API が追加されたら移行を検討する。
+- 過去に iOS 側がモデル更新（gemini-2.5-flash → gemini-3.1-flash-lite 移行）に追従できておらず、
+  廃止直前のモデルを使い続けたことで `FirebaseAILogic.GenerateContentError` が発生した事例がある
+  （2026-09-25、`.claude/skills/regression-test-runner/test-case.md` iOS No.5 参照）。

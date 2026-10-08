@@ -1,7 +1,14 @@
 ---
-name: android-device-interactor
-description: Android 実機 / エミュレータを操作して動作確認を行う。UI レイアウトの取得、要素座標の特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb を使って実行する。
+name: android-ui-operator
+description: ramen-note の Android アプリを実機 / エミュレータで操作し、動作確認や実装後の結合テストを行う。UI レイアウトの取得、要素座標の特定、タップ・テキスト入力・スワイプ・キーイベント送出を Android CLI と adb を使って実行する。
 ---
+
+# ramen-note 固有の情報
+
+ビルド・起動手順、画面遷移マップ、機能別の動作確認レシピは `recipe.md` を参照してください。
+新しい機能を追加したり既存機能を改修した場合は、確認後に `recipe.md` を更新してください。
+
+以下は Android CLI / adb の汎用的な操作基準です（ramen-note 固有ではありません）。
 
 # ツール
 `android layout --help` および `android screen --help` を実行して詳細を確認してください。
@@ -23,6 +30,11 @@ description: Android 実機 / エミュレータを操作して動作確認を�
 Android アプリの動作確認の主な手段として `layout` を使用してください。変化点の把握やコンテキストを小さく保つには `layout --diff` を使用してください。
 例：電卓に数字を入力するとき、`layout --diff` を使うと数字表示の要素のみ出力されます。
 
+**トークン節約のため、同じ画面に対する2回目以降の確認は必ず `layout --diff` を使ってください**（初回のフル
+ダンプのみ通常の `layout` でよい）。新しい画面に遷移した直後は改めてフルダンプを1回取得してから、以降は
+再び `--diff` に戻します。特定のテキストや要素を探しているだけの場合は、フルダンプの出力を
+`| grep -i "<キーワード>"` で絞り込んでから読むことで、コンテキストに読み込む量を最小化してください。
+
 WebView やアニメーションが表示されている場合、`layout` が失敗することがあります。その場合は `android screen --annotate` を使用してください。
 現在の画面から別の画面へ移動したら、この問題は解消される可能性があります。
 
@@ -35,11 +47,14 @@ Android アプリの動作確認の補助的な手段として `screen capture` 
 - `WebView` を確認したい場合（Web コンテンツは UI ダンプに表示されないことがあります）
 - UI 要素を見た目から探したい場合
 
+**画像1枚あたりのトークンコストは高いため、上記のように `layout` だけでは判断できない場合に限って使用し、
+単なる動作確認の記録目的では多用しないでください**（デグレテスト等で FAIL の証跡として保存する場合を除く）。
+
 **重要**：`android screen` から返された PNG 画像は、他の操作をする前に必ず*目視で*確認してください。
 
 ## アノテーション付きスクリーンショット
 `android screen capture --annotate -o <ファイルパス>`
-`android screen resolve --screen <パス> --string <文字列>`
+`android screen resolve --screenshot <パス> --string <文字列>`
 
 `--annotate` コマンドは UI 要素の周囲に数字ラベルとバウンディングボックスを追加します。`layout` の出力から特定できない UI 要素を見つけるために使用してください。
 
@@ -47,11 +62,11 @@ Android アプリの動作確認の補助的な手段として `screen capture` 
 
 入力コマンドでこれらのラベルを参照するには、`screen resolve` を使ってラベルを座標に変換してください：
 
-`android screen resolve --screen <ファイルパス> --string "#3"` は `<region 3 の x 座標> <region 3 の y 座標>` を返します。
+`android screen resolve --screenshot <ファイルパス> --string "#3"` は `<region 3 の x 座標> <region 3 の y 座標>` を返します。
 
 ターン数を節約するため、シェルコマンドを組み合わせて使えます：
 
-`adb shell input $(android screen resolve --screen screen.png --string "tap #34")`
+`adb shell input $(android screen resolve --screenshot screen.png --string "tap #34")`
 
 このコマンドは `screen.png` の #34 の領域をタップします。
 
@@ -80,6 +95,9 @@ UI 要素は `center` 座標または `bounds` 座標を使って操作してく
 このリストを下にスクロールするには `adb shell input swipe 250 400 600 500` を実行します。中心から下方向へ 500ms かけてスワイプします。
 
 # Android 操作ルール
+0. **トークン節約のため、結果を確認する必要がない連続した操作は1回の Bash 呼び出しにまとめてください**
+   （例: `adb shell input tap ... && sleep 1 && adb shell input text "..."`）。各操作後に必ず画面確認が
+   必要な場合（フォーカス確認、AI呼び出し結果の確認等）はこの限りではなく、素直に分けてください。
 1. テキスト入力フィールドに文字を入力する前に、必ず `"state"` リストに `"focused"` が含まれていることを確認してください
 2. 要素の `"interactions"` リストに `"scrollable"` が含まれている場合、見つからない UI 要素を探すためにスクロールを試みてください
 3. スクロール操作は常にゆっくり実行してください。`adb shell input swipe` の第5引数でスクロール時間を制御できます

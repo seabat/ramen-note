@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -128,7 +129,9 @@ fun AddStatus(
 ) {
     when (addStatus) {
         is RunStatus.Success -> {
-            onCompleted()
+            LaunchedEffect(addStatus) {
+                onCompleted()
+            }
         }
         is RunStatus.Error -> {
             AppAlert(
